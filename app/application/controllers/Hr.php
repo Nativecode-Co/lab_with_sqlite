@@ -1,0 +1,148 @@
+<?php
+defined('BASEPATH') OR exit('No direct script access allowed'); 
+
+class Hr extends CI_Controller { 
+
+    function __construct() 
+    { 
+        parent::__construct(); 
+        $this->load->helper('url'); 
+        $this->load->library('session'); 
+        $this->load->model('Menu_db');
+        $this->load->library('pagination');
+
+
+       $this->name = $this->session->userdata('name');
+       $this->id = $this->session->userdata('id');
+       $this->idhash = $this->session->userdata('idhash');
+        if($this->name=="")
+        {
+            redirect('Login/logout');
+        }
+ 
+     } 
+      
+     
+	public function index()
+	{
+
+    }
+   
+  
+   
+   
+    ////////////////////////////////////////////////////////////////////////user
+    
+
+
+    public function update_user()
+    {
+        $name=$this->input->post("name");
+        $uname=$this->input->post("username");
+        $password=$this->input->post("password");
+
+        if($name!=""&&$uname!=""&&$password!="")
+        {
+          
+                $user_info=array("name"=>$name,"username"=>$uname,"password"=>$password,"idhash"=>$this->idhash);
+                $this->Menu_db->update_user_info($user_info);
+           
+           
+           echo json_encode(array("result"=>"1"), JSON_UNESCAPED_UNICODE);
+        }
+       
+    }
+
+
+
+
+    public function dashborad()
+    {
+     
+     die("is run");
+         
+    }
+
+    public function get_information($employ_hash)
+    {
+        if($employ_hash!="")
+        {
+            $res=$this->Menu_db->get_emp_details($employ_hash);
+        
+        echo json_encode($res, JSON_UNESCAPED_UNICODE);
+        }
+    }
+    public function check_user_mobile()
+    {
+        $username=$this->input->post("username");
+        $password=$this->input->post("password");
+       // echo $username." ".$password;
+        $array_info=array("uname"=>$username,"password"=>$password);
+        $res=$this->Menu_db->check_emp_info($array_info);
+        echo json_encode($res, JSON_UNESCAPED_UNICODE);
+    }
+    
+    
+    public function send_vacation()
+    {
+        $dur=$this->input->post("dur");
+        $date=$this->input->post("date");
+        $date_end=$this->input->post("date_end");
+        $note=$this->input->post("note");
+        $idhash=$this->idhash;
+        $arr=array("dur"=>$dur,"date"=>$date,"date_end"=>$date_end,"note"=>$note,"idhash"=>$idhash,"eid"=>$this->id);
+        $res=$this->Menu_db->send_vacation($arr);
+        echo json_encode($res, JSON_UNESCAPED_UNICODE);
+    }
+    
+    
+    public function update_task()
+    {
+        $status=$this->input->post("status");
+        $idhash=$this->input->post("idhash");
+       
+        $arr=array("status"=>$status,"idhash"=>$idhash);
+        $res=$this->Menu_db->update_task($arr);
+        echo json_encode($res, JSON_UNESCAPED_UNICODE);
+    }
+    
+    public function get_task()
+    {
+      //$eid=$this->input->post("eid"); 
+      $eid=$this->id;
+      $arr=array("eid"=>$eid);
+      $res=$this->Menu_db->get_task($arr);
+      echo json_encode($res, JSON_UNESCAPED_UNICODE);
+    }
+    public function get_attend_type()
+    {
+      $res=$this->Menu_db->get_attend_type($arr);
+      echo json_encode($res, JSON_UNESCAPED_UNICODE);
+    }
+    
+    public function set_attend()
+    {
+       // $eid=$this->input->post("eid");
+        $attend_type=$this->input->post("attend_type");
+        $date_attend=$this->input->post("date_attend");
+        $latitude=$this->input->post("latitude");
+        $longitude=$this->input->post("longitude");
+        $note=$this->input->post("note");
+        
+        $arr=array("eid"=>$this->id,"attend_type"=>$attend_type,"date_attend"=>$date_attend,"latitude"=>$latitude,"longitude"=>$longitude,"note"=>$note);
+       
+        $res=$this->Menu_db->set_attend($arr);
+        echo json_encode($res, JSON_UNESCAPED_UNICODE);
+    }
+    
+    public function get_folder()
+    {
+      $eid=$this->id; 
+      $res=$this->Menu_db->get_folder($eid);
+      echo json_encode($res, JSON_UNESCAPED_UNICODE);
+    }
+
+
+
+     
+}

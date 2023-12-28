@@ -1,0 +1,303 @@
+<script>
+    function sidebarCollapse() {
+        $('body').toggleClass("topbar-closed");
+        $('body').toggleClass("sbar-open");
+        $('.overlay').toggleClass('show');
+        $('html,body').toggleClass('sidebar-noneoverflow');
+    };
+</script>
+
+<!--  BEGIN NAVBAR  -->
+<header class="header navbar navbar-expand-sm">
+
+    <a type="button" class="sidebarCollapse" onclick="sidebarCollapse()" data-placement="bottom"><svg
+            xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+            class="feather feather-menu">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg></a>
+
+    <div class="nav-logo align-self-center">
+        <a class="navbar-brand" href="profile.html"><img alt="logo" src="assets/image/flask.png" class="navbar-logo">
+            <span class="navbar-brand-name">Nativecode</span></a>
+    </div>
+
+    <ul class="navbar-item topbar-navigation">
+
+        <!--  BEGIN TOPBAR  -->
+        <div class="topbar-nav header navbar" role="banner">
+            <nav id="topbar">
+                <ul class="navbar-nav theme-brand flex-row  text-center">
+                    <li class="nav-item theme-logo">
+                        <a href="profile.html">
+                            <img src="assets/image/90x90.png" class="navbar-logo" alt="logo">
+                        </a>
+                    </li>
+                    <li class="nav-item theme-text">
+                        <a href="profile.html" class="nav-link"> Nativecode </a>
+                    </li>
+                </ul>
+
+                <ul class="list-unstyled menu-categories" id="topAccordion">
+
+
+                </ul>
+            </nav>
+        </div>
+        <!--  END TOPBAR  -->
+
+    </ul>
+
+    <ul class="navbar-item flex-row nav-dropdowns ml-auto">
+
+        <li class="nav-item user-profile-dropdown order-lg-0 order-1">
+            <a href="" class="nav-link dropdown-toggle user logout" id="user-profile-dropdown">
+                <div class="media">
+                    <i class="fas fa-sign-out-alt text-primary"></i>
+                    <p
+                        style="padding-right: 14px;font-family: 'Cairo';font-size: 14px;font-weight: 600;margin-bottom: 1px;">
+                        تسجيل خروج</p>
+                </div>
+            </a>
+
+        </li>
+    </ul>
+</header>
+<script>
+    run(`select name from system_users where id='1111111';`);
+    if ($(window).width() < 2100) {
+        document.body.style.zoom = $(window).width() / 2100;
+    }
+    $(".navbar-brand-name").text(localStorage.getItem("lab_name"));
+    // if(localStorage.getItem("logo") !== '' && localStorage.getItem("logo") !== 'null'){
+    //     $(".navbar-logo").attr("src", localStorage.getItem("logo"));
+    // }
+    const logout = document.querySelector(".logout");
+    // set href for logout
+    logout.href = `${front_url}login/login.html`;
+    const navBar = document.getElementById("topAccordion");
+    switch (localStorage.getItem("user_type")) {
+        case '2':
+            navBar.innerHTML = `
+            <li class="menu single-menu">
+                <a href="${front_url}index.html">
+                    <div class="">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-home"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                        <span>الرئيسية</span>
+                    </div>
+                </a>
+            </li>
+            <li class="menu single-menu">
+                <a href="${front_url}visits.html">
+                    <div class="">
+                        <i class="far fa-calendar-exclamation fa-lg mr-2"></i>
+                        <span>الزيارات</span>
+                    </div>
+                </a>
+            </li>
+            <li class="menu single-menu">
+                <a href="#report" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle autodroprown collapsed">
+                    <div class="">
+                        <i class="far fa-chart-pie-alt fa-lg mr-2"></i>                                
+                        <span>التقارير</span>
+                    </div>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-down"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </a>
+                <ul class="submenu list-unstyled animated fadeInUp collapse" id="report" data-parent="#topAccordion" style="">
+                    <li>
+                        <a href="${front_url}patient.html">
+                    <div class="">
+                        <i class="far fa-user-injured fa-lg mr-2"></i>
+                        <span>سجل المرضى</span>
+                    </div>
+                </a>
+                    </li>
+                    <li>
+                        <a href="${front_url}visit.html">
+                    <div class="">
+                        <i class="far fa-user-injured fa-lg mr-2"></i>
+                        <span>سجل الزيارات</span>
+                    </div>
+                </a>
+                    </li>
+                    <li>
+                        <a href="${front_url}today_incomes.html">
+                    <div class="">
+                        <i class="fas fa-chart-pie-alt fa-lg mr-2"></i>
+                        <span>التقارير المالية</span>
+                    </div>
+                </a>
+                </a>
+                    <!--</li>
+                    <li>
+                        <a href="${front_url}test_visits.html">
+                    <div class="">
+                        <i class="fas fa-chart-pie-alt fa-lg mr-2"></i>
+                        <span>تقرير التحاليل</span>
+                    </div>
+                </a>
+                    </li>-->
+
+                    <li>
+                        <a href="${front_url}test_visits2.html">
+                    <div class="">
+                        <i class="fas fa-chart-pie-alt fa-lg mr-2"></i>
+                        <span>تقرير التحاليل </span>
+                    </div>
+                </a>
+                    </li>
+
+                </ul>
+            </li>
+            <li class="menu single-menu">
+                <a href="${front_url}about-system.html">
+                    <div class="">
+                        <i class="far fa-cogs fa-lg mr-2"></i>
+                        <span>حول البرنامج</span>
+                    </div>
+                </a>
+            </li>
+            <li class="menu single-menu">
+                <a href="#setting" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle autodroprown collapsed">
+                    <div class="">
+                        <i class="far fa-cogs fa-lg mr-2"></i>                                
+                        <span>الاعدادات</span>
+                    </div>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-down"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </a>
+                <ul class="submenu list-unstyled animated fadeInUp collapse" id="setting" data-parent="#topAccordion" style="">
+                    <li>
+                        <a href="${front_url}package_test.html">التحاليل <i class="far fa-syringe"></i></a>
+                    </li>
+                    <li>
+                        <a href="${front_url}super_test.html">القيم الطبيعية <i class="fas fa-syringe"></i></a>
+                    </li>
+                    <li>
+                        <a href="${front_url}calc_test.html">التحاليل الحسابية <i class="fas fa-calculator"></i></a>
+                    </li>
+                    <li>
+                        <a href="${front_url}user.html">الموظفين <i class="far fa-users"></i></a>
+                    </li>
+                    <li>
+                        <a href="${front_url}doctor.html">الاطباء <i class="fas fa-user-md"></i></a>
+                    </li>
+                    <li>
+                        <a href="${front_url}worker.html">الاجازات <i class="fas fa-person-sign"></i></a>
+                    </li>
+                    <li>
+                        <a href="${front_url}invoice.html">الفورمة <i class="fas fa-file-alt"></i></a>
+                    </li>
+                    <li>
+                        <a href="${front_url}selectThemeForVisitTests.html">اعدادت الشكل<i class="fas fa-file-alt"></i></a>
+                    </li>
+                </ul>
+            </li>
+            `;
+            break;
+
+        default:
+            navBar.innerHTML = `
+            <li class="menu single-menu">
+                <a href="${front_url}index.html">
+                    <div class="">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-home"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                        <span>الرئيسية</span>
+                    </div>
+                </a>
+            </li>
+            <li class="menu single-menu">
+                <a href="${front_url}visits.html">
+                    <div class="">
+                        <i class="far fa-calendar-exclamation fa-lg mr-2"></i>
+                        <span>الزيارات</span>
+                    </div>
+                </a>
+            </li>
+            <li class="menu single-menu">
+                <a href="#report" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle autodroprown collapsed">
+                    <div class="">
+                        <i class="far fa-chart-pie-alt fa-lg mr-2"></i>                                
+                        <span>التقارير</span>
+                    </div>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-down"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </a>
+                <ul class="submenu list-unstyled animated fadeInUp collapse" id="report" data-parent="#topAccordion" style="">
+                    <li>
+                        <a href="${front_url}patient.html">
+                    <div class="">
+                        <i class="far fa-user-injured fa-lg mr-2"></i>
+                        <span>سجل المرضى</span>
+                    </div>
+                </a>
+                    </li>
+                    <li>
+                        <a href="${front_url}visit.html">
+                    <div class="">
+                        <i class="far fa-user-injured fa-lg mr-2"></i>
+                        <span>سجل الزيارات</span>
+                    </div>
+                </a>
+                    </li>
+
+                </ul>
+            </li>
+            <!--<li class="menu single-menu">
+                <a href="#setting" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle autodroprown collapsed">
+                    <div class="">
+                        <i class="far fa-cogs fa-lg mr-2"></i>                                
+                        <span>الاعدادات</span>
+                    </div>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-down"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </a>
+                <ul class="submenu list-unstyled animated fadeInUp collapse" id="setting" data-parent="#topAccordion" style="">
+                    <li>
+                        <a href="${front_url}package_test.html">التحاليل <i class="far fa-syringe"></i></a>
+                    </li>
+                    <li>
+                        <a href="${front_url}doctor.html">الاطباء <i class="fas fa-user-md"></i></a>
+                    </li>
+                    <li>
+                        <a href="${front_url}worker.html">الاجازات <i class="fas fa-person-sign"></i></a>
+                    </li>
+                    <li>
+                        <a href="${front_url}invoice.html">الفورمة <i class="fas fa-file-alt"></i></a>
+                    </li>
+                    <li>
+                        <a href="#" onclick="getAsyncData()">مزامنة <i class="fas fa-cloud-download"></i></a>
+                    </li>
+                    <li>
+                        <a href="#" onclick="updateSystem()">تحديث النظام <i class="fas fa-cloud-upload"></i></a>
+                    </li>
+                </ul>
+            </li>
+            <li class="menu single-menu">
+                <a href="${front_url}super_test.html">
+                    <div class="">
+                        <i class="far fa-syringe fa-lg mr-2"></i>
+                        <span>القيم الطبيعية</span>
+                    </div>
+                </a>
+            </li>-->
+            <li class="menu single-menu">
+                <a href="${front_url}contact-us.html">
+                    <div class="">
+                        <i class="far fa-question-circle fa-lg mr-2"></i>
+                        <span>الدعم الفني</span>
+                    </div>
+                </a>
+            </li>
+            <li class="menu single-menu">
+                <a href="${front_url}active.html">
+                    <div class="">
+                        <i class="far fa-credit-card fa-lg mr-2"></i>
+                        <span>تفعيل السيستم</span>
+                    </div>
+                </a>
+            </li>
+            `;
+            break;
+    }
+</script>
+<!--  END NAVBAR  -->

@@ -1,0 +1,58 @@
+/*
+	===============================
+			@Import	Function
+	===============================
+*/
+/*
+	===============================
+			@Import	Mixins
+	===============================
+*/
+div#load_screen,div#alert_screen {
+  background: #ecefff;
+  background-image: url(../image/background.webp);
+  opacity: 1;
+  position: fixed;
+  z-index: 999999;
+  top: 0px;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  width: 100%;
+ }
+
+ div#alert_screen{
+  background:none;
+ }
+  div#load_screen .loader,div#alert_screen .loader {
+    display: flex;
+    justify-content: center;
+    height: 100vh; }
+  div#load_screen .loader-content,div#alert_screen .loader-content {
+    left: 0;
+    align-self: center; }
+
+.spinner-grow {
+  width: 8rem !important;
+  height: 8rem !important;
+  animation: 1s linear infinite spinner-grow !important;
+ }
+
+ .spinner-grow-alert{
+  margin-top: 5px;
+  display: inline-block;
+  width: 5rem;
+  height: 5rem;
+  vertical-align: text-bottom;
+  background-color: currentColor;
+  border-radius: 50%;
+  opacity: 0;
+  -webkit-animation: 1s linear infinite spinner-grow;
+  animation: 1s linear infinite spinner-grow;
+ }
+
+ div.dataTables_wrapper div.dataTables_processing {
+  background-color: #e3e4eb;
+  border-color: #e3e4eb;
+  color: #fff;
+ }

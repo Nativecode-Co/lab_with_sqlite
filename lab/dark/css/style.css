@@ -1,0 +1,17 @@
+@font-face {
+    font-family: "cairo";
+    src: url(../plugins/fonts/Cairo/Cairo-VariableFont_wght.ttf);
+}
+
+body {
+    font-family: "cairo";
+}
+
+.select2-container .select2-selection--single {
+    height: 47px;
+    padding: 10px;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__arrow {
+    top: 10px;
+}
