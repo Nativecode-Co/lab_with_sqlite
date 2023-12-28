@@ -38,7 +38,7 @@ class Login extends CI_Controller
 
     public function check_user()
     {
-        $set_full = $this->db->query("SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));");
+        // $set_full = $this->db->query("SET GLOBAL sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''));");
         $username = $this->input->post("username");
         $password = $this->input->post("password");
         //die($username." xxx ".$password);
