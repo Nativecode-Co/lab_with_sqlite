@@ -38,7 +38,7 @@ async function offlineLogin() {
           return;
         }
         if (user_type == "2" || user_type == "111") {
-          location.href = `${__domain__}lab/index.html`;
+          location.href = `${front_url}index.html`;
         } else {
           document.getElementById("message").innerHTML =
             "ليس لديك صلاحية دخول جرب مرة اخري";
@@ -184,7 +184,7 @@ const login = async () => {
     addAlert("تم اكمال 100 % من عملية تنزيل البيانات");
     let user_type = localStorage.getItem("user_type");
     if (user_type == "2" || user_type == "111") {
-      location.href = `${__domain__}lab/index.html`;
+      location.href = `${front_url}index.html`;
     }
     document.getElementById("alert_screen").remove();
   } else {
