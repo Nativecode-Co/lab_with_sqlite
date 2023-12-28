@@ -6,7 +6,7 @@ class Partment_model extends CI_Model
     {
         parent::__construct();
         $this->load->database();
-        $this->load->database('unimedica', TRUE);
+        // $this->load->database('unimedica', TRUE);
         $this->load->library('session');
     }
 

@@ -7,7 +7,7 @@ class Menu_db extends CI_Model
 		parent::__construct();
 		//  $this->load->helper('url');
 		$this->load->database();
-		$this->load->database('unimedica', TRUE);
+		// $this->load->database('unimedica', TRUE);
 		$this->load->library('session');
 	}
 

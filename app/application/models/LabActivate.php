@@ -6,13 +6,14 @@ class LabActivate extends CI_Model
     {
         parent::__construct();
         $this->load->database();
-        $this->load->database('unimedica', TRUE);
+        // $this->load->database('unimedica', TRUE);
         $this->load->library('session');
         $this->load->dbforge();
         $this->check();
     }
 
-    public function check(){
+    public function check()
+    {
         if (!$this->db->table_exists('lab_expire')) {
             $fields = array(
                 'id' => array(
@@ -52,11 +53,12 @@ class LabActivate extends CI_Model
         return true;
     }
 
-    public function update_or_insert($code, $lab, $user_hash){
+    public function update_or_insert($code, $lab, $user_hash)
+    {
         $last_expire = $this->get_last_expire($lab);
         $days = $this->get_days_of_code($code);
         $new_date = $this->get_new_expire_date($last_expire, $days);
-        if(!$last_expire){
+        if (!$last_expire) {
             $this->db->insert('lab_expire', array(
                 'last_code' => $code,
                 'lab_id' => $lab,
@@ -64,7 +66,7 @@ class LabActivate extends CI_Model
                 'expire_date' => $new_date,
                 'user_hash' => $user_hash,
             ));
-        }else{
+        } else {
             $this->db->where('lab_id', $lab);
             $this->db->update('lab_expire', array(
                 'last_code' => $code,
@@ -73,11 +75,12 @@ class LabActivate extends CI_Model
                 'user_hash' => $user_hash,
             ));
         }
-        
+
         return $this->db->affected_rows();
     }
 
-    public function get_last_expire($lab){
+    public function get_last_expire($lab)
+    {
         $this->db->select('expire_date');
         $this->db->from('lab_expire');
         $this->db->where('lab_id', $lab);
@@ -85,14 +88,15 @@ class LabActivate extends CI_Model
         $this->db->limit(1);
         $query = $this->db->get();
         $result = $query->result_array();
-        if(empty($result)){
+        if (empty($result)) {
             return false;
         }
         $expire_date = $result[0]['expire_date'];
         return $expire_date;
     }
 
-    public function get_days_of_code($code){
+    public function get_days_of_code($code)
+    {
         $this->db->select('(select dur from activation_code_type where hash=activation_code.type) as days');
         $this->db->from('activation_code');
         $this->db->where('number', $code);
@@ -102,30 +106,32 @@ class LabActivate extends CI_Model
         return $days;
     }
 
-    public function get_new_expire_date($last_date, $days){
+    public function get_new_expire_date($last_date, $days)
+    {
         // check if last_date gte or lte today
         $today = date('Y-m-d');
         switch ($last_date) {
             case $last_date >= $today:
-                $new_date = date('Y-m-d', strtotime($last_date. ' + '.$days.' days'));
+                $new_date = date('Y-m-d', strtotime($last_date . ' + ' . $days . ' days'));
                 break;
             case $last_date <= $today:
-                $new_date = date('Y-m-d', strtotime($today. ' + '.$days.' days'));
+                $new_date = date('Y-m-d', strtotime($today . ' + ' . $days . ' days'));
                 break;
         }
         return $new_date;
     }
 
-    public function check_expire($lab_id){
+    public function check_expire($lab_id)
+    {
         $date = $this->get_last_expire($lab_id);
-        if($date){
+        if ($date) {
             $today = date('Y-m-d');
-            if($date >= $today){
+            if ($date >= $today) {
                 return true;
-            }else{
+            } else {
                 return false;
             }
-        }else{
+        } else {
             return false;
         }
     }
