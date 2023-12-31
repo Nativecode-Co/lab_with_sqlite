@@ -18,13 +18,13 @@ let getData =
                    inner join lab_test on lab_pakage_tests.test_id=lab_test.hash
                    WHERE lab_package.lab_id='${localStorage.getItem(
                      "lab_hash"
-                   )}' and test_type <>'3' group by hash;
+                   )}' and test_type <>'3' group by lab_package.hash;
                    SELECT * from lab_invoice_worker where lab_hash='${localStorage.getItem(
                      "lab_hash"
                    )}' and is_available=1 and isdeleted=0 limit 5;
                    select * from lab_invoice where lab_hash='${localStorage.getItem(
                      "lab_hash"
-                   )}';SELECT * FROM unimedica_db.lab_test_catigory;`);
+                   )}';SELECT * FROM lab_test_catigory;`);
 
 let patients = getData.result[0].query0;
 let doctors = getData.result[1].query1;
@@ -116,6 +116,7 @@ class Visit extends Factory {
   }
 
   addRow(row) {
+    console.log(row);
     if (this.dataTable.row(`#${row.hash}`)[0].length == 0) {
       let node = this.dataTable.row
         .add({
@@ -148,7 +149,9 @@ class Visit extends Factory {
             lab_patient.hash = lab_visits.visits_patient_id
         where 
             lab_id=${localStorage.getItem("lab_hash")} and 
-            visit_date = CURDATE()`;
+            visit_date = ${new Date().toISOString().slice(0, 10)} and
+            lab_visits.isdeleted='0';
+        `;
   }
 
   resetForm() {
@@ -215,7 +218,7 @@ class Visit extends Factory {
   mainCondition() {
     return ` where lab_id=${localStorage.getItem("lab_hash")}
         and 
-            visit_date = CURDATE() and ${this.table}.isdeleted='0'
+            visit_date = date('now') and ${this.table}.isdeleted='0'
         `;
   }
 
@@ -487,12 +490,14 @@ class Visit extends Factory {
     }).result[0].query0;
     let mainQuery = `${this.getItem(newObjectHash)} `;
     $(".testSelect:checked").each(function () {
-      mainQuery += `insert into lab_visits_package(visit_id, package_id, price,lab_id) values('${newObjectHash}', '${$(
+      mainQuery += `insert into lab_visits_package(visit_id, package_id, price,lab_id,insert_record_date) values('${newObjectHash}', '${$(
         this
-      ).val()}', '${$(this).data("price")}','${localStorage.lab_hash}'); `;
+      ).val()}', '${$(this).data("price")}','${
+        localStorage.lab_hash
+      }','${TODAY}'); `;
     });
     insertedTests.map((test) => {
-      mainQuery += `insert into lab_visits_tests(visit_id, package_id, tests_id,lab_id) values('${newObjectHash}', '${test.package_id}', '${test.id}','${localStorage.lab_hash}'); `;
+      mainQuery += `insert into lab_visits_tests(visit_id, package_id, tests_id,lab_id,insert_record_date) values('${newObjectHash}', '${test.package_id}', '${test.id}','${localStorage.lab_hash}', '${TODAY}'); `;
     });
     let newVisit = run(mainQuery).result[0].query0[0];
     // empty show_selected_tests except first column
@@ -628,15 +633,15 @@ class Visit extends Factory {
     mainQuery += addedPackages
       .map(
         (_package) =>
-          `insert into lab_visits_package(visit_id, package_id, price,lab_id) values('${hash}', '${_package}', '${$(
+          `insert into lab_visits_package(visit_id, package_id, price,lab_id,insert_record_date) values('${hash}', '${_package}', '${$(
             `.testSelect[value=${_package}]`
-          ).data("price")}','${localStorage.lab_hash}'); `
+          ).data("price")}','${localStorage.lab_hash}','${TODAY}'); `
       )
       .join("");
     mainQuery += addedTests
       .map(
         (_test) =>
-          `insert into lab_visits_tests(visit_id, package_id, tests_id, lab_id) values('${hash}', '${_test.package_id}', '${_test.id}','${localStorage.lab_hash}'); `
+          `insert into lab_visits_tests(visit_id, package_id, tests_id, lab_id,insert_record_date) values('${hash}', '${_test.package_id}', '${_test.id}','${localStorage.lab_hash}', '${TODAY}'); `
       )
       .join("");
 
@@ -957,21 +962,23 @@ const updateNormal = (test, kit, unit) => {
   TEST = run(`select option_test from lab_test where hash='${test}';`).result[0]
     .query0[0]?.option_test;
   try {
+    TEST = TEST.replace(/\\/g, "");
     TEST = JSON.parse(TEST);
     let { component } = TEST;
     let { reference } = component[0];
-    // let neededRefrence = reference.filter((item) => {
-    //   return (
-    //     (kit == item.kit || (isNull(kit) && isNull(item.kit))) &&
-    //     (unit == item.unit || (isNull(unit) && isNull(item.unit)))
-    //   );
-    // });
-
+    reference = reference.filter((item) => {
+      return (
+        (kit == item.kit || (isNull(kit) && isNull(item.kit))) &&
+        (unit == item.unit || (isNull(unit) && isNull(item.unit)))
+      );
+    });
+    if (reference.length == 0) {
+      throw "no refrence";
+    }
     let refrenceTable = THEME.build(test, reference, kit, unit);
     $("#refrence_editor .modal-body").html(refrenceTable);
     $("#refrence_editor").modal("show");
   } catch (error) {
-    console.log(error);
     Swal.fire({
       toast: true,
       position: "top-end",

@@ -54,6 +54,57 @@ async function offlineLogin() {
   });
 }
 
+const runQueries = async (username, password, type) => {
+  const message = document.getElementById("message");
+  let dataForm = new FormData();
+  dataForm.append("username", username);
+  dataForm.append("password", password);
+  dataForm.append("type", type);
+
+  let res = await fetch(
+    `http://umc.native-code-iq.com/app/index.php/Offline/login`,
+    {
+      method: "POST",
+      body: dataForm,
+    }
+  )
+    .then((res) => res.json())
+    .catch((e) => {
+      message.innerHTML = "الرجاء التاكد من الاتصال بالانترنت";
+      document.getElementById("alert_screen").remove();
+      return;
+    });
+
+  if (res.status == false) {
+    message.innerHTML = "يرجى التاكد من اسم الحساب او الرمز السري";
+    document.getElementById("alert_screen").remove();
+    return;
+  }
+  if (type == "user") {
+    let { data } = res;
+    let form = new FormData();
+    for (let key in data) {
+      form.append(key, data[key]);
+    }
+    return form;
+  }
+
+  message.innerHTML = "";
+
+  let { queries } = res;
+  queries = queries.filter((query) => query != null && query != "");
+  let queriesForm = new FormData();
+  queriesForm.append("queries", JSON.stringify(queries.slice(0, 1)));
+  await fetch(`${base_url}LocalApi/run_queries`, {
+    method: "POST",
+    body: queriesForm,
+  })
+    .then((res) => res.json())
+    .then((res) => {
+      return res;
+    });
+};
+
 const waitLoginElement = `<div id="alert_screen" class="alert_screen"> 
 <div class="loader">
     <div class="loader-content">
@@ -77,10 +128,11 @@ async function updateLoginSystem() {
 
 const login = async () => {
   const message = document.getElementById("message");
+  let username = $("#username").val();
+  let password = $("#password").val();
   let dataForm = new FormData();
-  dataForm.append("username", $("#username").val());
-  dataForm.append("password", $("#password").val());
-
+  dataForm.append("username", username);
+  dataForm.append("password", password);
   // This code fetches a user count from the api
   let userCount = await fetch(`${base_url}LocalApi/getUserCount`, {
     method: "POST",
@@ -114,79 +166,44 @@ const login = async () => {
       document.getElementById("alert_screen").remove();
       return;
     }
-
-    let res = await fetch(
-      `http://umc.native-code-iq.com/app/index.php/Offline/login`,
-      {
-        method: "POST",
-        body: dataForm,
-      }
-    )
-      .then((res) => res.json())
-      .catch((e) => {
-        message.innerHTML = "الرجاء التاكد من الاتصال بالانترنت";
-        document.getElementById("alert_screen").remove();
-        return;
-      });
+    let types = [
+      "doctors",
+      "patients",
+      "package_tests",
+      "packages",
+      "visits",
+      "visits_packages",
+      "visits_tests",
+      "workers",
+      "invoice",
+    ];
+    for (let type of types) {
+      await runQueries(username, password, type);
+    }
     addAlert("تم اكمال 40 % من عملية تنزيل البيانات");
-    if (res.status == false) {
-      message.innerHTML = "يرجى التاكد من اسم الحساب او الرمز السري";
-      document.getElementById("alert_screen").remove();
-      return;
-    }
+    let form = await runQueries(username, password, "user");
 
-    message.innerHTML = "";
-
-    let { queries, data } = res;
-    queries = queries.filter((query) => query != null && query != "");
-
-    let form = new FormData();
-    for (let key in data) {
-      form.append(key, data[key]);
-    }
-
-    let queriesForm = new FormData();
-    queriesForm.append("queries", JSON.stringify(queries));
-
-    await fetch(`${base_url}LocalApi/run_queries`, {
+    await fetch(`${base_url}LocalApi/addUser`, {
       method: "POST",
-      body: queriesForm,
+      body: form,
     })
       .then((res) => res.json())
       .then((res) => {
         addAlert("تم اكمال 60 % من عملية تنزيل البيانات");
       });
 
-    await fetch(`${base_url}LocalApi/addUser`, {
-      method: "POST",
-      body: form,
-    }).then((res) => res.json());
-    await offlineLogin();
-
     let labIdForm = new FormData();
-    labIdForm.append("lab_id", data.lab_id);
+    labIdForm.append("lab_id", form.lab_id);
 
     await fetch(`${base_url}LocalApi/downloadImage`, {
       method: "POST",
       body: labIdForm,
     });
-    await new Promise((resolve) => {
-      run(`
-        update system_users_type set insert_record_date = '${new Date()
-          .toISOString()
-          .slice(0, 19)
-          .replace("T", " ")}' where id = 1;
-      `);
-      resolve();
-    });
     addAlert("تم اكمال 80 % من عملية تنزيل البيانات");
-    await updateLoginSystem();
-    addAlert("تم اكمال 100 % من عملية تنزيل البيانات");
-    let user_type = localStorage.getItem("user_type");
-    if (user_type == "2" || user_type == "111") {
-      location.href = `${front_url}index.html`;
-    }
-    document.getElementById("alert_screen").remove();
+    offlineLogin().then(() => {
+      addAlert("تم اكمال 100 % من عملية تنزيل البيانات");
+      addAlert("جاري تسجيل الدخول");
+    });
   } else {
     await offlineLogin();
   }

@@ -9,10 +9,11 @@
     ===================================
 */
 
-let static = exce(`select Count(*) as count from visits where YEAR(visit_date) = YEAR(CURRENT_DATE()) and ispayed=0;
+let static =
+  exce(`select Count(*) as count from visits where YEAR(visit_date) = YEAR(CURRENT_DATE()) and ispayed=0;
 select Count(*) as count from visits where YEAR(visit_date) = YEAR(CURRENT_DATE()) and ispayed=1;
-select Count(*) as count from visits where MONTH(visit_date)= MONTH(CURDATE()) AND YEAR(visit_date) = YEAR(CURRENT_DATE()) and ispayed=0;
-select Count(*) as count from visits where MONTH(visit_date)= MONTH(CURDATE()) AND YEAR(visit_date) = YEAR(CURRENT_DATE()) and ispayed=1;
+select Count(*) as count from visits where MONTH(visit_date)= MONTH(date('now')) AND YEAR(visit_date) = YEAR(CURRENT_DATE()) and ispayed=0;
+select Count(*) as count from visits where MONTH(visit_date)= MONTH(date('now')) AND YEAR(visit_date) = YEAR(CURRENT_DATE()) and ispayed=1;
 select Count(*) as count from visits where DATE(visit_date) = DATE(NOW()) and ispayed=0;
 select Count(*) as count from visits where DATE(visit_date) = DATE(NOW()) and ispayed=1;`).result;
 // let query = exce(`SELECT count(*) as count FROM lab.visits where visit_date BETWEEN  DATE_SUB(NOW(), INTERVAL 4 DAY) AND NOW() group by (visit_date);
@@ -28,442 +29,450 @@ select Count(*) as count from visits where DATE(visit_date) = DATE(NOW()) and is
         Draw Charts Script
     ===================================
 */
-if (Cookies.getCookie('dark_mode') != "") {
-    var options_1 = {
-        chart: {
-            type: 'donut',
-            width: '100%',
-            height: 300
-        },
-        colors: ['#5c1ac3', '#e2a03f', '#e7515a', '#e2a03f'],
-        dataLabels: {
-            enabled: false
-        },
-        legend: {
-            position: 'bottom',
-            horizontalAlign: 'center',
-            fontSize: '14px',
-            markers: {
-                width: 10,
-                height: 10,
-            },
-            itemMargin: {
-                horizontal: 0,
-                vertical: 8
-            }
-        },
-        plotOptions: {
-            pie: {
-                donut: {
-                    size: '65%',
-                    background: 'transparent',
-                    labels: {
-                        show: true,
-                        name: {
-                            show: true,
-                            fontSize: '29px',
-                            fontFamily: 'Nunito, sans-serif',
-                            color: undefined,
-                            offsetY: -10
-                        },
-                        value: {
-                            show: true,
-                            fontSize: '26px',
-                            fontFamily: 'Nunito, sans-serif',
-                            color: '#bfc9d4',
-                            offsetY: 16,
-                            formatter: function(val) {
-                                return val
-                            }
-                        },
-                        total: {
-                            show: true,
-                            showAlways: true,
-                            label: 'هذا العام',
-                            color: '#888ea8',
-                            formatter: function(w) {
-                                return w.globals.seriesTotals.reduce(function(a, b) {
-                                    return a + b
-                                }, 0)
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        stroke: {
+if (Cookies.getCookie("dark_mode") != "") {
+  var options_1 = {
+    chart: {
+      type: "donut",
+      width: "100%",
+      height: 300,
+    },
+    colors: ["#5c1ac3", "#e2a03f", "#e7515a", "#e2a03f"],
+    dataLabels: {
+      enabled: false,
+    },
+    legend: {
+      position: "bottom",
+      horizontalAlign: "center",
+      fontSize: "14px",
+      markers: {
+        width: 10,
+        height: 10,
+      },
+      itemMargin: {
+        horizontal: 0,
+        vertical: 8,
+      },
+    },
+    plotOptions: {
+      pie: {
+        donut: {
+          size: "65%",
+          background: "transparent",
+          labels: {
             show: true,
-            width: 25,
-            colors: '#0e1726'
+            name: {
+              show: true,
+              fontSize: "29px",
+              fontFamily: "Nunito, sans-serif",
+              color: undefined,
+              offsetY: -10,
+            },
+            value: {
+              show: true,
+              fontSize: "26px",
+              fontFamily: "Nunito, sans-serif",
+              color: "#bfc9d4",
+              offsetY: 16,
+              formatter: function (val) {
+                return val;
+              },
+            },
+            total: {
+              show: true,
+              showAlways: true,
+              label: "هذا العام",
+              color: "#888ea8",
+              formatter: function (w) {
+                return w.globals.seriesTotals.reduce(function (a, b) {
+                  return a + b;
+                }, 0);
+              },
+            },
+          },
         },
-        series: [parseInt(static[0].query0[0].count), parseInt(static[1].query1[0].count)],
-        labels: ['انتظار', 'المدفوع']
-    }
+      },
+    },
+    stroke: {
+      show: true,
+      width: 25,
+      colors: "#0e1726",
+    },
+    series: [
+      parseInt(static[0].query0[0].count),
+      parseInt(static[1].query1[0].count),
+    ],
+    labels: ["انتظار", "المدفوع"],
+  };
 } else {
-
-    var options_1 = {
-        chart: {
-            type: 'donut',
-            width: '100%',
-            height: 300
-        },
-        colors: ['#5c1ac3', '#e2a03f', '#e7515a', '#e2a03f'],
-        dataLabels: {
-            enabled: false
-        },
-        legend: {
-            position: 'bottom',
-            horizontalAlign: 'center',
-            fontSize: '14px',
-            markers: {
-                width: 10,
-                height: 10,
-            },
-            itemMargin: {
-                horizontal: 0,
-                vertical: 8
-            }
-        },
-        plotOptions: {
-            pie: {
-                donut: {
-                    size: '65%',
-                    background: 'transparent',
-                    labels: {
-                        show: true,
-                        name: {
-                            show: true,
-                            fontSize: '29px',
-                            fontFamily: 'Nunito, sans-serif',
-                            color: undefined,
-                            offsetY: -10
-                        },
-                        value: {
-                            show: true,
-                            fontSize: '26px',
-                            fontFamily: 'Nunito, sans-serif',
-                            color: '20',
-                            offsetY: 16,
-                            formatter: function(val) {
-                                return val
-                            }
-                        },
-                        total: {
-                            show: true,
-                            showAlways: true,
-                            label: 'هذا العام',
-                            color: '#888ea8',
-                            formatter: function(w) {
-                                return w.globals.seriesTotals.reduce(function(a, b) {
-                                    return a + b
-                                }, 0)
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        stroke: {
+  var options_1 = {
+    chart: {
+      type: "donut",
+      width: "100%",
+      height: 300,
+    },
+    colors: ["#5c1ac3", "#e2a03f", "#e7515a", "#e2a03f"],
+    dataLabels: {
+      enabled: false,
+    },
+    legend: {
+      position: "bottom",
+      horizontalAlign: "center",
+      fontSize: "14px",
+      markers: {
+        width: 10,
+        height: 10,
+      },
+      itemMargin: {
+        horizontal: 0,
+        vertical: 8,
+      },
+    },
+    plotOptions: {
+      pie: {
+        donut: {
+          size: "65%",
+          background: "transparent",
+          labels: {
             show: true,
-            width: 25,
+            name: {
+              show: true,
+              fontSize: "29px",
+              fontFamily: "Nunito, sans-serif",
+              color: undefined,
+              offsetY: -10,
+            },
+            value: {
+              show: true,
+              fontSize: "26px",
+              fontFamily: "Nunito, sans-serif",
+              color: "20",
+              offsetY: 16,
+              formatter: function (val) {
+                return val;
+              },
+            },
+            total: {
+              show: true,
+              showAlways: true,
+              label: "هذا العام",
+              color: "#888ea8",
+              formatter: function (w) {
+                return w.globals.seriesTotals.reduce(function (a, b) {
+                  return a + b;
+                }, 0);
+              },
+            },
+          },
         },
-        series: [parseInt(static[0].query0[0].count), parseInt(static[1].query1[0].count)],
-        labels: ['انتظار', 'المدفوع'],
-
-    }
-
+      },
+    },
+    stroke: {
+      show: true,
+      width: 25,
+    },
+    series: [
+      parseInt(static[0].query0[0].count),
+      parseInt(static[1].query1[0].count),
+    ],
+    labels: ["انتظار", "المدفوع"],
+  };
 }
-if (Cookies.getCookie('dark_mode') != "") {
-    var options_2 = {
-        chart: {
-            type: 'donut',
-            width: '100%',
-            height: 300
-        },
-        colors: ['#5c1ac3', '#e2a03f', '#e7515a', '#e2a03f'],
-        dataLabels: {
-            enabled: false
-        },
-        legend: {
-            position: 'bottom',
-            horizontalAlign: 'center',
-            fontSize: '14px',
-            markers: {
-                width: 10,
-                height: 10,
-            },
-            itemMargin: {
-                horizontal: 0,
-                vertical: 8
-            }
-        },
-        plotOptions: {
-            pie: {
-                donut: {
-                    size: '65%',
-                    background: 'transparent',
-                    labels: {
-                        show: true,
-                        name: {
-                            show: true,
-                            fontSize: '29px',
-                            fontFamily: 'Nunito, sans-serif',
-                            color: undefined,
-                            offsetY: -10
-                        },
-                        value: {
-                            show: true,
-                            fontSize: '26px',
-                            fontFamily: 'Nunito, sans-serif',
-                            color: '#bfc9d4',
-                            offsetY: 16,
-                            formatter: function(val) {
-                                return val
-                            }
-                        },
-                        total: {
-                            show: true,
-                            showAlways: true,
-                            label: 'هذا الشهر',
-                            color: '#888ea8',
-                            formatter: function(w) {
-                                return w.globals.seriesTotals.reduce(function(a, b) {
-                                    return a + b
-                                }, 0)
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        stroke: {
+if (Cookies.getCookie("dark_mode") != "") {
+  var options_2 = {
+    chart: {
+      type: "donut",
+      width: "100%",
+      height: 300,
+    },
+    colors: ["#5c1ac3", "#e2a03f", "#e7515a", "#e2a03f"],
+    dataLabels: {
+      enabled: false,
+    },
+    legend: {
+      position: "bottom",
+      horizontalAlign: "center",
+      fontSize: "14px",
+      markers: {
+        width: 10,
+        height: 10,
+      },
+      itemMargin: {
+        horizontal: 0,
+        vertical: 8,
+      },
+    },
+    plotOptions: {
+      pie: {
+        donut: {
+          size: "65%",
+          background: "transparent",
+          labels: {
             show: true,
-            width: 25,
-            colors: '#0e1726'
+            name: {
+              show: true,
+              fontSize: "29px",
+              fontFamily: "Nunito, sans-serif",
+              color: undefined,
+              offsetY: -10,
+            },
+            value: {
+              show: true,
+              fontSize: "26px",
+              fontFamily: "Nunito, sans-serif",
+              color: "#bfc9d4",
+              offsetY: 16,
+              formatter: function (val) {
+                return val;
+              },
+            },
+            total: {
+              show: true,
+              showAlways: true,
+              label: "هذا الشهر",
+              color: "#888ea8",
+              formatter: function (w) {
+                return w.globals.seriesTotals.reduce(function (a, b) {
+                  return a + b;
+                }, 0);
+              },
+            },
+          },
         },
-        series: [parseInt(static[2].query2[0].count), parseInt(static[3].query3[0].count)],
-        labels: ['انتظار', 'المدفوع']
-    }
+      },
+    },
+    stroke: {
+      show: true,
+      width: 25,
+      colors: "#0e1726",
+    },
+    series: [
+      parseInt(static[2].query2[0].count),
+      parseInt(static[3].query3[0].count),
+    ],
+    labels: ["انتظار", "المدفوع"],
+  };
 } else {
-
-    var options_2 = {
-        chart: {
-            type: 'donut',
-            width: '100%',
-            height: 300
-        },
-        colors: ['#5c1ac3', '#e2a03f', '#e7515a', '#e2a03f'],
-        dataLabels: {
-            enabled: false
-        },
-        legend: {
-            position: 'bottom',
-            horizontalAlign: 'center',
-            fontSize: '14px',
-            markers: {
-                width: 10,
-                height: 10,
-            },
-            itemMargin: {
-                horizontal: 0,
-                vertical: 8
-            }
-        },
-        plotOptions: {
-            pie: {
-                donut: {
-                    size: '65%',
-                    background: 'transparent',
-                    labels: {
-                        show: true,
-                        name: {
-                            show: true,
-                            fontSize: '29px',
-                            fontFamily: 'Nunito, sans-serif',
-                            color: undefined,
-                            offsetY: -10
-                        },
-                        value: {
-                            show: true,
-                            fontSize: '26px',
-                            fontFamily: 'Nunito, sans-serif',
-                            color: '20',
-                            offsetY: 16,
-                            formatter: function(val) {
-                                return val
-                            }
-                        },
-                        total: {
-                            show: true,
-                            showAlways: true,
-                            label: 'هذا الشهر',
-                            color: '#888ea8',
-                            formatter: function(w) {
-                                return w.globals.seriesTotals.reduce(function(a, b) {
-                                    return a + b
-                                }, 0)
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        stroke: {
+  var options_2 = {
+    chart: {
+      type: "donut",
+      width: "100%",
+      height: 300,
+    },
+    colors: ["#5c1ac3", "#e2a03f", "#e7515a", "#e2a03f"],
+    dataLabels: {
+      enabled: false,
+    },
+    legend: {
+      position: "bottom",
+      horizontalAlign: "center",
+      fontSize: "14px",
+      markers: {
+        width: 10,
+        height: 10,
+      },
+      itemMargin: {
+        horizontal: 0,
+        vertical: 8,
+      },
+    },
+    plotOptions: {
+      pie: {
+        donut: {
+          size: "65%",
+          background: "transparent",
+          labels: {
             show: true,
-            width: 25,
+            name: {
+              show: true,
+              fontSize: "29px",
+              fontFamily: "Nunito, sans-serif",
+              color: undefined,
+              offsetY: -10,
+            },
+            value: {
+              show: true,
+              fontSize: "26px",
+              fontFamily: "Nunito, sans-serif",
+              color: "20",
+              offsetY: 16,
+              formatter: function (val) {
+                return val;
+              },
+            },
+            total: {
+              show: true,
+              showAlways: true,
+              label: "هذا الشهر",
+              color: "#888ea8",
+              formatter: function (w) {
+                return w.globals.seriesTotals.reduce(function (a, b) {
+                  return a + b;
+                }, 0);
+              },
+            },
+          },
         },
-        series: [parseInt(static[2].query2[0].count), parseInt(static[3].query3[0].count)],
-        labels: ['انتظار', 'المدفوع'],
-
-    }
-
+      },
+    },
+    stroke: {
+      show: true,
+      width: 25,
+    },
+    series: [
+      parseInt(static[2].query2[0].count),
+      parseInt(static[3].query3[0].count),
+    ],
+    labels: ["انتظار", "المدفوع"],
+  };
 }
-if (Cookies.getCookie('dark_mode') != "") {
-    var options_3 = {
-        chart: {
-            type: 'donut',
-            width: '100%',
-            height: 300
-        },
-        colors: ['#5c1ac3', '#e2a03f', '#e7515a', '#e2a03f'],
-        dataLabels: {
-            enabled: false
-        },
-        legend: {
-            position: 'bottom',
-            horizontalAlign: 'center',
-            fontSize: '14px',
-            markers: {
-                width: 10,
-                height: 10,
-            },
-            itemMargin: {
-                horizontal: 0,
-                vertical: 8
-            }
-        },
-        plotOptions: {
-            pie: {
-                donut: {
-                    size: '65%',
-                    background: 'transparent',
-                    labels: {
-                        show: true,
-                        name: {
-                            show: true,
-                            fontSize: '29px',
-                            fontFamily: 'Nunito, sans-serif',
-                            color: undefined,
-                            offsetY: -10
-                        },
-                        value: {
-                            show: true,
-                            fontSize: '26px',
-                            fontFamily: 'Nunito, sans-serif',
-                            color: '#bfc9d4',
-                            offsetY: 16,
-                            formatter: function(val) {
-                                return val
-                            }
-                        },
-                        total: {
-                            show: true,
-                            showAlways: true,
-                            label: 'اليوم',
-                            color: '#888ea8',
-                            formatter: function(w) {
-                                return w.globals.seriesTotals.reduce(function(a, b) {
-                                    return a + b
-                                }, 0)
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        stroke: {
+if (Cookies.getCookie("dark_mode") != "") {
+  var options_3 = {
+    chart: {
+      type: "donut",
+      width: "100%",
+      height: 300,
+    },
+    colors: ["#5c1ac3", "#e2a03f", "#e7515a", "#e2a03f"],
+    dataLabels: {
+      enabled: false,
+    },
+    legend: {
+      position: "bottom",
+      horizontalAlign: "center",
+      fontSize: "14px",
+      markers: {
+        width: 10,
+        height: 10,
+      },
+      itemMargin: {
+        horizontal: 0,
+        vertical: 8,
+      },
+    },
+    plotOptions: {
+      pie: {
+        donut: {
+          size: "65%",
+          background: "transparent",
+          labels: {
             show: true,
-            width: 25,
-            colors: '#0e1726'
+            name: {
+              show: true,
+              fontSize: "29px",
+              fontFamily: "Nunito, sans-serif",
+              color: undefined,
+              offsetY: -10,
+            },
+            value: {
+              show: true,
+              fontSize: "26px",
+              fontFamily: "Nunito, sans-serif",
+              color: "#bfc9d4",
+              offsetY: 16,
+              formatter: function (val) {
+                return val;
+              },
+            },
+            total: {
+              show: true,
+              showAlways: true,
+              label: "اليوم",
+              color: "#888ea8",
+              formatter: function (w) {
+                return w.globals.seriesTotals.reduce(function (a, b) {
+                  return a + b;
+                }, 0);
+              },
+            },
+          },
         },
-        series: [parseInt(static[4].query4[0].count), parseInt(static[5].query5[0].count)],
-        labels: ['انتظار', 'المدفوع']
-    }
+      },
+    },
+    stroke: {
+      show: true,
+      width: 25,
+      colors: "#0e1726",
+    },
+    series: [
+      parseInt(static[4].query4[0].count),
+      parseInt(static[5].query5[0].count),
+    ],
+    labels: ["انتظار", "المدفوع"],
+  };
 } else {
-
-    var options_3 = {
-        chart: {
-            type: 'donut',
-            width: '100%',
-            height: 300
-        },
-        colors: ['#5c1ac3', '#e2a03f', '#e7515a', '#e2a03f'],
-        dataLabels: {
-            enabled: false
-        },
-        legend: {
-            position: 'bottom',
-            horizontalAlign: 'center',
-            fontSize: '14px',
-            markers: {
-                width: 10,
-                height: 10,
-            },
-            itemMargin: {
-                horizontal: 0,
-                vertical: 8
-            }
-        },
-        plotOptions: {
-            pie: {
-                donut: {
-                    size: '65%',
-                    background: 'transparent',
-                    labels: {
-                        show: true,
-                        name: {
-                            show: true,
-                            fontSize: '29px',
-                            fontFamily: 'Nunito, sans-serif',
-                            color: undefined,
-                            offsetY: -10
-                        },
-                        value: {
-                            show: true,
-                            fontSize: '26px',
-                            fontFamily: 'Nunito, sans-serif',
-                            color: '20',
-                            offsetY: 16,
-                            formatter: function(val) {
-                                return val
-                            }
-                        },
-                        total: {
-                            show: true,
-                            showAlways: true,
-                            label: 'اليوم',
-                            color: '#888ea8',
-                            formatter: function(w) {
-                                return w.globals.seriesTotals.reduce(function(a, b) {
-                                    return a + b
-                                }, 0)
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        stroke: {
+  var options_3 = {
+    chart: {
+      type: "donut",
+      width: "100%",
+      height: 300,
+    },
+    colors: ["#5c1ac3", "#e2a03f", "#e7515a", "#e2a03f"],
+    dataLabels: {
+      enabled: false,
+    },
+    legend: {
+      position: "bottom",
+      horizontalAlign: "center",
+      fontSize: "14px",
+      markers: {
+        width: 10,
+        height: 10,
+      },
+      itemMargin: {
+        horizontal: 0,
+        vertical: 8,
+      },
+    },
+    plotOptions: {
+      pie: {
+        donut: {
+          size: "65%",
+          background: "transparent",
+          labels: {
             show: true,
-            width: 25,
+            name: {
+              show: true,
+              fontSize: "29px",
+              fontFamily: "Nunito, sans-serif",
+              color: undefined,
+              offsetY: -10,
+            },
+            value: {
+              show: true,
+              fontSize: "26px",
+              fontFamily: "Nunito, sans-serif",
+              color: "20",
+              offsetY: 16,
+              formatter: function (val) {
+                return val;
+              },
+            },
+            total: {
+              show: true,
+              showAlways: true,
+              label: "اليوم",
+              color: "#888ea8",
+              formatter: function (w) {
+                return w.globals.seriesTotals.reduce(function (a, b) {
+                  return a + b;
+                }, 0);
+              },
+            },
+          },
         },
-        series: [parseInt(static[4].query4[0].count), parseInt(static[5].query5[0].count)],
-        labels: ['انتظار', 'المدفوع'],
-
-    }
-
+      },
+    },
+    stroke: {
+      show: true,
+      width: 25,
+    },
+    series: [
+      parseInt(static[4].query4[0].count),
+      parseInt(static[5].query5[0].count),
+    ],
+    labels: ["انتظار", "المدفوع"],
+  };
 }
-
 
 /*
     ===================================

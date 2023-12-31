@@ -71,7 +71,7 @@ class Visit extends Factory {
             lab_patient.hash = lab_visits.visits_patient_id
         where 
             lab_id=${localStorage.getItem("lab_hash")} and 
-            visit_date = CURDATE()`;
+            visit_date = date('now')`;
   }
 }
 

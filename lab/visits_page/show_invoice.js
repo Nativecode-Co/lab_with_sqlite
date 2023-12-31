@@ -1,37 +1,41 @@
 const showInvoice = {
-    __init__(hash, props) {
-        this.selectors.buttons.removeClass('active');
-        this.selectors.invoiceButton.addClass('active');
-        let { visit, visitPackages } = this.data.__init__(hash);
-        this.selectors.workSpace.html(this.templates.__init__({ visit, visitPackages, ...props }));
-        this.utils.__init__Barcode(visit.id, visit.hash);
-        this.utils.setInvoiceStyle();
-        this.utils.animate();
+  __init__(hash, props) {
+    this.selectors.buttons.removeClass("active");
+    this.selectors.invoiceButton.addClass("active");
+    let { visit, visitPackages } = this.data.__init__(hash);
+    this.selectors.workSpace.html(
+      this.templates.__init__({ visit, visitPackages, ...props })
+    );
+    this.utils.__init__Barcode(visit.id, visit.hash);
+    this.utils.setInvoiceStyle();
+    this.utils.animate();
+  },
+
+  selectors: {
+    buttons: $(".action"),
+    invoiceButton: $("#invoice_button"),
+    workSpace: $("#work-sapce"),
+  },
+
+  data: {
+    __init__(hash) {
+      let data = run(
+        this.getVisitQuery(hash) + this.getVisitPackagesQuery(hash)
+      );
+      let visit = data.result[0].query0[0];
+      let visitPackages = data.result[1].query1;
+      return { visit, visitPackages };
     },
 
-    selectors: {
-        buttons: $('.action'),
-        invoiceButton: $('#invoice_button'),
-        workSpace: $('#work-sapce'),
-    },
-
-    data: {
-        __init__(hash) {
-            let data = run(this.getVisitQuery(hash) + this.getVisitPackagesQuery(hash));
-            let visit = data.result[0].query0[0];
-            let visitPackages = data.result[1].query1;
-            return { visit, visitPackages };
-        },
-
-        getVisitQuery(hash) {
-            return `
+    getVisitQuery(hash) {
+      return `
             SELECT
                 age,
                 lab_patient.name as name,
                 gender,
                 lab_patient.id as id,
                 date(lab_visits.insert_record_date) as date,
-                TIME_FORMAT(TIME(lab_visits.insert_record_date), "%l:%i %p") as time,
+                strftime('%I:%M %p', TIME(lab_visits.insert_record_date)) as time,
                 total_price,
                 dicount,
                 net_price
@@ -40,11 +44,11 @@ const showInvoice = {
             INNER JOIN lab_patient ON lab_patient.hash = lab_visits.visits_patient_id
             WHERE
                 lab_visits.hash = ${hash};
-            `
-        },
+            `;
+    },
 
-        getVisitPackagesQuery(hash) {
-            return `
+    getVisitPackagesQuery(hash) {
+      return `
                 SELECT
                     (select name from lab_package where hash=lab_visits_package.package_id) as name,
                     price
@@ -53,20 +57,29 @@ const showInvoice = {
                 WHERE
                     visit_id = ${hash};
             `;
-        },
     },
+  },
 
-    templates: {
-        __init__(props) {
-            return `
+  templates: {
+    __init__(props) {
+      return `
             <div class="col-md-12 mt-4">
                 <div class="statbox widget box box-shadow bg-white py-3">
                     <div class="widget-content widget-content-area m-auto" style="width: 95%;">
                         <div class="book-invoice" dir="ltr" id="pdf">
                             <div class="page">
-                                ${this.invoiceHeaderComponent(props.logo, props.lab_name)}
-                                ${this.invoiceBodyComponent(props.visit, props.visitPackages)}
-                                ${this.invoiceFooterComponent(props.visit, props.invoice)}
+                                ${this.invoiceHeaderComponent(
+                                  props.logo,
+                                  props.lab_name
+                                )}
+                                ${this.invoiceBodyComponent(
+                                  props.visit,
+                                  props.visitPackages
+                                )}
+                                ${this.invoiceFooterComponent(
+                                  props.visit,
+                                  props.invoice
+                                )}
                             </div>
                         </div>
                         ${this.invoicePrintComponent()}
@@ -74,10 +87,10 @@ const showInvoice = {
                 </div>
             </div>
             `;
-        },
+    },
 
-        invoiceHeaderComponent(logo, lab_name) {
-            return `
+    invoiceHeaderComponent(logo, lab_name) {
+      return `
                 <div class="header">
                     <div class="row">
                         <div class="logo">
@@ -103,10 +116,10 @@ const showInvoice = {
                     </div>
                 </div>
             `;
-        },
+    },
 
-        invoiceBodyComponent(visit, visitPackages) {
-            return `
+    invoiceBodyComponent(visit, visitPackages) {
+      return `
                 <div class="center">
                     <div class="center2-background"></div>
                     ${this.invoiceBodyUserDetailsComponent(visit)}
@@ -116,10 +129,10 @@ const showInvoice = {
                     </div>
                 </div>
             `;
-        },
+    },
 
-        invoiceBodyUserDetailsComponent(visit) {
-            return `
+    invoiceBodyUserDetailsComponent(visit) {
+      return `
                 <div class="nav">
                     <!-- شريط معلومات طالب التحليل --------------------------------------------------------------------------------------------->
                     <div class="name">
@@ -145,7 +158,9 @@ const showInvoice = {
                         <p class="">Date</p>
                     </div>
                     <div class="vidgo">
-                        <p><span class="note">${visit.date}</span>&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;<span
+                        <p><span class="note">${
+                          visit.date
+                        }</span>&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;<span
                                 class="note">${visit.time}</span></p>
                     </div>
                     <div class="prd">
@@ -153,15 +168,23 @@ const showInvoice = {
                     </div>
                     <div class="prdgo">
                         <p><span
-                                class="note">${NOW.toLocaleDateString().split('/').reverse().join('-')}</span>&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;<span
-                                class="note">${NOW.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span></p>
+                                class="note">${NOW.toLocaleDateString()
+                                  .split("/")
+                                  .reverse()
+                                  .join(
+                                    "-"
+                                  )}</span>&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;<span
+                                class="note">${NOW.toLocaleTimeString([], {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                })}</span></p>
                     </div>
                 </div>
             `;
-        },
+    },
 
-        invoiceBodyDetailHeaderComponent() {
-            return `
+    invoiceBodyDetailHeaderComponent() {
+      return `
                 <div class="row">
                     <!-- تصنيف الجدول او اقسام الجدول --------------------------------------------------------------------------------------->
                     <div class="sections" style="width: 5%;">
@@ -175,12 +198,14 @@ const showInvoice = {
                     </div>
                 </div>
             `;
-        },
+    },
 
-        invoiceBodyDetailBodyComponent(visitPackages) {
-            return `
+    invoiceBodyDetailBodyComponent(visitPackages) {
+      return `
                 <div class="row m-0">
-                    ${visitPackages.map((item, index) => `
+                    ${visitPackages
+                      .map(
+                        (item, index) => `
                     <div class="mytest" style="">
                         <!--سطر تسعيرة التحليل الذي سيتكرر----------------------------------------------------------------------->
                         <div class="testname">
@@ -190,16 +215,20 @@ const showInvoice = {
                             <p> ${item.name}</p>
                         </div>
                         <div class="testnormal">
-                            <p>${parseInt(item.price)?.toLocaleString()}<span class="note">&nbsp; IQD</span></p>
+                            <p>${parseInt(
+                              item.price
+                            )?.toLocaleString()}<span class="note">&nbsp; IQD</span></p>
                         </div>
                     </div>
-                    `).join('')}
+                    `
+                      )
+                      .join("")}
                 </div>
             `;
-        },
+    },
 
-        invoiceFooterComponent(visit, invoice) {
-            return `
+    invoiceFooterComponent(visit, invoice) {
+      return `
             <div class="footer">
                 <div class="navtotal">
                     <!--مجموع السعر مع الخصومات والمتبقي --------------------------------------------------------------------->
@@ -207,19 +236,25 @@ const showInvoice = {
                         <p class="">Total</p>
                     </div>
                     <div class="namegot">
-                        <p>${parseInt(visit.total_price)?.toLocaleString()}<span class="note">&nbsp; IQD</span></p>
+                        <p>${parseInt(
+                          visit.total_price
+                        )?.toLocaleString()}<span class="note">&nbsp; IQD</span></p>
                     </div>
                     <div class="paidt">
                         <p class="">Discount</p>
                     </div>
                     <div class="paidgot">
-                        <p>${parseInt(visit.dicount)?.toLocaleString()}<span class="note">&nbsp; IQD</span></p>
+                        <p>${parseInt(
+                          visit.dicount
+                        )?.toLocaleString()}<span class="note">&nbsp; IQD</span></p>
                     </div>
                     <div class="vidt">
                         <p class="">Total Amount</p>
                     </div>
                     <div class="vidgot">
-                        <p>${parseInt(visit.net_price)?.toLocaleString()}<span class="note">&nbsp; IQD</span></p>
+                        <p>${parseInt(
+                          visit.net_price
+                        )?.toLocaleString()}<span class="note">&nbsp; IQD</span></p>
                     </div>
                     <div class="prdt">
                         <p class="">Paid amount</p>
@@ -237,16 +272,20 @@ const showInvoice = {
                 <div class="f2">
                     <!--عنوان او ملاحظات ---------------------------------------------------------------------------------------------------->
             
-                    <p>${invoice.address}<span class="note">&nbsp;&nbsp;&nbsp;&nbsp;
-                            ${invoice.facebook}</span>&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;<span class="note">
+                    <p>${
+                      invoice.address
+                    }<span class="note">&nbsp;&nbsp;&nbsp;&nbsp;
+                            ${
+                              invoice.facebook
+                            }</span>&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;<span class="note">
                             ${invoice.phone_1}</span></p>
                 </div>
             </div>
           `;
-        },
+    },
 
-        invoicePrintComponent() {
-            return `
+    invoicePrintComponent() {
+      return `
                 <div class="row mt-15 justify-content-center">
                     <div class="col-3">
                         <button type="button" class="btn btn-outline-print w-100" onclick="printElement('.book-invoice', 'A3', 'css/invoice.css')">
@@ -255,37 +294,39 @@ const showInvoice = {
                     </div>
                 </div>
             `;
-        }
+    },
+  },
+
+  utils: {
+    __init__Barcode(id, hash) {
+      JsBarcode(`#visit-${id}-code`, `${hash}`, {
+        width: 1,
+        height: 10,
+        displayValue: false,
+      });
     },
 
-    utils: {
-        __init__Barcode(id, hash) {
-            JsBarcode(`#visit-${id}-code`, `${hash}`, {
-                width: 1,
-                height: 10,
-                displayValue: false
-            });
+    animate() {
+      $("html, body").animate(
+        {
+          scrollTop: $("#main-space").offset().top,
         },
-
-        animate() {
-            $("html, body").animate({
-                scrollTop: $("#main-space").offset().top,
-            },
-                500
-            );
-        },
-
-        setInvoiceStyle() {
-            $('.sections').css('border-bottom', `2px solid ${invoices?.color}`);
-            // change .center2-background background-image
-            $('.center2-background').css('background-image', `url(${invoices?.logo})`);
-            $('.namet').css('color', `${invoices?.color}`);
-            $('.page .header').height(invoices?.header);
-            $('.page .footer2').height(invoices?.footer - 5);
-            $('.page .center2').height(invoices?.center - 15);
-            $('.page .center').height(invoices?.center);
-        }
+        500
+      );
     },
 
+    setInvoiceStyle() {
+      $(".sections").css("border-bottom", `2px solid ${invoices?.color}`);
+      // change .center2-background background-image
+      $(".center2-background").css(
+        "background-image",
+        `url(${invoices?.logo})`
+      );
+      $(".namet").css("color", `${invoices?.color}`);
+      $(".page .header").height(invoices?.header);
+      $(".page .footer2").height(invoices?.footer - 5);
+      $(".page .center2").height(invoices?.center - 15);
+      $(".page .center").height(invoices?.center);
+    },
+  },
 };
-

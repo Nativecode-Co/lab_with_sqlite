@@ -934,8 +934,6 @@ function addResult(visit, visitTests) {
   // clear __VISIT_TESTS__
   __VISIT_TESTS__ = [];
   visitTests = visitTests.sort((a, b) => {
-    let type = JSON.parse(a?.options)?.type;
-    //if (type == "calc") return 1;
     return a.category > b.category ? 1 : -1;
   });
   let resultForm = [
@@ -945,9 +943,22 @@ function addResult(visit, visitTests) {
   ];
   let result_tests = [];
   visitTests.forEach((test) => {
-    let options = JSON.parse(test.options);
+    let options = test.options;
+    options = options.replace(/\\/g, "");
+    try {
+      options = JSON.parse(options);
+    } catch (err) {
+      options = {};
+    }
+
     let { type, component, value } = options;
-    let result_test = JSON.parse(test.result_test);
+    let result_test = test.result_test;
+    try {
+      result_test = result_test.replace(/\\/g, "");
+      result_test = JSON.parse(result_test);
+    } catch (err) {
+      result_test = {};
+    }
     result_tests.push({
       name: test.name,
       result: result_test?.[test.name],
@@ -1173,7 +1184,7 @@ function showInvoice(hash) {
                         gender,
                         lab_patient.id as id,
                         date(lab_visits.insert_record_date) as date,
-                        TIME_FORMAT(TIME(lab_visits.insert_record_date), "%l:%i %p") as time,
+                        strftime('%I:%M %p', TIME(lab_visits.insert_record_date)) as time,
                         total_price,
                         dicount,
                         (select name from lab_doctor where hash=lab_visits.doctor_hash) as doctor,
@@ -1454,6 +1465,9 @@ function invoiceHeader(worker) {
     console.log("orderOfHeader error =>", e);
     newWorkers = [{ hash: "logo" }, ...worker];
   }
+  if (newWorkers.length <= 0) {
+    newWorkers = [{ hash: "logo" }, ...worker];
+  }
   // if (
   //   orderOfHeader?.length > 0 &&
   //   orderOfHeader != "undefined" &&
@@ -1666,9 +1680,13 @@ function getNormalRange(finalResult = "", range = []) {
   } else if (high == "") {
     normalRange = (name ? `${name} : ` : "") + low + " <= ";
   }
-  let numers = finalResult.match(/\d+/g);
-  if (numers) {
-    finalResult = numers.join(".");
+  try {
+    let numers = finalResult.match(/\d+/g);
+    if (numers) {
+      finalResult = numers.join(".");
+    }
+  } catch (e) {
+    console.log(e);
   }
   if (parseFloat(finalResult) < parseFloat(low)) {
     color = "text-info p-1 border border-dark";
@@ -1740,8 +1758,6 @@ function showResult(visit, visitTests) {
   });
   // sort by category
   visitTests = visitTests.sort((a, b) => {
-    let type = JSON.parse(a?.options)?.type;
-    //if (type == "calc") return 1;
     return a.category > b.category ? 1 : -1;
   });
   let result_tests = [];
@@ -1751,10 +1767,23 @@ function showResult(visit, visitTests) {
   // sort visit tests by category
   let results = {};
   visitTests.forEach((test, index) => {
-    let options = JSON.parse(test.options);
+    let options = test.options;
+    options = options.replace(/\\/g, "");
+    try {
+      options = JSON.parse(options);
+    } catch (err) {
+      options = {};
+      console.log(err);
+    }
     let component = options.component;
     let value = options?.value;
-    let result_test = JSON.parse(test.result_test);
+    let result_test = test.result_test;
+    try {
+      result_test = result_test.replace(/\\/g, "");
+      result_test = JSON.parse(result_test);
+    } catch (err) {
+      result_test = {};
+    }
     result_tests.push({
       name: test.name,
       result: result_test?.[test.name],

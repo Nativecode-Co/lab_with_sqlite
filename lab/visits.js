@@ -132,7 +132,7 @@ class Visit extends Factory {
             lab_patient.hash = lab_visits.visits_patient_id
         where 
             lab_id=${localStorage.getItem("lab_hash")} and 
-            visit_date = CURDATE()`;
+            visit_date = date('now')`;
   }
 
   resetForm() {
@@ -199,7 +199,7 @@ class Visit extends Factory {
   mainCondition() {
     return ` where lab_id=${localStorage.getItem("lab_hash")}
         and 
-            visit_date = CURDATE() and ${this.table}.isdeleted='0'
+            visit_date = date('now') and ${this.table}.isdeleted='0'
         `;
   }
 

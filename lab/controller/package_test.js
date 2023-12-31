@@ -545,12 +545,33 @@ function deletePackage(hash) {
 const updateNormal = (test, kit, unit) => {
   TEST = run(`select option_test from lab_test where hash='${test}';`).result[0]
     .query0[0].option_test;
-  TEST = JSON.parse(TEST);
-  let { component } = TEST;
-  let { reference } = component[0];
-  let refrenceTable = THEME.build(test, reference, kit, unit);
-  $("#refrence_editor .modal-body").html(refrenceTable);
-  $("#refrence_editor").modal("show");
+  try {
+    TEST = TEST.replace(/\\/g, "");
+    TEST = JSON.parse(TEST);
+    let { component } = TEST;
+    let { reference } = component[0];
+    reference = reference.filter((item) => {
+      return (
+        (kit == item.kit || (isNull(kit) && isNull(item.kit))) &&
+        (unit == item.unit || (isNull(unit) && isNull(item.unit)))
+      );
+    });
+    if (reference.length == 0) {
+      throw "no refrence";
+    }
+    let refrenceTable = THEME.build(test, reference, kit, unit);
+    $("#refrence_editor .modal-body").html(refrenceTable);
+    $("#refrence_editor").modal("show");
+  } catch (error) {
+    Swal.fire({
+      toast: true,
+      position: "top-end",
+      icon: "error",
+      title: "لا يوجد رينجات لتعديلها يرجي اضافة رينجات اولا",
+      showConfirmButton: false,
+      timer: 3000,
+    });
+  }
 };
 
 function updateRefrence(hash, refID) {

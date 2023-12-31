@@ -242,12 +242,6 @@ class Menu_db extends CI_Model
 
 	function run_query($query = "", $hash = "")
 	{
-		$check = $this->db->query("SHOW COLUMNS FROM unimedica_db.lab_invoice LIKE 'setting';");
-		$result = $check->row_array();
-		// check if column setting is exist
-		if (empty($result)) {
-			$this->db->query("ALTER TABLE unimedica_db.lab_invoice ADD COLUMN `setting` JSON NULL AFTER `font_color`;");
-		}
 
 		$insert_hash = "";
 		// $res=""; 

@@ -268,6 +268,7 @@ function getStatus(options) {
 }
 
 function getKits(options) {
+  options = options.replace(/\\/g, "");
   let kit = "";
   if (options == '{"": ""}' || options == "") {
     kit = '<span class="badge badge-danger"> لا يوجد kits </span>';
@@ -286,6 +287,7 @@ function getKits(options) {
 // [${item?.range.map(range=>`(${range.name != ''?`${range.name} : `:''}${range.low}-${range.high})`).join(' ')}]
 
 function getRefrences(options, hash) {
+  options = options.replace(/\\/g, "");
   if (
     options == '{"": ""}' ||
     options == "" ||
@@ -359,7 +361,8 @@ function editTest(hash) {
 
 function editRefrence(hash, refID) {
   let test = allTests.filter((item) => item.hash == hash)[0];
-  let component = JSON.parse(test.option_test).component;
+  let options = test.option_test.replace(/\\/g, "");
+  let component = JSON.parse(options).component;
   let refrence = component[0].reference;
   let newRefrence = refrence.filter((item, index, self) => {
     return self.findIndex((t) => t.kit === item.kit) === index;
@@ -377,7 +380,8 @@ function updateRefrence(hash, refID) {
   // empty from container
   formContainer.empty();
   let test = allTests.filter((item) => item.hash == hash)[0];
-  let component = JSON.parse(test.option_test).component;
+  let options = test.option_test.replace(/\\/g, "");
+  let component = JSON.parse(options).component;
   let refrences = component[0].reference;
   let refrence = refrences.find((item, index, self) => index == refID);
   let form = THEME.mainForm(refID, hash, refrence);
@@ -411,7 +415,8 @@ function saveRefrence(hash, refID) {
     );
   }
   let test = allTests.filter((item) => item.hash == hash)[0];
-  let test_options = JSON.parse(test.option_test);
+  let test_options = test.option_test.replace(/\\/g, "");
+  test_options = JSON.parse(test_options);
   let component = test_options.component;
   let element = THEME.getData(refID, result, options, rightOptions);
   console.log(element);
@@ -495,7 +500,8 @@ function saveRefrence(hash, refID) {
 
 function deleteRefrence(hash, refID) {
   let test = allTests.filter((item) => item.hash == hash)[0];
-  let test_options = JSON.parse(test.option_test);
+  let test_options = test.option_test.replace(/\\/g, "");
+  test_options = JSON.parse(test_options);
   let component = test_options.component;
   let _kit = component[0].reference[refID].kit;
   // get refrence i want to delete
