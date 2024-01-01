@@ -2,3 +2,4 @@
 app/application/controllers/Chat.php
 lab/js/const.js
 /lab/js/const.js
+app/application/databases/db.sqlite

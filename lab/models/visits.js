@@ -966,12 +966,12 @@ const updateNormal = (test, kit, unit) => {
     TEST = JSON.parse(TEST);
     let { component } = TEST;
     let { reference } = component[0];
-    reference = reference.filter((item) => {
-      return (
-        (kit == item.kit || (isNull(kit) && isNull(item.kit))) &&
-        (unit == item.unit || (isNull(unit) && isNull(item.unit)))
-      );
-    });
+    // reference = reference.filter((item) => {
+    //   return (
+    //     (kit == item.kit || (isNull(kit) && isNull(item.kit))) &&
+    //     (unit == item.unit || (isNull(unit) && isNull(item.unit)))
+    //   );
+    // });
     if (reference.length == 0) {
       throw "no refrence";
     }

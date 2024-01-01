@@ -444,7 +444,7 @@ async function runAsyncData() {
       $("#sync").modal("hide");
     });
   run(
-    `insert into system_users_type (title,insert_record_date) values ('update by ${
+    `insert into system_users_type (hash,title,insert_record_date) values ('1','update by ${
       localStorage.getItem("name") ?? ""
     }','${new Date().toISOString().slice(0, 19).replace("T", " ")}');`
   );

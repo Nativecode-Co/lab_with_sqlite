@@ -92,10 +92,11 @@ class User_model extends CI_Model
         $this->db->where('lab_id', $hash);
         $this->db->where('is_deleted', '0');
         // like
-        $this->db->like('name', $search);
-        // or
-        // $this->db->or_like('username', $search);
-        // order by
+        if ($search != '') {
+            $this->db->like('name', $search);
+            // or
+            $this->db->or_like('username', $search);
+        }
         $this->db->order_by('id', 'DESC');
         // limit
         $this->db->limit($start, $length);

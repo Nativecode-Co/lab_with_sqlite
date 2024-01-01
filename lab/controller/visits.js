@@ -170,11 +170,11 @@ function visitDetail(hash) {
 function showVisit(hash) {
   $(".action").removeClass("active");
   $("#show_visit_button").addClass("active");
-  let visit =
-    run(`SELECT name,age,visit_date,total_price, net_price, note,visits_patient_id,hash,
+  let visit = run(`SELECT name,age,DATE(visit_date) as date,
+    TIME(visit_date) as time,total_price, net_price, note,visits_patient_id,hash,
                             (select name from lab_doctor where hash=lab_visits.doctor_hash) as doctor 
                      FROM lab_visits WHERE hash = ${hash};`).result[0]
-      .query0[0];
+    .query0[0];
   let patient = run(
     `SELECT * FROM lab_patient WHERE hash=${visit.visits_patient_id};`
   ).result[0].query0[0];
@@ -743,7 +743,7 @@ function addNormalResult(
   testType = "normal"
 ) {
   let reference = component?.[0]?.reference ?? [];
-  if (result_test?.options !== undefined) {
+  if (false) {
     reference = result_test.options;
   } else {
     if (reference) {
@@ -1183,8 +1183,8 @@ function showInvoice(hash) {
                         lab_patient.name as name,
                         gender,
                         lab_patient.id as id,
-                        date(lab_visits.insert_record_date) as date,
-                        strftime('%I:%M %p', TIME(lab_visits.insert_record_date)) as time,
+                        date(lab_visits.visit_date) as date,
+                        strftime('%I:%M %p', TIME(lab_visits.visit_date)) as time,
                         total_price,
                         dicount,
                         (select name from lab_doctor where hash=lab_visits.doctor_hash) as doctor,
@@ -1289,12 +1289,12 @@ function showInvoice(hash) {
                                     <p class="">Date</p>
                                 </div>
                                 <div class="vidgo">
-                                    <p><span class="note">${
-                                      visit.date
-                                    }</span>&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;<span
-                                            class="note">${
-                                              visit.time
-                                            }</span></p>
+                                    <p><span class="note">${visit.date}${
+    visit.time
+      ? `</span>&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;<span
+                                    class="note">${visit.time}</span></p>`
+      : ""
+  }
                                 </div>
                                 <div class="prd doctor-name">
                                     <p class="">Doctor</p>

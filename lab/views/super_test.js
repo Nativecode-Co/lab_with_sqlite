@@ -288,41 +288,50 @@ function getKits(options) {
 
 function getRefrences(options, hash) {
   options = options.replace(/\\/g, "");
-  if (
-    options == '{"": ""}' ||
-    options == "" ||
-    options == '{"component": []}'
-  ) {
-    return '<span class="badge badge-danger"> لا يوجد Ranges </span>';
-  } else if (
-    (JSON.parse(options)?.component?.[0]?.reference ?? []).length <= 0
-  ) {
-    return '<span class="badge badge-danger"> لا يوجد Ranges </span>';
-  } else {
-    let refrence = JSON.parse(options)?.component?.[0]?.reference ?? [];
-    // delete refrence if refrence.kit duplicate in refrence
-    let newRefrence = refrence.filter((item, index, self) => {
-      return self.findIndex((t) => t.kit === item.kit) === index;
-    });
-    newRefrence = newRefrence.map((item, cur) => {
-      let br = "";
-      if ((cur + 1) % 4 == 0) {
-        br = "<br>";
-      }
-      let _kit = kits.find((x) => x.id == item.kit);
-      if (_kit == undefined && item.kit != "") {
-        return;
-      }
-      return `<span class="badge badge-light border border-info p-2 mr-2 mb-2 col-auto" id="test-${hash}_kit-${(
-        _kit?.name.replace(/[^a-zA-Z0-9]/g, "_") ?? "No Kit"
-      )
-        .split(" ")
-        .join("_")}">
+  options = options.replace(/""\d*""/g, (x) => {
+    return x.replace(/""/g, '"');
+  });
+  // replace ""0.0"" to "0.0"
+  options = options.replace(/""\d*.\d*""/g, (x) => {
+    return x.replace(/""/g, '"');
+  });
+  try {
+    if (
+      options == '{"": ""}' ||
+      options == "" ||
+      options == '{"component": []}' ||
+      (JSON.parse(options)?.component?.[0]?.reference ?? []).length <= 0
+    ) {
+      return '<span class="badge badge-danger"> لا يوجد Ranges </span>';
+    } else {
+      let refrence = JSON.parse(options)?.component?.[0]?.reference ?? [];
+      // delete refrence if refrence.kit duplicate in refrence
+      let newRefrence = refrence.filter((item, index, self) => {
+        return self.findIndex((t) => t.kit === item.kit) === index;
+      });
+      newRefrence = newRefrence.map((item, cur) => {
+        let br = "";
+        if ((cur + 1) % 4 == 0) {
+          br = "<br>";
+        }
+        let _kit = kits.find((x) => x.id == item.kit);
+        if (_kit == undefined && item.kit != "") {
+          return;
+        }
+        return `<span class="badge badge-light border border-info p-2 mr-2 mb-2 col-auto" id="test-${hash}_kit-${(
+          _kit?.name.replace(/[^a-zA-Z0-9]/g, "_") ?? "No Kit"
+        )
+          .split(" ")
+          .join("_")}">
                         ${_kit?.name ?? "No Kit"} 
                         <a onclick="editRefrence('${hash}',${cur})"><i class="far fa-edit fa-lg mx-2 text-success"></i></a>
                 </span>${br}`;
-    });
-    return newRefrence.join(" ");
+      });
+      return newRefrence.join(" ");
+    }
+  } catch (e) {
+    console.log(options);
+    return '<span class="badge badge-danger"> لا يوجد Ranges </span>';
   }
 }
 

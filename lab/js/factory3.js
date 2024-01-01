@@ -438,7 +438,7 @@ class Factory extends Query {
       this.dataTable = setTable_1(this.tableId);
     }
     for (let row of data) {
-      if (!$(`tr#${row.hash}`).length > 0) {
+      if (!$(`#${row.hash}tr`).length > 0) {
         this.addRow(row);
       }
     }
