@@ -98,12 +98,7 @@ Swal.fire({
 });
 
 new Promise((resolve, reject) => {
-  kits = run(`SELECT distinct kits.id, kits.name
-    FROM kits
-    JOIN device_kit ON kits.id = device_kit.kit_id
-    JOIN lab_device ON device_kit.device_id = lab_device.devices_id
-    JOIN lab ON lab_device.lab_id = lab.id
-    WHERE lab.id = '${localStorage.getItem("lab_hash")}';`).result[0].query0;
+  kits = run(`SELECT distinct kits.id, kits.name FROM kits;`).result[0].query0;
   resolve();
 })
   .then((res) => {
