@@ -454,10 +454,12 @@ class TableTheme extends Theme {
   }
 
   resizeModal() {
-    const modalSize = document.querySelector(
-      "#refrence_editor .modal-dialog.modal-xl"
-    );
-    modalSize.style.maxWidth = "90%";
+    try {
+      const modalSize = document.querySelector(
+        "#refrence_editor .modal-dialog.modal-xl"
+      );
+      modalSize.style.maxWidth = "90%";
+    } catch (e) {}
   }
 
   build(hash, refrences, selectedKit) {

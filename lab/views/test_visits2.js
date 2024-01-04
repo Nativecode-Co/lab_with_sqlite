@@ -9,6 +9,8 @@ const startDateElement = document.getElementById("startDate");
 const endDateElement = document.getElementById("endDate");
 // selected tests
 const selectedTestsElement = document.getElementById("test_searsh");
+// add all tests option
+
 // doctor
 const doctorElement = document.getElementById("doctor");
 // search button
@@ -50,12 +52,21 @@ const addTest = (test) => {
   </div>`;
 };
 
+const selectAllTest = () => {
+  $(selectedTestsElement)
+    .select2("destroy")
+    .find("option")
+    .prop("selected", "selected")
+    .end()
+    .select2();
+};
+
 const getTests = async () => {
   const startDate = startDateElement.value;
   const endDate = endDateElement.value;
   // selectedTestsElement is a multiple select2 element
   const selectedTests = $(selectedTestsElement).val();
-  console.log("selectedTests", selectedTests);
+
   const doctor = doctorElement.value;
 
   const formData = new FormData();

@@ -88,21 +88,22 @@ const runQueries = async (username, password, type) => {
     }
     return form;
   }
-
   message.innerHTML = "";
 
-  let { queries } = res;
-  queries = queries.filter((query) => query != null && query != "");
-  let queriesForm = new FormData();
-  queriesForm.append("queries", JSON.stringify(queries.slice(0, 1)));
-  await fetch(`${base_url}LocalApi/run_queries`, {
-    method: "POST",
-    body: queriesForm,
-  })
-    .then((res) => res.json())
-    .then((res) => {
-      return res;
-    });
+  try {
+    let { queries } = res;
+    queries = queries.filter((query) => query != null && query != "");
+    let queriesForm = new FormData();
+    queriesForm.append("queries", JSON.stringify(queries));
+    await fetch(`${base_url}LocalApi/run_queries`, {
+      method: "POST",
+      body: queriesForm,
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        return res;
+      });
+  } catch (e) {}
 };
 
 const waitLoginElement = `<div id="alert_screen" class="alert_screen"> 
@@ -176,6 +177,7 @@ const login = async () => {
       "visits_tests",
       "workers",
       "invoice",
+      "lab",
     ];
     for (let type of types) {
       await runQueries(username, password, type);

@@ -197,7 +197,7 @@ function uploadFileOnline(file, folder, name) {
 }
 
 async function clean_db() {
-  await fetch(`${base_url}LocalApi/clean`);
+  await fetch(`${base_url}LocalApi/clean`).then((res) => res.json());
 }
 
 async function clean_db_us() {

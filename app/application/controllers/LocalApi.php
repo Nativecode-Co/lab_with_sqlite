@@ -30,6 +30,9 @@ class LocalApi extends CI_Controller
     public function getUserCount()
     {
         $userCount = $this->User_model->get_user_count();
+        if ($userCount == 0) {
+            $this->trancateLabTable();
+        }
         echo json_encode(
             array(
                 'status' => true,
@@ -40,6 +43,12 @@ class LocalApi extends CI_Controller
             JSON_UNESCAPED_UNICODE
         );
         die();
+    }
+
+    public function trancateLabTable()
+    {
+        // trancate lab table
+        $this->db->query("delete from lab;");
     }
 
     // add user

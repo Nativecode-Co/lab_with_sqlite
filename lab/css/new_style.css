@@ -761,3 +761,9 @@ input:checked + .items
     line-height: 31px;
     padding: 0 2.5rem !important;
 }
+
+.select2-selection--multiple {
+    min-height: 47px;
+    max-height: 47px;
+    overflow-y: auto;
+  }

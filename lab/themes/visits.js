@@ -96,11 +96,12 @@ class TestsThemeOne extends TestsTheme {
                                 }" data-price="${item.price}" value="${
                                   item.hash
                                 }" id="package_${item.hash}" >
-                                <span class="new-control-indicator m-3  d-none"></span><span class="ml-2 overflow-text-hidden">${
-                                  item.name
-                                }</span><p class="m-0"> ${parseInt(
+                                <p class="m-0"> ${parseInt(
                                   item.price
                                 )?.toLocaleString()} </p>
+                                <span  class="new-control-indicator m-3  d-none"></span><span dir="ltr" class="ml-2 overflow-text-hidden">${
+                                  item.name
+                                }</span>
                             </label>
                         </div>
                             `;
@@ -143,11 +144,11 @@ class TestsThemeOne extends TestsTheme {
                                   }" data-price="${item.price}" value="${
                                     item.hash
                                   }" id="package_${item.hash}" >
-                                              <span class="new-control-indicator m-3 d-none"></span><span class="ml-2 overflow-text-hidden">${
-                                                item.name
-                                              }</span><p class="m-0"> ${parseInt(
-                                    item.price
-                                  )?.toLocaleString()} </p>
+                                              <p class="m-0"> ${parseInt(
+                                                item.price
+                                              )?.toLocaleString()} </p>
+                                  <span class="new-control-indicator m-3 d-none"></span><span class="ml-2 overflow-text-hidden" dir="ltr"
+                                  >${item.name}</span>
                                           </label>
                                       </div>
                               `
@@ -305,11 +306,12 @@ class TestsThemeTwo extends TestsTheme {
                           }" data-price="${item.price}" value="${
                             item.hash
                           }" id="package_${item.hash}" >
-                          <span class="new-control-indicator m-3 d-none"></span><span class="ml-2 overflow-text-hidden">${
-                            item.name
-                          }</span><p class=""> ${parseInt(
+                          <p class=""> ${parseInt(
                             item.price
                           )?.toLocaleString()} </p>
+                          <span class="new-control-indicator m-3 d-none"></span><span dir="ltr" class="ml-2 overflow-text-hidden">${
+                            item.name
+                          }</span>
                       </label>
                   </div>
                       `;
@@ -348,11 +350,12 @@ class TestsThemeTwo extends TestsTheme {
                           }" data-price="${item.price}" value="${
                             item.hash
                           }" id="package_${item.hash}" >
-                                      <span class="new-control-indicator m-3 d-none"></span><span class="ml-2 overflow-text-hidden">${
-                                        item.name
-                                      }</span><p class=""> ${parseInt(
-                            item.price
-                          )?.toLocaleString()} </p>
+                                      <p class=""> ${parseInt(
+                                        item.price
+                                      )?.toLocaleString()} </p>
+                          <span  class="new-control-indicator m-3 d-none"></span><span dir="ltr" class="ml-2 overflow-text-hidden">${
+                            item.name
+                          }</span>
                                   </label>
                               </div>
                       `
