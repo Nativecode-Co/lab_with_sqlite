@@ -50,7 +50,6 @@ class LocalApi extends CI_Controller
         // trancate lab table
         $this->db->query("delete from lab;");
     }
-
     // add user
     public function addUser()
     {
