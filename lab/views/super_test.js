@@ -208,6 +208,19 @@ class Test extends Factory {
       .remove()
       .draw();
   }
+
+  saveUpdateItem(hash) {
+    super.saveUpdateItem(hash);
+    let data = this.getUpdateData();
+    let { test_name } = data;
+    let formData = new FormData();
+    formData.append("name", test_name);
+    formData.append("hash", hash);
+    fetch(`${base_url}Packages/updateNameWithTestHsh`, {
+      method: "POST",
+      body: formData,
+    }).then((res) => res.json());
+  }
 }
 
 function fetchData(page = 0, numerPerPage = 30, term = null) {

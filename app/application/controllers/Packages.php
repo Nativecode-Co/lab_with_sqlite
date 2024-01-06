@@ -98,6 +98,23 @@ class Packages extends CI_Controller
         );
     }
 
+    public function updateNameWithTestHsh()
+    {
+        $name = $this->input->post('name');
+        $hash = $this->input->post('hash');
+        $data = $this->Package_model->updateNameWithTestHsh($name, $hash);
+        echo json_encode(
+            array(
+                "status" => true,
+                "message" => "Success",
+                "isAuth" => true,
+                "data" => $data,
+                "token" => null
+            ),
+            JSON_UNESCAPED_UNICODE
+        );
+    }
+
     public function updateCostAndPrice()
     {
         $cost = $this->input->post('cost');
