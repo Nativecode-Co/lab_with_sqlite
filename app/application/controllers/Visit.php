@@ -16,18 +16,21 @@ class Visit extends CI_Controller
         $token = $this->input->get_request_header('Authorization', TRUE);
         $token = str_replace("Bearer ", "", $token);
         $decoded_array = $this->jwt_dec($token);
-        if ($decoded_array == 0) {
-            echo json_encode(array(
-                "status" => false,
-                "message" => "Invalid token",
-                "isAuth" => false,
-                "data" => null
-            ), JSON_UNESCAPED_UNICODE);
-            exit();
-        } else {
-            $res = $this->Menu_db->check_user_by_hash($decoded_array["hash"], $decoded_array["lab_id"]);
-            $token = $this->jwt_enc($res);
-        }
+        // if ($decoded_array == 0) {
+        //     echo json_encode(
+        //         array(
+        //             "status" => false,
+        //             "message" => "Invalid token",
+        //             "isAuth" => false,
+        //             "data" => null
+        //         ),
+        //         JSON_UNESCAPED_UNICODE
+        //     );
+        //     exit();
+        // } else {
+        //     $res = $this->Menu_db->check_user_by_hash($decoded_array["hash"], $decoded_array["lab_id"]);
+        //     $token = $this->jwt_enc($res);
+        // }
     }
 
 
@@ -115,5 +118,18 @@ class Visit extends CI_Controller
         } catch (Exception $e) {
             return 0;
         }
+    }
+
+    public function getVisitTests()
+    {
+        $visit_id = $this->input->post('visit_id');
+        $tests = $this->Visit_model->getVisitTests($visit_id);
+        $output = array(
+            "status" => 200,
+            "data" => $tests,
+            "message" => "تم الحصول على البيانات بنجاح"
+        );
+        echo json_encode($output);
+        exit();
     }
 }
