@@ -204,8 +204,9 @@ class Visit_model extends CI_Model
             $query = $this->db->query("
                 SELECT
                     kit_id as kit, unit,
-                    option_test as options,
-                    lab_test_catigory.name as category
+                   option_test as options,
+                    lab_test_catigory.name as category,
+                    result_test as result
                 FROM
                     lab_visits_tests
                     inner join lab_pakage_tests on lab_pakage_tests.package_id=lab_visits_tests.package_id
@@ -286,10 +287,18 @@ class Visit_model extends CI_Model
                     if (isset($component['result'])) {
                         $item['result'] = $component['result'];
                     }
+                    if (isset($test['result'])) {
+                        $item['result'] = $this->getResult($test['result']);
+                    } else if ($component['name']) {
+                        $item['result'] = array(
+                            "checked" => true,
+                            $component['name'] => ""
+                        );
+                    }
                     if (isset($test['category'])) {
                         $item['category'] = $test['category'];
                     } else {
-                        $item['category'] = "test";
+                        $item['category'] = "Tests";
                     }
                     return $item;
                 }, $options);
@@ -312,7 +321,7 @@ class Visit_model extends CI_Model
     public function getPatientDetail($visit_id)
     {
         $query = $this->db->query("
-            select gender,age from lab_visits
+            select gender,age,lab_patient.name,lab_visits.hash as visit_hash,visit_date as date from lab_visits
             inner join lab_patient on lab_patient.hash=lab_visits.visits_patient_id
             where lab_visits.hash='$visit_id'
         ");
@@ -321,5 +330,44 @@ class Visit_model extends CI_Model
         return $result;
     }
 
+    public function getResult($result)
+    {
+        $result = json_decode($result, true);
+        // delete options from result
+        unset($result['options']);
+        return $result;
+    }
 
+    public function getInvoice()
+    {
+        $this->db->select('color, phone_1, phone_2 as width, address, facebook, header, center, footer, logo, water_mark, footer_header_show, invoice_about_ar, invoice_about_en, font_size, zoom, doing_by, name_in_invoice, font_color, setting');
+        $this->db->from('lab_invoice');
+        $query = $this->db->get();
+        $result = $query->result_array();
+        $result = $result[0];
+        if (isset($result['setting'])) {
+            $result['setting'] = json_decode($result['setting'], true);
+        } else {
+            $result['setting'] = array(
+                "orderOfHeader" => array()
+            );
+        }
+        if (isset($result['width'])) {
+            $result['width'] = (int) $result['width'];
+        } else {
+            $result['width'] = 4;
+        }
+        return $result;
+    }
+
+    public function getWorkers()
+    {
+        $this->db->select('name, jop, jop_en');
+        $this->db->from('lab_invoice_worker');
+        // where isdeleted = 0
+        $this->db->where('isdeleted', '0');
+        $query = $this->db->get();
+        $result = $query->result_array();
+        return $result;
+    }
 }

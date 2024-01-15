@@ -398,7 +398,14 @@ function showResult(visit, visitTests) {
   });
   // sort by category
   visitTests = visitTests.sort((a, b) => {
-    let type = JSON.parse(a?.options)?.type;
+    let options = a.options;
+    options = options.replace(/\\/g, "");
+    try {
+      options = JSON.parse(options);
+    } catch (err) {
+      options = {};
+    }
+    let type = options?.type;
     //if (type == "calc") return 1;
     return a.category > b.category ? 1 : -1;
   });
@@ -407,7 +414,13 @@ function showResult(visit, visitTests) {
   let invoices = { normalTests: `` };
   // sort visit tests by category
   visitTests.forEach((test, index) => {
-    let options = JSON.parse(test.options);
+    let options = test.options;
+    options = options.replace(/\\/g, "");
+    try {
+      options = JSON.parse(options);
+    } catch (err) {
+      options = {};
+    }
     let component = options.component;
     let value = options?.value;
     let result_test = JSON.parse(test.result_test);

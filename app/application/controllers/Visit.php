@@ -122,11 +122,17 @@ class Visit extends CI_Controller
 
     public function getVisitTests()
     {
-        $visit_id = $this->input->post('visit_id');
+        $visit_id = $this->input->get('pk');
         $tests = $this->Visit_model->getVisitTests($visit_id);
+        $patient = $this->Visit_model->getPatientDetail($visit_id);
+        $invoice = $this->Visit_model->getInvoice();
+        $workers = $this->Visit_model->getWorkers();
         $output = array(
             "status" => 200,
-            "data" => $tests,
+            "workers" => $workers,
+            "patient" => $patient,
+            "invoice" => $invoice,
+            "tests" => $tests,
             "message" => "تم الحصول على البيانات بنجاح"
         );
         echo json_encode($output);

@@ -381,16 +381,20 @@ class Visit extends Factory {
   }
 
   saveNewItem() {
-    // let phone = run(`select phone from lab_patient where phone = '${$('#phone').val()}' and isdeleted = 0;`)?.result[0]?.query0[0]?.phone;
-    // if (phone) {
-    //     Swal.fire({
-    //         title: 'تنبيه',
-    //         text: 'هذا الرقم تابع لمريض مسجل بالفعل',
-    //         icon: 'warning',
-    //         confirmButtonText: 'موافق'
-    //     });
-    //     return false;
-    // }
+    let phone = run(
+      `select phone from lab_patient where name = '${$(
+        "#visits_patient_id"
+      ).val()}' and isdeleted = 0;`
+    )?.result[0]?.query0[0]?.phone;
+    if (phone) {
+      Swal.fire({
+        title: "تنبيه",
+        text: "هذا الاسم تابع لمريض مسجل بالفعل",
+        icon: "warning",
+        confirmButtonText: "موافق",
+      });
+      return false;
+    }
     if (!this.validate()) {
       return false;
     }

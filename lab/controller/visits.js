@@ -415,8 +415,8 @@ function showAddResult(hash, animate = true) {
                                 </button>
                             </div>-->
                             <div class="col-md-3 col-6">
-                                <button type="button" class="btn btn-add w-100" onclick="sendByWhatsapp('${hash}','${visit.phone}')">
-                                    <i class="mr-2 fab fa-whatsapp"></i>ارسال النتائج
+                                <button type="button" class="btn btn-add w-100" onclick="sendByWhatsapp('${hash}')">
+                                    <i class="mr-2 fab fa-whatsapp"></i>تنزيل pdf
                                 </button>
                             </div>
                             <!--<div class="col-md-2 col-6">
@@ -2278,34 +2278,13 @@ function manageInvoiceHeightForScroll() {
   $(".form-height").height(1500);
 }
 
-function sendByWhatsapp(hash, phone) {
-  // check internet connection
-  if (!navigator.onLine) {
-    Swal.fire({
-      icon: "error",
-      title: "تأكد من الاتصال بالانترنت",
-      text: "لا يوجد اتصال بالانترنت",
-    });
-    return;
-  }
-  syncOnline();
-  if (phone?.length > 10) {
-    if (phone[0] == "0") {
-      phone = `964${phone.slice(1)}`;
-    } else {
-      phone = `964${phone}`;
-    }
-    let url = `https://api.whatsapp.com/send?phone=${phone}&text=http://umc.native-code-iq.com/lab/downloadInvoice.html?pk=${hash}-${localStorage.getItem(
-      "lab_hash"
-    )}`;
-    window.open(url, "_blank");
-  } else {
-    Swal.fire({
-      icon: "error",
-      title: "تأكد من رقم الموبايل",
-      text: "لا يوجد رقم موبايل للمريض",
-    });
-  }
+function sendByWhatsapp(hash) {
+  let lab_hash = localStorage.getItem("lab_hash");
+  // open new blank tab
+  let newWindow = window.open(
+    `${base_url}Pdf?pk=${hash}&lab=${lab_hash}`,
+    "_blank"
+  );
 }
 
 function manageHead(type) {
