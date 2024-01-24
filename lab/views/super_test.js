@@ -219,53 +219,56 @@ class Test extends Factory {
     fetch(`${base_url}Packages/updateNameWithTestHsh`, {
       method: "POST",
       body: formData,
+      headers: {
+        Authorization: "Bearer " + localStorage.getItem("token"),
+      },
     }).then((res) => res.json());
   }
 }
 
-function fetchData(page = 0, numerPerPage = 30, term = null) {
-  term = term ? `having test_name like '%${term}%'` : "";
-  let tests = run(
-    `select test_name,hash,option_test,test_type from lab_test ${term} limit ${
-      numerPerPage * page
-    }, ${numerPerPage};`
-  ).result[0].query0;
-  let body = $(`#user_body`);
-  for (let test of tests) {
-    allTests.push(test);
-    body.append(
-      `<tr>
-                <td class="w-25">${test.test_name}</td>
-                <td class="w-50" id="test-${test.hash}">${getRefrences(
-        test.option_test,
-        test.hash
-      )}</td>
-                <td class="w-25">
-                    <a class="bs-tooltip" onclick="editTest('${
-                      test.hash
-                    }');" data-toggle="tooltip" data-placement="top" title="Edit">
-                        <i class="far fa-edit fa-lg mx-2"></i>
-                    </a>
-                    <a class="bs-tooltip" onclick="fireSwal(deleteTest,'${
-                      test.hash
-                    }')" data-toggle="tooltip" data-placement="top" title="Edit">
-                        <i class="far fa-trash fa-lg mx-2"></i>
-                    </a>
-                    <a class="bs-tooltip" onclick="addRefrence('${
-                      test.hash
-                    }');" data-toggle="tooltip" data-placement="top" title="Edit">
-                        <i class="far fa-plus-circle fa-lg mx-2"></i>
-                    </a>
-                </td>
-                <td></td>
-            </tr>`
-    );
-  }
-  if (table) {
-    setTable();
-    table = false;
-  }
-}
+// function fetchData(page = 0, numerPerPage = 30, term = null) {
+//   term = term ? `having test_name like '%${term}%'` : "";
+//   let tests = run(
+//     `select test_name,hash,option_test,test_type from lab_test ${term} limit ${
+//       numerPerPage * page
+//     }, ${numerPerPage};`
+//   ).result[0].query0;
+//   let body = $(`#user_body`);
+//   for (let test of tests) {
+//     allTests.push(test);
+//     body.append(
+//       `<tr>
+//                 <td class="w-25">${test.test_name}</td>
+//                 <td class="w-50" id="test-${test.hash}">${getRefrences(
+//         test.option_test,
+//         test.hash
+//       )}</td>
+//                 <td class="w-25">
+//                     <a class="bs-tooltip" onclick="editTest('${
+//                       test.hash
+//                     }');" data-toggle="tooltip" data-placement="top" title="Edit">
+//                         <i class="far fa-edit fa-lg mx-2"></i>
+//                     </a>
+//                     <a class="bs-tooltip" onclick="fireSwal(deleteTest,'${
+//                       test.hash
+//                     }')" data-toggle="tooltip" data-placement="top" title="Edit">
+//                         <i class="far fa-trash fa-lg mx-2"></i>
+//                     </a>
+//                     <a class="bs-tooltip" onclick="addRefrence('${
+//                       test.hash
+//                     }');" data-toggle="tooltip" data-placement="top" title="Edit">
+//                         <i class="far fa-plus-circle fa-lg mx-2"></i>
+//                     </a>
+//                 </td>
+//                 <td></td>
+//             </tr>`
+//     );
+//   }
+//   if (table) {
+//     setTable();
+//     table = false;
+//   }
+// }
 
 function getStatus(options) {
   if (options == '{"": ""}' || options == "") {

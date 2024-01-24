@@ -94,7 +94,10 @@
         <span style="
                 color: #30237D;
                 font-weight: bold;
-            ">Unimedica</span>
+            ">Unimedica
+            <!-- version as sub -->
+            <sub class="text-danger version"></sub>
+        </span>
     </p>
 
     <!-- BEGIN GLOBAL MANDATORY SCRIPTS -->
@@ -136,6 +139,11 @@
     <script src="js/login.js"></script>
     <script src="js/exe.js"></script>
     <script src="js/factory3.js"></script>
+    <script>
+        let version = fetchData("Offline/getLastVersion", "GET", {})
+        $(".version").html(version ?? 0);
+
+    </script>
     <!-- <script src="js/charts/index.js"></script> -->
     <!-- BEGIN PAGE LEVEL PLUGINS/CUSTOM SCRIPTS -->
     <script>

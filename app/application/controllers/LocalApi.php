@@ -7,6 +7,7 @@ class LocalApi extends CI_Controller
     {
         parent::__construct();
         $this->load->model('User_model');
+        $this->load->helper('download');
         $this->load->database(); // Load the database library
         if (!$this->db->conn_id) {
             echo json_encode(
@@ -48,8 +49,9 @@ class LocalApi extends CI_Controller
     public function trancateLabTable()
     {
         // trancate lab table
-        $this->db->query("delete from lab;");
+        $this->db->query('TRUNCATE TABLE lab;');
     }
+
     // add user
     public function addUser()
     {
@@ -77,6 +79,14 @@ class LocalApi extends CI_Controller
                 'hash' => $this->input->post('hash')
             )
         );
+        $this->db->update(
+            'system_users_type',
+            array(
+                // now
+                'insert_record_date' => date('Y-m-d H:i:s'),
+            ),
+            array('id' => 1)
+        );
         echo json_encode(
             array(
                 'status' => true,
@@ -101,7 +111,7 @@ class LocalApi extends CI_Controller
             }
         }
         // trancate offline_sync table
-        $this->db->query('DELETE FROM offline_sync;');
+        $this->db->query('TRUNCATE TABLE offline_sync');
         echo json_encode(
             array(
                 'status' => true,
@@ -116,20 +126,8 @@ class LocalApi extends CI_Controller
 
     public function clean()
     {
-        $this->db->query("
-        DELETE FROM lab_doctor;
-        DELETE FROM lab_patient;
-        DELETE FROM lab_visits;
-        DELETE FROM lab_package;
-        DELETE FROM lab_pakage_tests;
-        DELETE FROM offline_sync;
-        DELETE FROM system_users;
-        DELETE FROM lab_visits_package;
-        DELETE FROM lab_visits_tests;
-        DELETE FROM lab_invoice_worker;
-        DELETE FROM lab_invoice;
-        DELETE FROM lab_expire;
-        ");
+        // CALL unimedica_db.lab_clean()
+        $this->db->query('CALL lab_clean()');
         echo json_encode(
             array(
                 'status' => true,
@@ -145,31 +143,25 @@ class LocalApi extends CI_Controller
     {
         $lab_id = $this->input->post('lab_id');
         $url = $this->db->query("SELECT logo FROM lab_invoice WHERE lab_hash = $lab_id")->row()->logo;
-        $local_host = $_SERVER['SERVER_NAME'];
-        $img = '/var/www/html/app/uploads/' . basename($url);
-        shell_exec("chmod -R 777 /var/www/html/");
-        // check permission
-
-        if (!is_writable($img)) {
-            echo json_encode(
-                array(
-                    'status' => 400,
-                    'message' => 'فشل تحميل الصورة',
-                    'data' => 'لا يمكنك تحميل الصورة',
-                    'isAuth' => false
-                ),
-                JSON_UNESCAPED_UNICODE
-            );
-            die();
+        // get path
+        $path = getcwd();
+        if (!file_exists("$path\uploads")) {
+            mkdir("$path\uploads", 0777, true);
         }
-        file_put_contents($img, file_get_contents($url), FILE_APPEND);
-        $this->db->query("UPDATE lab_invoice SET logo = 'http://$local_host/app/uploads/" . basename($url) . "' WHERE lab_hash = $lab_id");
+        $path = $path . '/uploads/' . basename($url);
+        shell_exec("chmod -R 777 /var/www/html/");
+        // dwonload image from url to path
+
+        $result = file_put_contents($path, file_get_contents($url), FILE_APPEND);
+        $path = "http://localhost:8807/app/uploads/" . basename($url);
+        $this->db->query("UPDATE lab_invoice SET logo = '$path' WHERE lab_hash = $lab_id");
+
         echo json_encode(
             array(
-                'status' => $url,
-                'message' => 'تحميل الصورة',
-                'data' => $this->db->affected_rows(),
-                'isAuth' => $img
+                'status' => 400,
+                'message' => 'فشل تحميل الصورة',
+                'data' => 'لا يمكنك تحميل الصورة',
+                'isAuth' => $path
             ),
             JSON_UNESCAPED_UNICODE
         );

@@ -87,7 +87,8 @@
                             <i class="far fa-cloud-download-alt"></i> مزامنة
                         </a>
                         <a onclick="updateSystem()" class="text-danger btn btn-action w-230 col-auto mr-30 mb-30">
-                            <i class="far fa-microscope"></i> تحديث النظام
+                            <i class="far fa-microscope"></i> تحديث النظام <span
+                                class="badge badge-danger version d-none">1</span>
                         </a>
                         <a href="https://youtube.com/playlist?list=PLVl1qnrrq30Y_6nWnKt8BNcx5YVILZZiG"
                             class="btn btn-action w-230 col-auto mr-30 mb-30" target="_blank">
@@ -254,6 +255,10 @@
     </script>
     <script>
         updateExpireDate();
+        let Update = fetchData("pull/needUpdate", "GET", {});
+        if (Update) {
+            $(".version").removeClass("d-none");
+        }
         let formDate = new FormData();
         formDate.append("lab", localStorage.getItem("lab_hash"));
         fetch(`${base_url}LastDate/get`, {

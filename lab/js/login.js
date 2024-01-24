@@ -86,7 +86,7 @@ const runQueries = async (username, password, type) => {
     for (let key in data) {
       form.append(key, data[key]);
     }
-    return form;
+    return { data, form };
   }
   message.innerHTML = "";
 
@@ -113,7 +113,7 @@ const waitLoginElement = `<div id="alert_screen" class="alert_screen">
             <div class="card-body text-center">
               <h1 class="card-title">الرجاء الانتظار </h1>
               <h4>يتم الان تهيئة بيانات النظام</h4>
-              <h4>الرجاء عدم اغلاق الصفحة لعدم حصول مشكلة</h4>
+              <h4>الرجاء عدم اغلاق الصفحة لكي حصول مشكلة</h4>
               <img class="spinner-grow-alert" src="${front_url}assets/image/flask.png" width="100" height="100" alt="alert_screen">
               <div class="w-100 mt-5"></div>
             </div>
@@ -183,7 +183,7 @@ const login = async () => {
       await runQueries(username, password, type);
     }
     addAlert("تم اكمال 40 % من عملية تنزيل البيانات");
-    let form = await runQueries(username, password, "user");
+    let { form, data } = await runQueries(username, password, "user");
 
     await fetch(`${base_url}LocalApi/addUser`, {
       method: "POST",
@@ -195,7 +195,7 @@ const login = async () => {
       });
 
     let labIdForm = new FormData();
-    labIdForm.append("lab_id", form.lab_id);
+    labIdForm.append("lab_id", data.lab_id);
 
     await fetch(`${base_url}LocalApi/downloadImage`, {
       method: "POST",

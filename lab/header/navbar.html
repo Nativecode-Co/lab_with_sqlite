@@ -67,6 +67,7 @@
 </header>
 <script>
     run(`select name from system_users where id='1111111';`);
+    let needUpdate = fetchData("pull/needUpdate", "GET", {});
     if ($(window).width() < 2100) {
         document.body.style.zoom = $(window).width() / 2100;
     }
@@ -155,7 +156,7 @@
                 <a href="${front_url}about-system.html">
                     <div class="">
                         <i class="far fa-cogs fa-lg mr-2"></i>
-                        <span>حول البرنامج</span>
+                        <span>حول البرنامج</span> <span class="badge badge-danger text-light">${needUpdate ? 1 : ""}</span>
                     </div>
                 </a>
             </li>

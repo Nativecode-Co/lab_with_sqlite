@@ -5,6 +5,12 @@ let units = run(`select name,hash from lab_test_units;`).result[0].query0;
 let __VISIT_TESTS__ = [];
 
 const changePatient = function (el) {
+  if (!el) {
+    el = $("input[name='new_patient']");
+    let is_checked = el.is(":checked");
+    // change prop checked
+    el.prop("checked", !is_checked);
+  }
   $("#visits_patient_id-form").empty();
   if (!el.is(":checked")) {
     $("#visits_patient_id-form").append(`
@@ -351,10 +357,10 @@ function showAddResult(hash, animate = true) {
                         option_test as options,
                         test_name as name,
                         kit_id,
-                        (select name from devices where devices.id=lab_device_id) as device_name,
-                        (select name from kits where kits.id =kit_id) as kit_name,
-                        (select name from lab_test_units where hash=lab_pakage_tests.unit) as unit_name,
-                        (select name from lab_test_catigory where hash=lab_test.category_hash) as category,
+                        (select name from devices where devices.id=lab_device_id limit 1) as device_name,
+                        (select name from kits where kits.id =kit_id limit 1) as kit_name,
+                        (select name from lab_test_units where hash=lab_pakage_tests.unit limit 1) as unit_name,
+                        (select name from lab_test_catigory where hash=lab_test.category_hash limit 1) as category,
                         unit,
                         result_test,
                         lab_visits_tests.hash as hash,
@@ -404,27 +410,17 @@ function showAddResult(hash, animate = true) {
                                     <i class="mr-2 fal fa-print"></i>طباعة النتائج
                                 </button>
                             </div>
-                            <!--<div class="col-md-3 col-6">
-                                <button type="button" class="btn btn-outline-print w-100" id="print-invoice-result">
-                                    <i class="mr-2 fal fa-print"></i>طباعة النتائج
+                            <div class="col-md-2 col-6">
+                                <button type="button" class="btn btn-outline-print w-100" onclick="sendWhatsapp('${hash}', '${visit.phone}', '${visit.name}')">
+                                    <i class="mr-2 fab fa-whatsapp"></i>  الواتساب
                                 </button>
                             </div>
                             <div class="col-md-2 col-6">
-                                <button type="button" class="btn btn-outline-print w-100" id="print-all-invoice-result">
-                                    <i class="mr-2 fal fa-print"></i>طباعة الكل
-                                </button>
-                            </div>-->
-                            <div class="col-md-3 col-6">
-                                <button type="button" class="btn btn-add w-100" onclick="sendByWhatsapp('${hash}')">
-                                    <i class="mr-2 fab fa-whatsapp"></i>تنزيل pdf
-                                </button>
+                            <button type="button" class="btn btn-add w-100" onclick="dwonloadInvoice('${hash}')">
+                            <i class="mr-2 fas fa-file-pdf"></i>تنزيل pdf
+                            </button>
                             </div>
-                            <!--<div class="col-md-2 col-6">
-                                <a type="button" class="btn btn-outline-print w-100" onclick="printAfterSelect()">
-                                    <i class="mr-2 fal fa-file-download"></i>تنزيل الملف
-                                </a>
-                            </div>-->
-                            <div class="col-md-3 col-6">
+                            <div class="col-md-2 col-6">
                                 <button type="button" class="btn btn-outline-print w-100" onclick="toggleHeaderAndFooter.call(this)">
                                     <i class="mr-2 fal fa-print"></i>اظهار - اخفاء الفورمة 
                                 </button>
@@ -1433,107 +1429,49 @@ function showInvoice(hash) {
   manageInvoiceHeight();
 }
 
-function invoiceHeader(worker) {
-  let orderOfHeader = sessionStorage.getItem("orderOfHeader");
-  try {
-    let setting = JSON.parse(invoices.setting);
-    orderOfHeader = JSON.parse(setting?.orderOfHeader ?? "[]") ?? null;
-  } catch (e) {
-    console.log("setting error =>", e);
-  }
-  let newWorkers = [];
-
-  try {
-    if (typeof orderOfHeader == "string") {
-      orderOfHeader = JSON.parse(orderOfHeader);
-    }
-    orderOfHeader?.forEach((hash) => {
-      if (hash == "logo") {
-        newWorkers.push({ hash: "logo" });
-        return;
-      }
-      worker.find((employee) => {
-        if (employee.hash == hash) {
-          newWorkers.push(employee);
-        }
-      });
-    });
-    if (newWorkers.length == 1) {
-      newWorkers = [...newWorkers, ...worker];
-    }
-  } catch (e) {
-    console.log("orderOfHeader error =>", e);
-    newWorkers = [{ hash: "logo" }, ...worker];
-  }
-  if (newWorkers.length <= 0) {
-    newWorkers = [{ hash: "logo" }, ...worker];
-  }
-  // if (
-  //   orderOfHeader?.length > 0 &&
-  //   orderOfHeader != "undefined" &&
-  //   orderOfHeader != undefined &&
-  //   orderOfHeader != null &&
-  //   orderOfHeader != "null"
-  // ) {
-  //   if (typeof orderOfHeader == "string") {
-  //     orderOfHeader = JSON.parse(orderOfHeader);
-  //   }
-  //   orderOfHeader?.forEach((hash) => {
-  //     if (hash == "logo") {
-  //       newWorkers.push({ hash: "logo" });
-  //       return;
-  //     }
-  //     worker.find((employee) => {
-  //       if (employee.hash == hash) {
-  //         newWorkers.push(employee);
-  //       }
-  //     });
-  //   });
-  //   if (newWorkers.length == 1) {
-  //     newWorkers = [...newWorkers, ...worker];
-  //   }
-  // } else {
-  //   newWorkers = [{ hash: "logo" }, ...worker];
-  // }
-  let size =
-    (invoices?.phone_2 == "undefined" || invoices?.phone_2 == ""
-      ? 4
-      : invoices?.phone_2) ?? "4";
-  let hteml = "";
-  if (newWorkers.length > 1) {
-    html = newWorkers
+function invoiceHeader() {
+  let html = "";
+  let res = fetchData(`Visit/getInvoice`, "GET", {});
+  let { size, workers, logo, name_in_invoice } = res.invoice;
+  if (workers.length > 0) {
+    html = workers
       .map((worker) => {
         if (worker.hash == "logo") {
           return `
-        <div class="logo col-${size}  p-2">
-        <img src="${invoices?.logo}" alt="" />
-      </div>
-      `;
+          <div class="logo p-2" style="
+            flex: 0 0 ${size}%;
+            max-width: ${size}%;
+          ">
+          <img src="${logo}" alt="" />
+        </div>
+        `;
         }
         return `
-      <div class="right col-md-${size}">
-        <div class="size1">
-          <p class="title">${worker?.jop ?? "Jop title"}</p>
-          <p class="namet">${worker?.name ?? "Worker name"}</p>
-          <p class="certificate">${worker?.jop_en ?? "Jop En title"}</p>
+        <div class="right" style="
+        flex: 0 0 ${size}%;
+        max-width: ${size}%;
+      ">
+          <div class="size1">
+            <p class="title">${worker.jop ?? "Jop title"}</p>
+            <p class="namet">${worker.name ?? "Worker name"}</p>
+            <p class="certificate">${worker.jop_en ?? "Jop En title"}</p>
+          </div>
         </div>
-      </div>
-      `;
+        `;
       })
       .join("");
   } else {
     html = `
-      <div class="logo col-4 p-2">
-          <img src="${invoices?.logo ?? ""}" 
-          alt="${invoices?.logo ?? "upload Logo"}">
-      </div>
-      <div class="logo justify-content-end col-4 p-2">
-          <h2 class="navbar-brand-name text-center">${
-            invoices?.name_in_invoice ?? localStorage.lab_name ?? ""
-          }</h2>
-      </div>`;
+        <div class="logo col-4 p-2">
+            <img src="${logo ?? ""}"
+            alt="${logo ?? "upload Logo"}">
+        </div>
+        <div class="logo justify-content-end col-4 p-2">
+            <h2 class="navbar-brand-name text-center">${
+              name_in_invoice ?? localStorage.lab_name ?? ""
+            }</h2>
+        </div>`;
   }
-
   return `
     <div class="header">
         <div class="row justify-content-between">
@@ -1544,9 +1482,9 @@ function invoiceHeader(worker) {
 }
 
 function createInvoice(visit, type, form) {
-  let header = invoiceHeader(workers);
+  let header = invoiceHeader();
   return `<div class="book-result" dir="ltr" id="invoice-${type}" style="display: none;">
-		<div class="page">
+		<div class="page" contenteditable="true">
 			<!-- صفحة يمكنك تكرارها -->
 			${header}
 			<div class="center2" ${
@@ -2181,7 +2119,7 @@ function manageInvoiceHeight(invoiceId = null) {
   // } else {
   //   center2Scroll = center2.height() - 200;
   // }
-  center2Scroll = center2.height() - 260;
+  center2Scroll = center2.height() - 280;
   let invoices = addTestToInvoice(
     center2Scroll,
     allTestsElements,
@@ -2278,13 +2216,92 @@ function manageInvoiceHeightForScroll() {
   $(".form-height").height(1500);
 }
 
-function sendByWhatsapp(hash) {
+const waitDwonloadElement = `<div id="alert_screen" class="alert_screen"> 
+<div class="loader">
+    <div class="loader-content">
+        <div class="card" style="width: 40rem;">
+            <div class="card-body text-center">
+              <h1 class="card-title">الرجاء الانتظار </h1>
+              <h4>جاري تحميل الفاتورة</h4>
+              <img class="spinner-grow-alert" src="${front_url}assets/image/flask.png" width="100" height="100" alt="alert_screen">
+              <div class="w-100 mt-5"></div>
+            </div>
+          </div>
+    </div>
+</div>
+</div>`;
+
+function dwonloadInvoice(hash) {
+  const body = document.getElementsByTagName("body")[0];
+  body.insertAdjacentHTML("beforeend", waitDwonloadElement);
   let lab_hash = localStorage.getItem("lab_hash");
-  // open new blank tab
-  let newWindow = window.open(
-    `${base_url}Pdf?pk=${hash}&lab=${lab_hash}`,
-    "_blank"
-  );
+
+  fetch(`${base_url}Pdf/dwonload?pk=${hash}&lab=${lab_hash}`).then((res) => {
+    $("#alert_screen").remove();
+    Swal.fire({
+      icon: "success",
+      title: "تم تحميل النتائج",
+      showCancelButton: true,
+      cancelButtonText: "الغاء",
+      confirmButtonText: "عرض مجلد النتائج",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        fetch(`${base_url}Pdf/openFolder?pk=${hash}&lab=${lab_hash}`);
+      }
+    });
+  });
+}
+
+const waitSendElement = `<div id="alert_screen" class="alert_screen"> 
+<div class="loader">
+    <div class="loader-content">
+        <div class="card" style="width: 40rem;">
+            <div class="card-body text-center">
+              <h1 class="card-title">الرجاء الانتظار </h1>
+              <h4>جاري تهيئة النتائج للارسال</h4>
+              <img class="spinner-grow-alert" src="${front_url}assets/image/flask.png" width="100" height="100" alt="alert_screen">
+              <div class="w-100 mt-5"></div>
+            </div>
+          </div>
+    </div>
+</div>
+</div>`;
+
+async function sendWhatsapp(hash, phone, name) {
+  let text = `نتائج تحليل المختبري للمريض ${name}`;
+  if (!navigator.onLine) {
+    Swal.fire({
+      icon: "error",
+      title: "تأكد من الاتصال بالانترنت",
+      text: "لا يوجد اتصال بالانترنت",
+    });
+    return;
+  }
+  if (phone?.length > 10) {
+    if (phone[0] == "0") {
+      phone = `964${phone.slice(1)}`;
+    } else {
+      phone = `964${phone}`;
+    }
+    const body = document.getElementsByTagName("body")[0];
+    body.insertAdjacentHTML("beforeend", waitSendElement);
+    let lab_hash = localStorage.getItem("lab_hash");
+    await fetch(`${base_url}Pdf/path?pk=${hash}&lab=${lab_hash}`).then(
+      (res) => {
+        window.open(
+          `https://api.whatsapp.com/send?phone=${phone}&text=${text}`,
+          "_blank"
+        );
+        $("#alert_screen").remove();
+      }
+    );
+  } else {
+    Swal.fire({
+      icon: "error",
+      title: "تأكد من رقم الموبايل",
+      text: "لا يوجد رقم موبايل للمريض",
+    });
+  }
 }
 
 function manageHead(type) {
@@ -2411,9 +2428,13 @@ function manageTestType(type, test = {}) {
                     </p>
                 </div>
                 ${
-                  history != "" && history && history != "{}"
-                    ? `<div class="testprice col-12 h5 text-right text-info">
-                    ${history} ${history != "" ? unit : ""}
+                  invoices?.history == "1"
+                    ? `${
+                        history != "" && history && history != "{}"
+                          ? `<div class="testprice col-12 h5 text-right text-info">
+                    ${history} ${history != "" ? unit : ""}`
+                          : ""
+                      }
                 </div>`
                     : ""
                 }
@@ -2513,7 +2534,6 @@ function downloadPdf() {
   // .book-result:visible svg is not parent <>,.
 
   $(`#work-sapce .book-result:visible`).printThis({
-    debug: true,
     importCSS: false,
     loadCSS: [
       "lab/bootstrap/css/bootstrap.min.css",
@@ -2521,6 +2541,7 @@ function downloadPdf() {
       "lab/css/style.css",
       "lab/plugins/font-awesome/css/all.css",
     ],
+    printDelay: 2000,
     afterPrint: () => {
       $("iframe").remove();
       svgs.each((i, svg) => {
@@ -2535,8 +2556,6 @@ function downloadPdf() {
   let onclick = $("#saveResultButton").attr("onclick");
   //get hash from onclick attr
   let hash = onclick.split("'")[1];
-  // update ispayed to 1
-  run(`update lab_visits set ispayed="1" where hash='${hash}'`);
 
   lab_visits.dataTable.ajax.reload();
 }

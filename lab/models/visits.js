@@ -177,7 +177,7 @@ class Visit extends Factory {
     // change button onclick
     $(`#${this.table}-save`).attr(
       "onclick",
-      `fireSwal.call(${this.table},${this.table}.saveNewItem)`
+      `fireSwal.call(${this.table},${this.table}.savenewItemaAfterCheckName)`
     );
     $("#show_selected_tests").html("");
   }
@@ -380,24 +380,51 @@ class Visit extends Factory {
     return data;
   }
 
-  saveNewItem() {
-    let phone = run(
-      `select phone from lab_patient where name = '${$(
-        "#visits_patient_id"
-      ).val()}' and isdeleted = 0;`
-    )?.result[0]?.query0[0]?.phone;
-    if (phone) {
-      Swal.fire({
-        title: "تنبيه",
-        text: "هذا الاسم تابع لمريض مسجل بالفعل",
-        icon: "warning",
-        confirmButtonText: "موافق",
-      });
-      return false;
-    }
+  savenewItemaAfterCheckName() {
     if (!this.validate()) {
       return false;
     }
+    let hash = run(
+      `select hash from lab_patient where name = '${$(
+        "#visits_patient_id"
+      ).val()}' and isdeleted = 0;`
+    )?.result[0]?.query0[0]?.hash;
+    if (hash) {
+      Swal.fire({
+        title: "تنبيه",
+        text: "هذا المريض موجود بالفعل هل تريد اضافة زيارة له ؟",
+        icon: "warning",
+        confirmButtonText: "أضافة زيارة",
+        cancelButtonText: "اغلاق",
+        showCancelButton: true,
+        showDenyButton: true,
+        denyButtonText: "انشاء مريض جديد",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          // new promise
+          new Promise((resolve, reject) => {
+            changePatient();
+            resolve();
+          })
+            .then(() => {
+              $("#visits_patient_id").val(hash).trigger("change");
+              this.saveNewItem();
+            })
+            .then(() => {
+              changePatient();
+            });
+        } else if (result.isDenied) {
+          this.saveNewItem();
+        } else {
+          return false;
+        }
+      });
+    } else {
+      this.saveNewItem();
+    }
+  }
+
+  saveNewItem() {
     $(".itemsActive").removeClass("itemsActive");
     let insertedPackages = [];
     $(".testSelect:checked").each(function () {
@@ -659,7 +686,7 @@ class Visit extends Factory {
     this.resetForm();
     $(`#${this.table} -save`).attr(
       "onclick",
-      `fireSwal.call(${this.table}, ${this.table}.saveNewItem)`
+      `fireSwal.call(${this.table}, ${this.table}.savenewItemaAfterCheckName)`
     );
     visitDetail(hash);
     showAddResult(hash);
@@ -825,7 +852,9 @@ class Visit extends Factory {
     <!--<div class="modal-footer">
         <button type="button" class="btn btn-main-add" onclick="fireSwal.call(${
           this.table
-        },${this.table}.saveNewItem)" id="${this.table}-save">حفظ</button>
+        },${this.table}.savenewItemaAfterCheckName)" id="${
+      this.table
+    }-save">حفظ</button>
     </div>-->
     `;
   }

@@ -47,9 +47,9 @@ class Package_model extends CI_Model
             lab_package.name as name,
             lab_package.price as price,
             lab_package.cost as cost,
-            (select name from kits where id=lab_pakage_tests.kit_id) as kit_name,
-            (select name from devices where id=lab_pakage_tests.lab_device_id) as device_name,
-            (select name from lab_test_units where hash = lab_pakage_tests.unit) as unit_name'
+            (select name from kits where id=lab_pakage_tests.kit_id limit 1) as kit_name,
+            (select name from devices where id=lab_pakage_tests.lab_device_id limit 1) as device_name,
+            (select name from lab_test_units where hash = lab_pakage_tests.unit limit 1) as unit_name'
         );
         // inner join 
         $this->db->from('lab_package');
@@ -73,10 +73,12 @@ class Package_model extends CI_Model
 
     public function updateNameWithTestHsh($name, $hash)
     {
-        $this->db->query("`SET sql_safe_updates=0;
-        UPDATE lab_package SET name = '$name'WHERE hash = (SELECT package_id FROM lab_pakage_tests  WHERE test_id = '$hash');
-        SET sql_safe_updates=1;`");
-
+        $query = $this->db->query("SELECT package_id FROM lab_pakage_tests  WHERE test_id = '$hash'");
+        $hash = $query->result_array();
+        $hash = $hash[0]['package_id'];
+        $this->db->set('name', $name);
+        $this->db->where('hash', $hash);
+        $this->db->update('lab_package');
     }
 
     function getOffersForLAb($labID = "", $start = 0, $length = 10, $search = "")

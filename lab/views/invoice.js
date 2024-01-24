@@ -54,16 +54,7 @@ const InvoiceItem = ({ test, invoice, settingState }) => {
     initInvoiceItem
   );
   React.useEffect(() => {
-    const {
-      hash,
-      name,
-      unit_name,
-      options,
-      result_test,
-      unit,
-      kit_id,
-      category,
-    } = test;
+    const { name, unit_name, options, result_test } = test;
     dispatch({ type: "NAMEANDUNIT", payload: { name, unit: unit_name } });
     let result = JSON.parse(result_test);
     dispatch({ type: "RESULT", payload: result });
@@ -210,13 +201,15 @@ const InvoiceItem = ({ test, invoice, settingState }) => {
   );
 };
 
-const Invoice = ({ tests, invoice, settingState, employees }) => {
-  const testerRef = React.useRef(null);
-
+const Invoice = ({ tests, invoice, settingState, setInvoice }) => {
   return (
     <div className="book-result" dir="ltr" id="invoice-normalTests" style={{}}>
+      setInvoice
+      <h1 className="text-center py-2">
+        امسك عناصر الفاتورة واسحبها لتغيير ترتيبها
+      </h1>
       <div className="page">
-        <InvoiceHeader invoice={invoice} employees={employees} />
+        <InvoiceHeader invoice={invoice} />
 
         <div
           className="center2"
@@ -407,7 +400,6 @@ const Setting = ({ dispatch, state, invoice, setInvoice }) => {
   const [oldFile, setOldFile] = React.useState(null);
 
   const updateInvoice = async () => {
-    let sessionOrderOfHeader = sessionStorage.getItem("orderOfHeader");
     let formData = new FormData();
     let newFile = null;
     if (file) {
@@ -419,21 +411,6 @@ const Setting = ({ dispatch, state, invoice, setInvoice }) => {
         });
     }
     for (let key in invoice) {
-      if (
-        key == "setting" &&
-        sessionOrderOfHeader !== "null" &&
-        sessionOrderOfHeader !== null &&
-        sessionOrderOfHeader !== undefined &&
-        sessionOrderOfHeader !== "undefined"
-      ) {
-        let setting = JSON.parse(invoice[key]);
-        setting = {
-          ...setting,
-          orderOfHeader: sessionStorage.getItem("orderOfHeader"),
-        };
-        formData.append(key, JSON.stringify(setting));
-        break;
-      }
       formData.append(key, invoice[key]);
     }
     if (newFile) {
@@ -562,10 +539,7 @@ const Setting = ({ dispatch, state, invoice, setInvoice }) => {
                 />
               </div>
               <div className="form-group col-md-6">
-                <label htmlFor="phone_2">
-                  حجم عنصر الرأس (
-                  <span className="text-danger">علما ان الحجم الكلي 12</span>)
-                </label>
+                <label htmlFor="phone_2">عدد عناصر الرأس في الصف الواحد</label>
                 <input
                   type="number"
                   className="form-control"
@@ -573,15 +547,23 @@ const Setting = ({ dispatch, state, invoice, setInvoice }) => {
                   name="phone_2"
                   onChange={(e) => {
                     // max 12 min 0
-                    if (e.target.value > 12) {
-                      e.target.value = 12;
+                    if (e.target.value > 100) {
+                      e.target.value = 100;
                     }
                     if (e.target.value < 0) {
                       e.target.value = 0;
                     }
-                    setInvoice({ ...invoice, phone_2: e.target.value });
+                    setInvoice({
+                      ...invoice,
+                      phone_2: 100 / e.target.value,
+                      header: Math.round($(".uk-sortable").height() + 5),
+                      center:
+                        1495 -
+                        (Math.round($(".uk-sortable").height() + 5) +
+                          Math.round($(".footer2").height())),
+                    });
                   }}
-                  value={invoice.phone_2}
+                  value={100 / invoice.phone_2}
                 />
               </div>
               <div className="form-group col-md-4">
@@ -675,7 +657,7 @@ const Setting = ({ dispatch, state, invoice, setInvoice }) => {
                   value={invoice.center}
                 />
               </div>
-              <div className="form-group  col-md-6">
+              <div className="form-group  col-md-4">
                 <label
                   htmlFor="footer_header_show"
                   className="w-100 text-center"
@@ -699,7 +681,7 @@ const Setting = ({ dispatch, state, invoice, setInvoice }) => {
                   <span className="slider round"></span>
                 </label>
               </div>
-              <div className="form-group  col-md-6">
+              <div className="form-group  col-md-4">
                 <label htmlFor="water_mark" className="w-100 text-center">
                   اظهار واخفاء العلامة المائية
                 </label>
@@ -715,6 +697,26 @@ const Setting = ({ dispatch, state, invoice, setInvoice }) => {
                       });
                     }}
                     checked={invoice.water_mark == "1" ? true : false}
+                  />
+                  <span className="slider round"></span>
+                </label>
+              </div>
+              <div className="form-group  col-md-4">
+                <label htmlFor="history" className="w-100 text-center">
+                  اظهار واخفاء السجل الطبي
+                </label>
+                <label className="d-flex switch s-icons s-outline s-outline-success mx-auto mt-2">
+                  <input
+                    type="checkbox"
+                    name="history"
+                    id="history"
+                    onChange={(e) => {
+                      setInvoice({
+                        ...invoice,
+                        history: e.target.checked ? "1" : "0",
+                      });
+                    }}
+                    checked={invoice.history == "1" ? true : false}
                   />
                   <span className="slider round"></span>
                 </label>
@@ -876,30 +878,6 @@ const InvoiceSetting = () => {
   const [employees, setEmployees] = React.useState([]);
 
   const fetchTests = () => {
-    // let data = run(`select
-    //               option_test as options,
-    //               test_name as name,
-    //               kit_id,
-    //               (select name from devices where devices.id=lab_device_id) as device_name,
-    //               (select name from kits where kits.id =kit_id) as kit_name,
-    //               (select name from lab_test_units where hash=lab_pakage_tests.unit) as unit_name,
-    //               (select name from lab_test_catigory where hash=lab_test.category_hash) as category,
-    //               unit,
-    //               result_test,
-    //               lab_visits_tests.hash as hash
-    //           from
-    //               lab_visits_tests
-    //           left join
-    //               lab_pakage_tests
-    //           on
-    //               lab_pakage_tests.test_id = lab_visits_tests.tests_id and lab_pakage_tests.package_id = lab_visits_tests.package_id
-    //           inner join
-    //               lab_test
-    //           on
-    //               lab_test.hash = lab_visits_tests.tests_id
-    //           where
-    //               visit_id = '16921880982072694'
-    //           order by sort;`).result[0].query0;
     let data = [
       {
         category: null,
@@ -929,11 +907,10 @@ const InvoiceSetting = () => {
       .then((e) => e.json())
       .then((res) => {
         if (!res.data.phone_2) {
-          res.data.phone_2 = 4;
+          res.data.phone_2 = 33;
         }
         setInvoice(res.data);
         let setting = JSON.parse(res.data.setting);
-        sessionStorage.setItem("orderOfHeader", setting.orderOfHeader);
       });
   };
 
@@ -960,70 +937,34 @@ const InvoiceSetting = () => {
           tests={tests.slice(0, 1)}
           invoice={invoice}
           settingState={state}
-          employees={employees}
         />
       </div>
     </div>
   );
 };
 
-const InvoiceHeader = ({ invoice, employees }) => {
+const InvoiceHeader = ({ invoice }) => {
   const [order, setOrder] = React.useState([]);
-  const [employeesOrder, setEmployeesOrder] = React.useState([]);
+  const [workers, setWorkers] = React.useState([]);
 
   React.useEffect(() => {
     $(function () {
-      $("#sortable").sortable({
-        update: function (event, ui) {
-          let newOrder = $("#sortable").sortable("toArray", {
-            attribute: "data-hash",
-          });
-          setOrder(newOrder);
-          sessionStorage.setItem("orderOfHeader", JSON.stringify(newOrder));
-        },
+      UIkit.util.on("#sortable", "moved", function (item) {
+        let newOrder = item.detail[0].items.map((el) => el.id);
+        setOrder(newOrder);
+        fetchData("Visit/setOrderOfHeader", "POST", {
+          orderOfHeader: newOrder,
+        });
+        niceSwal("success", "top-end", "تم تحديث الرأس بنجاح");
       });
     });
   }, []);
 
   React.useEffect(() => {
-    let numburs = 0;
-    if (
-      sessionStorage.getItem("orderOfHeader") != undefined &&
-      sessionStorage.getItem("orderOfHeader") != "undefined"
-    ) {
-      numburs = JSON.parse(sessionStorage.getItem("orderOfHeader"));
-      if (numburs) {
-        numburs = numburs.length;
-      } else {
-        numburs = 0;
-      }
-    }
-
-    if (employees.length + 1 == numburs) {
-      let newOrder = JSON.parse(sessionStorage.getItem("orderOfHeader"));
-      setOrder(newOrder);
-      // order employees in employeesOrder
-      let newEmployeesOrder = [];
-      newOrder.forEach((hash) => {
-        if (hash == "logo") {
-          newEmployeesOrder.push({ hash: "logo" });
-          return;
-        }
-        employees.find((employee) => {
-          if (employee.hash == hash) {
-            newEmployeesOrder.push(employee);
-          }
-        });
-      });
-      if (newEmployeesOrder.length == 1) {
-        newEmployeesOrder = [...newEmployeesOrder, ...employees];
-      }
-      setEmployeesOrder(newEmployeesOrder);
-    } else {
-      let newEmployeesOrder = [{ hash: "logo" }, ...employees];
-      setEmployeesOrder(newEmployeesOrder);
-    }
-  }, [employees]);
+    let data = fetchData("Visit/getInvoiceHeader", "GET", {}).invoice;
+    setWorkers(data.workers);
+    setOrder(data.orderOfHeader);
+  }, []);
 
   return (
     <div
@@ -1034,22 +975,27 @@ const InvoiceHeader = ({ invoice, employees }) => {
     >
       <div
         className={`row ${
-          employees.length > 0
+          workers.length > 0
             ? "justify-content-between"
             : "justify-content-center"
-        }`}
+        } uk-sortable border border-danger p-1`}
         id="sortable"
+        data-uk-sortable
         style={{ display: invoice.footer_header_show == "1" ? "" : "none" }}
       >
-        {employeesOrder.length > 1 ? (
-          employeesOrder.map((employee, index) => {
+        {workers.length > 0 ? (
+          workers.map((employee, index) => {
             if (!employee) return;
             if (employee.hash == "logo") {
               return (
                 <div
-                  className={`logo col-${invoice.phone_2}  p-2`}
-                  data-hash="logo"
+                  className={`logo  border p-2`}
+                  id="logo"
                   key={index}
+                  style={{
+                    flex: `0 0 ${invoice.phone_2}%`,
+                    "max-width": `${invoice.phone_2}%`,
+                  }}
                 >
                   <img src={invoice.logo} alt="" />
                 </div>
@@ -1057,9 +1003,13 @@ const InvoiceHeader = ({ invoice, employees }) => {
             }
             return (
               <div
-                className={`right col-${invoice.phone_2}`}
-                data-hash={employee.hash}
+                className={`right  border`}
+                id={employee.hash}
                 key={employee.hash}
+                style={{
+                  flex: `0 0 ${invoice.phone_2}%`,
+                  "max-width": `${invoice.phone_2}%`,
+                }}
               >
                 <div className="size1">
                   <p className="title">{employee.jop}</p>
@@ -1080,16 +1030,10 @@ const InvoiceHeader = ({ invoice, employees }) => {
           })
         ) : (
           <React.Fragment>
-            <div
-              className={`logo col-${invoice.phone_2}  p-2`}
-              data-hash="logo"
-            >
+            <div className={`logo  border p-2`} id="logo">
               <img src={invoice.logo} alt="" />
             </div>
-            <div
-              className={`logo col-${invoice.phone_2}  p-2`}
-              data-hash="logo"
-            >
+            <div className={`logo  border p-2`} id="logo">
               <h1>{invoice.name_in_invoice}</h1>
             </div>
           </React.Fragment>

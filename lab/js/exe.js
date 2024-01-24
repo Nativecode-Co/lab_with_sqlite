@@ -44,6 +44,28 @@ function run(json) {
   return res;
 }
 
+function fetchData(url = "", type = "GET", data = {}) {
+  let res = null;
+  let token = localStorage.getItem("token");
+  $.ajax({
+    url: base_url + url,
+    headers: {
+      Authorization: "Bearer " + token,
+    },
+    type,
+    data,
+    dataType: "JSON",
+    async: false,
+    success: function (result) {
+      res = result;
+    },
+    error: function () {
+      console.log("internet connection or missing link");
+    },
+  });
+  return res;
+}
+
 function run_online(json, token = localStorage.getItem("token")) {
   localStorage.setItem("last_url", window.location.href);
   var res = [];
