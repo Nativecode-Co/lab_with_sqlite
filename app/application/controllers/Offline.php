@@ -266,4 +266,37 @@ class Offline extends CI_Controller
             JSON_UNESCAPED_UNICODE
         );
     }
+
+
+    public function getLastVersion()
+    {
+        $version = $this->db->query("select version from lab_version order by id desc limit 1")->row();
+        $version = $version->version;
+        echo $version;
+    }
+
+    public function setVersion()
+    {
+        // get last version
+        $version = $this->db->query("select version from lab_version where isdeleted=0 order by id desc limit 1")->row();
+        // check if version is null
+        if (!$version) {
+            $version = 0;
+        } else {
+            $version = $version->version;
+        }
+        $version = $version + 1;
+        $this->db->query("update lab_version set isdeleted=1 where isdeleted=0");
+        // insert new version
+        $this->db->query("insert into lab_version(version) values('$version')");
+        echo json_encode(
+            array(
+                'status' => true,
+                'message' => 'تم تحديث النسخة',
+                'data' => $version,
+                'isAuth' => true
+            ),
+            JSON_UNESCAPED_UNICODE
+        );
+    }
 }

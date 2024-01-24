@@ -49,7 +49,7 @@ class LocalApi extends CI_Controller
     public function trancateLabTable()
     {
         // trancate lab table
-        $this->db->query('TRUNCATE TABLE lab;');
+        $this->db->query("delete from lab;");
     }
 
     // add user
@@ -79,14 +79,6 @@ class LocalApi extends CI_Controller
                 'hash' => $this->input->post('hash')
             )
         );
-        $this->db->update(
-            'system_users_type',
-            array(
-                // now
-                'insert_record_date' => date('Y-m-d H:i:s'),
-            ),
-            array('id' => 1)
-        );
         echo json_encode(
             array(
                 'status' => true,
@@ -111,7 +103,7 @@ class LocalApi extends CI_Controller
             }
         }
         // trancate offline_sync table
-        $this->db->query('TRUNCATE TABLE offline_sync');
+        $this->db->query('DELETE FROM offline_sync;');
         echo json_encode(
             array(
                 'status' => true,
@@ -126,8 +118,20 @@ class LocalApi extends CI_Controller
 
     public function clean()
     {
-        // CALL unimedica_db.lab_clean()
-        $this->db->query('CALL lab_clean()');
+        $this->db->query("
+        DELETE FROM lab_doctor;
+        DELETE FROM lab_patient;
+        DELETE FROM lab_visits;
+        DELETE FROM lab_package;
+        DELETE FROM lab_pakage_tests;
+        DELETE FROM offline_sync;
+        DELETE FROM system_users;
+        DELETE FROM lab_visits_package;
+        DELETE FROM lab_visits_tests;
+        DELETE FROM lab_invoice_worker;
+        DELETE FROM lab_invoice;
+        DELETE FROM lab_expire;
+        ");
         echo json_encode(
             array(
                 'status' => true,

@@ -11,7 +11,7 @@ class Visit_model extends CI_Model
         $this->load->library('migration');
         // check if lab_invoice have col named border
         if (!$this->db->field_exists('history', 'lab_invoice')) {
-            $this->db->query("ALTER TABLE `lab_invoice` ADD `history` INT(1) NOT NULL DEFAULT '0' AFTER `font_color`;");
+            $this->db->query("ALTER TABLE lab_invoice ADD COLUMN history INTEGER NOT NULL DEFAULT 0;");
         }
     }
 

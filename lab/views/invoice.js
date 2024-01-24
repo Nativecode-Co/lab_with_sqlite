@@ -196,15 +196,18 @@ const InvoiceItem = ({ test, invoice, settingState }) => {
           }
         })}
       </div>
-      <div className="testprice col-12 h5 text-right text-info"></div>
+      {invoice.history == "1" && (
+        <div class="testprice col-12 h5 text-right text-info">
+          - Last Result dated 2024-01-10 was : 3 U/mL
+        </div>
+      )}
     </div>
   );
 };
 
-const Invoice = ({ tests, invoice, settingState, setInvoice }) => {
+const Invoice = ({ tests, invoice, settingState }) => {
   return (
     <div className="book-result" dir="ltr" id="invoice-normalTests" style={{}}>
-      setInvoice
       <h1 className="text-center py-2">
         امسك عناصر الفاتورة واسحبها لتغيير ترتيبها
       </h1>

@@ -7,14 +7,14 @@ class Menu_db extends CI_Model
 		parent::__construct();
 		//  $this->load->helper('url');
 		$this->load->database();
-		$this->load->database('unimedica', TRUE);
+		// $this->load->database('unimedica', TRUE);
 		$this->load->library('session');
 		if (!$this->db->table_exists('lab_version')) {
-			$this->db->query("CREATE TABLE `lab_version` (
-                `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-                `version` int(255) NOT NULL,
-                `isdeleted` tinyint(1) NOT NULL DEFAULT '0'
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+			$this->db->query("CREATE TABLE lab_version (
+				id INTEGER PRIMARY KEY AUTOINCREMENT,
+				version INTEGER NOT NULL,
+				isdeleted INTEGER NOT NULL DEFAULT 0
+			);");
 			// insert default version
 			$this->db->query("INSERT INTO `lab_version` (`id`, `version`, `isdeleted`) VALUES
                 (1, 0, 0);");
@@ -26,6 +26,7 @@ class Menu_db extends CI_Model
 	{
 
 		if ($uname != "" and $password != "") {
+			//die("SELECT username,user_type,hash,name,lab_id  FROM `system_users` where username = '".$uname."' and password='".$password."' ;");
 			$res = $this->db->query("SELECT username,user_type,hash,name,lab_id,(select logo from `lab_invoice` where lab_hash=system_users.lab_id) as logo,(select name from lab where id=system_users.lab_id) as lab_name FROM `system_users` where username = '" . $uname . "' and password='" . $password . "'  and is_deleted='0';");
 			return $res->row_array();
 		} else {
@@ -46,9 +47,100 @@ class Menu_db extends CI_Model
 		}
 	}
 
+	// 	function get_privilage($hash="")
+	// 	{
+	// 	    if($hash!="")
+	// 	    {
+	// 	         //$res = $this->db->query("SELECT * FROM `system_put_role_to_users` inner join system_privilage_role on system_put_role_to_users.group_hash=system_privilage_role.group_hash where system_put_role_to_users.user_hash='".$hash."'");
+
+	//               $res = $this->db->query(" SELECT system_privilage_role.id,system_privilage_role.group_hash,user_hash,table_name,select_op,update_op,insert_op,delete_op FROM `system_put_role_to_users` inner join system_privilage_role on system_put_role_to_users.group_hash=system_privilage_role.group_hash where system_put_role_to_users.user_hash='".$hash."'");
+
+	//              return $res->result();  
+	// 	    }
+	// 	}
+
 	function check_query_privilage($query, $hash = "")
 	{
 		return true;
+
+
+		// if ($query != "" && trim($query) != "") {
+		// 	//echo $query."---\n"; 
+		// 	$role = false;
+		// 	//die(print_r($privilate));
+		// 	////get type of query
+		// 	////end of get type of query
+		// 	$query = trim(preg_replace('/[\t\n\r\s]+/', ' ', $query));
+		// 	$pieces = explode(" ", $query);
+		// 	$first_pice = trim($pieces[0]);
+		// 	if ($first_pice == "select" || $first_pice == "SELECT" || $first_pice == "SET" || $first_pice == "set") {
+		// 		$type = "select";
+		// 		///////////////////get table
+		// 		if ($first_pice == "SET" || $first_pice == "set") {
+		// 			$query_split = explode("(", $query);
+		// 			$query_split = explode(")", $query_split[1]);
+		// 			//die($query_split[0]);
+		// 			$new_query = $query_split[0];
+		// 			$res1 = $this->db->query("explain " . $new_query);
+		// 			//die(print_r($res->row_array()));
+
+
+		// 		} else {
+		// 			$res1 = $this->db->query("explain " . $query);   //to get table name from query
+		// 			//die(print_r($res->row_array()));
+		// 		}
+		// 		/////////////////get table
+		// 		$acc = "";
+		// 		foreach ($res1->result() as $p) {
+		// 			//   $acc=$acc.$p->table.","; 
+		// 			$res = $this->db->query(" SELECT select_op FROM `system_put_role_to_users` inner join system_privilage_role on system_put_role_to_users.group_hash=system_privilage_role.group_hash where system_put_role_to_users.user_hash='" . $hash . "' and table_name='" . $p->table . "'");
+		// 			$role = $res->row_array()["select_op"];
+		// 			if ($role == "0")
+		// 				break;
+		// 			//else
+		// 			//$role=1;
+
+		// 		}
+		// 		//$acc=substr_replace($acc ,"",-1);
+		// 		//die($acc);
+
+
+		// 		// print_r($res->row_array());
+		// 		//$role=1;
+		// 	} else
+		//   if ($first_pice == "insert" || $first_pice == "INSERT") {
+		// 		$type = "insert";
+		// 		$second_piece = $pieces[2];
+		// 		$second_piece = explode("(", $second_piece);
+		// 		$res = $this->db->query(" SELECT insert_op FROM `system_put_role_to_users` inner join system_privilage_role on system_put_role_to_users.group_hash=system_privilage_role.group_hash where system_put_role_to_users.user_hash='" . $hash . "' and table_name='" . $second_piece[0] . "'");
+		// 		$role = $res->row_array()["insert_op"];
+		// 	} else
+		//   if ($first_pice == "update" || $first_pice == "UPDATE") {
+		// 		$type = "update";
+		// 		$second_piece = $pieces[1];
+		// 		//$second_piece = explode("(", $second_piece);
+		// 		$res = $this->db->query(" SELECT update_op FROM `system_put_role_to_users` inner join system_privilage_role on system_put_role_to_users.group_hash=system_privilage_role.group_hash where system_put_role_to_users.user_hash='" . $hash . "' and table_name='" . $second_piece . "'");
+		// 		$role = $res->row_array()["update_op"];
+
+
+		// 		// $res = $this->db->query(" SELECT system_privilage_role.id,system_privilage_role.group_hash,user_hash,table_name,select_op,update_op,insert_op,delete_op FROM `system_put_role_to_users` inner join system_privilage_role on system_put_role_to_users.group_hash=system_privilage_role.group_hash where system_put_role_to_users.user_hash='".$hash."'");
+		// 		// print($res->row_array());  
+		// 	} else
+		//   if ($first_pice == "delete" || $first_pice == "DELETE") {
+		// 		$type = "delete";
+		// 		$second_piece = $pieces[2];
+		// 		//$second_piece = explode("(", $second_piece);
+		// 		$res = $this->db->query(" SELECT delete_op FROM `system_put_role_to_users` inner join system_privilage_role on system_put_role_to_users.group_hash=system_privilage_role.group_hash where system_put_role_to_users.user_hash='" . $hash . "' and table_name='" . $second_piece . "'");
+		// 		$role = $res->row_array()["delete_op"];
+		// 		//echo $type." ".$role."\n";
+		// 	}
+
+		// 	return $role;   //if put $role true then all query is run successfully
+
+		// } // end of main if condition
+
+
+
 	}
 
 
@@ -60,10 +152,15 @@ class Menu_db extends CI_Model
 	}
 	function JSONTOInsertSQL($query)
 	{
+		// die("aaa");
 		$obj = json_decode($query, JSON_UNESCAPED_UNICODE);
+		//die(print_r($obj));
 		$hash = "";
 		$column = [];
 		foreach ($obj as $key => $row) {
+
+			//print($key);
+			//echo "\n";
 			if ($key == "action")
 				$action = $row;
 			else
@@ -75,7 +172,23 @@ class Menu_db extends CI_Model
 					else
 						if ($key == "hash")
 							$hash = $row;
+
+
+
+
+			// if(is_array($row))
+			//  $column=$row;
+			// else
+			//  $table=$row;
+
+
+
+			//echo "\n";
 		}
+		//die();
+
+
+		//if($column!="")
 		$keys_col = implode(',', array_map('addslashes', array_keys($column)));
 		$values = implode("','", array_map('addslashes', array_values($column)));
 
@@ -119,14 +232,19 @@ class Menu_db extends CI_Model
 
 	function add_hash_to_insert($query)
 	{
+		//  die("xxxxx ".$query); 
 		$hash = round(microtime(true) * 10000) . rand(0, 1000);
+
 		$pieces = explode("values(", $query);
+
+		// die($query." = ".$pieces[0]."  x  ".$pieces[1]);
 		$pieces[0] = trim($pieces[0]);
 		$pieces[0] = substr($pieces[0], 0, -1);
 		$pieces[0] = $pieces[0] . ",hash)";
 		$pieces[1] = substr($pieces[1], 0, -1);
 		$pieces[1] = $pieces[1] . ",'" . $hash . "')";
 		$query = $pieces[0] . " values(" . $pieces[1];
+		//die($query);
 		return $query . "@@@" . $hash;
 	}
 
@@ -134,29 +252,49 @@ class Menu_db extends CI_Model
 
 	function run_query($query = "", $hash = "")
 	{
-		$check = $this->db->query("SHOW COLUMNS FROM unimedica_db.lab_invoice LIKE 'setting';");
-		$result = $check->row_array();
-		if (empty($result)) {
-			$this->db->query("ALTER TABLE unimedica_db.lab_invoice ADD COLUMN `setting` JSON NULL AFTER `font_color`;");
-		}
 
 		$insert_hash = "";
+		// $res=""; 
+		//$privilate=$this->get_privilage($hash);
+
+
+		//die($query);
+
+
 		if ($query != "") {
+			//die("aaaa");
+			//    try
+			//    {
+
+
+			// die($query);
 			if (strpos($query, ';') !== false && !strpos($query, '&nbsp;') !== false) { //هنا اذا اكو اكثر من كويري
 
 				$pieces = explode(";", $query);
 
 				$k = 0;
+				//die($pieces[0]." ".$pieces[1]);
 				$build_query = "";
 				for ($i = 0; $i < count($pieces); $i++) {
+
+					// print($pieces[$i]."\n");
+					// //echo $pieces[$i]."\n";
+
 					if (strpos($pieces[$i], 'values(') !== false || strpos($pieces[$i], 'VALUES(') !== false) //هنا حطيتا الشرط هنا علمود اجيك الكويري العادية هيه انسيرت اولا علمود اضيفلها هاش
 					{
+						// die("xx");
 						$query_back_with_hash = $this->add_hash_to_insert($pieces[$i]);
 						$query_back_with_hash = explode("@@@", $query_back_with_hash);
 						$pieces[$i] = $query_back_with_hash[0];
 						$insert_hash = $query_back_with_hash[1];
+						//  die("aaab ".$pieces[$i]);
 					}
-					if ($this->isJson($pieces[$i])) {
+
+
+
+					if ($this->isJson($pieces[$i])) //check if coming json
+					{
+
 						$build_query = $this->JSONTOInsertSQL($pieces[$i]);
 
 						if (strpos($build_query, '@#$') !== false) //هنا حتى افصخ الراجع اذا جان بحالت الانسرت اخذ الهاش
@@ -166,16 +304,37 @@ class Menu_db extends CI_Model
 						} else
 							$pieces[$i] = $build_query;
 					}
+
+
+
+
+
+					// die($pieces[$i]);
+
+					//print($pieces[$i]."  xxx ".$insert_hash."\n");
+
+
 					if ($pieces[$i] != "" && trim($pieces[$i]) != "") {
-						if ((strpos($pieces[$i], 'select') !== false || strpos($pieces[$i], 'SELECT') !== false) && !(strpos(strtok($pieces[$i], " "), 'update') !== false || strpos(strtok($pieces[$i], " "), 'insert') !== false || strpos(strtok($pieces[$i], " "), 'delete') !== false) || strpos(strtok($pieces[$i], " "), 'set') !== false) {
+						//die("xxx");
+						//if (strpos($pieces[$i], 'select') !== false&&!strpos($pieces[$i], '=(select') !== false) {
+						//if (strpos($pieces[$i], 'select') !== false&&!strpos($pieces[$i], '@') !== false) {     
+						if ((strpos($pieces[$i], 'select') !== false || strpos($pieces[$i], 'SELECT') !== false) && !(strpos(strtok($pieces[$i], " "), 'update') !== false || strpos(strtok($pieces[$i], " "), 'insert') !== false || strpos(strtok($pieces[$i], " "), 'delete') !== false) || strpos(strtok($pieces[$i], " "), 'set') !== false) { ///strtok take first word from stenince
+							// print($i."  ".$pieces[$i]."\n");
+							//check here
+
+							//die("11");
 							if ($this->check_query_privilage($pieces[$i], $hash)) //check for select
 							{
 								$res_select = $this->db->query($pieces[$i]);
+								//$res[$k]=array("query".$k=>$res_select->row_array());
 								$res[$k] = array("query" . $k => $res_select->result());
 							} else {
 								$res[$k] = array("query" . $k => "-1");
 							}
-						} else {
+						} else //check if insert update delete
+						{
+							//die("21");
+							//check here
 							if ($this->check_query_privilage($pieces[$i], $hash)) {
 								$this->db->db_debug = false;
 								if (!$this->db->query($pieces[$i])) {
@@ -323,7 +482,9 @@ class Menu_db extends CI_Model
 
 
 		$query = $query . " where " . $table_name . "_hash = " . $columns[$table_name . "_hash"];
+		//die($query);
 		$res = $this->db->query($query);
+
 		return 1;
 	}
 
