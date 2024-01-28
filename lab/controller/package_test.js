@@ -153,12 +153,7 @@ async function changeKitsAndUnits(name, hash) {
             select 
                 DISTINCT devices.name, devices.id
                 from 
-                    lab_device 
-                inner join  devices on lab_device.devices_id = devices.id and lab_device.lab_id = '${localStorage.getItem(
-                  "lab_hash"
-                )}}'  
-                inner join device_kit on devices.id = device_kit.device_id 
-                inner join kits on device_kit.kit_id =  kits.id where kits.id in (${kitsIdList});
+                    lab_device
         `).result[0].query0;
       // push {name: 'name', id: 'id'} to testDevicesByKit at first
     }
