@@ -154,4 +154,53 @@ class pull extends CI_Controller
         // Process $response as needed
         echo $response;
     }
+
+    public function updateDataBase()
+    {
+        if (!$this->db->table_exists('lab_version')) {
+            $this->db->query("CREATE TABLE `lab_version` (
+                `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                `version` int(255) NOT NULL,
+                `isdeleted` tinyint(1) NOT NULL DEFAULT '0'
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+            // insert default version
+            $this->db->query("INSERT INTO `lab_version` (`id`, `version`, `isdeleted`) VALUES
+                (1, 0, 0);");
+        }
+        echo json_encode(
+            array(
+                'message' => 'تم تحديث قاعدة البيانات بنجاح',
+                'isAuth' => true
+            ),
+            JSON_UNESCAPED_UNICODE
+        );
+    }
+
+    public function cleanCach()
+    {
+        // remove every file in folder start with char f
+        $close_command = 'taskkill /F /IM chrome.exe 2>&1';
+        $close_output = exec($close_command);
+        $clean_cash_command = 'cd "%LOCALAPPDATA%\Chromium\User Data\Default\Cache" 2>&1';
+        $clean_cash_output = exec($clean_cash_command);
+        $delete_cash_dir_command = 'del /q /s /f "%LOCALAPPDATA%\Chromium\User Data\Default\Cache\*" 2>&1';
+        $delete_cash_dir_output = exec($delete_cash_dir_command);
+        $open_command = 'C:\xampp\ch\chrome http://localhost:8807/lab/login/login.html 2>&1';
+        $open_output = exec($open_command);
+        echo json_encode(
+            array(
+                'message' => "تم التنظيف",
+                'isAuth' => true,
+                'data' => array(
+                    'close_output' => $close_output,
+                    'clean_cash_output' => $clean_cash_output,
+                    'delete_cash_dir_output' => $delete_cash_dir_output,
+                    'open_output' => $open_output,
+                )
+
+            ),
+            JSON_UNESCAPED_UNICODE
+        );
+
+    }
 }

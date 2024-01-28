@@ -1152,16 +1152,25 @@ const changeInvoiceTitle = (type) => {
   const title = $("#type-title");
   const prices = $(".money-show");
   const doctor = $(".doctor-name");
+  const doctorInpot = $(".custom-doctor");
+  const buttons = $(".invoicePrice");
+  const inputs = $("input-check");
+  buttons.toggleClass("active");
+
   switch (type) {
     case "money":
       title.text("وصــل اســتلام");
       prices.show();
       doctor.show();
+      doctorInpot.hide();
+      inputs.toggleClass("d-none");
       break;
     case "send":
-      title.text("قسـيـمة تـحويـل");
+      title.text("قسـيـمة تـحويـل الي مختبر");
       prices.hide();
       doctor.hide();
+      doctorInpot.show();
+      inputs.toggleClass("d-none");
       break;
     default:
       title.text("وصــل اســتلام");
@@ -1197,7 +1206,8 @@ function showInvoice(hash) {
                     select 
                         (select name from lab_package where hash=lab_visits_package.package_id) as name,
                         GROUP_CONCAT((select test_name from lab_test where lab_test.hash=lab_pakage_tests.test_id)) as tests,
-                        price
+                        price,
+                        lab_visits_package.hash as hash
                     from 
                         lab_visits_package
                     left join lab_pakage_tests on lab_visits_package.package_id=lab_pakage_tests.package_id
@@ -1212,13 +1222,11 @@ function showInvoice(hash) {
             <div class="widget-content widget-content-area m-auto" style="width: 95%;">
                 <div class="row justify-content-center">
                   <div class="col-5">
-                    <button type="button" class="btn btn-outline-print w-100" onclick="changeInvoiceTitle('money')">
-                      وصل استلام
+                  <button type="button" class="action btn btn-action mx-2 w-100 active invoicePrice" onclick="changeInvoiceTitle('money')">                      وصل استلام
                     </button>
                   </div>
                   <div class="col-5">
-                    <button type="button" class="btn btn-outline-print w-100" onclick="changeInvoiceTitle('send')">
-                      قسيمة تحويل
+                  <button type="button" class="action btn btn-action mx-2 w-100 invoicePrice" onclick="changeInvoiceTitle('send')">                      قسيمة تحويل
                     </button>
                   </div>
                 </div>
@@ -1292,19 +1300,22 @@ function showInvoice(hash) {
       : ""
   }
                                 </div>
-                                <div class="prd doctor-name">
+                                <div class="prd">
                                     <p class="">Doctor</p>
                                 </div>
                                 <div class="prdgo doctor-name">
                                     <p>${visit.doctor ?? ""}</p>
                                 </div>
+                                <input type="text" class="prdgo text-center custom-doctor"  style="display: none;z-index: 999;background-color: transparent">
                             </div>
                             <div class="tester">
                                 <div class="row m-0">
                                     ${visitPackages
                                       .map(
                                         (item, index) => `
-                                    <div class="mytest test" style="">
+                                        <div class="mytest test" id="testprice-${
+                                          item.hash
+                                        }">
                                         <!--سطر تسعيرة التحليل الذي سيتكرر----------------------------------------------------------------------->
                                         <div class="testname col-1">
                                             <p>${index + 1}</p>
@@ -1316,6 +1327,19 @@ function showInvoice(hash) {
                                             <p class="money-show">${parseInt(
                                               item.price
                                             )?.toLocaleString()}<span class="note">&nbsp; IQD</span></p>
+                                            <label class="d-inline switch s-icons s-outline s-outline-invoice-slider custom-doctor d-print-none" style="display: none;">
+                                                <input 
+                                                  type="checkbox" 
+                                                  name="new_patient" 
+                                                  onchange="$('#testprice-${
+                                                    item.hash
+                                                  }').toggleClass('d-print-none opicty__4')"
+                                                  id="check-${item.hash}"
+                                                  checked
+                                                  class="input-check d-none"
+                                                >
+                                                <span class="invoice-slider slider custom-doctor" style="display: none;"></span>
+                                            </label>
                                         </div>
                                         
                                     </div>
@@ -1432,7 +1456,7 @@ function showInvoice(hash) {
 function invoiceHeader() {
   let html = "";
   let res = fetchData(`Visit/getInvoice`, "GET", {});
-  let { size, workers, logo, name_in_invoice } = res.invoice;
+  let { size, workers, logo, name_in_invoice, show_name } = res.invoice;
   if (workers.length > 0) {
     html = workers
       .map((worker) => {
@@ -1444,6 +1468,20 @@ function invoiceHeader() {
           ">
           <img src="${logo}" alt="" />
         </div>
+        `;
+        }
+        if (worker.hash == "name") {
+          return `
+          <div style="
+          flex: 0 0 ${size}%;
+          max-width: ${size}%;
+        " class="logo text-center  justify-content-center align-content-center ${
+          show_name == "1" ? "d-flex" : "d-none"
+        }">
+              <h1 class="navbar-brand-name text-center">${
+                name_in_invoice ?? localStorage.lab_name ?? ""
+              }</h1>
+          </div>
         `;
         }
         return `
@@ -1466,10 +1504,12 @@ function invoiceHeader() {
             <img src="${logo ?? ""}"
             alt="${logo ?? "upload Logo"}">
         </div>
-        <div class="logo justify-content-end col-4 p-2">
-            <h2 class="navbar-brand-name text-center">${
+        <div class="logo border p-2 text-center  justify-content-center align-content-center ${
+          show_name == "1" ? "d-flex" : "d-none"
+        }">
+            <h1 class="navbar-brand-name text-center">${
               name_in_invoice ?? localStorage.lab_name ?? ""
-            }</h2>
+            }</h1>
         </div>`;
   }
   return `
@@ -1835,8 +1875,8 @@ function showResult(visit, visitTests) {
                         <div class="test strc-test row m-0">
                             <!-- تصنيف الجدول او اقسام الجدول ------------>
 
-                            <div class="testname col-12 data-flag="${unit}"">
-                                <p>${reference.name}</p> : <p>${result}</p>
+                            <div class="testname col-12" data-flag="${unit}">
+                                <p>${reference.name}</p> : <p class="text-danger">${result}</p>
                             </div>
                         </div>
                     `;

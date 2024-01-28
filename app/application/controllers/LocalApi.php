@@ -116,6 +116,162 @@ class LocalApi extends CI_Controller
         die();
     }
 
+    public function getTestsQueries()
+    {
+        $queries = "";
+        $lab_hash = $this->input->post('lab_id');
+        $tests = $this->db->query("select test_name, test_type, option_test, hash, insert_record_date, isdeleted, short_name, sample_type, category_hash, sort from lab_test")->result();
+
+        if (count($tests) > 0) {
+            $tests_query = "insert into lab_test(" . implode(",", array_keys((array) $tests[0])) . ", lab_hash) values ";
+            $tests_values = array_map(function ($test) use ($lab_hash) {
+                $option_test = $test->option_test;
+                $option_test = str_replace('"', '\"', $option_test);
+                $test->option_test = $option_test;
+                $name = $test->test_name;
+                $name = str_replace("'", "", $name);
+                $test->test_name = $name;
+                return "('" . implode("','", array_values((array) $test)) . "', '$lab_hash')";
+            }, $tests);
+            $tests_query .= implode(",", $tests_values);
+            $queries .= $tests_query;
+        } else {
+            $tests_query = '';
+        }
+
+        if ($queries != '') {
+            $token = $this->input->get_request_header('Authorization', TRUE);
+            $token = str_replace("Bearer ", "", $token);
+
+            $url = "http://umc.native-code-iq.com/app/index.php/Offline/insertIntoLab_test";
+            $headers = [
+                "Authorization: Bearer {$token}",
+            ];
+
+            // add lab_id to post data
+            $data = array(
+                'lab_id' => $lab_hash,
+                'query' => $queries
+            );
+
+            $ch = curl_init($url);
+
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
+
+            $response = curl_exec($ch);
+
+            if (curl_errno($ch)) {
+                echo 'Error: ' . curl_error($ch);
+            }
+
+            curl_close($ch);
+            echo json_encode(
+                array(
+                    'status' => true,
+                    'message' => 'تمت إضافة الاختبارات بنجاح',
+                    'isAuth' => true
+                ),
+                JSON_UNESCAPED_UNICODE
+            );
+        } else {
+            echo json_encode(
+                array(
+                    'status' => true,
+                    'message' => 'لا يوجد بيانات',
+                    'data' => null,
+                    'isAuth' => true
+                ),
+                JSON_UNESCAPED_UNICODE
+            );
+
+        }
+
+    }
+
+    public function installTests()
+    {
+        $queries = "";
+        $lab_hash = $this->input->post('lab_id');
+        $token = $this->input->get_request_header('Authorization', TRUE);
+        $token = str_replace("Bearer ", "", $token);
+
+        $url = "http://umc.native-code-iq.com/app/index.php/Offline/installTests";
+        $headers = [
+            "Authorization: Bearer {$token}",
+        ];
+        $data = array(
+            'lab_id' => $lab_hash,
+        );
+
+        $ch = curl_init($url);
+
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
+        $response = curl_exec($ch);
+
+        if (curl_errno($ch)) {
+            echo 'Error: ' . curl_error($ch);
+        }
+
+        curl_close($ch);
+        if ($response == "") {
+            echo json_encode(
+                array(
+                    'status' => false,
+                    'message' => 'لا توجد نسخة احتياطية',
+                    'isAuth' => true
+                ),
+                JSON_UNESCAPED_UNICODE
+            );
+            exit();
+        } else {
+            $this->db->trans_start();
+            $this->db->query("SET SQL_SAFE_UPDATES = 0");
+            $this->db->query("truncate table lab_test");
+            $this->db->query($response);
+            $this->db->query("SET SQL_SAFE_UPDATES = 1");
+
+            // end transaction
+            if ($this->db->trans_status() === FALSE) {
+                // حدثت مشكلة خلال الـtransaction
+                $result = false;
+                $this->db->trans_rollback();
+            } else {
+                // تمت العمليات بنجاح
+                $result = true;
+                $this->db->trans_commit();
+            }
+
+            $this->db->trans_complete();
+            if ($result) {
+                echo json_encode(
+                    array(
+                        'status' => true,
+                        'message' => 'تمت العملية بنجاح',
+                        'isAuth' => true
+                    ),
+                    JSON_UNESCAPED_UNICODE
+                );
+            } else {
+                echo json_encode(
+                    array(
+                        'status' => false,
+                        'message' => 'حدث خطأ أثناء العملية',
+                        'isAuth' => true
+                    ),
+                    JSON_UNESCAPED_UNICODE
+                );
+            }
+        }
+
+
+    }
+
     public function clean()
     {
         $this->db->query("

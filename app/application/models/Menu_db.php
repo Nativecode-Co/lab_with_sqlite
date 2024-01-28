@@ -9,16 +9,6 @@ class Menu_db extends CI_Model
 		$this->load->database();
 		// $this->load->database('unimedica', TRUE);
 		$this->load->library('session');
-		if (!$this->db->table_exists('lab_version')) {
-			$this->db->query("CREATE TABLE lab_version (
-				id INTEGER PRIMARY KEY AUTOINCREMENT,
-				version INTEGER NOT NULL,
-				isdeleted INTEGER NOT NULL DEFAULT 0
-			);");
-			// insert default version
-			$this->db->query("INSERT INTO `lab_version` (`id`, `version`, `isdeleted`) VALUES
-                (1, 0, 0);");
-		}
 	}
 
 

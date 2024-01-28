@@ -141,7 +141,7 @@
     <script src="js/factory3.js"></script>
     <script>
         let version = fetchData("Offline/getLastVersion", "GET", {})
-        $(".version").html(version ?? 0);
+        $(".version").html(`V:${version ?? 0}.0.0`);
 
     </script>
     <!-- <script src="js/charts/index.js"></script> -->

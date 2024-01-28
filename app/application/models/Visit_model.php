@@ -13,6 +13,9 @@ class Visit_model extends CI_Model
         if (!$this->db->field_exists('history', 'lab_invoice')) {
             $this->db->query("ALTER TABLE lab_invoice ADD COLUMN history INTEGER NOT NULL DEFAULT 0;");
         }
+        if (!$this->db->field_exists('show_name', 'lab_invoice')) {
+            $this->db->query("ALTER TABLE `lab_invoice` ADD `show_name` INT(1) NOT NULL DEFAULT '0' AFTER `font_color`;");
+        }
     }
 
     public function bothIsset($var1, $var2)
@@ -347,7 +350,7 @@ class Visit_model extends CI_Model
 
     public function getInvoice()
     {
-        $this->db->select('color, phone_1, phone_2 as size, address, facebook, header, center, footer, logo, water_mark, footer_header_show, invoice_about_ar, invoice_about_en, font_size, zoom, doing_by, name_in_invoice, font_color, setting');
+        $this->db->select('color, phone_1,show_name, phone_2 as size, address, facebook, header, center, footer, logo, water_mark, footer_header_show, invoice_about_ar, invoice_about_en, font_size, zoom, doing_by, name_in_invoice, font_color, setting');
         $this->db->from('lab_invoice');
         $query = $this->db->get();
         $result = $query->result_array();
@@ -366,13 +369,26 @@ class Visit_model extends CI_Model
                             "hash" => "logo",
                         )
                     );
+                    $newWorkers[] = array(
+                        "hash" => "name",
+                    );
                 } else {
                     $orderOfHeader = $setting['orderOfHeader'];
                     $orderOfHeader = json_decode($orderOfHeader, true);
+                    $isFounded = in_array("name", $orderOfHeader);
+                    if (!$isFounded) {
+                        $orderOfHeader[] = "name";
+                    }
                     foreach ($orderOfHeader as $key => $value) {
                         if ($value == 'logo') {
                             $newWorkers[] = array(
                                 "hash" => "logo",
+                            );
+                            continue;
+                        }
+                        if ($value == 'name') {
+                            $newWorkers[] = array(
+                                "hash" => "name",
                             );
                             continue;
                         }
@@ -395,6 +411,9 @@ class Visit_model extends CI_Model
                         "hash" => "logo",
                     )
                 );
+                $newWorkers[] = array(
+                    "hash" => "name",
+                );
             }
             $result['setting'] = $setting;
             $result['workers'] = $newWorkers;
@@ -408,6 +427,9 @@ class Visit_model extends CI_Model
                 array(
                     "hash" => "logo",
                 )
+            );
+            $workers[] = array(
+                "hash" => "name",
             );
             $result['workers'] = $workers;
         }

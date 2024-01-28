@@ -861,7 +861,11 @@ const waitElement = `<div id="alert_screen" class="alert_screen">
 </div>
 </div>`;
 
-function fireSwal(fun, ...args) {
+function fireSwal(fun = null, ...args) {
+  if (!fun) {
+    console.log("no function");
+    return false;
+  }
   let diffTimeInMin =
     (-1 *
       (new Date(localStorage?.getItem("lastSync") ?? "2023-01-01 00:00:00") -
@@ -948,11 +952,15 @@ function fireSwalForDelete(fun, ...args) {
   });
 }
 
-function fireSwalConfirm(fun, ...args) {
+function fireSwalConfirm(msg, fun, ...args) {
+  if (!fun) {
+    console.log("no function");
+    return false;
+  }
   let condition = 1;
   Swal.fire({
     icon: "question",
-    html: "هل انت متاكد من التحديث ",
+    html: msg,
     showDenyButton: false,
     showCancelButton: true,
     confirmButtonColor: "#3085d6",
@@ -974,7 +982,9 @@ function fireSwalConfirm(fun, ...args) {
             Swal.showLoading();
           },
           willClose: () => {
-            if (fun.call(this, ...args) != false) {
+            let data = fun.call(this, ...args);
+            if (data != false) {
+              return data;
             }
           },
         });
@@ -1358,66 +1368,76 @@ function showPopover(title, content, color = "light") {
 }
 
 function printElement(Id, pageZise = "A4", ...args) {
-  let invoice = $(`${Id}`);
-  // let printInvoice = '';
-  // invoice.each(function () {
-  //     printInvoice += $(this).html();
-  // })
-  let mywindow = window.open();
-  mywindow.document.write("<html><head><title>" + document.title + "</title>");
-  // add new stylesheet
-  mywindow.document.write(
-    args.map((arg) => `<link rel="stylesheet" href="${arg}">`).join("")
-  );
-  mywindow.document.write(`
-    <style>
-    :root {
-        --color-orange: ${invoices?.color ?? "#ff8800"};
-        --font_size: ${invoices?.font_size ?? 20}px;
-        --logo-height: ${invoices?.header ?? 175}px;
-        --invoice-color: ${invoices?.font_color ?? "#000"};
-        --typeTest-font: ${parseInt(invoices?.font_size) + 2 ?? 24}px;
-    }
-    </style>
-    `);
-  // add bootstrap
-  mywindow.document.write(
-    '<link href="bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" />'
-  );
-  mywindow.document.write(
-    '<link rel="stylesheet" href="plugins/font-awesome/css/all.css">'
-  );
-  mywindow.document.write("</head><body >");
-  invoice.each(function () {
-    // remove display none
-    let element = $(this).clone();
-    element.removeAttr("style");
-    mywindow.document.write(element.prop("outerHTML"));
+  $(`${Id}`).printThis({
+    importCSS: false,
+    loadCSS: [
+      "lab/bootstrap/css/bootstrap.min.css",
+      "lab/css/invoice.css",
+      "lab/css/style.css",
+      "lab/plugins/font-awesome/css/all.css",
+    ],
+    printDelay: 1000,
   });
-  // mywindow.document.write(printInvoice);
-  // add jquery
-  mywindow.document.write(
-    '<script src="assets/js/jquery-3.5.1.min.js"></script>'
-  );
-  // add bootstrap
+  // let invoice = $(`${Id}`);
+  // // let printInvoice = '';
+  // // invoice.each(function () {
+  // //     printInvoice += $(this).html();
+  // // })
+  // let mywindow = window.open();
+  // mywindow.document.write("<html><head><title>" + document.title + "</title>");
+  // // add new stylesheet
+  // mywindow.document.write(
+  //   args.map((arg) => `<link rel="stylesheet" href="${arg}">`).join("")
+  // );
+  // mywindow.document.write(`
+  //   <style>
+  //   :root {
+  //       --color-orange: ${invoices?.color ?? "#ff8800"};
+  //       --font_size: ${invoices?.font_size ?? 20}px;
+  //       --logo-height: ${invoices?.header ?? 175}px;
+  //       --invoice-color: ${invoices?.font_color ?? "#000"};
+  //       --typeTest-font: ${parseInt(invoices?.font_size) + 2 ?? 24}px;
+  //   }
+  //   </style>
+  //   `);
+  // // add bootstrap
+  // mywindow.document.write(
+  //   '<link href="bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" />'
+  // );
+  // mywindow.document.write(
+  //   '<link rel="stylesheet" href="plugins/font-awesome/css/all.css">'
+  // );
+  // mywindow.document.write("</head><body >");
+  // invoice.each(function () {
+  //   // remove display none
+  //   let element = $(this).clone();
+  //   element.removeAttr("style");
+  //   mywindow.document.write(element.prop("outerHTML"));
+  // });
+  // // mywindow.document.write(printInvoice);
+  // // add jquery
+  // mywindow.document.write(
+  //   '<script src="assets/js/jquery-3.5.1.min.js"></script>'
+  // );
+  // // add bootstrap
 
-  mywindow.document.write(
-    '<script src="bootstrap/js/bootstrap.min.js"></script>'
-  );
-  mywindow.document.write("</body></html>");
-  mywindow.document.close(); // necessary for IE >= 10
-  mywindow.focus(); // necessary for IE >= 10*/
-  //mywindow ready to print
-  mywindow.onafterprint = function () {
-    mywindow.close();
-  };
-  mywindow.onload = function () {
-    setTimeout(function () {
-      mywindow.print();
-    }, 100);
-  };
-  window["pdf"] = mywindow;
-  return true;
+  // mywindow.document.write(
+  //   '<script src="bootstrap/js/bootstrap.min.js"></script>'
+  // );
+  // mywindow.document.write("</body></html>");
+  // mywindow.document.close(); // necessary for IE >= 10
+  // mywindow.focus(); // necessary for IE >= 10*/
+  // //mywindow ready to print
+  // mywindow.onafterprint = function () {
+  //   mywindow.close();
+  // };
+  // mywindow.onload = function () {
+  //   setTimeout(function () {
+  //     mywindow.print();
+  //   }, 100);
+  // };
+  // window["pdf"] = mywindow;
+  // return true;
 }
 
 //dom ready
