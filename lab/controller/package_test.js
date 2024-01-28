@@ -22,7 +22,7 @@ async function getKitsUnitsByTestName(testName, testHash) {
   formData.append("name", testName);
   formData.append("hash", testHash);
   return await fetch(
-    `${__domain__}app/index.php/Packages/getKitsAndUnitsByTestName`,
+    `${__domain__}/app/index.php/Packages/getKitsAndUnitsByTestName`,
     {
       method: "POST",
       headers: {

@@ -14,7 +14,7 @@ class Visit_model extends CI_Model
             $this->db->query("ALTER TABLE lab_invoice ADD COLUMN history INTEGER NOT NULL DEFAULT 0;");
         }
         if (!$this->db->field_exists('show_name', 'lab_invoice')) {
-            $this->db->query("ALTER TABLE `lab_invoice` ADD `show_name` INT(1) NOT NULL DEFAULT '0' AFTER `font_color`;");
+            $this->db->query("ALTER TABLE `lab_invoice` ADD COLUMN `show_name` INTEGER NOT NULL DEFAULT 0 ;");
         }
     }
 
