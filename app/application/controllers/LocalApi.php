@@ -231,11 +231,8 @@ class LocalApi extends CI_Controller
             exit();
         } else {
             $this->db->trans_start();
-            $this->db->query("SET SQL_SAFE_UPDATES = 0");
-            $this->db->query("truncate table lab_test");
+            $this->db->query("delete from lab_test");
             $this->db->query($response);
-            $this->db->query("SET SQL_SAFE_UPDATES = 1");
-
             // end transaction
             if ($this->db->trans_status() === FALSE) {
                 // حدثت مشكلة خلال الـtransaction
