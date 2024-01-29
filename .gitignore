@@ -1,5 +1,4 @@
 /app/uploads
 app/application/controllers/Chat.php
-app/application/databases/db.sqlite
-/app/application/databases/db.sqlite
+*.sqlite
 app/pdfs
