@@ -124,4 +124,18 @@ class Invoice extends CI_Controller
             JSON_UNESCAPED_UNICODE
         );
     }
+
+    public function getLabName()
+    {
+        $result = $this->InvoiceModel->getLabName();
+        echo json_encode(
+            array(
+                'status' => true,
+                'message' => 'success',
+                'data' => $result,
+                'isAuth' => true
+            ),
+            JSON_UNESCAPED_UNICODE
+        );
+    }
 }

@@ -406,7 +406,7 @@ function showAddResult(hash, animate = true) {
                                 <button type="button" id="saveResultButton" class="btn btn-add w-100" onclick="fireSwal(saveResult,'${hash}')">حفظ النتائج</button>
                             </div>
                             <div class="col-md-3 col-6">
-                                <button type="button" class="btn btn-outline-print w-100" onclick="printAfterSelect()">
+                                <button type="button" class="btn btn-outline-print w-100" onclick="printAfterSelect('${hash}')">
                                     <i class="mr-2 fal fa-print"></i>طباعة النتائج
                                 </button>
                             </div>
@@ -1042,6 +1042,8 @@ function saveResult(hash) {
       )}' where hash = '${hash}'`;
     })
     .join(";");
+  query += `;update lab_visits set visits_status_id = '5' where hash = '${hash}';`;
+
   run(query);
   showAddResult(hash, false);
   // $(`#${localStorage.getItem('currentInvoice')}`).click();
@@ -1301,7 +1303,8 @@ function showInvoice(hash) {
   }
                                 </div>
                                 <div class="prd">
-                                    <p class="">Doctor</p>
+                                <p class=" doctor-name">Doctor</p>
+                                <p class=" custom-doctor" tyle="display: none;">Lab</p>
                                 </div>
                                 <div class="prdgo doctor-name">
                                     <p>${visit.doctor ?? ""}</p>
@@ -2600,7 +2603,8 @@ function downloadPdf() {
   lab_visits.dataTable.ajax.reload();
 }
 
-function printAfterSelect() {
+function printAfterSelect(hash) {
+  run(`update lab_visits set visits_status_id='3' where hash='${hash}';`);
   let __invoces = $("#work-sapce .book-result");
   // modal body
   let body = $("#print-dialog .modal-body");

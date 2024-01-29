@@ -185,7 +185,7 @@ class pull extends CI_Controller
         $clean_cash_output = exec($clean_cash_command);
         $delete_cash_dir_command = 'del /q /s /f "%LOCALAPPDATA%\Chromium\User Data\Default\Cache\*" 2>&1';
         $delete_cash_dir_output = exec($delete_cash_dir_command);
-        $open_command = 'C:\xampp\ch\chrome http://localhost:8807/lab/login/login.html 2>&1';
+        $open_command = 'c:\xampp\ch\chrome.exe --new-window --app=http://localhost:8807/lab/login/login.html 2>&1';
         $open_output = exec($open_command);
         echo json_encode(
             array(

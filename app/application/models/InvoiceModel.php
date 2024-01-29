@@ -53,4 +53,11 @@ class InvoiceModel extends CI_Model
         $this->db->update('lab_invoice', $data);
         return $this->db->affected_rows();
     }
+
+    public function getLabName()
+    {
+        $name = $this->db->select("name")
+            ->from("lab")->get()->row();
+        return $name;
+    }
 }

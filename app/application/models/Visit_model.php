@@ -492,4 +492,16 @@ class Visit_model extends CI_Model
         $query = $this->db->update('lab_invoice');
         return $query;
     }
+
+    public function getScreenDetail()
+    {
+        $result = $this->db
+            ->select('lab_visits.name as name, lab_visit_status.name as status,visits_status_id as status_id')
+            ->from('lab_visits')
+            ->where('visit_date', date('Y-m-d'))
+            ->join('lab_visit_status', 'lab_visit_status.hash = lab_visits.visits_status_id', "left")
+            ->order_by('lab_visits.id', 'DESC')
+            ->get()->result_array();
+        return $result;
+    }
 }

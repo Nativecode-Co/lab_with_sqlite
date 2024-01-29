@@ -186,4 +186,16 @@ class Visit extends CI_Controller
         echo json_encode($output);
         exit();
     }
+
+    public function getScreenDetail()
+    {
+        $details = $this->Visit_model->getScreenDetail();
+        $output = array(
+            "status" => 200,
+            "data" => $details,
+            "message" => "تم الحصول على البيانات بنجاح"
+        );
+        echo json_encode($output);
+        exit();
+    }
 }
