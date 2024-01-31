@@ -6,7 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no">
     <title>تسجيل الدخول</title>
-    <!-- <link rel="icon" type="image/x-icon" href="../assets/img/favicon.ico" /> -->
+    <link rel="icon" type="image/x-icon" href="../assets/image/logo2.ico" />
     <link href="../assets/css/loader.css" rel="stylesheet" type="text/css" />
     <script src="../assets/js/loader.js"></script>
     <!-- BEGIN GLOBAL MANDATORY STYLES -->
@@ -39,7 +39,7 @@
     <div id="load_screen">
         <div class="loader">
             <div class="loader-content">
-                <div class="spinner-grow align-self-center" style="background-image: url(assets/image/flask.png);
+                <div class="spinner-grow align-self-center" style="background-image: url(../assets/image/flask.png);
                 background-size: cover;"></div>
             </div>
         </div>
@@ -153,16 +153,6 @@
             var last_url_link = localStorage.getItem("last_url");
             localStorage.clear();
             localStorage.setItem("last_url", last_url_link);
-        });
-    </script>
-    <script>
-        var allScripts = document.querySelectorAll("script");
-
-        allScripts.forEach((item) => {
-            if (!item.src.includes("const.js") && item?.src) {
-                src = item.src + `?v=${VERSION}`;
-                item.src = src;
-            }
         });
     </script>
 </body>

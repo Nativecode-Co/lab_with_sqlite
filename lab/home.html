@@ -458,16 +458,7 @@
             exce(query)
         }
     </script>
-    <script>
-        var allScripts = document.querySelectorAll("script");
 
-        allScripts.forEach((item) => {
-            if (!item.src.includes("const.js") && item?.src) {
-                src = item.src + `?v=${VERSION}`;
-                item.src = src;
-            }
-        });
-    </script>
 </body>
 
 </html>

@@ -18,7 +18,7 @@ class Offline extends CI_Controller
         header('Access-Control-Allow-Origin: *');
         header('Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE');
         header('Access-Control-Allow-Headers: Content-Type, Content-Range, Content-Disposition, Content-Description, Authorization');
-        // json response
+        header('Content-Type: application/x-www-form-urlencoded');
         header('Content-Type: application/json');
     }
 
@@ -329,7 +329,6 @@ class Offline extends CI_Controller
             JSON_UNESCAPED_UNICODE
         );
     }
-
 
     public function getLastVersion()
     {

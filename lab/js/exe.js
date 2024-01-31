@@ -225,7 +225,7 @@ async function clean_db() {
 async function clean_db_us() {
   await fetch(`${base_url}LocalApi/clean`);
   // redirect login page
-  window.location.href = `${__domain__}lab/login/login.html`;
+  window.location.href = `${__domain__}/lab/login/login.html`;
 }
 
 function reloadScripts() {
@@ -323,7 +323,6 @@ async function getAsyncData() {
     "http://umc.native-code-iq.com/app/index.php/Offline/getAsyncData",
     {
       method: "POST",
-      headers: {},
       body: formData,
     }
   )
@@ -337,7 +336,10 @@ async function getAsyncData() {
     .then(() => {
       body.removeChild(document.getElementById("alert_screen"));
     })
-    .catch((e) => console.log(e));
+    .catch((e) => {
+      // close any swal
+      Swal.close();
+    });
   const syncBodyModal = document.getElementById("sync_body");
 
   if (updates.length > 0) {
@@ -489,6 +491,6 @@ function syncOnline() {
   if (!navigator.onLine) {
     return false;
   }
-  fetch(`${__domain__}sync/sync_up.php`);
+  fetch(`${__domain__}/sync/sync_up.php`);
   updateExpireDate();
 }

@@ -140,26 +140,46 @@
                             </div>
                         </div>
                         <h4 class="text-center mt-5">
-                            لمعرفة التفاصيل اكثر يرجى يرجى التواصل مع الدعم الفني
+                            لمعرفة التفاصيل اكثر يرجى التواصل مع الدعم الفني
                         </h4>
                     </div>
                     <div class="col-sm-12 col-md-12 col-lg-12 mx-auto modal-body page" style="display: none"
                         id="contact">
-                        <h2 class="text-center mb-4">الدعم الفني</h2>
-                        <h4 class="text-center mb-4">
-                            الدعم الفني يستقبل الطلبات لاتترد بارسال الرسائل المتعلقة حول
-                            النظام
-                        </h4>
-                        <div class="row mt-4 justify-content-center">
-                            <div class="col-auto">
-                                <h4 class="text-center">ارسل رسالة عبر الواتساب</h4>
-                                <img src="assets/image/qrcode.png" alt="QrCode" width="300" height="300" />
+                        <div class="row justify-content-between">
+                            <div class="col-6">
+                                <h2 class="text-center mb-4">AnyDesk</h2>
+                                <h4 class="text-center mb-4">
+                                    لتشغيل برنامج AnyDesk يرجي الضغط علي الزر التالي
+                                </h4>
+                                <div class="row mt-4 justify-content-center">
+                                    <div class="col-auto">
+                                        <a onclick="runAnyDesk()" class="btn btn-primary btn-block">
+                                            <i class="fas fa-play-circle mr-2"></i>
+                                            تشعيل AnyDesk
+                                        </a>
+                                    </div>
+                                </div>
                             </div>
+                            <div class="col-6">
+                                <h2 class="text-center mb-4">الدعم الفني</h2>
+                                <h4 class="text-center mb-4">
+                                    الدعم الفني يستقبل الطلبات لاتترد بارسال الرسائل المتعلقة حول
+                                    النظام
+                                </h4>
+                                <div class="row mt-4 justify-content-center">
+                                    <div class="col-auto">
+                                        <h4 class="text-center">ارسل رسالة عبر الواتساب</h4>
+                                        <img src="assets/image/qrcode.png" alt="QrCode" width="300" height="300" />
+                                    </div>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
-                    <div class="col-sm-6 col-md-6 col-lg-6 mx-auto modal-body page" style="display: none" id="network">
+                    <div class="col-sm-12 col-md-12 col-lg-12 mx-auto modal-body page" style="display: none"
+                        id="network">
                         <div class="row">
-                            <div class="col-sm-6 col-md-6 col-lg-6">
+                            <div class="col-6">
                                 <h2 class="text-center mb-4">شاشة العرض</h2>
                                 <div class="row mt-4 justify-content-center text-center">
                                     <div class="col-auto network-wired">
@@ -167,8 +187,10 @@
                                         <h5 class="mt-4">
                                             يرجي مراعاة ربط الجهاز الاخر بنفس الشبكة (نفس الراوتر)
                                         </h5>
-                                        <h3 class="screen_link text-success mt-4">
-                                            http://127.0.0.1:8007
+                                        <h3 class="mt-4">
+                                            <i class="far fa-copy ml-2 border p-2 rounded-lg"
+                                                onclick="copyText($('.screen_link'))"></i>
+                                            <span class="screen_link text-success"></span>
                                         </h3>
                                         <div id="screen_img" class="d-flex justify-content-center mt-5"></div>
                                     </div>
@@ -182,8 +204,10 @@
                                         <h5 class="mt-4">
                                             يرجي مراعاة ربط الجهاز الاخر بنفس الشبكة (نفس الراوتر)
                                         </h5>
-                                        <h3 class="netWork_link text-success mt-4">
-                                            http://127.0.0.1:8007
+                                        <h3 class="mt-4">
+                                            <i class="far fa-copy ml-2 border p-2 rounded-lg"
+                                                onclick="copyText($('.netWork_link'))"></i>
+                                            <span class="netWork_link text-success"></span>
                                         </h3>
                                         <div id="netWork_img" class="d-flex justify-content-center mt-5"></div>
                                     </div>
@@ -452,14 +476,25 @@
                 });
         </script>
         <script>
-            var allScripts = document.querySelectorAll("script");
+            function copyText(ele) {
+                var $temp = $("<input>");
+                $("body").append($temp);
+                $temp.val($(ele).text()).select();
+                document.execCommand("copy");
+                $temp.remove();
+                swal.fire({
+                    toast: true,
+                    position: "top-end",
+                    showConfirmButton: false,
+                    timer: 5000,
+                    icon: "success",
+                    title: "تم نسخ الرابط بنجاح",
+                });
+            }
 
-            allScripts.forEach((item) => {
-                if (!item.src.includes("const.js") && item?.src) {
-                    src = item.src + `?v=${VERSION}`;
-                    item.src = src;
-                }
-            });
+            function runAnyDesk() {
+                fetchData("/LocalApi/openAnyDeskProgram", "post", {});
+            }
         </script>
 </body>
 

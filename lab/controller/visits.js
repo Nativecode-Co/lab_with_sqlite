@@ -182,8 +182,13 @@ function showVisit(hash) {
                      FROM lab_visits WHERE hash = ${hash};`).result[0]
     .query0[0];
   let patient = run(
-    `SELECT * FROM lab_patient WHERE hash=${visit.visits_patient_id};`
+    `SELECT * FROM lab_patient WHERE hash='${visit.visits_patient_id}';`
   ).result[0].query0[0];
+  if (!patient) {
+    niceSwal("error", "top-end", "المريض غير موجود");
+    return;
+  }
+  console.log(visit);
   let workSpace = $("#work-sapce");
   workSpace.html("");
   let visitInfo = `
@@ -1304,7 +1309,7 @@ function showInvoice(hash) {
                                 </div>
                                 <div class="prd">
                                 <p class=" doctor-name">Doctor</p>
-                                <p class=" custom-doctor" tyle="display: none;">Lab</p>
+                                <p class=" custom-doctor" style="display: none;">Lab</p>
                                 </div>
                                 <div class="prdgo doctor-name">
                                     <p>${visit.doctor ?? ""}</p>
@@ -2329,15 +2334,15 @@ async function sendWhatsapp(hash, phone, name) {
     const body = document.getElementsByTagName("body")[0];
     body.insertAdjacentHTML("beforeend", waitSendElement);
     let lab_hash = localStorage.getItem("lab_hash");
-    await fetch(`${base_url}Pdf/path?pk=${hash}&lab=${lab_hash}`).then(
-      (res) => {
-        window.open(
-          `https://api.whatsapp.com/send?phone=${phone}&text=${text}`,
-          "_blank"
-        );
-        $("#alert_screen").remove();
-      }
-    );
+    await fetch(
+      `${base_url}Pdf/path?pk=${hash}&lab=${lab_hash}&phone=${phone}`
+    ).then((res) => {
+      // window.open(
+      //   `https://api.whatsapp.com/send?phone=${phone}&text=${text}`,
+      //   "_blank"
+      // );
+      $("#alert_screen").remove();
+    });
   } else {
     Swal.fire({
       icon: "error",

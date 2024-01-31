@@ -12,29 +12,65 @@ class Pdf extends CI_Controller
         $this->load->helper('download');
     }
 
-    public function index()
+    public function save()
     {
         $pk = $this->input->get('pk');
         $lab = $this->input->get('lab');
         $parm = "$pk-$lab";
         $patient = $this->Visit_model->getPatientDetail($pk);
-        $name = $patient['name'];
+        $name = $patient['id'];
         $date = $patient['date'];
         $date = str_replace("-", "_", $date);
-        $path = getcwd();
-        // check if folter exist
-        if (!file_exists("$path\pdfs")) {
-            mkdir("$path\pdfs", 0777, true);
+        // check if folter exist c:\patient
+        if (!file_exists("c:\patient")) {
+            mkdir("c:\patient", 0777, true);
         }
         //  create folder with pk
-        if (!file_exists("$path\pdfs\\$name")) {
-            mkdir("$path\pdfs\\$name", 0777, true);
+        if (!file_exists("c:\patient\\$name")) {
+            mkdir("c:\patient\\$name", 0777, true);
+        }
+
+        if (!file_exists("c:\patient\\$name\\$date")) {
+            mkdir("c:\patient\\$name\\$date", 0777, true);
         }
         // file name
-        $file = "$path\pdfs\\$name\\$date.pdf";
-        $command = 'C:\xampp\ch\chrome --headless --disable-gpu --print-to-pdf="' . $file . '"  --virtual-time-budget=10000 http://localhost:8807/lite/lab/show_invoice.html?pk=' . $parm . '';
+        $file = "c:\patient\\$name\\$date\\$date.pdf";
+        $command = 'C:\xampp\ch\chrome --headless --disable-gpu --print-to-pdf="' . $file . '" --print-to-pdf-no-header  --virtual-time-budget=10000 http://localhost:8807/lab/show_invoice.html?pk=' . $parm . ' 2>&1';
         $output = exec($command);
-        // return pdf file
-        force_download($file, NULL);
+        return array(
+            "file" => $file,
+            "folder" => "c:\patient\\$name\\$date",
+        );
+    }
+
+    public function dwonload()
+    {
+        $file = $this->save();
+        $file = $file['file'];
+    }
+
+    public function path()
+    {
+        $name = $this->input->get('name');
+        $text = `نتائج تحليل المختبري للمريض $name`;
+        $phone = $this->input->get('phone');
+
+        $folder = $this->save();
+        $folder = $folder['folder'];
+        shell_exec("explorer $folder");
+        //https://api.whatsapp.com/send?phone=${phone}&text=${text} with size 500 500
+        $open_command = 'c:\xampp\ch\chrome.exe --new-window --window-size=300,300  --app=https://api.whatsapp.com/send?phone=' . $phone . '&text=' . $text . '';
+        $open_output = exec($open_command);
+    }
+
+    public function openFolder()
+    {
+        $pk = $this->input->get('pk');
+        $patient = $this->Visit_model->getPatientDetail($pk);
+        $name = $patient['id'];
+        $date = $patient['date'];
+        $date = str_replace("-", "_", $date);
+        $folder = "c:\patient\\$name\\$date";
+        shell_exec("explorer $folder");
     }
 }

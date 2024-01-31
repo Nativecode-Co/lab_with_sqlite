@@ -538,9 +538,7 @@ class Visit extends Factory {
       insertedTests.map((test) => test.id),
       newObjectHash
     );
-    this.addRow(newVisit);
-    this.dataTable.draw();
-    this.orderDataTable();
+    this.dataTable.ajax.reload();
     this.resetForm();
     visitDetail(newObjectHash);
     showAddResult(newObjectHash);
@@ -679,10 +677,7 @@ class Visit extends Factory {
 
     let newVisit = run(mainQuery).result[2].query2[0];
     add_calc_tests(tests_hashes, hash, "update");
-    this.dataTable.row(`#${hash} `).remove();
-    this.addRow(newVisit);
-    this.dataTable.draw();
-    this.orderDataTable();
+    this.dataTable.ajax.reload();
     this.resetForm();
     $(`#${this.table} -save`).attr(
       "onclick",

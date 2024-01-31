@@ -157,16 +157,7 @@
     <script src="js/exe.js"></script>
     <script src="js/factory_offline_and_online.js"></script>
     <script src="views/user.js"></script>
-    <script>
-        var allScripts = document.querySelectorAll("script");
 
-        allScripts.forEach((item) => {
-            if (!item.src.includes("const.js") && item?.src) {
-                src = item.src + `?v=${VERSION}`;
-                item.src = src;
-            }
-        });
-    </script>
 </body>
 
 </html>

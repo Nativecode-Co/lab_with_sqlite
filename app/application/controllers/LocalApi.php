@@ -356,4 +356,19 @@ class LocalApi extends CI_Controller
             JSON_UNESCAPED_UNICODE
         );
     }
+
+    public function openAnyDeskProgram()
+    {
+        $path = 'C:\xampp\tools\program\AnyDesk.exe';
+        $out = exec("start $path 2>&1");
+        echo json_encode(
+            array(
+                'status' => true,
+                'message' => 'تم فتح برنامج AnyDesk',
+                'data' => $out,
+                'isAuth' => true
+            ),
+            JSON_UNESCAPED_UNICODE
+        );
+    }
 }

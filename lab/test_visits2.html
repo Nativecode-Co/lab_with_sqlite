@@ -195,16 +195,7 @@
     <script src="js/exe.js"></script>
     <script src="js/factory3.js"></script>
     <script src="views/test_visits2.js"></script>
-    <script>
-        var allScripts = document.querySelectorAll("script");
 
-        allScripts.forEach((item) => {
-            if (!item.src.includes("const.js") && item?.src) {
-                src = item.src + `?v=${VERSION}`;
-                item.src = src;
-            }
-        });
-    </script>
 </body>
 
 </html>

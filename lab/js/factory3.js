@@ -863,7 +863,7 @@ const waitElement = `<div id="alert_screen" class="alert_screen">
 
 function fireSwal(fun = null, ...args) {
   if (!fun) {
-    console.log("no function");
+    niceSwal("error", "خطأ", "لا يوجد اي عملية");
     return false;
   }
   let diffTimeInMin =
@@ -889,6 +889,10 @@ function fireSwal(fun = null, ...args) {
 }
 
 function fireSwalWithoutConfirm(fun, ...args) {
+  if (!fun) {
+    niceSwal("error", "خطأ", "لا يوجد اي عملية");
+    return false;
+  }
   const body = document.getElementsByTagName("body")[0];
   body.insertAdjacentHTML("beforeend", waitElement);
   setTimeout(() => {
@@ -905,6 +909,10 @@ function fireSwalWithoutConfirm(fun, ...args) {
 
 // fire swal for delete function
 function fireSwalForDelete(fun, ...args) {
+  if (!fun) {
+    niceSwal("error", "خطأ", "لا يوجد اي عملية");
+    return false;
+  }
   let condition = 1;
   Swal.fire({
     icon: "question",
@@ -954,7 +962,7 @@ function fireSwalForDelete(fun, ...args) {
 
 function fireSwalConfirm(msg, fun, ...args) {
   if (!fun) {
-    console.log("no function");
+    niceSwal("error", "خطأ", "لا يوجد اي عملية");
     return false;
   }
   let condition = 1;

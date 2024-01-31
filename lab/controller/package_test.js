@@ -54,7 +54,7 @@ async function refreshData() {
     .then((res) => res.json())
     .catch((err) => {
       localStorage.removeItem("token");
-      window.location.href = `${__domain__}lab/login/login.html`;
+      window.location.href = `${__domain__}/lab/login/login.html`;
     });
   if (tests.status === true) {
     localStorage.setItem("token", tests.token);
@@ -76,7 +76,7 @@ async function refreshData() {
     }
   } else {
     localStorage.removeItem("token");
-    window.location.href = `${__domain__}lab/login/login.html`;
+    window.location.href = `${__domain__}/lab/login/login.html`;
   }
   // refresh page
   // window.location.reload();
@@ -609,6 +609,7 @@ function saveRefrence(hash, refID) {
   if (!TEST) {
     TEST = run(`select option_test from lab_test where hash='${hash}';`)
       .result[0].query0[0].option_test;
+    TEST = TEST.replace(/\\/g, "");
     TEST = JSON.parse(TEST);
   }
   let { component } = TEST;

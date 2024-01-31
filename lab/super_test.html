@@ -309,16 +309,7 @@
     <script src="js/factory3.js"></script>
     <script src="themes/super_test.js"></script>
     <script src="views/super_test.js"></script>
-    <script>
-        var allScripts = document.querySelectorAll("script");
 
-        allScripts.forEach((item) => {
-            if (!item.src.includes("const.js") && item?.src) {
-                src = item.src + `?v=${VERSION}`;
-                item.src = src;
-            }
-        });
-    </script>
 </body>
 
 </html>
