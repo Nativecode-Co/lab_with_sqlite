@@ -83,8 +83,8 @@ $(document).ready(function () {
   $(".dt-buttons").addClass("btn-group");
   $("div.addCustomItem").html(
     `<span class="table-title">قائمة التحاليل</span>
-    <button onclick="fireSwal(uploadTestsSync)" class="btn-main-add ml-4"><i class="far fa-users-md mr-2"></i> مزامنة القيم الطبيعية</button>
-    <button onclick="dwonLoadTestsSync()" class="btn-main-add ml-4"><i class="far fa-users-md mr-2"></i> سحب القيم الطبيعية</button>
+    <button onclick="fireSwal(uploadTestsSync)" class="btn-main-add ml-4"><i class="far fa-users-md mr-2"></i> حفظ القيم الطبيعية</button>
+    <button onclick="dwonLoadTestsSync()" class="btn-main-add ml-4"><i class="far fa-users-md mr-2"></i> استرجاع القيم الطبيعية</button>
     `
   );
 });
@@ -555,7 +555,7 @@ function saveRefrence(hash, refID) {
   $("#refrence_editor").modal("toggle");
   Swal.fire({
     toast: true,
-    position: "top-end",
+    position: "bottom-end",
     icon: "success",
     title: "قد تحتاج الى التعديل في صفحة التحاليل لتطبيق التغييرات  ",
     showConfirmButton: false,
@@ -579,7 +579,7 @@ function deleteRefrence(hash, refID) {
   if (checkFoundedInLabTests) {
     Swal.fire({
       toast: true,
-      position: "top-end",
+      position: "bottom-end",
       icon: "error",
       title: "لا يمكن حذف هذا المرجع لانه مرتبط ببعض الفحوصات",
       showConfirmButton: false,

@@ -941,7 +941,7 @@ function fireSwalForDelete(fun, ...args) {
             if (fun.call(this, ...args) != false) {
               swal.fire({
                 toast: true,
-                position: "top-end",
+                position: "bottom-end",
                 showConfirmButton: false,
                 timer: 3000,
                 padding: "2em",
@@ -1286,7 +1286,7 @@ function manageImageSave(imageId) {
 function niceSwal(type, position, msg) {
   swal.fire({
     toast: true,
-    position: position ?? "top-end",
+    position: position ?? "bottom-end",
     showConfirmButton: false,
     timer: 5000,
     icon: type ?? "success",

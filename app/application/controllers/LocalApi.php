@@ -219,7 +219,7 @@ class LocalApi extends CI_Controller
         }
 
         curl_close($ch);
-        if ($response == "") {
+        if ($response == "" || $response == null || $response == "null") {
             echo json_encode(
                 array(
                     'status' => false,
@@ -359,8 +359,9 @@ class LocalApi extends CI_Controller
 
     public function openAnyDeskProgram()
     {
+        // open anydesk program then end the response
         $path = 'C:\xampp\tools\program\AnyDesk.exe';
-        $out = exec("start $path 2>&1");
+        $out = shell_exec("start $path 2>&1");
         echo json_encode(
             array(
                 'status' => true,

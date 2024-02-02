@@ -185,7 +185,7 @@ function showVisit(hash) {
     `SELECT * FROM lab_patient WHERE hash='${visit.visits_patient_id}';`
   ).result[0].query0[0];
   if (!patient) {
-    niceSwal("error", "top-end", "المريض غير موجود");
+    niceSwal("error", "bottom-end", "المريض غير موجود");
     return;
   }
   console.log(visit);
@@ -2541,9 +2541,9 @@ const updatePhone = (hash) => {
   if (phone.length >= 10) {
     run(`update lab_patient set phone='${phone}' where hash='${hash}';`);
     // niceSwal(type, position, msg)
-    niceSwal("success", "top-end", "تم تحديث رقم الموبايل بنجاح");
+    niceSwal("success", "bottom-end", "تم تحديث رقم الموبايل بنجاح");
   } else {
-    niceSwal("error", "top-end", "رقم الموبايل غير صحيح");
+    niceSwal("error", "bottom-end", "رقم الموبايل غير صحيح");
   }
 };
 
@@ -2570,7 +2570,7 @@ const getPatientHistory = (patient, date) => {
 function downloadPdf() {
   let svgs = $("svg.border-print-hover");
   if (svgs.length == 0)
-    return niceSwal("error", "top-end", "يجب عليك اختيار فاتورة اولا");
+    return niceSwal("error", "bottom-end", "يجب عليك اختيار فاتورة اولا");
   let oldId = $(`.book-result:visible`).attr("id");
   $(`#${oldId}`).css("display", "none");
   // get data-id
@@ -2670,9 +2670,9 @@ const updatePatientName = async (hash, ele) => {
       const { status, message } = res;
       if (status == 200) {
         lab_visits.dataTable.ajax.reload();
-        niceSwal("success", "top-end", message);
+        niceSwal("success", "bottom-end", message);
       } else {
-        niceSwal("error", "top-end", message);
+        niceSwal("error", "bottom-end", message);
       }
     });
 };
@@ -2700,7 +2700,7 @@ const updateNormal = (test, kit, unit) => {
   } catch (error) {
     Swal.fire({
       toast: true,
-      position: "top-end",
+      position: "bottom-end",
       icon: "error",
       title: "لا يوجد رينجات لتعديلها",
       showConfirmButton: false,

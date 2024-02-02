@@ -450,7 +450,7 @@ async function runAsyncData() {
       localStorage.getItem("name") ?? ""
     }','${new Date().toISOString().slice(0, 19).replace("T", " ")}');`
   );
-  niceSwal("success", "top-end", "تم تحديث البيانات بنجاح");
+  niceSwal("success", "bottom-end", "تم تحديث البيانات بنجاح");
 }
 
 async function updateExpireDate() {

@@ -335,7 +335,7 @@ async function saveNewTest() {
   let hash = $("#addTest #name").data("hash");
   // validate form
   if (name.length == 0 || price.length == 0) {
-    niceSwal("error", "top-end", "يجب ملئ جميع الحقول");
+    niceSwal("error", "bottom-end", "يجب ملئ جميع الحقول");
     return false;
   }
   const formData = new FormData();
@@ -363,7 +363,7 @@ async function saveNewTest() {
     .catch((err) => {});
   const { status, message, data } = result;
   if (status === false) {
-    niceSwal("error", "top-end", message);
+    niceSwal("error", "bottom-end", message);
     return false;
   }
 
@@ -372,7 +372,7 @@ async function saveNewTest() {
   allPAckages.addRow(newPackage);
   // empty form
   emptyTestForm();
-  niceSwal("success", "top-end", "تم الحفظ بنجاح");
+  niceSwal("success", "bottom-end", "تم الحفظ بنجاح");
   let newObject = lab_test.getItem(data);
   lab_test.addRow(newObject);
 }
@@ -392,7 +392,7 @@ function deleteTest(hash) {
   if (result.length != 0) {
     niceSwal(
       "error",
-      "top-end",
+      "bottom-end",
       `لا يمكن حذف هذا الاختبار لانه مرتبط بعدد ${
         result.length
       } زيارة هما {${result
@@ -409,7 +409,7 @@ function deleteTest(hash) {
   $(".package-botton").click();
   $(".test-botton").click();
   lab_test.dataTable.draw();
-  niceSwal("success", "top-end", "تم الحذف بنجاح");
+  niceSwal("success", "bottom-end", "تم الحذف بنجاح");
 }
 // empty package tests
 function emptyPackageTests() {
@@ -462,10 +462,10 @@ function saveNewPackage() {
   let notes = $("#addPackage #notes").val();
   // vailide form
   if (name.length == 0 || price.length == 0) {
-    niceSwal("error", "top-end", "يجب ملئ جميع الحقول");
+    niceSwal("error", "bottom-end", "يجب ملئ جميع الحقول");
     return;
   } else if ($("#row-packages input[type=checkbox]:checked").length == 0) {
-    niceSwal("error", "top-end", "يجب اختيار على الاقل تحليل واحد");
+    niceSwal("error", "bottom-end", "يجب اختيار على الاقل تحليل واحد");
     return;
   }
   let packageHash = run_both({
@@ -492,7 +492,7 @@ function saveNewPackage() {
   emptyPackageTests();
   let insertObject = lab_package.getItem(packageHash);
   lab_package.addRow(insertObject);
-  niceSwal("success", "top-end", "تم الحفظ بنجاح");
+  niceSwal("success", "bottom-end", "تم الحفظ بنجاح");
 }
 
 function saveUpdatePackage(hash) {
@@ -513,7 +513,7 @@ function saveUpdatePackage(hash) {
   run_both(query);
   emptyPackageTests();
   lab_package.dataTable.draw();
-  niceSwal("success", "top-end", "تم الحفظ بنجاح");
+  niceSwal("success", "bottom-end", "تم الحفظ بنجاح");
 }
 
 function deletePackage(hash) {
@@ -523,7 +523,7 @@ function deletePackage(hash) {
   if (count != 0) {
     niceSwal(
       "error",
-      "top-end",
+      "bottom-end",
       "لا يمكن حذف هذا الاختبار لانه مرتبط ببعض الفواتير"
     );
     return false;
@@ -534,7 +534,7 @@ function deletePackage(hash) {
   $(".package-botton").click();
   $(".test-botton").click();
   lab_package.dataTable.draw();
-  niceSwal("success", "top-end", "تم الحذف بنجاح");
+  niceSwal("success", "bottom-end", "تم الحذف بنجاح");
 }
 
 const updateNormal = (test, kit, unit) => {
@@ -560,7 +560,7 @@ const updateNormal = (test, kit, unit) => {
   } catch (error) {
     Swal.fire({
       toast: true,
-      position: "top-end",
+      position: "bottom-end",
       icon: "error",
       title: "لا يوجد رينجات لتعديلها يرجي اضافة رينجات اولا",
       showConfirmButton: false,

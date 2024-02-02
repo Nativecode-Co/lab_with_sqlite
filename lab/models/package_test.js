@@ -385,8 +385,8 @@ let allPAckages = new PackageTests("lab_test", " اختبار", []);
 
 $(document).ready(function () {
   $("div.addCustomItem").html(`
-    <button onclick="fireSwal(uploadTestsSync)" class="btn-main-add ml-4"><i class="far fa-users-md mr-2"></i> مزامنة القيم الطبيعية</button>
-    <button onclick="dwonLoadTestsSync()" class="btn-main-add ml-4"><i class="far fa-users-md mr-2"></i> سحب القيم الطبيعية</button>
+    <button onclick="fireSwal(uploadTestsSync)" class="btn-main-add ml-4"><i class="far fa-users-md mr-2"></i> حفظ القيم الطبيعية</button>
+    <button onclick="dwonLoadTestsSync()" class="btn-main-add ml-4"><i class="far fa-users-md mr-2"></i> استرجاع القيم الطبيعية</button>
     `);
 });
 
@@ -394,7 +394,7 @@ const uploadTestsSync = async () => {
   fetchData("LocalApi/getTestsQueries", "POST", {
     lab_id: localStorage.getItem("lab_hash"),
   });
-  niceSwal("success", "top-end", "تم الرفع بنجاح");
+  niceSwal("success", "bottom-end", "تم الرفع بنجاح");
 };
 
 const dwonLoadTestsSync = () => {

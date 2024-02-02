@@ -740,23 +740,23 @@ function refreshValidation() {
 
   // check if age low is empty
   if (ageLowElement.val() == "") {
-    niceSwal("error", "top-end", "الرجاء ادخال العمر الادنى");
+    niceSwal("error", "bottom-end", "الرجاء ادخال العمر الادنى");
     return false;
   }
   // check if age high is empty
   if (ageHighElement.val() == "") {
-    niceSwal("error", "top-end", "الرجاء ادخال العمر الاعلى");
+    niceSwal("error", "bottom-end", "الرجاء ادخال العمر الاعلى");
     result = false;
   }
   // check if age unit low is empty
   if (ageUnitLowElement.val() == "" || ageUnitLowElement.val() == null) {
-    niceSwal("error", "top-end", "الرجاء ادخال وحدة العمر الادنى");
+    niceSwal("error", "bottom-end", "الرجاء ادخال وحدة العمر الادنى");
 
     result = false;
   }
   // check if age unit high is empty
   if (ageUnitHighElement.val() == "" || ageUnitHighElement.val() == null) {
-    niceSwal("error", "top-end", "الرجاء ادخال وحدة العمر الاعلى");
+    niceSwal("error", "bottom-end", "الرجاء ادخال وحدة العمر الاعلى");
 
     result = false;
   }
@@ -767,7 +767,7 @@ function refreshValidation() {
     if (low.val() == "" && high.val() == "") {
       niceSwal(
         "error",
-        "top-end",
+        "bottom-end",
         "الرجاء ادخال القيمة الادنى او الاعلي علي الاقل"
       );
 

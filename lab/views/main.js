@@ -9,10 +9,14 @@ let lab_hash = localStorage.getItem("lab_hash"),
   table = null,
   pageNumber = 0,
   today = new Date(),
-  today_date = today.getFullYear() + "-" + padTo2Digits(today.getMonth() + 1) + "-" + padTo2Digits(today.getDate()),
+  today_date =
+    today.getFullYear() +
+    "-" +
+    padTo2Digits(today.getMonth() + 1) +
+    "-" +
+    padTo2Digits(today.getDate()),
   select,
   PackageHASHES = [];
-
 
 const ALLDATA = run(`
   select name,hash from lab_visit_status;
@@ -27,9 +31,19 @@ let visit_status = ALLDATA,
   packages = ALLDATA.result[3].query3,
   offers = ALLDATA.result[4].query4;
 
-
-let offersSelect = offers.map(item => `<option value="${item.hash}" data-price="${item.price}">${item.name} : ${item.price}$ </option>`).join("")
-  + packages.map(item => `<option value="${item.hash}" data-price="${item.price}">${item.name} : ${item.price}$ </option>`).join("");
+let offersSelect =
+  offers
+    .map(
+      (item) =>
+        `<option value="${item.hash}" data-price="${item.price}">${item.name} : ${item.price}$ </option>`
+    )
+    .join("") +
+  packages
+    .map(
+      (item) =>
+        `<option value="${item.hash}" data-price="${item.price}">${item.name} : ${item.price}$ </option>`
+    )
+    .join("");
 /*=============== START COMMENT ===============
 ===============================================
 ===============================================
@@ -49,10 +63,10 @@ for (let doctor of doctors) {
 $(document).ready(function () {
   // JsBarcode("#barcode", "3th Test");
   $(document).keydown(function (e) {
-    if ($('.mover').is(":focus") && (e.keyCode == 40 || e.keyCode == 13)) {
+    if ($(".mover").is(":focus") && (e.keyCode == 40 || e.keyCode == 13)) {
       e.preventDefault();
       focusInput("add");
-    } else if ($('.mover').is(":focus") && e.keyCode == 38) {
+    } else if ($(".mover").is(":focus") && e.keyCode == 38) {
       e.preventDefault();
       focusInput("12");
     }
@@ -92,9 +106,9 @@ $(document).ready(function () {
     }
     drawVisits(data, $("#visits_body"), table);
   };
-  $('input[type=search]')
+  $("input[type=search]")
     .off()
-    .on('keyup', function (e) {
+    .on("keyup", function (e) {
       if (e.keyCode == 13) {
         filterByColumn(this.value);
       }
@@ -113,8 +127,8 @@ $("#input-search-2").on("keyup", function () {
 $(".form-patient").validate({
   rules: {
     age_month: {
-      maxMonth: true
-    }
+      maxMonth: true,
+    },
   },
   messages: {
     name: "تأكد من الاسم",
@@ -134,18 +148,22 @@ $(".form-patient").validate({
   },
 });
 
-$.validator.addMethod('maxMonth', function (value, element, param) {
-  if (value) {
-    if (value > 11 || value < 0) {
-      return false
+$.validator.addMethod(
+  "maxMonth",
+  function (value, element, param) {
+    if (value) {
+      if (value > 11 || value < 0) {
+        return false;
+      }
+    } else {
+      if (!$("#age_year").val()) {
+        return false;
+      }
     }
-  } else {
-    if (!$("#age_year").val()) {
-      return false
-    }
-  }
-  return true
-}, 'تأكد من عدد الشهور');
+    return true;
+  },
+  "تأكد من عدد الشهور"
+);
 
 function change_total_price(el) {
   let total_price = Number($(".total-price").text());
@@ -166,7 +184,7 @@ function greate_patient() {
   let birth_year = today.getFullYear() - $("input[name=age_year]").val() || 0;
   let birth_month =
     today.getMonth() + 1 - $("input[name=age_month]").val() || 0;
-  let doctor = $('select[name=doctor]').val();
+  let doctor = $("select[name=doctor]").val();
   let column = {
     name: $("#name").val(),
     age_year: $("#age_year").val(),
@@ -261,8 +279,9 @@ function show_tests_swal(hash, name) {
 // ==> get all patient in lab
 function get_all_patient() {
   $("select[name='visits_patient_id']").empty().trigger("change");
-  let patients = run(`select hash,name from lab_patient where lab_id=${lab_hash};`)
-    .result[0].query0;
+  let patients = run(
+    `select hash,name from lab_patient where lab_id=${lab_hash};`
+  ).result[0].query0;
   let newOption = new Option("--------------", "null", false, false);
   $("select[name='visits_patient_id']").append(newOption);
   newOption = new Option("اضافة مريض جديد", "new", false, false);
@@ -333,7 +352,9 @@ function greate_visits_test() {
   let hashs = [];
   // insert visits Package
   $(".package input:checked").each(function () {
-    query += `insert into visits_package(visit_id,package_id,price) values(${visit_hash},${$(this).data("hash")},${$(this).data("price")});`;
+    query += `insert into visits_package(visit_id,package_id,price) values(${visit_hash},${$(
+      this
+    ).data("hash")},${$(this).data("price")});`;
     hashs.push($(this).data("hash"));
     $(this).prop("checked", false);
   });
@@ -342,7 +363,20 @@ function greate_visits_test() {
       `select test_id,kit_id,lab_device_id,unit from pakage_tests where package_id in (${hashs})`
     ).result.query;
     for (let test of package_tests) {
-      query += `insert into visits_tests(visit_id,result_test,tests_id) values('${visit_hash}','${JSON.stringify({ "result": [{ "name": "", "range": "", "result": "", "kit": test.kit_id, "device": test.lab_device_id, "unit": test.unit }] })}','${test.test_id}');`;
+      query += `insert into visits_tests(visit_id,result_test,tests_id) values('${visit_hash}','${JSON.stringify(
+        {
+          result: [
+            {
+              name: "",
+              range: "",
+              result: "",
+              kit: test.kit_id,
+              device: test.lab_device_id,
+              unit: test.unit,
+            },
+          ],
+        }
+      )}','${test.test_id}');`;
     }
   }
   run(query);
@@ -390,11 +424,19 @@ function fetch_visits() {
       }
       $("#visits_body").append(`
             <tr>
-                <td onclick="show_tests_swal('${visit.hash}','${visit.patient_name}')">${visit.patient_name}</td>
-                <td>${createVisitStatusSelect(visit_status.result[0]?.query0, visit.hash, visit.visit_type)}</td>
+                <td onclick="show_tests_swal('${visit.hash}','${
+        visit.patient_name
+      }')">${visit.patient_name}</td>
+                <td>${createVisitStatusSelect(
+                  visit_status.result[0]?.query0,
+                  visit.hash,
+                  visit.visit_type
+                )}</td>
                 <td>${visit.visit_date}</td>
                 <td>
-                    <span id="done-${visit.hash}" class="badge badge-${visit.visit_type == 3 ? "success" : "info"}">
+                    <span id="done-${visit.hash}" class="badge badge-${
+        visit.visit_type == 3 ? "success" : "info"
+      }">
                         ${visit.visit_type == 3 ? "منجز" : "غير منجز"}
                     </span>
                 </td>
@@ -402,27 +444,39 @@ function fetch_visits() {
                 <td>
                     <ul class="table-controls">
                         <li>
-                            <a class="bs-tooltip" onclick="edit_visits('${visit.hash}')" data-toggle="tooltip" data-placement="top" title="تعديل">
+                            <a class="bs-tooltip" onclick="edit_visits('${
+                              visit.hash
+                            }')" data-toggle="tooltip" data-placement="top" title="تعديل">
                                 <i class="far fa-edit fa-lg mx-2"></i>
                             </a>
                         </li>
                         <li>
-                            <a class="bs-tooltip" onclick="location.href='invoice.html?hash=${visit.hash}'" data-toggle="tooltip" data-placement="top" title="طباعة الفاتورة">
+                            <a class="bs-tooltip" onclick="location.href='invoice.html?hash=${
+                              visit.hash
+                            }'" data-toggle="tooltip" data-placement="top" title="طباعة الفاتورة">
                                 <i class="fal fa-cash-register fa-lg mx-2"></i>
                             </a>
                         </li>
                         <li>
-                            <a class="bs-tooltip" onclick="show_tests_swal('${visit.hash}','${visit.patient_name}')" data-toggle="tooltip" data-placement="top" title="ادخال النتائج">
+                            <a class="bs-tooltip" onclick="show_tests_swal('${
+                              visit.hash
+                            }','${
+        visit.patient_name
+      }')" data-toggle="tooltip" data-placement="top" title="ادخال النتائج">
                                 <i class="far fa-poll fa-lg mx-2"></i>
                             </a>
                         </li>
                         <li>
-                            <a class="bs-tooltip" onclick="print_result('${visit.hash}')" data-toggle="tooltip" data-placement="top" title="طباعة النتائج">
+                            <a class="bs-tooltip" onclick="print_result('${
+                              visit.hash
+                            }')" data-toggle="tooltip" data-placement="top" title="طباعة النتائج">
                                 <i class="far fa-print fa-lg mx-2"></i>
                             </a>
                         </li>
                         <li>
-                            <a class="bs-tooltip" onclick="barCodeGenrator('${visit.hash}')" data-toggle="tooltip" data-placement="top" title="طباعة النتائج">
+                            <a class="bs-tooltip" onclick="barCodeGenrator('${
+                              visit.hash
+                            }')" data-toggle="tooltip" data-placement="top" title="طباعة النتائج">
                                 <i class="far fa-barcode-scan fa-lg mx-2"></i>
                             </a>
                         </li>
@@ -444,16 +498,16 @@ function edit_visits(hash) {
     `select name,visit_date,visits_patient_id,visits_status_id,note from lab_visits where hash='${hash}';
     select package_id as hash from lab_visits_package where visit_id='${hash}';`
   );
-  PackageHASHES = query_obj.result[1].query1.map(item => item.hash);
-  $('#visits_packages').empty();
+  PackageHASHES = query_obj.result[1].query1.map((item) => item.hash);
+  $("#visits_packages").empty();
   for (let package of query_obj.result[1].query1) {
-    $('#visits_packages').append(drawPackageSelector(package.hash));
+    $("#visits_packages").append(drawPackageSelector(package.hash));
     // get last select package_selector and add onchange event
-    let last_select = $('select[name=package_selector]').last();
-    last_select.val(package.hash).trigger('change')
+    let last_select = $("select[name=package_selector]").last();
+    last_select.val(package.hash).trigger("change");
     last_select.select2({
       placeholder: "اختر الحزمة",
-      width: '100%'
+      width: "100%",
     });
   }
 
@@ -474,47 +528,66 @@ function edit_visits(hash) {
 
 // ==>
 function save_visits(form_id, table) {
-  let query = '';
+  let query = "";
   run(get_update_object(form_id, table, visit_hash));
   let allHASHES = [];
   let packageTestHashes = [];
   let deleteTestHashes = [];
   fetch_visits();
 
-  $('#visits_packages select').each(function () {
-    allHASHES.push({hash:$(this).val(),price:$(this).find(':selected').data('price')});
-  })
+  $("#visits_packages select").each(function () {
+    allHASHES.push({
+      hash: $(this).val(),
+      price: $(this).find(":selected").data("price"),
+    });
+  });
 
-  
-  allHASHES.filter(item => {
+  allHASHES.filter((item) => {
     if (!PackageHASHES.includes(item.hash)) {
-      query += `insert into visits_package (visit_id,package_id, price) values ('${visit_hash}','${item.hash}','${item.price}');`
+      query += `insert into visits_package (visit_id,package_id, price) values ('${visit_hash}','${item.hash}','${item.price}');`;
       packageTestHashes.push(item.hash);
     }
-  })
-  
-  PackageHASHES.filter(hash => {
-    if (!allHASHES.map(item=>item.hash).includes(hash)) {
+  });
+
+  PackageHASHES.filter((hash) => {
+    if (!allHASHES.map((item) => item.hash).includes(hash)) {
       query += `delete from lab_visits_package where visit_id='${visit_hash}' and package_id='${hash}';`;
       deleteTestHashes.push(hash);
     }
   });
-  if (packageTestHashes.length != 0  || deleteTestHashes.length != 0) {
+  if (packageTestHashes.length != 0 || deleteTestHashes.length != 0) {
     let package = run(
-      `select test_id,kit_id,lab_device_id,unit from pakage_tests where package_id in (${packageTestHashes.length == 0 ? [0] : packageTestHashes});
-       select test_id from pakage_tests where package_id in (${deleteTestHashes.length == 0 ? [0]: deleteTestHashes});`
+      `select test_id,kit_id,lab_device_id,unit from pakage_tests where package_id in (${
+        packageTestHashes.length == 0 ? [0] : packageTestHashes
+      });
+       select test_id from pakage_tests where package_id in (${
+         deleteTestHashes.length == 0 ? [0] : deleteTestHashes
+       });`
     );
     let package_tests = package.result[0].query0;
     let package_deleted = package.result[1].query1;
     for (let test of package_tests) {
-      query += `insert into visits_tests(visit_id,result_test,tests_id) values('${visit_hash}','${JSON.stringify({ "result": [{ "name": "", "range": "", "result": "", "kit": test.kit_id, "device": test.lab_device_id, "unit": test.unit }] })}','${test.test_id}');`;
-    };
+      query += `insert into visits_tests(visit_id,result_test,tests_id) values('${visit_hash}','${JSON.stringify(
+        {
+          result: [
+            {
+              name: "",
+              range: "",
+              result: "",
+              kit: test.kit_id,
+              device: test.lab_device_id,
+              unit: test.unit,
+            },
+          ],
+        }
+      )}','${test.test_id}');`;
+    }
     for (let test of package_deleted) {
       query += `delete from lab_visits_tests where visit_id='${visit_hash}' and tests_id='${test.test_id}';`;
     }
   }
   // if query != '' run query
-  query != '' ? run(query) : '';
+  query != "" ? run(query) : "";
   $("#visits-modal").modal("toggle");
   visit_hash = null;
 }
@@ -545,11 +618,14 @@ function get_visit_result(hash, name) {
             </tr>`
     );
     for (let package of obj.result.query) {
-      $("#tests_body").append(`
+      $("#tests_body").append(
+        `
         <tr>
           <td colspan="5" class="text-center h-22 text-info">${package.test_name}</td>
         </tr>
-      `,build_result_form(package.hash));
+      `,
+        build_result_form(package.hash)
+      );
     }
     $("html, body").animate(
       {
@@ -593,14 +669,16 @@ function save_result(visit_hash) {
   ).result[0].query0[0].count;
   if (count == 0) {
     run(`update visits set visits_status_id=3 where hash=${visit_hash};`);
-    $(`#done-${visit_hash}`).removeClass("badge-info").addClass("badge-success");
+    $(`#done-${visit_hash}`)
+      .removeClass("badge-info")
+      .addClass("badge-success");
     $(`#done-${visit_hash}`).html("منجز");
-    $(`#select-${visit_hash}`).val('3').trigger("change");
+    $(`#select-${visit_hash}`).val("3").trigger("change");
   }
   Toast.fire({
-    icon: 'success',
-    title: 'تم حفظ النتائج'
-  })
+    icon: "success",
+    title: "تم حفظ النتائج",
+  });
 }
 
 /*=============== START COMMENT ===============
@@ -651,7 +729,7 @@ function print_result(hash) {
 function SetNewTable(id) {
   let table = $(`#${id}`).DataTable({
     ordering: false,
-    "paging": false,
+    paging: false,
     responsive: {
       details: {
         type: "column",
@@ -731,8 +809,9 @@ const resetPatientform = function () {
 const createVisitStatusSelect = function (query, visit_hash, hash) {
   let option = "";
   for (let status of query) {
-    option += `<option value="${status.hash}" ${hash == status.hash ? "selected" : ""
-      }>${status.name}</option>`;
+    option += `<option value="${status.hash}" ${
+      hash == status.hash ? "selected" : ""
+    }>${status.name}</option>`;
   }
   return `
         <select id="select-${visit_hash}" onchange="changeVisitStatus('${visit_hash}',$(this))" class="form-control">
@@ -753,7 +832,7 @@ const changeVisitStatus = function (visit_hash, el) {
 
 const Toast = Swal.mixin({
   toast: true,
-  position: "top-end",
+  position: "bottom-end",
   showConfirmButton: false,
   timer: 3000,
   timerProgressBar: true,
@@ -763,17 +842,24 @@ const Toast = Swal.mixin({
   },
 });
 
-
 const drawVisits = function (data, tableID, table) {
   for (let visit of data) {
     let badget = visitType(visit.ispayed);
     tableID.append(`
           <tr>
-              <td onclick="show_tests_swal('${visit.hash}','${visit.patient_name}')">${visit.patient_name}</td>
-              <td>${createVisitStatusSelect(visit_status.result[0]?.query0, visit.hash, visit.visit_type)}</td>
+              <td onclick="show_tests_swal('${visit.hash}','${
+      visit.patient_name
+    }')">${visit.patient_name}</td>
+              <td>${createVisitStatusSelect(
+                visit_status.result[0]?.query0,
+                visit.hash,
+                visit.visit_type
+              )}</td>
               <td>${visit.visit_date}</td>
               <td>
-                  <span id="done-${visit.hash}" class="badge badge-${visit.visit_type == 3 ? "success" : "info"}">
+                  <span id="done-${visit.hash}" class="badge badge-${
+      visit.visit_type == 3 ? "success" : "info"
+    }">
                       ${visit.visit_type == 3 ? "منجز" : "غير منجز"}
                   </span>
               </td>
@@ -781,22 +867,32 @@ const drawVisits = function (data, tableID, table) {
               <td>
                   <ul class="table-controls">
                       <li>
-                          <a class="bs-tooltip" onclick="edit_visits('${visit.hash}')" data-toggle="tooltip" data-placement="top" title="تعديل">
+                          <a class="bs-tooltip" onclick="edit_visits('${
+                            visit.hash
+                          }')" data-toggle="tooltip" data-placement="top" title="تعديل">
                               <i class="far fa-edit fa-lg mx-2"></i>
                           </a>
                       </li>
                       <li>
-                          <a class="bs-tooltip" onclick="location.href='invoice.html?hash=${visit.hash}'" data-toggle="tooltip" data-placement="top" title="طباعة الفاتورة">
+                          <a class="bs-tooltip" onclick="location.href='invoice.html?hash=${
+                            visit.hash
+                          }'" data-toggle="tooltip" data-placement="top" title="طباعة الفاتورة">
                               <i class="fal fa-cash-register fa-lg mx-2"></i>
                           </a>
                       </li>
                       <li>
-                          <a class="bs-tooltip" onclick="show_tests_swal('${visit.hash}','${visit.patient_name}')" data-toggle="tooltip" data-placement="top" title="ادخال النتائج">
+                          <a class="bs-tooltip" onclick="show_tests_swal('${
+                            visit.hash
+                          }','${
+      visit.patient_name
+    }')" data-toggle="tooltip" data-placement="top" title="ادخال النتائج">
                               <i class="far fa-poll fa-lg mx-2"></i>
                           </a>
                       </li>
                       <li>
-                          <a class="bs-tooltip" onclick="print_result('${visit.hash}')" data-toggle="tooltip" data-placement="top" title="طباعة النتائج">
+                          <a class="bs-tooltip" onclick="print_result('${
+                            visit.hash
+                          }')" data-toggle="tooltip" data-placement="top" title="طباعة النتائج">
                               <i class="far fa-print fa-lg mx-2"></i>
                           </a>
                       </li>
@@ -806,7 +902,7 @@ const drawVisits = function (data, tableID, table) {
           </tr>
       `);
   }
-}
+};
 
 const visitType = function (type) {
   let badget;
@@ -822,7 +918,7 @@ const visitType = function (type) {
       break;
   }
   return badget;
-}
+};
 
 function filterByColumn(term) {
   let data = run(`select
@@ -853,17 +949,21 @@ function filterByColumn(term) {
       <td></td>
       <td></td>
      </tr>`
-  )
+  );
   pageNumber = -1;
 }
 
-
-
-document.addEventListener('keypress', function (e) {
+document.addEventListener("keypress", function (e) {
   if (e.data.length >= 0) {
-    console.log('%c========== Start  ==========', 'color:#fff;background:#ee6f57;padding:3px;border-radius:2px');
-    console.log('=====>', e.data);
-    console.log('%c=========== End  ===========', 'color:#fff;background:#ee6f57;padding:3px;border-radius:2px');
+    console.log(
+      "%c========== Start  ==========",
+      "color:#fff;background:#ee6f57;padding:3px;border-radius:2px"
+    );
+    console.log("=====>", e.data);
+    console.log(
+      "%c=========== End  ===========",
+      "color:#fff;background:#ee6f57;padding:3px;border-radius:2px"
+    );
     e.preventDefault();
   }
 });
@@ -871,8 +971,14 @@ document.addEventListener('keypress', function (e) {
 function barCodeGenrator(code) {
   JsBarcode("#barcode", code);
   let prtContent = document.getElementById("barcode");
-  let WinPrint = window.open('', '', 'left=0,top=0,width=800,height=900,toolbar=0,scrollbars=0,status=0');
-  WinPrint.document.write(`<div style="display: flex;justify-content: center;">${prtContent.outerHTML}</div>`);
+  let WinPrint = window.open(
+    "",
+    "",
+    "left=0,top=0,width=800,height=900,toolbar=0,scrollbars=0,status=0"
+  );
+  WinPrint.document.write(
+    `<div style="display: flex;justify-content: center;">${prtContent.outerHTML}</div>`
+  );
   // document.write(`<div style="display: flex;justify-content: center;">${prtContent.outerHTML}</div>`);
   WinPrint.document.close();
   WinPrint.focus();
@@ -880,10 +986,9 @@ function barCodeGenrator(code) {
   // WinPrint.close();
 }
 
-
 function focusInput(type) {
-  let list = $('.mover');
-  let index = list.index($('.mover:focus'));
+  let list = $(".mover");
+  let index = list.index($(".mover:focus"));
   if (type == "add") {
     index = (index + 1) % list.length;
   } else {
@@ -895,10 +1000,10 @@ function focusInput(type) {
 // function to draow packages
 function drawPackageSelector(hash = 0) {
   let id = 0;
-  if(hash == 0){
+  if (hash == 0) {
     // random id 16 digit number
     hash = Math.floor(Math.random() * 100000000000000000);
-  }else{
+  } else {
     id = hash;
   }
   return `
@@ -918,11 +1023,10 @@ function drawPackageSelector(hash = 0) {
         </div>
       </div>
     </div>
-  `
+  `;
 }
 
 // remove package from table
 function removePackage(hash) {
-  $('#' + hash).remove();
+  $("#" + hash).remove();
 }
-
