@@ -360,8 +360,8 @@ class LocalApi extends CI_Controller
     public function openAnyDeskProgram()
     {
         // open anydesk program then end the response
-        $path = 'C:\xampp\tools\program\AnyDesk.exe';
-        $out = shell_exec("start $path 2>&1");
+        $path = 'c:\xampp\nircmd.exe exec  hide  "c:\xampp\tools\program\AnyDesk.exe"';
+        $out = shell_exec("$path 2>&1");
         echo json_encode(
             array(
                 'status' => true,

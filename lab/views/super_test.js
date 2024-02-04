@@ -536,12 +536,14 @@ function saveRefrence(hash, refID) {
     // `
   }
   test_options["component"] = component;
-  let kitUnit = run(`update lab_test set option_test='${JSON.stringify(
+  const query = `update lab_test set option_test='${JSON.stringify(
     test_options
-  )}' where hash=${hash};
-                    select kit from lab_kit_unit where kit='${
-                      element.kit
-                    }' and unit='${element.unit}';`).result[1].query1[0];
+  )}' where hash=${hash}`;
+
+  let kitUnit = run(
+    `${query}; select kit from lab_kit_unit where kit='${element.kit}' and unit='${element.unit}';`
+  ).result[1].query1[0];
+  run_online(`${query} and lab_hash='${localStorage.getItem("lab_hash")}';`);
   if (!kitUnit) {
     run(
       `insert into lab_kit_unit(kit,unit) values('${element.kit}','${element.unit}');`

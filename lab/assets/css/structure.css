@@ -255,7 +255,9 @@ code {
   top: 0;
   right: 0;
   left: 0;
-  z-index: 1032; }
+  z-index: 1032; 
+  min-width: max-content;
+}
 
 .navbar {
   z-index: 1030;

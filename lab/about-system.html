@@ -453,7 +453,7 @@
                 .then((res) => res.json())
                 .then((res) => {
                     networkLink.innerHTML = res.url;
-                    screnLink.innerHTML = 'http://localhost:8807/lab/screen.html';
+                    screnLink.innerHTML = res.url + '/lab/screen.html';
                     var qrcode = new QRCode("netWork_img", {
                         text: res.url,
                         width: 300,
@@ -463,7 +463,7 @@
                         correctLevel: QRCode.CorrectLevel.H,
                     });
                     var qrcode = new QRCode("screen_img", {
-                        text: 'http://localhost:8807/lab/screen.html',
+                        text: res.url + '/lab/screen.html',
                         width: 300,
                         height: 300,
                         colorDark: "#000000",

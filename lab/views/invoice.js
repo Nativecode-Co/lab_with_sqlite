@@ -998,7 +998,7 @@ const InvoiceHeader = ({ invoice }) => {
           workers.length > 0
             ? "justify-content-between"
             : "justify-content-center"
-        } uk-sortable border border-danger p-1`}
+        } uk-sortable`}
         id="sortable"
         data-uk-sortable
         style={{ display: invoice.footer_header_show == "1" ? "" : "none" }}
@@ -1009,7 +1009,7 @@ const InvoiceHeader = ({ invoice }) => {
             if (employee.hash == "logo") {
               return (
                 <div
-                  className={`logo  border p-2`}
+                  className="logo"
                   id="logo"
                   key={index}
                   style={{
@@ -1028,7 +1028,7 @@ const InvoiceHeader = ({ invoice }) => {
                     flex: `0 0 ${invoice.phone_2}%`,
                     "max-width": `${invoice.phone_2}%`,
                   }}
-                  className={`logo  border p-2 text-center  justify-content-center align-content-center ${
+                  className={`logo text-center  justify-content-center align-content-center ${
                     invoice.show_name == "1" ? "d-flex" : "d-none"
                   }`}
                   id="name"
@@ -1041,7 +1041,7 @@ const InvoiceHeader = ({ invoice }) => {
             }
             return (
               <div
-                className="right  border"
+                className="right"
                 id={employee.hash}
                 key={employee.hash}
                 style={{
@@ -1068,10 +1068,10 @@ const InvoiceHeader = ({ invoice }) => {
           })
         ) : (
           <React.Fragment>
-            <div className={`logo  border p-2`} id="logo">
+            <div className={`logo `} id="logo">
               <img src={invoice.logo} alt="" />
             </div>
-            <div className={`logo  border p-2`} id="logo">
+            <div className={`logo `} id="logo">
               <h1>{invoice.name_in_invoice}</h1>
             </div>
           </React.Fragment>

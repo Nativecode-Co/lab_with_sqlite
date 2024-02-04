@@ -13,6 +13,10 @@ class Visit extends CI_Controller
         $this->load->model('Menu_db');
         $this->load->model('Visit_model');
         $this->load->library('ApiMiddelware');
+    }
+
+    public function checkToken()
+    {
         $token = $this->input->get_request_header('Authorization', TRUE);
         $token = str_replace("Bearer ", "", $token);
         $decoded_array = $this->jwt_dec($token);
@@ -153,6 +157,7 @@ class Visit extends CI_Controller
 
     public function setOrderOfHeader()
     {
+        $this->checkToken();
         $order = $this->input->post('order');
         $this->Visit_model->setOrderOfHeader($order);
         $output = array(

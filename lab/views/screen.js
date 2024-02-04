@@ -36,11 +36,13 @@ function setTable() {
         },
       },
     ],
-    // add table title
-    dom:
-      "<'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>" +
-      "<'row'<'col-sm-12'tr>>" +
-      "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+    language: {
+      emptyTable: `
+            <div class="text-center">
+                <img class="" src="${front_url}assets/image/flask.png" width="50" height="50" alt="alert_screen">
+                <h5 class="text-center">لا يوجد بيانات</h5>
+            </div>`,
+    },
 
     // stop length change
     lengthChange: false,
@@ -76,7 +78,6 @@ const Table = () => {
   }, [refresh]);
 
   React.useEffect(() => {
-    run("select count(*) from lab_visits;");
     const table = setTable();
     setDataTable(table);
   }, []);

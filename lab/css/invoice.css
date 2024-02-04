@@ -101,6 +101,7 @@
 /* .header:not(.money) .right, */
 .page .header:not(.money) {
     height: var(--logo-height);
+    overflow: hidden;
 }
 
 .header.money,
