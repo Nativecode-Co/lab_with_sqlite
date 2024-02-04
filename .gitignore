@@ -2,4 +2,3 @@
 app/application/controllers/Chat.php
 *.sqlite
 app/pdfs
-lab/js/const.js
