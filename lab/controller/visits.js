@@ -1308,8 +1308,8 @@ function showInvoice(hash) {
   }
                                 </div>
                                 <div class="prd">
-                                <p class=" doctor-name">Doctor</p>
-                                <p class=" custom-doctor" style="display: none;">Lab</p>
+                                <p class="doctor-name">Doctor</p>
+                                <p class="custom-doctor" style="display: none;">Lab</p>
                                 </div>
                                 <div class="prdgo doctor-name">
                                     <p>${visit.doctor ?? ""}</p>
@@ -1317,6 +1317,7 @@ function showInvoice(hash) {
                                 <input type="text" class="prdgo text-center custom-doctor"  style="display: none;z-index: 999;background-color: transparent">
                             </div>
                             <div class="tester">
+                                ${manageHead()}
                                 <div class="row m-0">
                                     ${visitPackages
                                       .map(
@@ -2335,10 +2336,10 @@ async function sendWhatsapp(hash, phone, name) {
     body.insertAdjacentHTML("beforeend", waitSendElement);
     let lab_hash = localStorage.getItem("lab_hash");
     await fetch(
-      `${base_url}Pdf/path?pk=${hash}&lab=${lab_hash}&phone=${phone}`
+      `${base_url}Pdf/path?pk=${hash}&lab=${lab_hash}&phone=${phone}&name=${name}`
     ).then((res) => {
       // window.open(
-      //   `https://api.whatsapp.com/send?phone=${phone}&text=${text}`,
+      //   `https://api.whatsapp.com/s end?phone=${phone}&text=${text}`,
       //   "_blank"
       // );
       $("#alert_screen").remove();
@@ -2417,7 +2418,7 @@ function manageHead(type) {
                     <p>Analysis Type</p>
                 </div>
                 <div class="col-2 text-right">
-                    <p>Price</p>
+                    <p class="doctor-name">Price</p>
                 </div>
             </div>
             `;

@@ -244,32 +244,14 @@ class Menu_db extends CI_Model
 	{
 
 		$insert_hash = "";
-		// $res=""; 
-		//$privilate=$this->get_privilage($hash);
-
-
-		//die($query);
-
-
 		if ($query != "") {
-			//die("aaaa");
-			//    try
-			//    {
-
-
-			// die($query);
 			if (strpos($query, ';') !== false && !strpos($query, '&nbsp;') !== false) { //هنا اذا اكو اكثر من كويري
 
 				$pieces = explode(";", $query);
 
 				$k = 0;
-				//die($pieces[0]." ".$pieces[1]);
 				$build_query = "";
 				for ($i = 0; $i < count($pieces); $i++) {
-
-					// print($pieces[$i]."\n");
-					// //echo $pieces[$i]."\n";
-
 					if (strpos($pieces[$i], 'values(') !== false || strpos($pieces[$i], 'VALUES(') !== false) //هنا حطيتا الشرط هنا علمود اجيك الكويري العادية هيه انسيرت اولا علمود اضيفلها هاش
 					{
 						// die("xx");
