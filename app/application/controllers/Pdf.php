@@ -43,6 +43,21 @@ class Pdf extends CI_Controller
         );
     }
 
+    public function print()
+    {
+        $pk = $this->input->get('pk');
+        $lab = $this->input->get('lab');
+        $parm = "$pk-$lab";
+        $patient = $this->Visit_model->getPatientDetail($pk);
+        $name = $patient['id'];
+        $date = $patient['date'];
+        $date = str_replace("-", "_", $date);
+        // print with chrome without print preview
+        $commend = 'C:\xampp\ch\chrome --args --disable-print-preview --kiosk-printing http://localhost:8807/lab/show_invoice.html?pk=' . $parm . '  2>&1';
+        $output = exec($commend);
+        return $output;
+    }
+
     public function dwonload()
     {
         $file = $this->save();
