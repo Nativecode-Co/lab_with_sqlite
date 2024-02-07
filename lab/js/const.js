@@ -1,6 +1,6 @@
 var serverName = window.location.hostname;
 
-var __domain__ = `http://${serverName}:8807`;
+var __domain__ = `http://${serverName}:8807/lite`;
 
 var base_url = `${__domain__}/app/index.php/`;
 

@@ -1,0 +1,7 @@
+TYPE=TRIGGERS
+triggers='CREATE DEFINER=`redha`@`%` TRIGGER `lab_calc_tests_AFTER_INSERT` AFTER INSERT ON `lab_calc_tests` FOR EACH ROW BEGIN\n	-- sync\n  	DECLARE original_query TEXT;\n    SET original_query = (SELECT info FROM INFORMATION_SCHEMA.PROCESSLIST WHERE id = CONNECTION_ID());\n    INSERT INTO `offline_sync`(`table_name`,`operation`,`lab_id`,`query`) VALUES (\'lab_calc_tests\',\'insert\',\'0\',original_query);\n  --\nEND' 'CREATE DEFINER=`redha`@`%` TRIGGER `lab_calc_tests_AFTER_UPDATE` AFTER UPDATE ON `lab_calc_tests` FOR EACH ROW BEGIN\n-- sync\n  	DECLARE original_query TEXT;\n    SET original_query = (SELECT info FROM INFORMATION_SCHEMA.PROCESSLIST WHERE id = CONNECTION_ID());\n    INSERT INTO `offline_sync`(`table_name`,`operation`,`lab_id`,`query`) VALUES (\'lab_calc_tests\',\'update\',\'0\',original_query);\n  --\nEND' 'CREATE DEFINER=`redha`@`%` TRIGGER `lab_calc_tests_AFTER_DELETE` AFTER DELETE ON `lab_calc_tests` FOR EACH ROW BEGIN\n-- sync\n  	DECLARE original_query TEXT;\n    SET original_query = (SELECT info FROM INFORMATION_SCHEMA.PROCESSLIST WHERE id = CONNECTION_ID());\n    INSERT INTO `offline_sync`(`table_name`,`operation`,`lab_id`,`query`) VALUES (\'lab_calc_tests\',\'del\',\'0\',original_query);\n  --\nEND'
+sql_modes=1166016520 1166016520 1166016520
+definers='redha@%' 'redha@%' 'redha@%'
+client_cs_names='utf8mb4' 'utf8mb4' 'utf8mb4'
+connection_cl_names='utf8mb4_general_ci' 'utf8mb4_general_ci' 'utf8mb4_general_ci'
+db_cl_names='utf8mb4_general_ci' 'utf8mb4_general_ci' 'utf8mb4_general_ci'
