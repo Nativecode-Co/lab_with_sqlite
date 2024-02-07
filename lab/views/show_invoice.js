@@ -627,7 +627,7 @@ function showResult(visit, visitTests) {
 }
 
 function createInvoice(visit, type, form) {
-  let header = invoiceHeader(workers);
+  const header = invoiceHeader();
   return `<div class="book-result" dir="ltr" id="invoice-${type}">
 		<div class="page">
 			<!-- صفحة يمكنك تكرارها -->
@@ -759,16 +759,15 @@ function convertAgeToDays(age, unit) {
 function filterWithKit(reference, kit) {
   return reference.filter((ref) => {
     if (
-      kit == "" ||
-      kit == null ||
-      kit == undefined ||
-      ref.kit == "" ||
-      ref.kit == null ||
-      ref.kit == undefined
+      (kit == "" || kit == null || kit == undefined || kit == 0) &&
+      (ref?.kit == "" ||
+        ref?.kit == null ||
+        ref?.kit == undefined ||
+        ref?.kit == 0)
     ) {
       return true;
     }
-    if (kit == ref.kit) {
+    if (kit == ref?.kit) {
       return true;
     } else {
       return false;
@@ -779,15 +778,19 @@ function filterWithKit(reference, kit) {
 function filterWithUnit(reference, unit) {
   return reference.filter((ref) => {
     if (
-      unit == ref.unit ||
-      ref.unit == "" ||
-      ref.unit == null ||
-      ref.unit == undefined
+      unit == ref?.unit ||
+      ((unit == "" || unit == null || unit == undefined || unit == 0) &&
+        (ref?.unit == "" ||
+          ref?.unit == null ||
+          ref?.unit == undefined ||
+          ref?.unit == 0))
     ) {
       return true;
-    } else if (ref.kit == "" || ref.kit == null || ref.kit == undefined) {
-      return true;
-    } else {
+    }
+    // else if (ref.kit == '' || ref.kit == null || ref.kit == undefined) {
+    //     return true;
+    // } test
+    else {
       return false;
     }
   });
@@ -796,8 +799,8 @@ function filterWithUnit(reference, unit) {
 function filterWithAge(reference, age, unit) {
   let days = convertAgeToDays(age, unit);
   return reference.filter((ref) => {
-    let ageLow = convertAgeToDays(ref["age low"], ref["age unit low"]);
-    let ageHigh = convertAgeToDays(ref["age high"], ref["age unit high"]);
+    let ageLow = convertAgeToDays(ref?.["age low"], ref?.["age unit low"]);
+    let ageHigh = convertAgeToDays(ref?.["age high"], ref?.["age unit high"]);
 
     if (days >= ageLow && days <= ageHigh) {
       return true;
@@ -809,9 +812,11 @@ function filterWithAge(reference, age, unit) {
 
 function filterWithGender(reference, gender) {
   return reference.filter((ref) => {
-    if (gender == ref.gender) {
+    if (
+      gender.trim().replace("ي", "ى") == ref?.gender.trim().replace("ي", "ى")
+    ) {
       return true;
-    } else if (ref.gender == "كلاهما") {
+    } else if (ref?.gender == "كلاهما") {
       return true;
     } else {
       return false;
@@ -828,7 +833,7 @@ function manageRange(reference) {
         if (low != "" && high != "") {
           normalRange = (name ? `${name} : ` : "") + low + " - " + high;
         } else if (low == "") {
-          normalRange = (name ? `${name} : ` : "") + " >= " + high;
+          normalRange = (name ? `${name} : ` : "") + " <= " + high;
         } else if (high == "") {
           normalRange = (name ? `${name} : ` : "") + low + " <= ";
         }
@@ -838,199 +843,70 @@ function manageRange(reference) {
   );
 }
 
-function invoiceHeader(worker) {
-  const workersCount = worker.length;
-  switch (workersCount) {
-    case 0:
-      return `
-            <div class="header">
-                <div class="row justify-content-around">
-                    <div class="logo col-4 p-2">
-                        <!-- شعار التحليل -->
-                        <img src="${invoices?.logo ?? ""}" alt="${
-        invoices?.logo ?? "upload Logo"
-      }">
-                    </div>
-                    <div class="logo justify-content-end col-4 p-2">
-                        <!-- شعار التحليل -->
-                        <h2 class="navbar-brand-name text-center">${
-                          invoices?.name_in_invoice ??
-                          localStorage.lab_name ??
-                          ""
-                        }</h2>
-                    </div>
-                </div>
-            </div>
-            `;
-    case 1:
-      return `
-            <div class="header">
-                <div class="row justify-content-between">
-                    <div class="logo col-4 p-2">
-                        <!-- شعار التحليل -->
-                        <img src="${invoices?.logo ?? ""}" alt="${
-        invoices?.logo ?? "upload Logo"
-      }">
-                    </div>
-                    <div class="right col-4">
-                        <!-- عنوان جانب الايمن -->
-                        <div class="size1">
-                        <p class="title">${workers?.[0]?.jop ?? "Jop title"}</p>
-                        <p class="namet">${
-                          workers?.[0]?.name ?? "Worker name"
-                        }</p>
-                        <p class="certificate">${
-                          workers?.[0]?.jop_en ?? "Jop En title"
-                        }</p>
-                        </div>
-
-                        <div class="size2">
-
-                        </div>
-                    </div>
-                </div>
-            </div>
-            `;
-    case 2:
-      return `
-            <div class="header">
-                <div class="row">
-                    <div class="left col-4">
-                        <!-- عنوان جانب الايسر -->
-                        <div class="size1">
-                            <p class="title">${
-                              workers?.[1]?.jop ?? "Jop title"
-                            }</p>
-                            <p class="namet">${
-                              workers?.[1]?.name ?? "Worker name"
-                            }</p>
-                            <p class="certificate">${
-                              workers?.[1]?.jop_en ?? "Jop En title"
-                            }</p>
-                        </div>
-
-                        <div class="size2">
-
-                        </div>
-                    </div>
-
-                    <div class="logo col-4 p-2">
-                        <!-- شعار التحليل -->
-                        <img src="${invoices?.logo ?? ""}" alt="${
-        invoices?.logo ?? "upload Logo"
-      }">
-                    </div>
-                    <div class="right col-4">
-                        <!-- عنوان جانب الايمن -->
-                        <div class="size1">
-                        <p class="title">${workers?.[0]?.jop ?? "Jop title"}</p>
-                        <p class="namet">${
-                          workers?.[0]?.name ?? "Worker name"
-                        }</p>
-                        <p class="certificate">${
-                          workers?.[0]?.jop_en ?? "Jop En title"
-                        }</p>
-                        </div>
-
-                        <div class="size2">
-
-                        </div>
-                    </div>
-                </div>
-            </div>
-            `;
-    case 3:
-      return `
-            <div class="header">
-                <div class="row">
-                    <div class="logo col-3 p-2">
-                        <!-- شعار التحليل -->
-                        <img src="${invoices?.logo ?? ""}" alt="${
-        invoices?.logo ?? "upload Logo"
-      }">
-                    </div>
-                    ${workers
-                      ?.map((worker, index) => {
-                        return `
-                                <div class="col-cus-md-4 my-3">
-        
-                                    <p class="title">${
-                                      worker?.jop ?? "Jop title"
-                                    }</p>
-                                    <p class="namet">${
-                                      worker?.name ?? "Worker name"
-                                    }</p>
-                                    <p class="certificate">${
-                                      worker?.jop_en ?? "Jop En title"
-                                    }</p>
-                                </div>
-                                `;
-                      })
-                      .join("")}
-                    
-                </div>
-            </div>
-            `;
-    case 4:
-      return `
-            <div class="header d-flex justify-content-center">
-                <div class="row">
-                    <div class="logo col-cus-md-5 p-2">
-                        <!-- شعار التحليل -->
-                        <img src="${invoices?.logo ?? ""}" alt="${
-        invoices?.logo ?? "upload Logo"
-      }">
-                    </div>
-                    ${workers
-                      ?.map((worker, index) => {
-                        return `
-                        <div class="col-cus-md-5 my-3">
-
-                            <p class="title">${worker?.jop ?? "Jop title"}</p>
-                            <p class="namet">${
-                              worker?.name ?? "Worker name"
-                            }</p>
-                            <p class="certificate">${
-                              worker?.jop_en ?? "Jop En title"
-                            }</p>
-                        </div>
-                        `;
-                      })
-                      .join("")}
-                </div>
-            </div>
-            `;
-
-    case 5:
-      return `
-            <div class="header d-flex justify-content-center">
-                <div class="row">
-                    <div class="logo col-cus-md-6 p-2">
-                        <!-- شعار التحليل -->
-                        <img src="${invoices?.logo ?? ""}" alt="${
-        invoices?.logo ?? "upload Logo"
-      }">
-                    </div>
-                    ${workers
-                      ?.map((worker, index) => {
-                        return `
-                        <div class="col-cus-md-6 my-3">
-
-                            <p class="title">${worker?.jop ?? "Jop title"}</p>
-                            <p class="namet">${
-                              worker?.name ?? "Worker name"
-                            }</p>
-                            <p class="certificate">${
-                              worker?.jop_en ?? "Jop En title"
-                            }</p>
-                        </div>
-                        `;
-                      })
-                      .join("")}
-                </div>
-            </div>
-            `;
-    default:
-      break;
+function invoiceHeader() {
+  let html = "";
+  let res = fetchData(`Visit/getInvoice`, "GET", {});
+  let { size, workers, logo, name_in_invoice, show_name } = res.invoice;
+  if (workers.length > 0) {
+    html = workers
+      .map((worker) => {
+        if (worker.hash == "logo") {
+          return `
+          <div class="logo p-2" style="
+            flex: 0 0 ${size}%;
+            max-width: ${size}%;
+          ">
+          <img src="${logo}" alt="" />
+        </div>
+        `;
+        }
+        if (worker.hash == "name") {
+          return `
+          <div style="
+          flex: 0 0 ${size}%;
+          max-width: ${size}%;
+        " class="logo text-center  justify-content-center align-content-center ${
+          show_name == "1" ? "d-flex" : "d-none"
+        }">
+              <h1 class="navbar-brand-name text-center">${
+                name_in_invoice ?? localStorage.lab_name ?? ""
+              }</h1>
+          </div>
+        `;
+        }
+        return `
+        <div class="right" style="
+        flex: 0 0 ${size}%;
+        max-width: ${size}%;
+      ">
+          <div class="size1">
+            <p class="title">${worker.jop ?? "Jop title"}</p>
+            <p class="namet">${worker.name ?? "Worker name"}</p>
+            <p class="certificate">${worker.jop_en ?? "Jop En title"}</p>
+          </div>
+        </div>
+        `;
+      })
+      .join("");
+  } else {
+    html = `
+        <div class="logo col-4 p-2">
+            <img src="${logo ?? ""}"
+            alt="${logo ?? "upload Logo"}">
+        </div>
+        <div class="logo border p-2 text-center  justify-content-center align-content-center ${
+          show_name == "1" ? "d-flex" : "d-none"
+        }">
+            <h1 class="navbar-brand-name text-center">${
+              name_in_invoice ?? localStorage.lab_name ?? ""
+            }</h1>
+        </div>`;
   }
+  return `
+    <div class="header">
+        <div class="row justify-content-between">
+            ${html}
+        </div>
+    </div>
+  `;
 }
