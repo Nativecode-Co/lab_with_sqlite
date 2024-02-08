@@ -1,0 +1,43 @@
+
+{
+  "action": "update",
+  "table": "system_users",
+  "column": {
+    "name": "redhaxxxdd"
+  },
+  "hash": "123456543"
+};
+
+
+{
+  "action": "insert",
+  "table": "system_users",
+  "column": {
+    "name": "redhaxxxdd"
+  }
+};
+
+
+{"action": "insert","table": "system_users","column": {"name": "redhaxxxdd"},"hash": "123456543"};select * from system_users inner join system_put_role_to_users on  system_users.hash=system_put_role_to_users.user_hash;
+
+
+{
+  "action": "select",
+  "table": "system_users",
+  "column": {
+    "name": ""
+  },
+  "hash": "123456543"
+};
+
+
+{"action": "select","table": "system_users","column": {},"hash": "123456543"};
+
+{"action": "select","table": "system_users","column": {}};
+
+{"action": "delete","table": "system_users","hash": "654978"};
+
+
+
+
+
