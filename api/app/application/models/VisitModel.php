@@ -9,6 +9,7 @@ class VisitModel extends CI_Model
         parent::__construct();
         $this->load->database();
         $this->load->helper('db');
+        $this->load->helper('visit');
     }
 
     public function visit_count($search = "", $current = 1)
@@ -75,6 +76,20 @@ class VisitModel extends CI_Model
         $this->db->trans_complete();
         return $visit_hash;
     }
+
+    public function get_visit($hash)
+    {
+        $visit = $this->db->get('lab_visits', array('hash' => $hash))->row_array();
+        $patient = $this->db->get('lab_patient', array('hash' => $visit['visits_patient_id']))->row_array();
+        $tests = $this->getVisitTests($hash);
+        return array(
+            "visit" => $visit,
+            "patient" => $patient,
+            "tests" => $tests
+        );
+    }
+
+
 
     public function update_or_create_visit($data)
     {
@@ -150,109 +165,6 @@ class VisitModel extends CI_Model
             ->delete('lab_visits_tests');
     }
 
-
-
-    public function patient_history($patient_id, $visit_date)
-    {
-        $tests = $this->get_tests($patient_id, $visit_date);
-        if (!isset($tests[0]))
-            return [];
-        // map tests
-        $tests = array_map(function ($test) {
-            // decode result
-            $result = json_decode($test['result'], true);
-            if (isset($result[$test['name']])) {
-                $result = $result[$test['name']];
-                if (!isset($result) || $result == "") {
-                    $result = "";
-                } else {
-                    $result = " - Last Result dated " . $test['date'] . "  was : " . $result;
-                }
-            } else {
-                $result = $test['result'];
-            }
-
-            $test['result'] = $result;
-            return $test;
-        }, $tests);
-        return $tests;
-    }
-
-    public function get_patient_visits($patient_id, $visit_date)
-    {
-        $this->db->select('hash');
-        $this->db->from('lab_visits');
-        $this->db->where('visits_patient_id', $patient_id);
-        $this->db->where('isdeleted', '0');
-        $this->db->where('visit_date <', $visit_date);
-        // order by
-        $this->db->order_by('id', 'DESC');
-        // limit not first visit
-        $this->db->limit(15, 0);
-        $query = $this->db->get();
-        $visits = $query->result_array();
-        $visits = array_column($visits, 'hash');
-        return $visits;
-    }
-
-    public function get_tests($patient_id, $visit_date)
-    {
-        $query = $this->db->query("
-        SELECT 
-            tests_id AS id,
-            result_test AS result,
-            (SELECT 
-                    test_name
-                FROM
-                    lab_test
-                WHERE
-                    hash = tests_id) AS name,
-            (SELECT 
-                    visit_date
-                FROM
-                    lab_visits
-                WHERE
-                    hash = visit_id) AS date
-        FROM
-            lab_visits_tests
-        WHERE
-            visit_id in (SELECT 
-                    hash
-                FROM
-                    lab_visits
-                WHERE
-                    visits_patient_id = '$patient_id'
-                        AND isdeleted = 0
-                        AND visit_date < '$visit_date'
-                ORDER BY visit_date DESC)
-                AND tests_id != 0 ORDER BY date DESC;
-        ");
-        $tests = $query->result_array();
-        return $tests;
-    }
-
-    public function last_patient_visit_tests($patient_id)
-    {
-        // get last visit
-        $this->db->select('hash');
-        $this->db->from('lab_visits');
-        $this->db->where('visits_patient_id', $patient_id);
-        $this->db->where('isdeleted', '0');
-        $this->db->order_by('id', 'DESC');
-        $this->db->limit(1);
-        $query = $this->db->get();
-        $result = $query->result_array();
-        $visit = $result[0]['hash'];
-        // get tests
-        $this->db->select('tests_id');
-        $this->db->from('lab_visits_tests');
-        $this->db->where('visit_id', $visit);
-        $query = $this->db->get();
-        $tests = $query->result_array();
-        $tests = array_column($tests, 'tests_id');
-        return $tests;
-    }
-
     public function getVisitTests($hash)
     {
         try {
@@ -317,14 +229,19 @@ class VisitModel extends CI_Model
                 $component = $options["component"][0];
                 $options = $options["component"][0]["reference"];
                 $options = array_filter($options, function ($item) use ($patient, $test) {
-                    $lowAge = $this->issetOrValue(isset($item['age low']), 0);
-                    $highAge = $this->issetOrValue($item['age high'], 1000);
-                    $gender = $this->issetOrValue($item['gender'], "كلاهما");
+
+                    $lowAge = isset($item['age low']) ? $item['age low'] : 0;
+                    $highAge = isset($item['age high']) ? $item['age high'] : 100;
+                    $gender = isset($item['gender']) ? $item['gender'] : "كلاهما";
+                    $item_unit = isset($item['unit']) ? $item['unit'] : "";
+                    $test_unit = isset($test['unit']) ? $test['unit'] : "";
+                    $item_kit = isset($item['kit']) ? $item['kit'] : "";
+                    $test_kit = isset($test['kit']) ? $test['kit'] : "";
                     if (
-                        ($item['kit'] == $test['kit'] || !$this->bothIsset($item['kit'], $test['kit'])) &&
-                        ($item['unit'] == $test['unit'] || !$this->bothIsset($item['unit'], $test['unit'])) &&
-                        $this->checkGender($patient["gender"], $gender) &&
-                        $this->checkAge($patient["age"], $lowAge, $highAge)
+                        ($item_kit == $test_kit || bothIsset($item_kit, $test_kit)) &&
+                        ($item_unit == $test_unit || bothIsset($item_unit, $test_unit)) &&
+                        checkGender($patient["gender"], $gender) &&
+                        checkAge($patient["age"], $lowAge, $highAge)
                     ) {
                         return true;
                     } else {
