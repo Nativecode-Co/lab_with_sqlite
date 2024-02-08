@@ -972,8 +972,7 @@ function setServerTable(
         target: -1,
       },
     },
-    dom:
-      `<'dt--top-section'
+    dom:`<'dt--top-section'
                 <'row flex-row-reverse'
                     <'col-6 col-md-2 d-flex justify-content-md-end justify-content-center mb-md-3 mb-3'l>
                     <'col-6 col-md-2 d-flex justify-content-md-end justify-content-center mb-md-3 mb-3'f>

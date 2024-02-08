@@ -1,14 +1,14 @@
 function setTable() {
-  return $(`#screen`).DataTable({
+  return $("#screen").DataTable({
     processing: true,
     serverSide: true,
     serverMethod: "post",
     ajax: {
       url: `${base_url}Visit/getScreenDetail`,
       headers: {
-        Authorization: "Bearer " + localStorage.getItem("token"),
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
-      dataSrc: function (json) {
+      dataSrc: (json) => {
         return json.data;
       },
     },
@@ -20,7 +20,7 @@ function setTable() {
       {
         data: "status",
         name: "status",
-        render: function (data, type, row) {
+        render: (data, type, row) => {
           switch (row.status_id) {
             case "3":
               return ` <span class="badge badge-success">${data}</span>`;
@@ -52,13 +52,16 @@ function setTable() {
     paging: false,
     // stop info
     info: false,
+    // stop ordering
+    ordering: false,
+    // stop processing
+    processing: true,
   });
 }
 
 const App = () => {
   return (
     <React.Fragment>
-      <Header />
       <Table />
     </React.Fragment>
   );
@@ -89,7 +92,10 @@ const Table = () => {
             className="widget-content widget-content-area m-auto"
             style={{ width: "95%" }}
           >
-            <table id="screen" className="style1">
+            <table
+              id="screen"
+              className="table table-bordered table-hover table-striped table-checkable table-highlight-head mb-4"
+            >
               <thead>
                 <tr>
                   <th>الاسم</th>
