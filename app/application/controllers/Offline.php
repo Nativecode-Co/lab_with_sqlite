@@ -439,4 +439,21 @@ class Offline extends CI_Controller
 
         echo $queries;
     }
+
+    public function run_sync()
+    {
+        $queries = $this->input->post("queries");
+        $queries = explode(";", $queries);
+        $result = array();
+        foreach ($queries as $query) {
+            if ($query != "") {
+                $this->db->query($query);
+                array_push($result, $query);
+            }
+        }
+        $this->output
+            ->set_status_header(200)
+            ->set_content_type('application/json')
+            ->set_output(json_encode("re"));
+    }
 }

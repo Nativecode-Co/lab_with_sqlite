@@ -10,6 +10,7 @@ class VisitModel extends CI_Model
         $this->load->database();
         $this->load->helper('db');
         $this->load->helper('visit');
+        $this->load->helper('test');
     }
 
     public function visit_count($search = "", $current = 1)
@@ -81,10 +82,12 @@ class VisitModel extends CI_Model
     {
         $visit = $this->db->get('lab_visits', array('hash' => $hash))->row_array();
         $patient = $this->db->get('lab_patient', array('hash' => $visit['visits_patient_id']))->row_array();
-        $tests = $this->getVisitTests($hash);
+        $tests = $this->get_visit_tests($hash);
+        $invoice = $this->getInvoice();
         return array(
             "visit" => $visit,
             "patient" => $patient,
+            "invoice" => $invoice,
             "tests" => $tests
         );
     }
@@ -122,6 +125,7 @@ class VisitModel extends CI_Model
         if (isset($old_packages[0])) {
             $tests = array_diff($tests, $old_packages);
         }
+        $tests = array_values($tests);
         if (!isset($tests[0])) {
             return [];
         }
@@ -165,7 +169,7 @@ class VisitModel extends CI_Model
             ->delete('lab_visits_tests');
     }
 
-    public function getVisitTests($hash)
+    public function get_visit_tests($hash)
     {
         try {
             $query = $this->db->query("
@@ -183,6 +187,7 @@ class VisitModel extends CI_Model
                     visit_id='$hash'
                 order by sort
             ");
+            $patient = $this->getPatientDetail($hash);
             $tests = $query->result_array();
             $tests = array_map(function ($test) {
                 $option = str_replace('\\', '', $test['options']);
@@ -190,104 +195,12 @@ class VisitModel extends CI_Model
                 $test['options'] = $option;
                 return $test;
             }, $tests);
-            $tests = $this->split_tests($tests);
-            $tests['normal'] = $this->manageNormalTests($tests['normal'], $hash);
+            $tests = split_tests($tests);
+            $tests['normal'] = manageNormalTests($tests['normal'], $patient);
             return $tests;
         } catch (Exception $e) {
             return [];
         }
-    }
-
-    public function split_tests($tests)
-    {
-        $normal = [];
-        $special = [];
-        foreach ($tests as $test) {
-            $options = $test['options'];
-            if (isset($options['type'])) {
-                if ($options['type'] == 'type') {
-                    $special[] = $test;
-                } else {
-                    $normal[] = $test;
-                }
-            } else {
-                $normal[] = $test;
-            }
-        }
-        return [
-            'normal' => $normal,
-            'special' => $special
-        ];
-    }
-
-    public function manageNormalTests($tests, $visit_id)
-    {
-        $patient = $this->getPatientDetail($visit_id);
-        $tests = array_map(function ($test) use ($patient) {
-            try {
-                $options = $test['options'];
-                $component = $options["component"][0];
-                $options = $options["component"][0]["reference"];
-                $options = array_filter($options, function ($item) use ($patient, $test) {
-
-                    $lowAge = isset($item['age low']) ? $item['age low'] : 0;
-                    $highAge = isset($item['age high']) ? $item['age high'] : 100;
-                    $gender = isset($item['gender']) ? $item['gender'] : "كلاهما";
-                    $item_unit = isset($item['unit']) ? $item['unit'] : "";
-                    $test_unit = isset($test['unit']) ? $test['unit'] : "";
-                    $item_kit = isset($item['kit']) ? $item['kit'] : "";
-                    $test_kit = isset($test['kit']) ? $test['kit'] : "";
-                    if (
-                        ($item_kit == $test_kit || bothIsset($item_kit, $test_kit)) &&
-                        ($item_unit == $test_unit || bothIsset($item_unit, $test_unit)) &&
-                        checkGender($patient["gender"], $gender) &&
-                        checkAge($patient["age"], $lowAge, $highAge)
-                    ) {
-                        return true;
-                    } else {
-                        return false;
-                    }
-
-                });
-                $options = array_map(function ($item) use ($component, $test) {
-                    if (isset($component['name'])) {
-                        $item['name'] = $component['name'];
-                    }
-                    if (isset($component['unit'])) {
-                        $item['unit'] = $component['unit'];
-                    }
-                    if (isset($component['result'])) {
-                        $item['result'] = $component['result'];
-                    }
-                    if (isset($test['result'])) {
-                        $item['result'] = $this->getResult($test['result']);
-                    } else if ($component['name']) {
-                        $item['result'] = array(
-                            "checked" => true,
-                            $component['name'] => ""
-                        );
-                    }
-                    if (isset($test['category'])) {
-                        $item['category'] = $test['category'];
-                    } else {
-                        $item['category'] = "Tests";
-                    }
-                    return $item;
-                }, $options);
-                $test = $options;
-
-            } catch (Exception $e) {
-                $test = [];
-            }
-            return $test;
-        }, $tests);
-        $tests = array_merge(...$tests);
-        // sort array by category
-        usort($tests, function ($a, $b) {
-            return $a['category'] <=> $b['category'];
-        });
-
-        return $tests;
     }
 
     public function getPatientDetail($visit_id)
@@ -304,14 +217,6 @@ class VisitModel extends CI_Model
         } else {
             return $visit_id;
         }
-    }
-
-    public function getResult($result)
-    {
-        $result = json_decode($result, true);
-        // delete options from result
-        unset($result['options']);
-        return $result;
     }
 
     public function getInvoice()
@@ -421,8 +326,9 @@ class VisitModel extends CI_Model
     public function getInvoiceHeader()
     {
         $invoice = $this->getInvoice();
+
         $result = array(
-            "orderOfHeader" => $invoice['setting']['orderOfHeader'],
+            "orderOfHeader" => isset($invoice['setting']['orderOfHeader']) ? $invoice['setting']['orderOfHeader'] : array(),
             "workers" => $invoice['workers']
         );
         return $result;

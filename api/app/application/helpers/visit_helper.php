@@ -28,7 +28,7 @@ function split_data($data)
 {
     $birth = get_birth_date($data["age_year"], $data["age_month"], $data["age_day"]);
     $age = get_age($birth);
-    $visits_patient_id = isset($data["patient"]) ? create_hash() : $data["patient"];
+    $visits_patient_id = isset($data["patient"]) ? $data["patient"] : create_hash();
     $patient_data = array(
         "name" => $data["name"],
         "birth" => $birth,
@@ -40,7 +40,7 @@ function split_data($data)
         "phone" => $data["phone"],
         "hash" => $visits_patient_id
     );
-    $visit_hash = isset($data["visit_hash"]) ? create_hash() : $data["visit_hash"];
+    $visit_hash = isset($data["visit_hash"]) ? $data["visit_hash"] : create_hash();
     $visit_data = array(
         "visits_patient_id" => $visits_patient_id,
         "visit_date" => $data["visit_date"],
