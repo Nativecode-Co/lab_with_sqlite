@@ -21,8 +21,8 @@ class Visit extends CI_Controller
     function get_visits()
     {
         $req = $this->input->get();
-        $data = $this->VisitModel->get_visits(203, $req["start"], $req["length"], $req["search"], 0);
-        $total = $this->VisitModel->visit_count($req["search"], 0);
+        $data = $this->VisitModel->get_visits($req);
+        $total = $this->VisitModel->visit_count($req);
         $this->output
             ->set_status_header(200)
             ->set_content_type('application/json')
@@ -36,6 +36,14 @@ class Visit extends CI_Controller
             );
     }
 
+    public function get_visit_form_data()
+    {
+        $data = $this->VisitModel->get_visit_form_data();
+        $this->output
+            ->set_status_header(200)
+            ->set_content_type('application/json')
+            ->set_output(json_encode($data));
+    }
     function create_visit()
     {
         $data = split_data($this->input->post());

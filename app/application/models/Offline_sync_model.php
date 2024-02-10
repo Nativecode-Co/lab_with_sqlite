@@ -12,13 +12,16 @@ class Offline_sync_model extends CI_Model
     public function offline_sync_query()
     {
         $queries = $this->db->select("query")->where('sync', 0)->get('offline_sync')->result_array();
-        // update the sync column to 1
-        $this->db->set('sync', 1)->update('offline_sync')->where('sync', 0);
         // transform the array of arrays into an array of strings
         $queries = array_map(function ($query) {
             return $query['query'];
         }, $queries);
         $queries = implode(';', $queries);
         return array('queries' => $queries);
+    }
+
+    public function update_offline_sync()
+    {
+        $this->db->set('sync', 1)->update('offline_sync');
     }
 }

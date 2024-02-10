@@ -13,35 +13,42 @@ class VisitModel extends CI_Model
         $this->load->helper('test');
     }
 
-    public function visit_count($search = "", $current = 1)
+    public function visit_count($params)
     {
-        $opration = $current == 1 ? ">=" : "<";
-        $data = $this->db->select("*")->from($this->table)->where('isdeleted', '0')
-            ->like(array('name' => $search))
-            ->where(array('visit_date ' . $opration => date('Y-m-d')))
+        $order = $params['order'];
+        $orderBy = $params['orderBy'];
+        $searchText = $params['searchText'];
+        $today = $params['today'];
+        $opration = $today == 1 ? "=" : "<";
+        $data = $this->db->from($this->table)
+            ->join('lab_patient', 'lab_patient.hash = lab_visits.visits_patient_id')
+            ->like(array('lab_patient.name' => $searchText))
+            ->where(array('lab_visits.isdeleted' => '0', 'visit_date ' . $opration => date('Y-m-d')))
+            ->order_by($orderBy, $order)
             ->count_all_results();
         return $data;
     }
 
-    public function get_visits($lab_id = "203", $start = 0, $length = 10, $search = "", $current = 0)
+    public function get_visits($params)
     {
-        $opration = $current == 1 ? ">=" : "<";
+        // params {page: 1,rowsPerPage: 5,order: "asc",orderBy: "",selected: [],filterList: [],searchText: ""}
+        $page = $params['page'];
+        $rowsPerPage = $params['rowsPerPage'];
+        $order = $params['order'];
+        $orderBy = $params['orderBy'];
+        $searchText = $params['searchText'];
+        $today = $params['today'];
+        $opration = $today == 1 ? "=" : "<";
         $data = $this->db
             ->select('lab_visits.hash as hash ,visits_patient_id as patient_hash,')
-            ->select("lab_visits.name as name,visit_date,lab_patient.name as patient_name")
+            ->select("lab_patient.name as name,visit_date")
             ->select("(select name from lab_visit_status where hash=visits_status_id) as visit_type")
             ->from($this->table)
             ->join('lab_patient', 'lab_patient.hash = lab_visits.visits_patient_id')
-            ->where(
-                array(
-                    // 'lab_patient.lab_id' => $lab_id,
-                    'lab_visits.isdeleted' => '0',
-                    'visit_date ' . $opration => date('Y-m-d')
-                )
-            )
-            ->like('lab_visits.name', $search)
-            ->order_by('lab_visits.id', 'DESC')
-            ->limit($length, $start)
+            ->like(array('lab_patient.name' => $searchText))
+            ->where(array('lab_visits.isdeleted' => '0', 'visit_date ' . $opration => date('Y-m-d')))
+            ->order_by($orderBy, $order)
+            ->limit($rowsPerPage, ($page - 1) * $rowsPerPage)
             ->get()->result_array();
         return $data;
     }
@@ -88,6 +95,35 @@ class VisitModel extends CI_Model
             "visit" => $visit,
             "patient" => $patient,
             "invoice" => $invoice,
+            "tests" => $tests
+        );
+    }
+
+    public function get_visit_form_data()
+    {
+        // get all patients
+        $patients = $this->db->select('hash,name')->get('lab_patient')->result_array();
+        // get all doctors
+        $doctors = $this->db->select('hash,name')->get('lab_doctor')->result_array();
+        // get all packages
+        $packages = $this->db->select('hash,name')->where(
+            array(
+                'isdeleted' => '0',
+                'catigory_id' => '8'
+            )
+        )->get('lab_package')->result_array();
+        // get all tests
+        $tests = $this->db->select('hash,name')->where(
+            array(
+                'isdeleted' => '0',
+                'catigory_id' => '9'
+            )
+        )->get('lab_package')->result_array();
+        // return all data
+        return array(
+            "patients" => $patients,
+            "doctors" => $doctors,
+            "packages" => $packages,
             "tests" => $tests
         );
     }

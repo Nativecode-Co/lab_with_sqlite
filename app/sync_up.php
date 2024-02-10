@@ -29,6 +29,13 @@ if (isset($result['queries'])) {
   // close the curl
   curl_close($ch);
   echo $result;
+  // update the offline sync table
+  $ch = curl_init('http://localhost:8807/app/index.php/Offline_sync/update_sync');
+  curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+  curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
+  $result = curl_exec($ch);
+  curl_close($ch);
+  echo $result;
 } else {
   echo "No queries to run";
 }
