@@ -105,24 +105,43 @@ class VisitModel extends CI_Model
         $patients = $this->db->select('hash,name')->get('lab_patient')->result_array();
         // get all doctors
         $doctors = $this->db->select('hash,name')->get('lab_doctor')->result_array();
-        // get all packages
-        $packages = $this->db->select('hash,name')->where(
-            array(
-                'isdeleted' => '0',
-                'catigory_id' => '8'
-            )
-        )->get('lab_package')->result_array();
-        // get all tests
-        $tests = $this->db->select('hash,name')->where(
-            array(
-                'isdeleted' => '0',
-                'catigory_id' => '9'
-            )
-        )->get('lab_package')->result_array();
         // return all data
         return array(
             "patients" => $patients,
             "doctors" => $doctors,
+        );
+    }
+
+    public function get_tests_and_packages()
+    {
+        // get all packages
+        $packages = $this->db->select('hash,name,price,"package" as type')
+            ->where(
+                array(
+                    'isdeleted' => '0',
+                    'catigory_id' => '8'
+                )
+            )
+            ->get('lab_package')->result_array();
+        // get all tests
+        $tests = $this->db
+            ->select('lab_package.hash,lab_package.name,price,"test" as type')
+            ->select('kits.name as kit')
+            ->select('devices.name as device')
+            ->select('lab_test_units.name as unit')
+            ->where(
+                array(
+                    'lab_package.isdeleted' => '0',
+                    'lab_package.catigory_id' => '9'
+                )
+            )
+            ->join('lab_pakage_tests', 'lab_pakage_tests.package_id=lab_package.hash')
+            ->join('kits', 'lab_pakage_tests.kit_id=kits.id', "left")
+            ->join("devices", "lab_pakage_tests.lab_device_id=devices.id", "left")
+            ->join("lab_test_units", "lab_pakage_tests.unit=lab_test_units.hash", "left")
+            ->get('lab_package')->result_array();
+        // return all data
+        return array(
             "packages" => $packages,
             "tests" => $tests
         );
@@ -411,5 +430,22 @@ class VisitModel extends CI_Model
             ->order_by('lab_visits.id', 'DESC')
             ->get()->result_array();
         return $result;
+    }
+
+    public function saveTestResult($data)
+    {
+        $result = $this->db->update('lab_visits_tests', $data, array('hash' => $data['hash']));
+        return $result;
+    }
+
+    public function saveTestsResult($data)
+    {
+        // $data is array of tests
+        $result = $this
+            ->db
+            ->update_batch('lab_visits_tests', $data, 'hash')
+            ->affected_rows();
+        return $result;
+
     }
 }

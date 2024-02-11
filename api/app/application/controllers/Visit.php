@@ -44,6 +44,15 @@ class Visit extends CI_Controller
             ->set_content_type('application/json')
             ->set_output(json_encode($data));
     }
+
+    public function get_tests_and_packages()
+    {
+        $data = $this->VisitModel->get_tests_and_packages();
+        $this->output
+            ->set_status_header(200)
+            ->set_content_type('application/json')
+            ->set_output(json_encode($data));
+    }
     function create_visit()
     {
         $data = split_data($this->input->post());
@@ -72,5 +81,25 @@ class Visit extends CI_Controller
             ->set_status_header(200)
             ->set_content_type('application/json')
             ->set_output(json_encode($data));
+    }
+
+    function saveTestResult()
+    {
+        $data = $this->input->post();
+        $visit_hash = $this->VisitModel->saveTestResult($data);
+        $this->output
+            ->set_status_header(200)
+            ->set_content_type('application/json')
+            ->set_output(json_encode($visit_hash));
+    }
+
+    function saveTestsResult()
+    {
+        $data = $this->input->post();
+        $visit_hash = $this->VisitModel->saveTestsResults($data);
+        $this->output
+            ->set_status_header(200)
+            ->set_content_type('application/json')
+            ->set_output(json_encode($visit_hash));
     }
 }

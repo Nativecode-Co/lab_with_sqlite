@@ -333,34 +333,22 @@ async function saveNewTest() {
   let kit_id = $("#addTest #kit_id").val();
   let unit = $("#addTest #unit").val();
   let hash = $("#addTest #name").data("hash");
+  let lab_id = localStorage.getItem("lab_hash");
   // validate form
   if (name.length == 0 || price.length == 0) {
     niceSwal("error", "bottom-end", "يجب ملئ جميع الحقول");
     return false;
   }
-  const formData = new FormData();
-  formData.append("name", name);
-  formData.append("cost", cost);
-  formData.append("price", price);
-  formData.append("test_id", hash);
-  formData.append("lab_device_id", lab_device_id);
-  formData.append("kit_id", kit_id);
-  formData.append("unit", unit);
-  formData.append("lab_id", localStorage.getItem("lab_hash"));
-
-  const result = await fetch(
-    `${__domain__}app/index.php/Packages/createNewTest`,
-    {
-      method: "POST",
-      headers: {
-        Authorization: "Bearer " + localStorage.getItem("token"),
-      },
-      body: formData,
-    }
-  )
-    .then((res) => res.json())
-    .then((res) => res)
-    .catch((err) => {});
+  const result = fetchData(`/Packages/createNewTest`, "post", {
+    name,
+    price,
+    cost,
+    lab_device_id,
+    kit_id,
+    unit,
+    lab_id,
+    test_id: hash,
+  });
   const { status, message, data } = result;
   if (status === false) {
     niceSwal("error", "bottom-end", message);
