@@ -480,6 +480,7 @@ function saveNewPackage() {
   emptyPackageTests();
   let insertObject = lab_package.getItem(packageHash);
   lab_package.addRow(insertObject);
+  syncOnline();
   niceSwal("success", "bottom-end", "تم الحفظ بنجاح");
 }
 
@@ -557,14 +558,21 @@ const updateNormal = (test, kit, unit) => {
   }
 };
 
-function updateRefrence(hash, refID) {
-  const formContainer = $(`#form_container`);
+function updateRefrence(hash, refID, selectedUnit) {
+  const formContainer = $("#form_container");
   // empty from container
   formContainer.empty();
-  let { component } = TEST;
+  const { component } = TEST;
   let refrences = component[0].reference;
-  let refrence = refrences.find((item, index, self) => index == refID);
-  let form = THEME.mainForm(refID, hash, refrence);
+  refrences = refrences.filter((refrence, id) => {
+    const refUnit = refrence?.unit ?? "";
+    if (refUnit === selectedUnit) {
+      return true;
+    }
+    return false;
+  });
+  const refrence = refrences.find((item, index, self) => index == refID);
+  const form = THEME.mainForm(refID, hash, refrence);
   formContainer.append(form);
 }
 

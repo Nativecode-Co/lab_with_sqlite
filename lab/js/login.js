@@ -197,6 +197,8 @@ const login = async () => {
     let labIdForm = new FormData();
     labIdForm.append("lab_id", data.lab_id);
 
+    installTests(data.lab_id);
+
     await fetch(`${base_url}LocalApi/downloadImage`, {
       method: "POST",
       body: labIdForm,
@@ -209,6 +211,12 @@ const login = async () => {
   } else {
     await offlineLogin();
   }
+};
+
+const installTests = async (lab_id) => {
+  fetchData("LocalApi/installTests", "POST", {
+    lab_id,
+  });
 };
 
 function addAlert(message) {

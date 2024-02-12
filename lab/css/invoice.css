@@ -11,6 +11,13 @@
     --logo-height: 175px;
 }
 
+@font-face {
+    font-family: 'Noto Kufi Arabic';
+    font-style: normal;
+    font-weight: 400;
+    src: url('../assets/fonts/noto_kufi_arabic.woff2');
+}
+
 .mytest {
     display: flex;
     align-items: center;
@@ -69,7 +76,7 @@
 }
 
 .namet {
-    font-family: Cairo;
+    font-family: 'Noto Kufi Arabic';
     font-size: 19px;
     color: var(--color-orange)
 }
@@ -124,7 +131,7 @@
     /* border-bottom: 2px solid var(--color-orange); */
     padding-top: 3px;
     /* padding-bottom: 5px; */
-    font-family: Cairo;
+    font-family: 'Noto Kufi Arabic';
     /* font-weight: bold; */
     font-size: 18px;
     text-align: center;
@@ -148,7 +155,7 @@
     border-top: 3px solid #2e3f4c;
     padding-top: 0px;
     padding-bottom: 1px;
-    font-family: Cairo;
+    font-family: 'Noto Kufi Arabic';
     font-size: 18px;
     text-align: center;
     width: 99%;
@@ -493,14 +500,14 @@
 
 .footer .f1,
 .footer .f2 {
-    font-family: Cairo;
+    font-family: 'Noto Kufi Arabic';
     font-size: 18px;
     text-align: center;
 }
 
 .footer2 .f1,
 .footer2 .f2 {
-    font-family: Cairo;
+    font-family: 'Noto Kufi Arabic';
     font-size: 20px;
     text-align: center;
 }
@@ -542,13 +549,13 @@
     font-style: normal;
 }
 
-@font-face {
+/* @font-face {
     font-family: Cairo;
     font-style: normal;
     font-weight: 400;
     src: url(https://fonts.gstatic.com/s/cairo/v20/SLXVc1nY6HkvangtZmpcWmhzfH5lWWgcQyyS4J0.woff2) format('woff2');
     unicode-range: U+0600-06FF, U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF, U+FE80-FEFC;
-}
+} */
 
 /* cairo-regular - latin */
 @font-face {

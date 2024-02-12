@@ -446,7 +446,7 @@ class TableTheme extends Theme {
         }</td>
         <td>${unitName}</td>
         <td>
-          <i class="fas fa-edit text-success" onclick="(updateRefrence('${hash}', '${id}'))"></i>
+          <i class="fas fa-edit text-success" onclick="(updateRefrence('${hash}', '${id}','${unit}'))"></i>
           <i class="fas fa-trash text-danger" onclick="fireSwalForDelete(deleteRefrence, '${hash}','${id}')"></i>
         </td>
       </tr>
@@ -569,7 +569,7 @@ class PackageTestTheme extends TableTheme {
   }
 
   createRow(id, hash, refrence) {
-    const { range, gender } = refrence;
+    const { range, gender, unit } = refrence;
     const ageLow = refrence?.["age low"] ?? 0;
     const ageLowUnit = refrence?.["age unit low"] ?? "عام";
     const ageHigh = refrence?.["age high"] ?? 0;
@@ -589,7 +589,7 @@ class PackageTestTheme extends TableTheme {
           }) ?? "No Range"
         }</td>
         <td>
-          <i class="fas fa-edit text-success" onclick="(updateRefrence('${hash}', '${id}'))"></i>
+          <i class="fas fa-edit text-success" onclick="(updateRefrence('${hash}', '${id}','${unit}'))"></i>
         </td>
       </tr>
     `;

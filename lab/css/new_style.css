@@ -24,7 +24,7 @@
     --secondaryColor: #3460FD;
     --grayColor: rgba(0, 0, 0, 0.4);
     --errorColor: #F41717;
-    --fontFamily: 'Avenir Arabic';
+    --fontFamily: 'Noto Kufi Arabic';
 }
 
 ::-webkit-scrollbar {
@@ -141,6 +141,12 @@
     src: url('../assets/fonts/alfont_com_AlFont_com_AvenirArabic-Medium.otf');
 }
 
+@font-face {
+    font-family: 'Noto Kufi Arabic';
+    font-style: normal;
+    font-weight: 400;
+    src: url('../assets/fonts/noto_kufi_arabic.woff2');
+}
 /* 
     2- buttons
 */

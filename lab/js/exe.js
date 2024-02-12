@@ -516,3 +516,9 @@ function syncOnline() {
   fetch(`${__domain__}/sync/sync_up.php`);
   updateExpireDate();
 }
+
+const installTests = async (lab_id) => {
+  fetchData("LocalApi/installTests", "POST", {
+    lab_id,
+  });
+};
