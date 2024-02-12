@@ -440,6 +440,30 @@ class Offline extends CI_Controller
         echo $queries;
     }
 
+    public function installTestsOrDefaults()
+    {
+        $queries = "";
+        $lab_hash = $this->input->post('lab_id');
+        $tests = $this->db->query("select test_name, test_type, option_test, hash, insert_record_date, isdeleted, short_name, sample_type, category_hash, sort from lab_test where lab_hash='$lab_hash'")->result();
+
+        if (count($tests) == 0) {
+            $tests = $this->db->query("select test_name, test_type, option_test, hash, insert_record_date, isdeleted, short_name, sample_type, category_hash, sort from lab_test where lab_hash is null")->result();
+        }
+        $tests_query = "insert into lab_test(" . implode(",", array_keys((array) $tests[0])) . ") values ";
+        $tests_values = array_map(function ($test) use ($lab_hash) {
+            $option_test = $test->option_test;
+            $option_test = str_replace('"', '\"', $option_test);
+            $test->option_test = $option_test;
+            $name = $test->test_name;
+            $name = str_replace("'", "", $name);
+            $test->test_name = $name;
+            return "('" . implode("','", array_values((array) $test)) . "')";
+        }, $tests);
+        $tests_query .= implode(",", $tests_values);
+        $queries .= $tests_query;
+        echo $queries;
+    }
+
     public function run_sync()
     {
         $queries = $this->input->post("queries");

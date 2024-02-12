@@ -214,7 +214,7 @@ const login = async () => {
 };
 
 const installTests = async (lab_id) => {
-  fetchData("LocalApi/installTests", "POST", {
+  fetchData("LocalApi/installTestsOrDefaults", "POST", {
     lab_id,
   });
 };

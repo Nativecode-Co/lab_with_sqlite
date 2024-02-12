@@ -269,6 +269,84 @@ class LocalApi extends CI_Controller
 
     }
 
+    public function installTestsOrDefaults()
+    {
+        $queries = "";
+        $lab_hash = $this->input->post('lab_id');
+        $token = $this->input->get_request_header('Authorization', TRUE);
+        $token = str_replace("Bearer ", "", $token);
+
+        $url = "http://umc.native-code-iq.com/app/index.php/Offline/installTestsOrDefaults";
+        $headers = [
+            "Authorization: Bearer {$token}",
+        ];
+        $data = array(
+            'lab_id' => $lab_hash,
+        );
+
+        $ch = curl_init($url);
+
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
+        $response = curl_exec($ch);
+
+        if (curl_errno($ch)) {
+            echo 'Error: ' . curl_error($ch);
+        }
+
+        curl_close($ch);
+        if ($response == "" || $response == null || $response == "null") {
+            echo json_encode(
+                array(
+                    'status' => false,
+                    'message' => 'لا توجد نسخة احتياطية',
+                    'isAuth' => true
+                ),
+                JSON_UNESCAPED_UNICODE
+            );
+            exit();
+        } else {
+            $this->db->trans_start();
+            $this->db->query("delete from lab_test");
+            $this->db->query($response);
+            // end transaction
+            if ($this->db->trans_status() === FALSE) {
+                // حدثت مشكلة خلال الـtransaction
+                $result = false;
+                $this->db->trans_rollback();
+            } else {
+                // تمت العمليات بنجاح
+                $result = true;
+                $this->db->trans_commit();
+            }
+
+            $this->db->trans_complete();
+            if ($result) {
+                echo json_encode(
+                    array(
+                        'status' => true,
+                        'message' => 'تمت العملية بنجاح',
+                        'isAuth' => true
+                    ),
+                    JSON_UNESCAPED_UNICODE
+                );
+            } else {
+                echo json_encode(
+                    array(
+                        'status' => false,
+                        'message' => 'حدث خطأ أثناء العملية',
+                        'isAuth' => true
+                    ),
+                    JSON_UNESCAPED_UNICODE
+                );
+            }
+        }
+
+
+    }
+
     public function clean()
     {
         $this->db->query("call lab_clean()");
