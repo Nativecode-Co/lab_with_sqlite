@@ -240,12 +240,12 @@
                                     يتم الان صيانة المزامنة الرجاء الانتظار
                                 </p>
                             </section>
-                            <!-- <h3>تحاليل جديدة</h3>
-                            <section id="newTests">
+                            <h3>تحاليل جديدة</h3>
+                            <section id="new_tests">
                             </section>
                             <h3>تعديل التحاليل</h3>
                             <section id="editTests">
-                            </section> -->
+                            </section>
                         </div>
                     </div>
                 </div>
@@ -279,27 +279,7 @@
         </script>
         <script src="js/const.js"></script>
         <script>
-            $("#syncSteps").steps({
-                headerTag: "h3",
-                bodyTag: "section",
-                transitionEffect: "slideLeft",
-                autoFocus: true,
-                cssClass: 'pills wizard',
-                enableAllSteps: true,
-                stepsOrientation: "vertical",
-                enableFinishButton: false,
-                titleTemplate: '#title#',
-                labels: {
-                    cancel: "الغاء",
-                    current: "الخطوة الحالية:",
-                    pagination: " ترقيم الصفحات",
-                    finish: "حفظ",
-                    next: "حفظ والتالي",
-                    previous: "حفظ والسابق",
-                    loading: "جاري التحميل ..."
-                }
-            });
-            // genrate random text like "1.2.3"
+
             function randomText() {
                 let text = "";
                 for (let i = 0; i < 3; i++) {
@@ -319,6 +299,7 @@
         <script src="js/login.js"></script>
         <script src="js/exe.js"></script>
         <script src="js/factory3.js"></script>
+        <script src="controller/sync.js"></script>
         <script>
             $(".action").click(function () {
                 $(".action").removeClass("active");

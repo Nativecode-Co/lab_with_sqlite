@@ -330,6 +330,40 @@ class Offline extends CI_Controller
         );
     }
 
+    public function getSyncInserts()
+    {
+        $this->auth();
+        $this->db->query(
+            "SET SESSION group_concat_max_len = 100000;"
+        );
+        $insertQueries = $this->db->query("select * from offline_sync where lab_id='0' and operation = 'insert' and table_name='lab_test'")->result();
+        $inserts = array();
+        array_map(function ($query) use (&$inserts) {
+            // any chars after values(' and before '
+            $pattern = "/values\('([^']+)/";
+            preg_match($pattern, $query->query, $matches);
+            if (count($matches) > 0) {
+                // delete values('
+                $name = $matches[0];
+                $name = str_replace("values('", "", $name);
+
+            } else {
+                $name = '';
+            }
+            $query->name = $name;
+            array_push($inserts, $query);
+        }, $insertQueries);
+        echo json_encode(
+            array(
+                'status' => true,
+                'message' => 'عرض البيانات',
+                'isAuth' => true,
+                'data' => $inserts,
+            ),
+            JSON_UNESCAPED_UNICODE
+        );
+    }
+
     public function getLastVersion()
     {
         $version = $this->db->query("select version from lab_version order by id desc limit 1")->row();

@@ -473,4 +473,26 @@ class LocalApi extends CI_Controller
             JSON_UNESCAPED_UNICODE
         );
     }
+
+    public function check_if_test_exit_by_name()
+    {
+        $names = $this->input->get('names');
+        $tests = $this->db->select("test_name as name")->
+            from("lab_test")->
+            where("test_name in ('$names')")->
+            group_by("test_name")->
+            get()->result();
+        $tests = array_map(function ($test) {
+            return $test->name;
+        }, $tests);
+        echo json_encode(
+            array(
+                'status' => true,
+                'message' => 'تحقق من وجود الاختبار',
+                'data' => $tests,
+                'isAuth' => true
+            ),
+            JSON_UNESCAPED_UNICODE
+        );
+    }
 }
