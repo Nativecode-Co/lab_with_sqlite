@@ -114,8 +114,9 @@ class VisitModel extends CI_Model
 
     public function get_tests_and_packages()
     {
+        $categories = $this->db->select('hash,name')->get('lab_test_catigory')->result_array();
         // get all packages
-        $packages = $this->db->select('hash,name,price,"package" as type')
+        $packages = $this->db->select('hash,name,price,"package" as type,"false" as checked')
             ->where(
                 array(
                     'isdeleted' => '0',
@@ -125,10 +126,11 @@ class VisitModel extends CI_Model
             ->get('lab_package')->result_array();
         // get all tests
         $tests = $this->db
-            ->select('lab_package.hash,lab_package.name,price,"test" as type')
+            ->select('lab_package.hash,lab_package.name,price,"test" as type,"false" as checked')
             ->select('kits.name as kit')
             ->select('devices.name as device')
             ->select('lab_test_units.name as unit')
+            ->select('category_hash as catigory')
             ->where(
                 array(
                     'lab_package.isdeleted' => '0',
@@ -139,11 +141,13 @@ class VisitModel extends CI_Model
             ->join('kits', 'lab_pakage_tests.kit_id=kits.id', "left")
             ->join("devices", "lab_pakage_tests.lab_device_id=devices.id", "left")
             ->join("lab_test_units", "lab_pakage_tests.unit=lab_test_units.hash", "left")
+            ->join("lab_test", "lab_test.id=lab_pakage_tests.test_id", "left")
             ->get('lab_package')->result_array();
         // return all data
         return array(
             "packages" => $packages,
-            "tests" => $tests
+            "tests" => $tests,
+            "categories" => $categories
         );
     }
 

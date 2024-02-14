@@ -172,6 +172,7 @@ async function changeKitsAndUnits(name, hash) {
       (item, index) => `<option value="${item.id}">${item.name}</option>`
     )
   );
+  $("#kit_id").append(`<option value="">No kit</option>`);
   $("#kit_id").append(
     testKitsByName.map(
       (item, index) => `<option value="${item.kit_id}">${item.name}</option>`
