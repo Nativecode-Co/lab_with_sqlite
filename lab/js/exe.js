@@ -1,19 +1,19 @@
 let updates = [];
 let inserts = [];
-let deletes = [];
 
 function run(json) {
   localStorage.setItem("last_url", window.location.href);
-  var token = localStorage.getItem("token");
-  var res = [];
+  const token = localStorage.getItem("token");
+  let res = [];
 
+  let new_json;
   if (typeof json === "string") {
     new_json = json;
   } else {
-    new_json = JSON.stringify(json) + ";";
+    new_json = `${JSON.stringify(json)};`;
   }
   $.ajax({
-    url: base_url + "run",
+    url: `${base_url}run`,
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
     },
@@ -21,23 +21,24 @@ function run(json) {
     dataType: "JSON",
     data: { query: new_json, token: token },
     async: false,
-    success: function (result) {
-      if (result.result == "unauthorize") {
-        location.href = front_url + "login/login.html";
-      } else if (result.result == "expire") {
+    success: (result) => {
+      if (result.result === "unauthorize") {
+        location.href = `${front_url}login/login.html`;
+      } else if (result.result === "expire") {
         localStorage.setItem("token", result.token);
         // get current location
         let current_location = window.location.href;
         current_location = current_location.split("/");
         if (!current_location.includes("active.html")) {
-          location.href = front_url + "active.html";
+          location.href = `${front_url}active.html`;
         }
       } else {
         localStorage.setItem("token", result.token);
         res = result;
+        // Do something with the result here
       }
     },
-    error: function () {
+    error: () => {
       console.log("internet connection or missing link");
     },
   });
@@ -46,20 +47,20 @@ function run(json) {
 
 function fetchData(url = "", type = "GET", data = {}) {
   let res = null;
-  let token = localStorage.getItem("token");
+  const token = localStorage.getItem("token");
   $.ajax({
     url: base_url + url,
     headers: {
-      Authorization: "Bearer " + token,
+      Authorization: `Bearer ${token}`,
     },
     type,
     data,
     dataType: "JSON",
     async: false,
-    success: function (result) {
+    success: (result) => {
       res = result;
     },
-    error: function () {
+    error: () => {
       console.log("internet connection or missing link");
     },
   });
@@ -68,20 +69,21 @@ function fetchData(url = "", type = "GET", data = {}) {
 
 function fetchDataOnline(url = "", type = "GET", data = {}) {
   let res = null;
-  let token = localStorage.getItem("token");
+  const token = localStorage.getItem("token");
   $.ajax({
-    url: "http://umc.native-code-iq.com/app/index.php/" + url,
+    url: `http://umc.native-code-iq.com/app/index.php/${url}`,
     headers: {
-      Authorization: "Bearer " + token,
+      "Content-Type": "application/x-www-form-urlencoded",
+      Authorization: `Bearer ${token}`,
     },
     type,
     data,
     dataType: "JSON",
     async: false,
-    success: function (result) {
+    success: (result) => {
       res = result;
     },
-    error: function () {
+    error: () => {
       console.log("internet connection or missing link");
     },
   });
@@ -331,93 +333,139 @@ async function getAsyncData() {
     });
     return false;
   }
-  // ask user to confirm
   const body = document.getElementsByTagName("body")[0];
-  body.insertAdjacentHTML("beforeend", waitElement);
-  const formData = new FormData();
-  let lastSyncDateForForm =
-    run(
-      `select insert_record_date as date from system_users_type order by id desc limit 1;`
-    ).result[0]?.query0?.[0]?.date ?? "2023-01-01 00:00:00";
-  formData.append("date", lastSyncDateForForm);
-  let lastSyncDate = new Date(lastSyncDateForForm).toLocaleDateString("en-GB");
-  let queries = await fetch(
-    "http://umc.native-code-iq.com/app/index.php/Offline/getAsyncData",
-    {
-      method: "POST",
-      body: formData,
-    }
-  )
-    .then((res) => res.json())
-    .then((res) => {
-      updates = res.updates;
-      inserts = res.inserts;
-      deletes = res.deletes;
-      return res.inserts;
-    })
-    .then(() => {
-      body.removeChild(document.getElementById("alert_screen"));
-    })
-    .catch((e) => {
-      // close any swal
-      Swal.close();
+  await new Promise((resolve) => {
+    body.insertAdjacentHTML("beforeend", waitElement);
+    const { data: lastSyncDateForForm } = fetchData(
+      "LocalApi/get_last_update_date",
+      "GET",
+      {}
+    );
+    const lastSyncDate = new Date(lastSyncDateForForm).toLocaleDateString(
+      "en-GB"
+    );
+    const response = fetchDataOnline("Offline/getAsyncData", "post", {
+      date: lastSyncDateForForm,
     });
-  const syncBodyModal = document.getElementById("sync_body");
-
-  if (updates.length > 0) {
-    let updatesTests =
+    updates = response.updates;
+    inserts = response.inserts;
+    const areTestsFounded =
       run(
-        `select test_name,hash from lab_test where hash in(${updates
-          .map((item) => item.hash)
-          .join(",")}) group by test_name;`
+        `select test_name from lab_test where test_name in('${inserts
+          .map((item) => item.name)
+          .join("','")}') group by test_name;`
       ).result[0]?.query0 ?? [];
-    if (updatesTests.length > 0) {
+    inserts = inserts.filter((item) => !areTestsFounded.includes(item.name));
+    Swal.close();
+    const syncBodyModal = document.getElementById("sync_body");
+
+    if (inserts.length > 0) {
       syncBodyModal.innerHTML = "";
       syncBodyModal.innerHTML += `
-      <div id="update_tests" class="row justify-content-around">
-          <div class="col-12">
-              <h5 class="text-center"> أختر التحاليل التي تريد تحديثها </h5>
-              <h6 class="text-center"> علما بأن اخر تحديث لك كان في : <span class="text-info">${lastSyncDate}</span> </h6>
-              <h6 class="text-center"> المزامنة لا تضمن فقط تحديث التحاليل المختارة بل تحديث جميع البيانات </h6>
-              
-          </div>
-          <div 
-            class="col-5 border rounded p-2 my-2 d-flex justify-content-center align-items-center" 
-            style="cursor: pointer;"
-            onclick="selectAll(event);$(this).toggleClass('all');"
-          >
-            <p class="text-center">
-                <span class="h4">اختار الكل</span>
-            </p>
-          </div>
-          <div class="w-100"></div>
-          ${updatesTests
-            .map((item) => {
-              let date = updates.find((i) => i.hash == item.hash).date_time;
-              // iraq en 28-7-2023
-              date = new Date(date).toLocaleDateString("en-GB");
-              // compare date and lastSyncDate
-              let compareDate = new Date(date) > new Date(lastSyncDate);
+        <div id="update_tests" class="row justify-content-around">
+            <div class="col-12">
+                <h5 class="text-center"> أختر التحاليل التي تريد اضافتها </h5>
+            </div>
+            <div 
+              class="col-5 border rounded p-2 my-2 d-flex justify-content-center align-items-center" 
+              style="cursor: pointer;"
+              onclick="selectAll(event);$(this).toggleClass('all');"
+            >
+              <p class="text-center">
+                  <span class="h4">اختار الكل</span>
+              </p>
+            </div>
+            <div class="w-100"></div>
+            ${inserts
+              .map((item) => {
+                let date = item.date_time;
+                // iraq en 28-7-2023
+                date = new Date(date).toLocaleDateString("en-GB");
+                // compare date and lastSyncDate
+                const compareDate = new Date(date) > new Date(lastSyncDate);
 
-              return `<div class="col-5 border rounded p-2 my-2 d-flex justify-content-center align-items-center syncItem" style="cursor: pointer;"
-                  data-hash="${item.hash}"
-                  onclick="$(this).toggleClass('active');"
-                 >
-                      <p class="text-center">
-                          <span class="h4">${item.test_name}</span>
-                          <br>
-                          <span class="h6">اخر تحديث للتحليل : <span
-                                  class="text-${
-                                    compareDate ? "success" : "danger"
-                                  }"
-                          >${date}</span></span>
-                      </p>
-                  </div>
-                  `;
-            })
-            .join("")}
-      </div>
-      `;
+                return `<div class="col-5 border rounded p-2 my-2 d-flex justify-content-center align-items-center syncItem" style="cursor: pointer;"
+                    onclick="$(this).toggleClass('active');"
+                   >
+                        <p class="text-center">
+                            <span class="h4">${item.name}</span>
+                            <br>
+                            <span class="h6">اخر تحديث للتحليل : <span
+                                    class="text-${
+                                      compareDate ? "success" : "danger"
+                                    }"
+                            >${date}</span></span>
+                        </p>
+                    </div>
+                    `;
+              })
+              .join("")}
+        </div>
+        `;
+    }
+
+    if (updates.length > 0) {
+      const updatesTests =
+        run(
+          `select test_name,hash from lab_test where hash in(${updates
+            .map((item) => item.hash)
+            .join(",")}) group by test_name;`
+        ).result[0]?.query0 ?? [];
+      if (updatesTests.length > 0) {
+        syncBodyModal.innerHTML += `
+        <div id="update_tests" class="row justify-content-around">
+            <div class="col-12">
+                <h5 class="text-center"> أختر التحاليل التي تريد تحديثها </h5>
+                <h6 class="text-center"> علما بأن اخر تحديث لك كان في : <span class="text-info">${lastSyncDate}</span> </h6>
+                <h6 class="text-center"> المزامنة لا تضمن فقط تحديث التحاليل المختارة بل تحديث جميع البيانات </h6>
+                
+            </div>
+            <div 
+              class="col-5 border rounded p-2 my-2 d-flex justify-content-center align-items-center" 
+              style="cursor: pointer;"
+              onclick="selectAll(event);$(this).toggleClass('all');"
+            >
+              <p class="text-center">
+                  <span class="h4">اختار الكل</span>
+              </p>
+            </div>
+            <div class="w-100"></div>
+            ${updatesTests
+              .map((item) => {
+                let date = updates.find((i) => i.hash === item.hash).date_time;
+                // iraq en 28-7-2023
+                date = new Date(date).toLocaleDateString("en-GB");
+                // compare date and lastSyncDate
+                const compareDate = new Date(date) > new Date(lastSyncDate);
+
+                return `<div class="col-5 border rounded p-2 my-2 d-flex justify-content-center align-items-center syncItem" style="cursor: pointer;"
+                    data-hash="${item.hash}"
+                    onclick="$(this).toggleClass('active');"
+                   >
+                        <p class="text-center">
+                            <span class="h4">${item.test_name}</span>
+                            <br>
+                            <span class="h6">اخر تحديث للتحليل : <span
+                                    class="text-${
+                                      compareDate ? "success" : "danger"
+                                    }"
+                            >${date}</span></span>
+                        </p>
+                    </div>
+                    `;
+              })
+              .join("")}
+        </div>
+        `;
+      } else {
+        syncBodyModal.innerHTML += `
+          <div id="update_tests" class="row">
+              <div class="col-12">
+                  <h5 class="text-center"> لا يوجد تحديثات </h5>
+              </div>
+          </div>
+          `;
+      }
     } else {
       syncBodyModal.innerHTML = "";
       syncBodyModal.innerHTML += `
@@ -428,37 +476,31 @@ async function getAsyncData() {
         </div>
         `;
     }
-  } else {
-    syncBodyModal.innerHTML = "";
-    syncBodyModal.innerHTML += `
-      <div id="update_tests" class="row">
-          <div class="col-12">
-              <h5 class="text-center"> لا يوجد تحديثات </h5>
-          </div>
-      </div>
-      `;
-  }
 
-  $("#sync").modal("show");
+    $("#sync").modal("show");
+    resolve();
+  }).then(() => {
+    body.removeChild(document.getElementById("alert_screen"));
+  });
 }
 
 async function runAsyncData() {
   const body = document.getElementsByTagName("body")[0];
   body.insertAdjacentHTML("beforeend", waitElement);
-  queries = inserts.map((query) => query.query);
-  let updatesSelected = document.querySelectorAll("#update_tests .active");
+  // queries = inserts.map((query) => query.query);
+  const updatesSelected = document.querySelectorAll("#update_tests .active");
   if (updatesSelected.length > 0) {
-    let updateTestsHash = Array.from(updatesSelected).map(
+    const updateTestsHash = Array.from(updatesSelected).map(
       (item) => item.dataset.hash
     );
-    let updateTests = updates.filter((item) =>
+    const updateTests = updates.filter((item) =>
       updateTestsHash.includes(item.hash)
     );
     queries = [...queries, ...updateTests.map((item) => item.query)];
   }
-  let queriesForm = new FormData();
+  const queriesForm = new FormData();
   queriesForm.append("queries", JSON.stringify(queries));
-  let quer = await fetch(`${base_url}LocalApi/run_queries`, {
+  const quer = await fetch(`${base_url}LocalApi/run_queries`, {
     method: "POST",
     body: queriesForm,
   })

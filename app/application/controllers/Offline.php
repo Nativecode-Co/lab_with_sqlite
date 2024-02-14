@@ -14,12 +14,6 @@ class Offline extends CI_Controller
         parent::__construct();
         $this->load->model('User_model');
         $this->load->model('Menu_db');
-        // access control api 
-        header('Access-Control-Allow-Origin: *');
-        header('Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE');
-        header('Access-Control-Allow-Headers: Content-Type, Content-Range, Content-Disposition, Content-Description, Authorization');
-        header('Content-Type: application/x-www-form-urlencoded');
-        header('Content-Type: application/json');
     }
 
     public function jwt_enc($data, $expir = "1900")
@@ -277,22 +271,30 @@ class Offline extends CI_Controller
 
     public function getAsyncData()
     {
+        $this->auth();
         $this->db->query(
             "SET SESSION group_concat_max_len = 100000;"
         );
         $date = $this->input->post('date');
-        $queries = $this->db->query("select * from offline_sync where lab_id='0' and date_time>='$date' and operation != 'update' and table_name not in ('lab')")->result();
-        $updatQueries = $this->db->query("select * from offline_sync where lab_id='0' and table_name  in ('lab_test') and operation = 'update';")->result();
+        $insertQueries = $this->db->query("select * from offline_sync where lab_id='0' and operation = 'insert' and table_name='lab_test'")->result();
+        $updatQueries = $this->db->query("select * from offline_sync where lab_id='0' and date_time>='$date' and table_name='lab_test' and operation = 'update';")->result();
         $inserts = array();
-        $deletes = array();
         $updates = array();
-        array_map(function ($query) use (&$inserts, &$deletes) {
-            if ($query->operation == 'insert') {
-                array_push($inserts, $query);
+        array_map(function ($query) use (&$inserts) {
+            // any chars after values(' and before '
+            $pattern = "/values\('([^']+)/";
+            preg_match($pattern, $query->query, $matches);
+            if (count($matches) > 0) {
+                // delete values('
+                $name = $matches[0];
+                $name = str_replace("values('", "", $name);
+
             } else {
-                array_push($deletes, $query);
+                $name = '';
             }
-        }, $queries);
+            $query->name = $name;
+            array_push($inserts, $query);
+        }, $insertQueries);
         array_map(function ($query) use (&$updates) {
             $pattern = '/\bhash=([0-9]+)/';
             preg_match($pattern, $query->query, $matches);
@@ -320,11 +322,9 @@ class Offline extends CI_Controller
             array(
                 'status' => true,
                 'message' => 'عرض البيانات',
-                'data' => $queries,
                 'isAuth' => true,
                 'inserts' => $inserts,
                 'updates' => $updates,
-                'deletes' => $deletes
             ),
             JSON_UNESCAPED_UNICODE
         );

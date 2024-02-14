@@ -450,4 +450,27 @@ class LocalApi extends CI_Controller
             JSON_UNESCAPED_UNICODE
         );
     }
+
+    //select insert_record_date as date from system_users_type order by id desc limit 1;
+    public function get_last_update_date()
+    {
+        $date = $this->db->
+            select("insert_record_date as date")->
+            from("system_users_type")->
+            order_by("id", "desc")->
+            limit(1)->
+            get()->row()->date;
+        if (!(isset($date) && $date != null && $date != "")) {
+            $date = "2023-01-01 00:00:00";
+        }
+        echo json_encode(
+            array(
+                'status' => true,
+                'message' => 'تاريخ اخر تحديث',
+                'data' => $date,
+                'isAuth' => true
+            ),
+            JSON_UNESCAPED_UNICODE
+        );
+    }
 }

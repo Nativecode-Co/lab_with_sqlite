@@ -456,7 +456,7 @@ class Visit_model extends CI_Model
     {
         $invoice = $this->getInvoice();
         $result = array(
-            "orderOfHeader" => $invoice['setting']['orderOfHeader'],
+            "orderOfHeader" => isset($invoice['setting']['orderOfHeader']) ? $invoice['setting']['orderOfHeader'] : array(),
             "workers" => $invoice['workers']
         );
         return $result;

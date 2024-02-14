@@ -172,7 +172,7 @@
 
 .wizard > .actions a {
   background-color: #4361ee;
-  color: #fff;
+  color: #fff !important;
   display: block;
   padding: 0.5em 1em;
   text-decoration: none;

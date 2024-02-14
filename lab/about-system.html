@@ -31,6 +31,8 @@
     <link href="assets/css/components/custom-modal.css" rel="stylesheet" type="text/css" />
     <link rel="stylesheet" href="css/style.css" />
     <link rel="stylesheet" href="css/new_style.css" />
+    <link rel="stylesheet" type="text/css" href="plugins/jquery-step/jquery.steps.css">
+
 
     <!--  END CUSTOM STYLE FILE  -->
 
@@ -82,7 +84,8 @@
                         <a href="#" class="btn btn-action action w-230 col-auto mr-30 mb-30" data-id="contact">
                             <i class="fas fa-folder-plus"></i> الدعم الفني
                         </a>
-                        <a onclick="getAsyncData()" class="text-danger btn btn-action w-230 col-auto mr-30 mb-30">
+                        <a onclick="$('#sync').modal('show')"
+                            class="text-danger btn btn-action w-230 col-auto mr-30 mb-30">
                             <i class="far fa-cloud-download-alt"></i> مزامنة
                         </a>
                         <a onclick="updateSystem()" class="text-danger btn btn-action w-230 col-auto mr-30 mb-30">
@@ -220,7 +223,7 @@
         </div>
         <!-- modal -->
         <div class="modal fade" id="sync" tabindex="-1" role="dialog" aria-labelledby="syncLabel" aria-hidden="true">
-            <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-dialog modal-xl" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="syncLabel">تحديث التحاليل </h5>
@@ -229,10 +232,21 @@
                         </button>
                     </div>
                     <div class="modal-body" id="sync_body">
-
-                    </div>
-                    <div class="modal-footer flex justify-content-center">
-                        <button type="button" class="btn btn-primary" onclick="runAsyncData()">حفظ</button>
+                        <div id="syncSteps">
+                            <h3> صيانة </h3>
+                            <section class="text-center">
+                                <h3>صيانة</h3>
+                                <p>
+                                    يتم الان صيانة المزامنة الرجاء الانتظار
+                                </p>
+                            </section>
+                            <!-- <h3>تحاليل جديدة</h3>
+                            <section id="newTests">
+                            </section>
+                            <h3>تعديل التحاليل</h3>
+                            <section id="editTests">
+                            </section> -->
+                        </div>
                     </div>
                 </div>
             </div>
@@ -257,6 +271,7 @@
         <script src="assets/js/scrollspyNav.js"></script>
         <script src="assets/js/qrcode.min.js"></script>
         <script src="assets/js/app.js"></script>
+        <script src="plugins/jquery-step/jquery.steps.min.js"></script>
         <script>
             $(document).ready(function () {
                 App.init();
@@ -264,6 +279,26 @@
         </script>
         <script src="js/const.js"></script>
         <script>
+            $("#syncSteps").steps({
+                headerTag: "h3",
+                bodyTag: "section",
+                transitionEffect: "slideLeft",
+                autoFocus: true,
+                cssClass: 'pills wizard',
+                enableAllSteps: true,
+                stepsOrientation: "vertical",
+                enableFinishButton: false,
+                titleTemplate: '#title#',
+                labels: {
+                    cancel: "الغاء",
+                    current: "الخطوة الحالية:",
+                    pagination: " ترقيم الصفحات",
+                    finish: "حفظ",
+                    next: "حفظ والتالي",
+                    previous: "حفظ والسابق",
+                    loading: "جاري التحميل ..."
+                }
+            });
             // genrate random text like "1.2.3"
             function randomText() {
                 let text = "";
