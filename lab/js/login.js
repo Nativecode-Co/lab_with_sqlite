@@ -113,7 +113,7 @@ const waitLoginElement = `<div id="alert_screen" class="alert_screen">
             <div class="card-body text-center">
               <h1 class="card-title">الرجاء الانتظار </h1>
               <h4>يتم الان تهيئة بيانات النظام</h4>
-              <h4>الرجاء عدم اغلاق الصفحة لكي حصول مشكلة</h4>
+              <h4>لتجنب حصول مشكلة الرجاء عدم اغلاق الصفحة</h4>
               <img class="spinner-grow-alert" src="${front_url}assets/image/flask.png" width="100" height="100" alt="alert_screen">
               <div class="w-100 mt-5"></div>
             </div>

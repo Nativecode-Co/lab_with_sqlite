@@ -239,6 +239,7 @@ function manageTestType(type, test = {}) {
     flag,
     font,
   } = test;
+  console.log(checked);
   switch (type) {
     case "flag":
       return `
@@ -248,7 +249,9 @@ function manageTestType(type, test = {}) {
                 "_"
               )} border-test" id="test_normal_${hash}" data-cat="${category
         ?.split(" ")
-        ?.join("_")}">
+        ?.join("_")}"
+        style="display:${checked ?? "flex"}"
+        >
                 <div class="testname col-3">
                     <p class="text-right w-100">${name}</p>
                 </div>
@@ -540,6 +543,9 @@ function showResult(visit, visitTests) {
                         <div class="test typetest pt-3 category_${category
                           ?.split(" ")
                           ?.join("_")}">
+                          <script>
+                            hide_header_if_not_have_tests('${category}');
+                          </script>
                             <p class="w-100 text-center font-weight-bolder h-22">${category}</p>
                         </div>
                         `;
@@ -909,4 +915,10 @@ function invoiceHeader() {
         </div>
     </div>
   `;
+}
+
+function hide_header_if_not_have_tests(category) {
+  if ($(`.row.category_${category}:visible`).length === 0) {
+    $(`.typetest.category_${category}`).first().hide();
+  }
 }

@@ -722,9 +722,9 @@ function generateFieldForTest(test, resultList, reference, testType) {
                             }" dir="ltr" name="${
                               test.name
                             }" placeholder="ادخل النتيجة" ${
-                              testType == "calc" ? "readonly" : ""
+                              testType === "calc" ? "readonly" : ""
                             } value="${
-                              testType == "normal"
+                              testType === "normal" || testType === "calc"
                                 ? resultList?.[test.name] ?? ""
                                 : resultList ?? ""
                             }">`
@@ -1997,27 +1997,6 @@ function showResult(visit, visitTests) {
               ""
         }`,
       });
-      // invoices.normalTests += `
-      //     <div class="test row m-0 category_${category} border-test" id="test_normal_${test.hash}" data-cat="${category}" style="display:${result_test?.checked ?? true ? 'flex' : 'none'}">
-      //         <div class="testname col-3">
-      //             <p class="text-right w-100">${test.name}</p>
-      //         </div>
-      //         <div class="testresult col-2">
-      //             <p class="text-${color} w-75 text-center">${result ?? 0}</p>
-      //         </div>
-      //         <div class="testresult col-2">
-      //             <p class="text-${color == "dark" || isNaN(parseFloat(result)) ? '' : color} w-75 text-center">${color == "dark" || isNaN(parseFloat(result)) ? '' : (color == "danger p-1 border border-dark" ? 'H' : 'L')}</p>
-      //         </div>
-      //         <div class="testresult col-2">
-      //             <p> ${reference?.[0]?.result == 'result' ? "" : options?.type != 'calc' ? (test?.unit_name ?? '') : (units.find(item => reference?.[0]?.unit == item?.hash)?.name ?? '')}</p>
-      //         </div>
-      //         <div class="testnormal col-3">
-      //             <p class="text-right">
-      //             ${normalRange}
-      //             </p>
-      //         </div>
-      //     </div>
-      // `;
     }
   });
   return {
@@ -2030,16 +2009,6 @@ function showResult(visit, visitTests) {
       })
       .join("")}`,
   };
-
-  // return `
-  // <div class="row justify-content-center mb-30" id="invoice-tests-buttons">
-  //     ${Object.values(buttons).join('')}
-  // </div>
-  // ${Object.entries(invoices).map(([key, value]) => {
-  //     return createInvoice(visit, key, value);
-  // }).join('')}
-  // `
-  // return createInvoice(visit,25, resultForm.join(''));
 }
 
 function getCurrentInvoice(ele) {
@@ -2653,8 +2622,11 @@ function printAfterSelect(hash) {
   $("#print-dialog").modal("show");
 }
 
-function printAllInvoices(hash) {
-  fetchData(`Pdf/print?pk=${hash}&lab=${localStorage.getItem("lab_hash")}`);
+async function printAllInvoices(hash) {
+  fireSwal(saveResult, hash);
+  setTimeout(() => {
+    fetchData(`Pdf/print?pk=${hash}&lab=${localStorage.getItem("lab_hash")}`);
+  }, 1000);
 }
 
 function hoverInvoice(element) {

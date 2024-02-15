@@ -861,12 +861,11 @@ const waitElement = `<div id="alert_screen" class="alert_screen">
 </div>
 </div>`;
 
-function fireSwal(fun = null, ...args) {
+async function fireSwal(fun = null, ...args) {
   if (!fun) {
-    niceSwal("error", "خطأ", "لا يوجد اي عملية");
-    return false;
+    return flase;
   }
-  let diffTimeInMin =
+  const diffTimeInMin =
     (-1 *
       (new Date(localStorage?.getItem("lastSync") ?? "2023-01-01 00:00:00") -
         new Date())) /
@@ -879,7 +878,7 @@ function fireSwal(fun = null, ...args) {
   const body = document.getElementsByTagName("body")[0];
   body.insertAdjacentHTML("beforeend", waitElement);
   setTimeout(async () => {
-    await new Promise((resolve, reject) => {
+    new Promise((resolve, reject) => {
       fun.call(this, ...args);
       resolve();
     }).then(() => {
