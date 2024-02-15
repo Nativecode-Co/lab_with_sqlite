@@ -330,6 +330,51 @@ class Offline extends CI_Controller
         );
     }
 
+    public function getSyncUpdates()
+    {
+        $this->auth();
+        $this->db->query(
+            "SET SESSION group_concat_max_len = 100000;"
+        );
+        $updatQueries = $this->db->query("select * from offline_sync where lab_id='0' and table_name='lab_test' and operation = 'update';")->result();
+        $updates = array();
+        array_map(function ($query) use (&$updates) {
+            $pattern = '/\bhash=([0-9]+)/';
+            preg_match($pattern, $query->query, $matches);
+            if (count($matches) > 0) {
+                $hash = $matches[1];
+            } else {
+                $pattern = "/\bhash='([0-9]+)/";
+                preg_match($pattern, $query->query, $matches);
+                if (count($matches) > 0) {
+                    $hash = $matches[1];
+                } else {
+                    $pattern = "/`id`\s*=\s*'(\d+)'/i";
+                    preg_match($pattern, $query->query, $matches);
+                    if (count($matches) > 0) {
+                        $hash = $matches[1];
+                    } else {
+                        $hash = 0;
+                    }
+                }
+            }
+            $name = $this->db->query("select test_name from lab_test where hash='$hash'")->row();
+            $name = $name->test_name;
+            $query->name = $name;
+            $query->hash = $hash;
+            array_push($updates, $query);
+        }, $updatQueries);
+        echo json_encode(
+            array(
+                'status' => true,
+                'message' => 'عرض البيانات',
+                'isAuth' => true,
+                'data' => $updates,
+            ),
+            JSON_UNESCAPED_UNICODE
+        );
+    }
+
     public function getSyncInserts()
     {
         $this->auth();

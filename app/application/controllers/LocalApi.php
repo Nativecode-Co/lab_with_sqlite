@@ -94,6 +94,9 @@ class LocalApi extends CI_Controller
     public function run_queries()
     {
         $queries = $this->input->post("queries");
+        $trancate = $this->input->post("trancate");
+        // set sql mode 1
+        $this->db->query("SET SQL_SAFE_UPDATES = 0;");
         $queries = json_decode($queries);
         // run all queries
         set_time_limit(500);
@@ -102,8 +105,15 @@ class LocalApi extends CI_Controller
                 $this->db->query($query);
             }
         }
+        if (!isset($trancate)) {
+            $this->db->query("TRUNCATE offline_sync;");
+        }
         // trancate offline_sync table
-        $this->db->query('TRUNCATE offline_sync;');
+        if (isset($trancate) && $trancate == true) {
+            $this->db->query("TRUNCATE offline_sync;");
+        }
+        $this->db->query("SET SQL_SAFE_UPDATES = 1;");
+
         echo json_encode(
             array(
                 'status' => true,
@@ -490,6 +500,32 @@ class LocalApi extends CI_Controller
                 'status' => true,
                 'message' => 'تحقق من وجود الاختبار',
                 'data' => $tests,
+                'isAuth' => true
+            ),
+            JSON_UNESCAPED_UNICODE
+        );
+    }
+
+    public function get_dates_for_tests_to_check_update()
+    {
+        $hashes = $this->input->post('hashes');
+        $dates = $this->db->
+            // short_name as date if short_name is not empty else 2023-01-01 00:00:00
+            select("
+            case 
+                when short_name != '' then short_name
+                else '2023-01-01 00:00:00' 
+            end as date,
+            hash
+        ")->
+            from("lab_test")->
+            where("hash in ('$hashes')")->
+            get()->result();
+        echo json_encode(
+            array(
+                'status' => true,
+                'message' => 'تاريخ اخر تحديث',
+                'data' => $dates,
                 'isAuth' => true
             ),
             JSON_UNESCAPED_UNICODE
