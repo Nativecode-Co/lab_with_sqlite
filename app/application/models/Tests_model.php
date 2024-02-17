@@ -92,7 +92,7 @@ class Tests_model extends CI_Model
             FROM 
                 lab_test
             WHERE 
-                test_name LIKE '%$search%' AND
+                test_name LIKE '%$search%'
             GROUP BY
                 lab_test.hash
             ORDER BY
