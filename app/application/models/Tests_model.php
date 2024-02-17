@@ -90,11 +90,9 @@ class Tests_model extends CI_Model
                 (SELECT name FROM lab_test_catigory WHERE hash = lab_test.category_hash) AS category_name,
                 lab_test.option_test
             FROM 
-                lab_pakage_tests
-            LEFT JOIN lab_test ON lab_test.hash = lab_pakage_tests.test_id
+                lab_test
             WHERE 
                 test_name LIKE '%$search%' AND
-                lab_pakage_tests.isdeleted = 0 
             GROUP BY
                 lab_test.hash
             ORDER BY
