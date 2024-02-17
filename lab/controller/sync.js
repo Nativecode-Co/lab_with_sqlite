@@ -12,17 +12,15 @@ const onStepChanging = (event, currentIndex, newIndex) => {
       break;
     case 1:
       saveInserts();
-      newTestsElement.innerHTML = "";
-      updateTestsElement.innerHTML = "";
       break;
     case 2:
       saveUpdates();
-      newTestsElement.innerHTML = "";
-      updateTestsElement.innerHTML = "";
       break;
     default:
       break;
   }
+  newTestsElement.innerHTML = "";
+  updateTestsElement.innerHTML = "";
   switch (newIndex) {
     case 0:
       break;
@@ -39,6 +37,10 @@ const onStepChanging = (event, currentIndex, newIndex) => {
 };
 
 const startSteps = () => {
+  const newTestsElement = document.getElementById("newTests");
+  const updateTestsElement = document.getElementById("editTests");
+  newTestsElement.innerHTML = "";
+  updateTestsElement.innerHTML = "";
   // check if syncSteps is already created
   if (document.querySelector(".steps.clearfix")) {
     $("#syncSteps").steps("destroy");
