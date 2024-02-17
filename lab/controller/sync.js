@@ -4,14 +4,21 @@ let inserts = [];
 const body = document.getElementsByTagName("body")[0];
 
 const onStepChanging = (event, currentIndex, newIndex) => {
+  const newTestsElement = document.getElementById("newTests");
+  const updateTestsElement = document.getElementById("editTests");
+
   switch (currentIndex) {
     case 0:
       break;
     case 1:
       saveInserts();
+      newTestsElement.innerHTML = "";
+      updateTestsElement.innerHTML = "";
       break;
     case 2:
       saveUpdates();
+      newTestsElement.innerHTML = "";
+      updateTestsElement.innerHTML = "";
       break;
     default:
       break;
@@ -30,42 +37,52 @@ const onStepChanging = (event, currentIndex, newIndex) => {
   }
   return true;
 };
-// start steps model
-$("#syncSteps").steps({
-  headerTag: "h3",
-  bodyTag: "section",
-  transitionEffect: "slideLeft",
-  autoFocus: true,
-  cssClass: "pills wizard",
-  enableAllSteps: false,
-  stepsOrientation: "vertical",
-  enableFinishButton: true,
-  titleTemplate: "#title#",
-  loadingTemplate: waitElement,
 
-  labels: {
-    cancel: "الغاء",
-    current: "الخطوة الحالية:",
-    pagination: " ترقيم الصفحات",
-    finish: "حفظ وانهاء",
-    next: "حفظ والتالي",
-    previous: "حفظ والسابق",
-    loading: "جاري التحميل ...",
-  },
-  onStepChanging: (event, currentIndex, newIndex) => {
-    fireSwal(onStepChanging, event, currentIndex, newIndex);
-    return true;
-  },
-  onFinishing: (event, currentIndex) => {
-    $("#sync").modal("hide");
-    fireSwal(onStepChanging, event, currentIndex, 0);
-    return true;
-  },
-});
+const startSteps = () => {
+  // check if syncSteps is already created
+  if (document.querySelector(".steps.clearfix")) {
+    $("#syncSteps").steps("destroy");
+  }
+  $("#sync").modal("show");
+  $("#syncSteps").steps({
+    headerTag: "h3",
+    bodyTag: "section",
+    transitionEffect: "slideLeft",
+    autoFocus: true,
+    cssClass: "pills wizard",
+    enableAllSteps: false,
+    stepsOrientation: "vertical",
+    enableFinishButton: true,
+    titleTemplate: "#title#",
+    loadingTemplate: waitElement,
+    enableCancelButton: true,
+
+    labels: {
+      cancel: "الغاء",
+      current: "الخطوة الحالية:",
+      pagination: " ترقيم الصفحات",
+      finish: "تحديث",
+      next: " التالي",
+      previous: " السابق",
+      loading: "جاري التحميل ...",
+    },
+    onStepChanging: (event, currentIndex, newIndex) => {
+      fireSwal(onStepChanging, event, currentIndex, newIndex);
+      return true;
+    },
+    onFinishing: (event, currentIndex) => {
+      $("#sync").modal("hide");
+      fireSwal(onStepChanging, event, currentIndex, 0);
+      return true;
+    },
+    onCanceled: (event) => {
+      $("#sync").modal("hide");
+    },
+  });
+};
 
 const syncInserts = async () => {
-  const newTestsElement = document.getElementById("syncSteps-p-1");
-  newTestsElement.innerHTML = "";
+  const newTestsElement = document.getElementById("newTests");
   const response = fetchDataOnline("Offline/getSyncInserts", "post", {});
   inserts = response.data;
   const areTestsFounded = fetchData(
@@ -126,7 +143,7 @@ const saveInserts = async () => {
 };
 
 const syncUpdates = async () => {
-  const updateTestsElement = document.getElementById("syncSteps-p-2");
+  const updateTestsElement = document.getElementById("editTests");
   updateTestsElement.innerHTML = "";
   const response = fetchDataOnline("Offline/getSyncUpdates", "POST", {});
   updates = response.data;
@@ -140,7 +157,7 @@ const syncUpdates = async () => {
   updates = updates.filter((item) => {
     const date = updatesTests.find((i) => i.hash === item.hash)?.date;
     if (!date) return false;
-    return new Date(item.date_time) > new Date(date);
+    return new Date(item.date_time) >= new Date(date);
   });
 
   console.log(updates);

@@ -947,14 +947,15 @@ function addResult(visit, visitTests) {
     <input type="text" class="w-100 form-control search-class test-normalTests results product-search br-30" id="input-search-3" placeholder="ابحث عن التحليل" onkeyup="addTestSearch(this)">
 </div>`,
   ];
-  let result_tests = [];
-  visitTests.forEach((test) => {
+  const result_tests = [];
+  for (let test of visitTests) {
     let options = test.options;
     options = options.replace(/\\/g, "");
     try {
       options = JSON.parse(options);
     } catch (err) {
       options = {};
+      console.log("error", err);
     }
 
     let { type, component, value } = options;
@@ -1017,7 +1018,7 @@ function addResult(visit, visitTests) {
         resultForm
       );
     }
-  });
+  }
   return resultForm.join("");
 }
 

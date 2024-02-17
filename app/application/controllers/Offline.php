@@ -336,7 +336,7 @@ class Offline extends CI_Controller
         $this->db->query(
             "SET SESSION group_concat_max_len = 100000;"
         );
-        $updatQueries = $this->db->query("select * from offline_sync where lab_id='0' and table_name='lab_test' and operation = 'update';")->result();
+        $updatQueries = $this->db->query("select id, table_name, operation, lab_id, query, sync, date(date_time) from offline_sync where lab_id='0' and table_name='lab_test' and operation = 'update';")->result();
         $updates = array();
         array_map(function ($query) use (&$updates) {
             $pattern = '/\bhash=([0-9]+)/';
@@ -359,7 +359,10 @@ class Offline extends CI_Controller
                 }
             }
             $name = $this->db->query("select test_name from lab_test where hash='$hash'")->row();
-            $name = $name->test_name;
+            if (isset($name->test_name))
+                $name = $name->test_name;
+            else
+                $name = '';
             $query->name = $name;
             $query->hash = $hash;
             array_push($updates, $query);
@@ -381,7 +384,7 @@ class Offline extends CI_Controller
         $this->db->query(
             "SET SESSION group_concat_max_len = 100000;"
         );
-        $insertQueries = $this->db->query("select * from offline_sync where lab_id='0' and operation = 'insert' and table_name='lab_test'")->result();
+        $insertQueries = $this->db->query("select id, table_name, operation, lab_id, query, sync, date(date_time) from offline_sync where lab_id='0' and operation = 'insert' and table_name='lab_test'")->result();
         $inserts = array();
         array_map(function ($query) use (&$inserts) {
             // any chars after values(' and before '

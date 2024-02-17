@@ -918,7 +918,8 @@ function invoiceHeader() {
 }
 
 function hide_header_if_not_have_tests(category) {
-  if ($(`.row.category_${category}:visible`).length === 0) {
-    $(`.typetest.category_${category}`).first().hide();
+  const newCategory = category.split(" ").join("_");
+  if ($(`.row.category_${newCategory}:visible`).length === 0) {
+    $(`.typetest.category_${newCategory}`).first().hide();
   }
 }

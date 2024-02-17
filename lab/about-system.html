@@ -84,8 +84,8 @@
                         <a href="#" class="btn btn-action action  col-auto mr-30 mb-30" data-id="contact">
                             <i class="fas fa-folder-plus"></i> الدعم الفني
                         </a>
-                        <a onclick="$('#sync').modal('show')" class="text-danger btn btn-action  col-auto mr-30 mb-30">
-                            <i class="far fa-cloud-download-alt"></i> مزامنة
+                        <a onclick="startSteps()" class="text-danger btn btn-action  col-auto mr-30 mb-30">
+                            <i class="far fa-cloud-download-alt"></i> تحديث التحاليل
                         </a>
                         <a onclick="updateSystem()" class="text-danger btn btn-action  col-auto mr-30 mb-30">
                             <i class="far fa-microscope"></i> تحديث النظام <span
@@ -224,26 +224,45 @@
         <div class="modal fade" id="sync" tabindex="-1" role="dialog" aria-labelledby="syncLabel" aria-hidden="true">
             <div class="modal-dialog modal-xl" role="document">
                 <div class="modal-content">
-                    <div class="modal-header">
+                    <div class="modal-header text-center">
                         <h5 class="modal-title" id="syncLabel">تحديث التحاليل </h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
                     </div>
                     <div class="modal-body" id="sync_body">
                         <div id="syncSteps">
-                            <h3> صيانة </h3>
-                            <section class="text-center">
-                                <h3>صيانة</h3>
-                                <p>
-                                    يتم الان صيانة المزامنة الرجاء الانتظار
-                                </p>
+                            <h3> شرح تحديث التحاليل </h3>
+                            <section>
+                                <h3>
+                                    عملية تحديث التحاليل تتم بالخطوات التالية
+                                </h3>
+                                <ul>
+                                    <li>اضغط على التالي لمعرفة التحاليل الجديده المراد تحديثها</li>
+                                    <li>
+                                        في حال رغبت باضافة تحليل معين من التحاليل الجديده اضغط عليه ومن ثم اضغط على
+                                        اضافة تحليل لاضافة هذا التحليل في النظام
+                                    </li>
+                                    <li>
+                                        في الخطوه الاخيرة هنا في حال رغبت بسحب القيم الطبيعة الخاص بهذا التحليل من
+                                        الخادم اختر التحليل ومن ثم تحديث عدا ذلك يمكنك وضع القيم الطبيعية لهذا التحليل
+                                        من صفحة القيم الطبيعية في النظام
+                                    </li>
+                                </ul>
                             </section>
                             <h3>تحاليل جديدة</h3>
-                            <section id="new_tests">
+                            <section>
+                                <p class="text-center text-danger">
+                                    في حال رغبت باضافة تحليل معين من التحاليل الجديده اضغط عليه ومن ثم اضغط على
+                                    اضافة تحليل لاضافة هذا التحليل في النظام
+                                </p>
+                                <div id="newTests"></div>
                             </section>
                             <h3>تعديل التحاليل</h3>
-                            <section id="editTests">
+                            <section>
+                                <p class="text-center text-danger">
+                                    في الخطوه الاخيرة هنا في حال رغبت بسحب القيم الطبيعة الخاص بهذا التحليل من الخادم
+                                    اختر التحليل ومن ثم تحديث عدا ذلك يمكنك وضع القيم الطبيعية لهذا التحليل من
+                                    صفحة القيم الطبيعية في النظام
+                                </p>
+                                <div id="editTests"></div>
                             </section>
                         </div>
                     </div>

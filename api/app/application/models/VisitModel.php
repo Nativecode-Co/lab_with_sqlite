@@ -67,7 +67,7 @@ class VisitModel extends CI_Model
         $visit_hash = $visit_data['hash'];
         $this->create_visit_package_and_tests($visit_hash, $tests);
         $this->db->trans_complete();
-        return $visit_hash;
+        return $this->get_visit($visit_hash);
     }
 
     public function update_visit($data)
@@ -82,7 +82,7 @@ class VisitModel extends CI_Model
         $this->delete_old_visit_package_and_tests($visit_hash, $tests);
         $this->create_visit_package_and_tests($visit_hash, $tests);
         $this->db->trans_complete();
-        return $visit_hash;
+        return $this->get_visit($visit_hash);
     }
 
     public function get_visit($hash)
@@ -90,12 +90,13 @@ class VisitModel extends CI_Model
         $visit = $this->db->get('lab_visits', array('hash' => $hash))->row_array();
         $patient = $this->db->get('lab_patient', array('hash' => $visit['visits_patient_id']))->row_array();
         $tests = $this->get_visit_tests($hash);
-        $invoice = $this->getInvoice();
+        $packages = $this->db->select('hash')->where('visit_id', $hash)->get('lab_visits_package')->result_array();
+        $packages = array_column($packages, 'hash');
         return array(
-            "visit" => $visit,
-            "patient" => $patient,
-            "invoice" => $invoice,
-            "tests" => $tests
+            // "packages" => $packages,
+            // "visit" => $visit,
+            // "patient" => $patient,
+            "tests" => $tests['normal']
         );
     }
 
@@ -452,4 +453,5 @@ class VisitModel extends CI_Model
         return $result;
 
     }
+    
 }

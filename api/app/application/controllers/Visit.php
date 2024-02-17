@@ -95,7 +95,7 @@ class Visit extends CI_Controller
 
     function saveTestsResult()
     {
-        $data = $this->input->post();
+        $data = $this->input->post("data");
         $visit_hash = $this->VisitModel->saveTestsResults($data);
         $this->output
             ->set_status_header(200)
