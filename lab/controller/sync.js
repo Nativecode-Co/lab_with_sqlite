@@ -110,8 +110,6 @@ const syncInserts = async () => {
                      >
                           <p class="text-center">
                               <span class="h4">${item.name}</span>
-                              <br>
-                              <span class="h6">${date}</span>
                           </p>
                       </div>
                       `;
@@ -167,7 +165,7 @@ const syncUpdates = async () => {
     updateTestsElement.innerHTML += `
           <div id="update_tests" class="row justify-content-around">
               <div class="col-12">
-                  <h5 class="text-center"> أختر التحاليل التي تريد تحديثها </h5>
+                  <h5 class="text-center"> أختر التحاليل التي تريد تحديث القيم البيعية لها </h5>
               </div>
               ${updates
                 .map((item) => {
@@ -180,6 +178,7 @@ const syncUpdates = async () => {
                           <p class="text-center">
                               <span class="h4">${item.name}</span>
                               <br>
+                              اخر تحديث لها كان في
                               <span class="h6">${date}</span>
                           </p>
                       </div>
