@@ -15,6 +15,8 @@ class Tests_model extends CI_Model
         $this->db->select('count(*) as count');
         $this->db->from('lab_test');
         $this->db->where('isdeleted', 0);
+        // $this->db->where('lab_hash', null);
+
         $this->db->like('test_name', $search);
         $query = $this->db->get();
         $result = $query->result_array();
@@ -47,6 +49,8 @@ class Tests_model extends CI_Model
         $this->db->select('count(*) as count');
         $this->db->from('lab_test');
         $this->db->where('isdeleted', 0);
+        // $this->db->where('lab_hash', null);
+
         $this->db->where('test_type', 3);
         $this->db->like('test_name', $search);
         $query = $this->db->get();
@@ -64,6 +68,7 @@ class Tests_model extends CI_Model
         $this->db->from('lab_test');
         // and
         $this->db->where('isdeleted', 0);
+        // $this->db->where('lab_hash', null);
         // like
         $this->db->like('test_name', $search);
         // order by
