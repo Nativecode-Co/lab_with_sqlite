@@ -773,3 +773,11 @@ input:checked + .items
     max-height: 47px;
     overflow-y: auto;
   }
+
+
+  .isDisabled {
+    color: currentColor;
+    cursor: not-allowed;
+    opacity: 0.5;
+    text-decoration: none;
+  }

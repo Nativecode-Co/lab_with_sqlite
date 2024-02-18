@@ -130,9 +130,20 @@ const saveInserts = async () => {
       insertTestsNames.includes(item.name)
     );
     queries = [...queries, ...insertTests.map((item) => item.query)];
+    const onLineQueries = queries.map((item) => {
+      let query = item;
+      // before ") values" add lab_hash
+      query = query.replace(") values", ", lab_hash) values");
+      // add lab_hash value
+      query = query.replace("')", `', '${localStorage.getItem("lab_hash")}')`);
+      return query;
+    });
     new Promise((resolve) => {
       fetchData("LocalApi/run_queries", "POST", {
         queries: JSON.stringify(queries),
+      });
+      fetchDataOnline("Offline/run_sync", "POST", {
+        queries: `${onLineQueries.join(";")};`,
       });
       return resolve();
     }).then(() => {
@@ -143,6 +154,10 @@ const saveInserts = async () => {
 };
 
 const syncUpdates = async () => {
+  // get  bottom with href "#finish" father li
+  const finishButton = document.querySelector(
+    ".actions.clearfix a[href='#finish']"
+  ).parentElement;
   const updateTestsElement = document.getElementById("editTests");
   updateTestsElement.innerHTML = "";
   const response = fetchDataOnline("Offline/getSyncUpdates", "POST", {});
@@ -160,8 +175,11 @@ const syncUpdates = async () => {
     return new Date(item.date_time) >= new Date(date);
   });
 
-  console.log(updates);
   if (updates.length > 0) {
+    // make finish button enabled
+    finishButton.classList.remove("isDisabled");
+    // change herf to be "#"
+    finishButton.firstElementChild.href = "#finish";
     updateTestsElement.innerHTML += `
           <div id="update_tests" class="row justify-content-around">
               <div class="col-12">
@@ -188,6 +206,10 @@ const syncUpdates = async () => {
           </div>
           `;
   } else {
+    // make finish button disabled
+    finishButton.classList.add("isDisabled");
+    // change herf to be "#"
+    finishButton.firstElementChild.href = "#";
     updateTestsElement.innerHTML += `
           <div id="update_tests" class="row">
               <div class="col-12">
@@ -209,7 +231,7 @@ const saveUpdates = async () => {
       updateTestsHash.includes(item.hash)
     );
     queries = [...queries, ...updateTests.map((item) => item.query)];
-    queries = [
+    const offLineQueries = [
       ...queries,
       ...updateTests.map((item) => {
         return `update lab_test set short_name = "${
@@ -217,9 +239,22 @@ const saveUpdates = async () => {
         }" where hash = "${item.hash}";`;
       }),
     ];
+    const onLineQueries = queries.map((item) => {
+      run_online(
+        `${item} and lab_hash = "${localStorage.getItem("lab_hash")}";`
+      );
+      run_online(
+        `update lab_test set short_name = "${
+          new Date().toISOString().split("T")[0]
+        }" where hash = "${item.hash} and lab_hash = "${localStorage.getItem(
+          "lab_hash"
+        )}"";`
+      );
+    });
+
     new Promise((resolve) => {
       fetchData("LocalApi/run_queries", "POST", {
-        queries: JSON.stringify(queries),
+        queries: JSON.stringify(offLineQueries),
       });
       return resolve();
     }).then(() => {
