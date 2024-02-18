@@ -2121,22 +2121,26 @@ function manageInvoiceHeight(invoiceId = null) {
       allInvoiceTestsHeight += eleHeight;
     });
   } else {
-    $(".book-result:visible .page .center2 .tester .test:visible").each(
-      function () {
-        let eleHeight = $(this).outerHeight();
-        allTestsElements.push({
-          html: $(this).clone(),
-          eleHeight,
-        });
-        allInvoiceTestsHeight += eleHeight;
-      }
-    );
+    $(
+      ".book-result#invoice-normalTests:visible .page .center2 .tester .test:visible"
+    ).each(function () {
+      let eleHeight = $(this).outerHeight();
+      allTestsElements.push({
+        html: $(this).clone(),
+        eleHeight,
+      });
+      allInvoiceTestsHeight += eleHeight;
+    });
   }
 
-  let cloneInvoice = $(".book-result:visible .page").first().clone();
-  let bookResultInvoiceId = $(".book-result:visible").attr("id");
+  let cloneInvoice = $(".book-result#invoice-normalTests:visible .page")
+    .first()
+    .clone();
+  let bookResultInvoiceId = $(".book-result#invoice-normalTests:visible").attr(
+    "id"
+  );
   cloneInvoice.find(".center2 .tester").empty();
-  let center2 = $(".book-result:visible .center2:last");
+  let center2 = $(".book-result#invoice-normalTests:visible .center2:last");
   let center2Scroll;
   // if (bookResultInvoiceId == "invoice-normalTests") {
   //   center2Scroll = center2.height() - 400;
@@ -2156,9 +2160,9 @@ function manageInvoiceHeight(invoiceId = null) {
       $(`#${invoiceId}`).append(invoice);
     });
   } else {
-    $(".book-result:visible").empty();
+    $(".book-result#invoice-normalTests:visible").empty();
     invoices.map((invoice) => {
-      $(".book-result:visible").append(invoice);
+      $(".book-result#invoice-normalTests:visible").append(invoice);
     });
   }
 }
