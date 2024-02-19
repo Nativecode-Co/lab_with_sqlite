@@ -52,22 +52,77 @@ class TestsModel extends CI_Model
             ->where($this->main_column, $hash)
             ->get($this->table)
             ->row();
-        $data->tests = $this->get_package_tests($hash);
-        return $data;
+        if (isset($data)) {
+            $data->tests = $this->get_package_tests($hash);
+            return $data;
+        } else {
+            return null;
+        }
     }
 
-    public function insert($data)
+    public function insert($data, $tests = [])
     {
-        $data['hash'] = create_hash();
+        // for every tests in the package we need [test_id, kit_id, lab_device_id, unit, hash] addition to the package_id 
+        $hash = create_hash();
+        $data['hash'] = $hash;
         $this->db->insert($this->table, $data);
-        return $data['hash'];
+        $this->insert_tests($hash, $tests);
+        return $this->get($hash);
     }
 
-    public function update($hash, $data)
+    // bulk insert for the tests in the package
+    public function insert_tests($package_id, $tests)
+    {
+        $data = array_map(function ($test) use ($package_id) {
+            return [
+                'package_id' => $package_id,
+                'test_id' => $test['test_id'],
+                'kit_id' => $test['kit_id'],
+                'lab_device_id' => $test['lab_device_id'],
+                'unit' => $test['unit'],
+                'hash' => create_hash()
+            ];
+        }, $tests);
+        $this->db->insert_batch('lab_pakage_tests', $data);
+    }
+
+    public function update($hash, $data, $tests = [])
     {
         $this->db
             ->where($this->main_column, $hash)
             ->update($this->table, $data);
+        $this->update_tests($hash, $tests);
+        return $this->get($hash);
+    }
+
+    public function update_tests($package_id, $tests)
+    {
+        $tests_ids = array_map(function ($test) {
+            return $test['test_id'];
+        }, $tests);
+        $this->db
+            ->where('package_id', $package_id)
+            ->where_not_in('test_id', $tests_ids)
+            ->update('lab_pakage_tests', ['isdeleted' => 1]);
+
+        // if the test is already in the package we will update it, if not we will insert it
+        foreach ($tests as $test) {
+            $test_exit = $this->db
+                ->where('package_id', $package_id)
+                ->where('test_id', $test['test_id'])
+                ->get('lab_pakage_tests')
+                ->row();
+            if (isset($test_exit)) {
+                $this->db
+                    ->where('package_id', $package_id)
+                    ->where('test_id', $test['test_id'])
+                    ->update('lab_pakage_tests', $test);
+            } else {
+                $test['package_id'] = $package_id;
+                $test['hash'] = create_hash();
+                $this->db->insert('lab_pakage_tests', $test);
+            }
+        }
     }
 
     public function delete($hash)
@@ -75,6 +130,10 @@ class TestsModel extends CI_Model
         $this->db
             ->where($this->main_column, $hash)
             ->update($this->table, ['isdeleted' => 1]);
+
+        $this->db
+            ->where('package_id', $hash)
+            ->update('lab_pakage_tests', ['isdeleted' => 1]);
     }
 
     public function get_package_tests($hash)

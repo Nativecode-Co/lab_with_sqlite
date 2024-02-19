@@ -2,12 +2,12 @@
 
 
 
-class Tests extends CI_Controller
+class MainTests extends CI_Controller
 {
     function __construct()
     {
         parent::__construct();
-        $this->load->model('TestsModel');
+        $this->load->model('MainTestsModel');
         $this->load->library('form_validation');
     }
 
@@ -18,44 +18,42 @@ class Tests extends CI_Controller
         $this->output
             ->set_status_header(200)
             ->set_content_type('application/json')
-            ->set_output(json_encode(array("message" => "Welcome to the Tests API")));
+            ->set_output(json_encode(array("message" => "Welcome to the main_tests API")));
     }
 
 
-    function get_tests()
+    function get_main_tests()
     {
         $req = $this->input->get();
-        $tests = $this->TestsModel->get_all($req, 9);
-        $packages = $this->TestsModel->get_all($req, 8);
+        $main_tests = $this->MainTestsModel->get_all($req);
         $this->output
             ->set_status_header(200)
             ->set_content_type('application/json')
             ->set_output(
                 json_encode(
                     array(
-                        "tests" => $tests,
-                        "packages" => $packages
+                        "main_tests" => $main_tests,
                     )
                 )
             );
     }
 
-    function get_test()
+    function get_main_test()
     {
         $hash = $this->input->get('hash');
-        $data = $this->TestsModel->get($hash);
+        $data = $this->MainTestsModel->get($hash);
         $this->output
             ->set_status_header(200)
             ->set_content_type('application/json')
             ->set_output(json_encode($data));
     }
 
-    function create_test()
+    function create_main_test()
     {
         $req = json_decode(trim(file_get_contents('php://input')), true);
         $valid = $this->form_validation->
             set_data($req)->
-            run('package');
+            run('main_tests');
         if (!$valid) {
             $errors = $this->form_validation->error_array();
             $this->output
@@ -65,16 +63,14 @@ class Tests extends CI_Controller
             return;
         }
         ;
-        $tests = $req['tests'];
-        unset($req['tests']);
-        $data = $this->TestsModel->insert($req, $tests);
+        $data = $this->MainTestsModel->insert($req);
         $this->output
             ->set_status_header(201)
             ->set_content_type('application/json')
             ->set_output(json_encode($data));
     }
 
-    function update_test()
+    function update_main_test()
     {
         $req = json_decode(trim(file_get_contents('php://input')), true);
         $this->form_validation->set_data($req);
@@ -90,7 +86,7 @@ class Tests extends CI_Controller
                     'numeric' => 'يجب ادخال قيمة رقمية'
                 )
             )->
-            run('package');
+            run('main_tests');
         if (!$valid) {
             $errors = $this->form_validation->error_array();
             $this->output
@@ -101,19 +97,17 @@ class Tests extends CI_Controller
         }
         $hash = $req['hash'];
         unset($req['hash']);
-        $tests = $req['tests'];
-        unset($req['tests']);
-        $data = $this->TestsModel->update($hash, $req, $tests);
+        $data = $this->MainTestsModel->update($hash, $req);
         $this->output
             ->set_status_header(200)
             ->set_content_type('application/json')
             ->set_output(json_encode($data));
     }
 
-    function delete_test()
+    function delete_main_test()
     {
         $hash = $this->input->post('hash');
-        $this->TestsModel->delete($hash);
+        $this->MainTestsModel->delete($hash);
         $this->output
             ->set_status_header(200)
             ->set_content_type('application/json')

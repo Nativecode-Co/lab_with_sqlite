@@ -2,12 +2,12 @@
 
 
 
-class Tests extends CI_Controller
+class Workers extends CI_Controller
 {
     function __construct()
     {
         parent::__construct();
-        $this->load->model('TestsModel');
+        $this->load->model('WorkersModel');
         $this->load->library('form_validation');
     }
 
@@ -18,44 +18,42 @@ class Tests extends CI_Controller
         $this->output
             ->set_status_header(200)
             ->set_content_type('application/json')
-            ->set_output(json_encode(array("message" => "Welcome to the Tests API")));
+            ->set_output(json_encode(array("message" => "Welcome to the workers API")));
     }
 
 
-    function get_tests()
+    function get_workers()
     {
         $req = $this->input->get();
-        $tests = $this->TestsModel->get_all($req, 9);
-        $packages = $this->TestsModel->get_all($req, 8);
+        $workers = $this->WorkersModel->get_all($req);
         $this->output
             ->set_status_header(200)
             ->set_content_type('application/json')
             ->set_output(
                 json_encode(
                     array(
-                        "tests" => $tests,
-                        "packages" => $packages
+                        "workers" => $workers,
                     )
                 )
             );
     }
 
-    function get_test()
+    function get_worker()
     {
         $hash = $this->input->get('hash');
-        $data = $this->TestsModel->get($hash);
+        $data = $this->WorkersModel->get($hash);
         $this->output
             ->set_status_header(200)
             ->set_content_type('application/json')
             ->set_output(json_encode($data));
     }
 
-    function create_test()
+    function create_worker()
     {
         $req = json_decode(trim(file_get_contents('php://input')), true);
         $valid = $this->form_validation->
             set_data($req)->
-            run('package');
+            run('workers');
         if (!$valid) {
             $errors = $this->form_validation->error_array();
             $this->output
@@ -65,16 +63,14 @@ class Tests extends CI_Controller
             return;
         }
         ;
-        $tests = $req['tests'];
-        unset($req['tests']);
-        $data = $this->TestsModel->insert($req, $tests);
+        $data = $this->WorkersModel->insert($req);
         $this->output
             ->set_status_header(201)
             ->set_content_type('application/json')
             ->set_output(json_encode($data));
     }
 
-    function update_test()
+    function update_worker()
     {
         $req = json_decode(trim(file_get_contents('php://input')), true);
         $this->form_validation->set_data($req);
@@ -90,7 +86,7 @@ class Tests extends CI_Controller
                     'numeric' => 'يجب ادخال قيمة رقمية'
                 )
             )->
-            run('package');
+            run('workers');
         if (!$valid) {
             $errors = $this->form_validation->error_array();
             $this->output
@@ -101,19 +97,17 @@ class Tests extends CI_Controller
         }
         $hash = $req['hash'];
         unset($req['hash']);
-        $tests = $req['tests'];
-        unset($req['tests']);
-        $data = $this->TestsModel->update($hash, $req, $tests);
+        $data = $this->WorkersModel->update($hash, $req);
         $this->output
             ->set_status_header(200)
             ->set_content_type('application/json')
             ->set_output(json_encode($data));
     }
 
-    function delete_test()
+    function delete_worker()
     {
         $hash = $this->input->post('hash');
-        $this->TestsModel->delete($hash);
+        $this->WorkersModel->delete($hash);
         $this->output
             ->set_status_header(200)
             ->set_content_type('application/json')
