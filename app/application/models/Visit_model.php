@@ -60,7 +60,7 @@ class Visit_model extends CI_Model
     public function record_count($search, $current = 0)
     {
         /// delete duplicate visits has same hash only one of them is not deleted but id is different
-        $this->deleteDuplicateVisitsAndPatients();
+        $this->deleteDuplicateVisitsAndPatientsAndLabPackageTestsAndLabVisitsTests();
         $lab_id = $this->input->post('lab_id');
         $date_opration = $current == 1 ? '>=' : '<';
         $count = $this->db
@@ -76,10 +76,12 @@ class Visit_model extends CI_Model
         return $count;
     }
 
-    public function deleteDuplicateVisitsAndPatients()
+    public function deleteDuplicateVisitsAndPatientsAndLabPackageTestsAndLabVisitsTests()
     {
         $this->db->query("DELETE FROM lab_patient WHERE id NOT IN (SELECT id FROM (SELECT MIN(id) as id FROM lab_patient GROUP BY hash) as t)");
         $this->db->query("DELETE FROM lab_visits WHERE id NOT IN (SELECT id FROM (SELECT MIN(id) as id FROM lab_visits GROUP BY hash) as t)");
+        $this->db->query("DELETE FROM lab_pakage_tests WHERE id NOT IN (SELECT id FROM (SELECT MIN(id) as id FROM lab_pakage_tests GROUP BY package_id,test_id) as t)");
+        $this->db->query("DELETE FROM lab_visits_tests WHERE id NOT IN (SELECT id FROM (SELECT MIN(id) as id FROM lab_visits_tests GROUP BY visit_id,package_id) as t)");
     }
 
     function getVisits($lab_id, $start, $length, $search, $current = 0)

@@ -2405,7 +2405,7 @@ function manageHead(type) {
 }
 
 function manageTestType(type, test = {}) {
-  let {
+  const {
     name,
     color,
     result,
@@ -2418,6 +2418,17 @@ function manageTestType(type, test = {}) {
     font,
     history,
   } = test;
+  let htmlHestory = "";
+  if (invoices?.history === "1") {
+    if (history != "" && history && history != "{}") {
+      htmlHestory = `<div class="testprice col-12 h5 text-right text-info">
+        ${history} ${history != "" ? unit : ""}
+      </div>`;
+    }
+  }
+  console.log("history", history);
+  console.log("htmlHestory", htmlHestory);
+
   switch (type) {
     case "flag":
       return `
@@ -2455,17 +2466,7 @@ function manageTestType(type, test = {}) {
                     ${normal}
                     </p>
                 </div>
-                ${
-                  invoices?.history == "1"
-                    ? `${
-                        history != "" && history && history != "{}"
-                          ? `<div class="testprice col-12 h5 text-right text-info">
-                    ${history} ${history != "" ? unit : ""}`
-                          : ""
-                      }
-                </div>`
-                    : ""
-                }
+                ${htmlHestory}
             </div>
             `;
     case "unit":
