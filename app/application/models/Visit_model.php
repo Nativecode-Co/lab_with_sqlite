@@ -59,23 +59,27 @@ class Visit_model extends CI_Model
 
     public function record_count($search, $current = 0)
     {
-        if ($this->migration->latest() === FALSE) {
-        }
-        $this->db->select('count(*) as count');
-        $this->db->from('lab_visits');
-        $this->db->like('lab_visits.name', $search);
+        /// delete duplicate visits has same hash only one of them is not deleted but id is different
+        $this->deleteDuplicateVisitsAndPatients();
         $lab_id = $this->input->post('lab_id');
-        // inner join
-        $this->db->join('lab_patient', 'lab_patient.hash = lab_visits.visits_patient_id');
-        // where
-        $this->db->where('lab_patient.lab_id', $lab_id);
-        $this->db->where('lab_visits.isdeleted', '0');
-        if ($current == 1) {
-            $this->db->where('lab_visits.visit_date >=', date('Y-m-d'));
-        }
-        $query = $this->db->get();
-        $result = $query->result_array();
-        return $result[0]['count'];
+        $date_opration = $current == 1 ? '>=' : '<';
+        $count = $this->db
+            ->like('lab_visits.name', $search)
+            ->join('lab_patient', 'lab_patient.hash = lab_visits.visits_patient_id')
+            ->where('lab_patient.lab_id', $lab_id)
+            ->where('lab_visits.isdeleted', '0')
+            ->where('lab_visits.visit_date ' . $date_opration, date('Y-m-d'))
+            ->group_by('lab_visits.hash')
+            ->get('lab_visits')
+
+            ->num_rows();
+        return $count;
+    }
+
+    public function deleteDuplicateVisitsAndPatients()
+    {
+        $this->db->query("DELETE FROM lab_patient WHERE id NOT IN (SELECT id FROM (SELECT MIN(id) as id FROM lab_patient GROUP BY hash) as t)");
+        $this->db->query("DELETE FROM lab_visits WHERE id NOT IN (SELECT id FROM (SELECT MIN(id) as id FROM lab_visits GROUP BY hash) as t)");
     }
 
     function getVisits($lab_id, $start, $length, $search, $current = 0)
@@ -93,10 +97,13 @@ class Visit_model extends CI_Model
         if ($current == 1) {
             $this->db->where('lab_visits.visit_date >=', date('Y-m-d'));
         }
+
         // order by
         $this->db->order_by('lab_visits.id', 'DESC');
         // limit
         $this->db->limit($start, $length);
+        // group by 
+        $this->db->group_by('lab_visits.hash');
         // get
         $query = $this->db->get();
         return $query->result_array();
