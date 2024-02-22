@@ -598,7 +598,42 @@ function generateNormalFieldForTest(test) {
     test.unit
   }')`;
   const id = `check_normal_${test.hash}`;
-  const checked = test.result?.checked ?? true ? "checked" : "";
+  const checked = test.result.checked ?? true ? "checked" : "";
+  const getSelected = (option)=>{
+    return test.result[test.name]
+    ? test.result[test.name] == option
+      ? "selected"
+      : ""
+    : test.right_options.includes(option)
+    ? "selected"
+    : "";
+  }
+  let input = null;
+  if (test.result_type === "result") {
+    input = `
+    <select 
+      class="form-control result" 
+      id="result_${test.hash}" 
+      name="${test.name}"
+    >
+      ${test.options
+        .map(
+          (option) => `<option value="${option}" ${getSelected(option)}>${option}</option>`
+        )
+        .join("")}
+    </select>`;
+  } else {
+    input = `
+      <input 
+        type="text" 
+        class="form-control result text-center" 
+        id="result_${test.hash}" 
+        dir="ltr" 
+        name="${test.name}" 
+        placeholder="ادخل النتيجة" 
+        value="${test.result[test.name] ?? ""}"
+      >`;
+  }
   return `
     <div class="col-md-11 results test-normalTests mb-15 ">
         <div class="row align-items-center">
@@ -635,13 +670,7 @@ function generateNormalFieldForTest(test) {
                     </div>
                     <div class="col-md-8">
                         <label for="result" class="w-100 text-center text-dark">النتيجة</label>
-                        <input 
-                          type="text" class="form-control result text-center" 
-                          id="result_${test.hash}" 
-                          dir="ltr" name="${test.name}" 
-                          placeholder="ادخل النتيجة" 
-                          value="${test.result?.[test.name] ?? ""}"
-                        >
+                        ${input}
                     </div>
                 </div>
             </div>
