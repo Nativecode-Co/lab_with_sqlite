@@ -2,3 +2,5 @@
 app/application/controllers/Chat.php
 *.sqlite
 app/pdfs
+# node_modules
+**/node_modules

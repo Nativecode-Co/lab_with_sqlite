@@ -1,0 +1,134 @@
+	/* barcode option ------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+
+	@page {
+		size: 50mm 25mm;
+		margin: 0;
+	}
+
+
+	.barcode {
+		width: 64mm;
+		min-height: 25mm;
+		margin: 3mm auto;
+		border: 1px #D3D3D3 solid;
+		background: white;
+		box-shadow: 0 0 5px rgb(0 0 0 / 10%);
+		display: flex;
+		justify-content: flex-start;
+		align-items: stretch;
+		flex-direction: column;
+		flex-wrap: nowrap;
+		align-content: center;
+	}
+
+	.barcode .title {
+		width: 64mm;
+		min-height: 5mm;
+
+
+	}
+
+	.barcode .title p {
+		display: block;
+		margin-block-start: 10px;
+		margin-block-end: -3px;
+		margin-inline-start: 1px;
+		margin-inline-end: 1px;
+		font-family: Cairo;
+		font-size: 12px;
+		text-align: center;
+		font-weight: bold;
+		color: black;
+	}
+
+	.barcode .code {
+		width: 64mm;
+		min-height: 10mm;
+
+	}
+
+	.barcode .no {
+		width: 64mm;
+		min-height: 25px;
+	}
+
+	.barcode .no p {
+		display: block;
+		margin-block-start: -12px;
+		margin-block-end: 1px;
+		margin-inline-start: 1px;
+		margin-inline-end: 1px;
+		font-family: Cairo;
+		font-size: 12px;
+		text-align: center;
+		font-weight: bold;
+		color: black;
+	}
+
+
+	/* font ------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+
+
+
+	@font-face {
+		font-family: 'Cairo';
+		src: url('../fonts/play-v17-latin-regular.eot');
+		src: local('☺'), url('../fonts/play-v17-latin-regular.woff') format('woff'), url('../fonts/play-v17-latin-regular.svg') format('svg');
+		font-weight: 400;
+		font-style: normal;
+	}
+
+
+	@font-face {
+		font-family: 'Cairo';
+		font-style: normal;
+		font-weight: 400;
+		src: url(https://fonts.gstatic.com/s/cairo/v20/SLXVc1nY6HkvangtZmpcWmhzfH5lWWgcQyyS4J0.woff2) format('woff2');
+		unicode-range: U+0600-06FF, U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF, U+FE80-FEFC;
+	}
+
+	/* cairo-regular - latin */
+	@font-face {
+		font-family: 'Cairo';
+		font-style: normal;
+		font-weight: 400;
+		src: url('../fonts/cairo-v20-latin-regular.eot');
+		/* IE9 Compat Modes */
+		src: local(''),
+			url('../fonts/cairo-v20-latin-regular.eot?#iefix') format('embedded-opentype'),
+			/* IE6-IE8 */
+			url('../fonts/cairo-v20-latin-regular.woff2') format('woff2'),
+			/* Super Modern Browsers */
+			url('../fonts/cairo-v20-latin-regular.woff') format('woff'),
+			/* Modern Browsers */
+			url('../fonts/cairo-v20-latin-regular.ttf') format('truetype'),
+			/* Safari, Android, iOS */
+			url('../fonts/cairo-v20-latin-regular.svg#Cairo') format('svg');
+		/* Legacy iOS */
+	}
+
+
+	/* print option ------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+
+	@media print {
+
+		html,
+		body {
+			width: 64mm;
+			height: 25mm;
+		}
+
+		.barcode {
+			margin: 0;
+			border: initial;
+			border-radius: initial;
+			width: initial;
+			min-height: initial;
+			box-shadow: initial;
+			background: always;
+			page-break-after: always;
+		}
+
+
+
+	}
