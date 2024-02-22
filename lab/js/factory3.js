@@ -1,188 +1,22 @@
-"use strict";
-
 function getMonth(month, type = true) {
+  let monthValue = Number(month);
   if (type) {
-    month = Number(month) + 1;
-  } else {
-    month = Number(month);
+    monthValue += 1;
   }
-  if (month < 10) {
-    month = "0" + month;
+  if (monthValue < 10) {
+    monthValue = `0${monthValue}`;
   }
-  return month;
+  return monthValue;
 }
 
 const NOW = new Date();
-const TODAY =
-  NOW.getFullYear() +
-  "-" +
-  getMonth(NOW.getMonth()) +
-  "-" +
-  getMonth(NOW.getDate(), false);
-const firstDayOfMonth = new Date(NOW.getFullYear(), NOW.getMonth(), 1);
-const lastDayOfMonth = new Date(NOW.getFullYear(), NOW.getMonth() + 1, 0);
-const FIRSTDAYOFMONTH =
-  firstDayOfMonth.getFullYear() +
-  "-" +
-  getMonth(firstDayOfMonth.getMonth()) +
-  "-" +
-  getMonth(firstDayOfMonth.getDate(), false);
-const LASTDAYOFMONTH =
-  lastDayOfMonth.getFullYear() +
-  "-" +
-  getMonth(lastDayOfMonth.getMonth()) +
-  "-" +
-  getMonth(lastDayOfMonth.getDate(), false);
+const TODAY = `${NOW.getFullYear()}-${getMonth(NOW.getMonth())}-${getMonth(
+  NOW.getDate(),
+  false
+)}`;
 
-// custom pagination dataTables
-function customPagination() {
-  $(`#${this.tableId}_wrapper .pagination`).empty();
-  let pages = "";
-  for (let i = 0; i < this.numberOfPages ?? 5; i++) {
-    pages += ` <li class="page-item ${i == 0 ? "active" : ""} ${
-      i >= 2 ? "d-none" : ""
-    } page_${i}"  onclick="goToPage.call(${
-      this.table
-    }, '${i}')" style="cursor: pointer;"><a class="page-link" >${
-      i + 1
-    }</a></li>`;
-  }
-
-  $(`#${this.tableId}_wrapper .pagination`).append(`
-    <nav aria-label="Page navigation example">
-        <ul class="pagination">
-            <li class="page-item page_prev"  onclick="goToPage.call(${this.table}, 'prev')" style="cursor: pointer;"><a class="page-link" ><</a></li>
-            ${pages}
-            <li class="page-item page_next"  onclick="goToPage.call(${this.table}, 'next')" style="cursor: pointer;"><a class="page-link" >></a></li>
-        </ul>
-    </nav>
-    `);
-}
-
-function goToPage(page) {
-  if (page == "next") {
-    page = $(`#${this.tableId}_wrapper .pagination .active`).index();
-    if (page > this.numberOfPages - 1) {
-      page = this.numberOfPages - 1;
-      return false;
-    }
-  } else if (page == "prev") {
-    page = $(`#${this.tableId}_wrapper .pagination .active`).index() - 2;
-    if (page < 0) {
-      page = 0;
-      return false;
-    }
-  }
-
-  page = Number(page);
-  // hide all .page_item
-  $(`#${this.tableId}_wrapper .pagination .page-item`).addClass("d-none");
-  // show current page and next 2 page and previous 2 page
-  $(`#${this.tableId}_wrapper .pagination .page_${page}`).removeClass("d-none");
-  $(`#${this.tableId}_wrapper .pagination .page_prev`).removeClass("d-none");
-  $(`#${this.tableId}_wrapper .pagination .page_next`).removeClass("d-none");
-  $(
-    `#${this.tableId}_wrapper .pagination .page_${Number(page) + 1}`
-  ).removeClass("d-none");
-  $(
-    `#${this.tableId}_wrapper .pagination .page_${Number(page) - 1}`
-  ).removeClass("d-none");
-  // if page in this.pages array
-  if (!this.pages.includes(page)) {
-    Swal.fire({
-      title: "الرجاء الانتظار",
-      text: "يتم الان اجراء العملية",
-      timer: 100,
-      showDenyButton: false,
-      showCancelButton: false,
-      showConfirmButton: false,
-      willOpen: () => {
-        Swal.showLoading();
-      },
-      willClose: () => {
-        this.pages.push(page);
-        this.createTableBody(this.getAll(page), false);
-        // go to page
-        console.log(page);
-        this.dataTable.page(page).draw(false);
-      },
-    });
-  } else {
-    this.dataTable.page(page).draw(false);
-  }
-  $(`#${this.tableId}_wrapper .pagination .page-item`).removeClass("active");
-  $(`#${this.tableId}_wrapper .pagination .page_${page}`).addClass("active");
-}
-
-class Query {
-  constructor() {}
-
-  pageCondition() {
-    return ``;
-  }
-
-  mainCondition() {
-    return `where ${this.table}.isdeleted=0`;
-  }
-
-  orderByQuery() {
-    return "order by id desc";
-  }
-
-  limitQuery(page = 0) {
-    return ``;
-  }
-
-  whereQuery() {
-    return "";
-  }
-
-  groupByQuery() {
-    return "";
-  }
-
-  havingQuery(value) {
-    return "";
-  }
-
-  filterQuery() {
-    return "";
-  }
-
-  itemQuery(hash) {
-    return `where hash='${hash}'`;
-  }
-
-  getQuery(resetQuery) {
-    return ``;
-  }
-
-  searchQuery(value) {
-    return this.getQuery(
-      `${this.mainCondition()} ${this.havingQuery(
-        value
-      )} ${this.groupByQuery()} ${this.orderByQuery()} limit 15`
-    );
-  }
-
-  getAll(page = 0) {
-    return run(
-      this.getQuery(
-        `${this.mainCondition()} ${this.groupByQuery()} ${this.orderByQuery()} ${this.limitQuery(
-          page
-        )}`
-      )
-    ).result[0].query0;
-  }
-
-  getItem(hash) {
-    return run(this.getQuery(this.itemQuery(hash))).result[0].query0[0];
-  }
-}
-
-class Factory extends Query {
+class Factory {
   constructor(table, tableLabel, fields, options = {}) {
-    super();
     this.table = table;
     this.tableLabel = tableLabel;
     this.fields = fields;
@@ -193,12 +27,6 @@ class Factory extends Query {
     this.page = 0;
     this.pageSize = options.pageSize ?? 10;
     this.dataTable = null;
-    if (this.pageCondition() != "") {
-      this.size =
-        run(`${this.pageCondition()};`).result[0].query0[0].count ?? 0;
-    } else {
-      this.size = 0;
-    }
     this.pages = [0];
     this.numberOfPages = Math.ceil(this.size / this.pageSize);
     this.init();
@@ -206,109 +34,7 @@ class Factory extends Query {
 
   init() {
     this.createModal();
-    this.createTableBody(this.getAll(0), true);
-    $("body").append(`
-        <script>
-            $(document).ready(() => {
-                customPagination.call(${this.table});
-                // window.onscroll = function(ev) {
-                //     if ((window.innerHeight + window.pageYOffset) >= document.body.offsetHeight) {
-                //         ${this.table}.page += 1;
-                //         if(!${this.table}.stop){
-                //             let data = ${this.table}.getAll();
-                //             if(data.length > 0){
-                //                 ${this.table}.createTableBody(data);
-                //             }else{
-                //                 ${this.table}.stop = true;
-                //             }
-                //         }
-                //     }
-                // };
-            })
-            $('#${this.tableId}_wrapper .active-print-excel').click(function(){
-                function printExcel(){
-                    ${this.table}.print();
-                    $('#${this.tableId}_wrapper .print-excel').click();
-                }
-                fireSwal(printExcel);
-            })
-            $('#${this.tableId}_wrapper .active-print-page').click(function(){
-                function printPage(){
-                    ${this.table}.print();
-                    $('#${this.tableId}_wrapper .print-page').click();
-                }
-                fireSwal(printPage);
-            })
-
-            $('#${
-              this.table
-            }-table_wrapper input[type=search]').off().on('keyup', function(e) {
-                ${this.table}.dataTable.search($(this).val()).draw();
-                if(${this.table}.havingQuery('') != ''){
-                    if($(this).val()){
-                        let dataBaseLabs = run(${
-                          this.table
-                        }.searchQuery($(this).val())).result[0].query0;
-                        ${this.table}.createTableBody(dataBaseLabs);
-                        ${this.table}.dataTable.search($(this).val()).draw();
-                        // delete duplicate rows
-                        ${this.table}.resetPageForSearch(dataBaseLabs.length);
-                        customPagination.call(${this.table});
-                    }else{
-                        ${this.table}.resetPageForSearch(${
-      run(`${this.pageCondition()};`).result[0].query0[0].count ?? 0
-    });
-                        customPagination.call(${this.table});
-                    }
-                }
-            });
-
-            $('input').on('focus',function(){
-                if($(this).hasClass('is-invalid')){
-                    $(this).removeClass('is-invalid');
-                }
-            });
-        </script>
-        `);
   }
-
-  resetPageForSearch(size) {
-    this.size = size;
-    this.page = 0;
-    this.pages = [0];
-    this.numberOfPages = Math.ceil(this.size / this.pageSize);
-  }
-
-  pageCondition() {
-    return `select count(*) as count from ${
-      this.table
-    } where lab_id='${localStorage.getItem("lab_hash")}'`;
-  }
-
-  limitQuery(page = 0) {
-    return `limit ${page * this.pageSize},${this.pageSize}`;
-  }
-
-  getQuery(resetQuery) {
-    return `SELECT ${this.fields.map((item) => item.name).join(",")} FROM ${
-      this.table
-    } ${resetQuery};`;
-  }
-
-  print() {
-    this.page = 0;
-    this.pageSize = 1000;
-    this.stop = true;
-    let data = this.getAll();
-    // clear the table
-    this.dataTable.clear();
-    // add the rows
-    this.createTableBody(data);
-  }
-
-  // getUpdateItem(hash){
-  //     return run(`select ${this.fields.map(field => field.name).join(',')} from ${this.table} where hash='${hash}';`).result[0].query0[0];
-  // }
 
   newItem() {
     // open modal
@@ -316,33 +42,27 @@ class Factory extends Query {
     // clear form
     clearForm(this.formId, this.fields);
     // change modal title
-    $(`#${this.modalId}`)
-      .find(".modal-title")
-      .text(`اضافة` + this.tableLabel);
+    $(`#${this.modalId}`).find(".modal-title").text(`اضافة ${this.tableLabel}`);
     // change button text
     $(`#${this.table}-save`).text("اضافة");
     // change button onclick
     $(`#${this.table}-save`).attr(
       "onclick",
-      `fireSwal.call(${this.table},${this.table}.saveNewItem)`
+      `fireSwal.call(${this.table}, ${this.table}.saveNewItem)`
     );
   }
 
   updateItem(hash) {
     // open modal
     $(`#${this.modalId}`).modal("show");
-    // fill form with item
-    fillForm(this.formId, this.fields, this.getItem(hash));
     // change modal title
-    $(`#${this.modalId}`)
-      .find(".modal-title")
-      .text(`تعديل` + this.tableLabel);
+    $(`#${this.modalId}`).find(".modal-title").text(`تعديل ${this.tableLabel}`);
     // change button text
     $(`#${this.table}-save`).text("تعديل");
     // change button onclick
     $(`#${this.table}-save`).attr(
       "onclick",
-      `fireSwal.call(${this.table},${this.table}.saveUpdateItem,'${hash}')`
+      `fireSwal.call(${this.table}, ${this.table}.saveUpdateItem, '${hash}')`
     );
   }
 
@@ -354,55 +74,14 @@ class Factory extends Query {
     return getFormData(this.formId, this.fields);
   }
 
-  saveNewItem() {
-    // validate form
-    if (!validateForm(this.formId, this.fields)) {
-      return false;
-    }
-    let data = this.getNewData();
-    let newObjectHash = run({
-      table: this.table,
-      action: "insert",
-      column: data,
-    }).result[0].query0;
-    let newObject = this.getItem(newObjectHash);
-    $(`#${this.modalId}`).modal("hide");
-    this.dataTable.draw();
-    return newObject;
-  }
+  saveNewItem() {}
 
-  saveUpdateItem(hash) {
-    // validate form
-    if (!validateForm(this.formId, this.fields)) {
-      return false;
-    }
-    let data = this.getUpdateData();
-    run({
-      table: this.table,
-      action: "update",
-      column: data,
-      hash: hash,
-    });
-    let updateObject = this.getItem(hash);
-    $(`#${this.modalId}`).modal("hide");
-    this.dataTable.draw();
-    return updateObject;
-  }
+  saveUpdateItem(hash) {}
 
-  deleteItem(hash) {
-    run({
-      table: this.table,
-      action: "update",
-      column: {
-        isdeleted: 1,
-      },
-      hash: hash,
-    });
-    this.dataTable.draw();
-  }
+  deleteItem(hash) {}
 
   createModal() {
-    let modal = `<div class="modal fade" id="${
+    const modal = `<div class="modal fade" id="${
       this.modalId
     }" tabindex="-1" role="dialog" aria-labelledby="${
       this.modalId
@@ -432,60 +111,10 @@ class Factory extends Query {
                     </div>`;
     $("body").append(modal);
   }
-
-  createTableBody(data, dataTable = false) {
-    if (dataTable) {
-      this.dataTable = setTable_1(this.tableId);
-    }
-    for (let row of data) {
-      if (!$(`#${row.hash}tr`).length > 0) {
-        this.addRow(row);
-      }
-    }
-  }
-
-  addRow(row) {
-    return false;
-  }
-
-  filterData() {
-    // get the values
-    let user_q = $("#nameQ").val();
-    // check if the user_q is empty
-    if (user_q == "") {
-      // update the table
-      user_q = null;
-    }
-    let start_date = $("#minQ").val();
-    // check start date empty
-    if (start_date === "") {
-      // set start date to today
-      start_date = "2000-07-30";
-    }
-    let end_date = $("#maxQ").val();
-    // check end date empty
-    if (end_date === "") {
-      // set end date to today
-      end_date = "2100-07-30";
-    }
-    this.page = 0;
-    this.filterTable(user_q, start_date, end_date);
-  }
-
-  filterTable(user_q, start_date, end_date) {
-    // get the data
-    let data = run(
-      this.getQuery(`${this.filterQuery(user_q, start_date, end_date)}`)
-    ).result[0].query0;
-    // clear the table
-    this.dataTable.clear();
-    // add the rows
-    this.createTableBody(data);
-  }
 }
 
 function clearForm(formId, fields) {
-  fields.forEach((field) => {
+  for (const field of fields) {
     switch (field.type) {
       case "select":
         $(`#${formId} [name=${field.name}]`).val("").trigger("change");
@@ -502,7 +131,7 @@ function clearForm(formId, fields) {
       case null:
         break;
       case "ignore":
-        if (field.type2 == "select") {
+        if (field.type2 === "select") {
           $(`#${formId} [name=${field.name}]`).val("").trigger("change");
         } else {
           $(`#${formId} [name=${field.name}]`).val("");
@@ -517,11 +146,11 @@ function clearForm(formId, fields) {
         $(`#${formId} [name=${field.name}]`).val("");
         break;
     }
-  });
+  }
 }
 
 function fillForm(formId, fields, item) {
-  fields.forEach((field) => {
+  for (const field of fields) {
     switch (field.type) {
       case "select":
         $(`#${formId} [name=${field.name}]`)
@@ -539,7 +168,7 @@ function fillForm(formId, fields, item) {
         ].imagePreview.style.backgroundImage = `url("${item[field.name]}")`;
         break;
       case "checkbox":
-        if (item[field.name] == 1) {
+        if (item[field.name] === 1) {
           console.log(item[field.name]);
           $(`#${formId} [name=${field.name}]`).prop("checked", true);
         } else {
@@ -559,20 +188,22 @@ function fillForm(formId, fields, item) {
         $(`#${formId} [name=${field.name}]`).val(item[field.name]);
         break;
     }
-  });
+  }
 }
 
 function getFormData(formId, fields) {
-  let data = {};
-  fields.forEach((field) => {
+  const data = {};
+  for (const field of fields) {
     switch (field.type) {
-      case "select":
+      case "select": {
         data[field.name] = $(`#${formId} [name=${field.name}]`).val();
         break;
-      case "textarea":
+      }
+      case "textarea": {
         data[field.name] = $(`#editor_${field.name} .ql-editor`).html();
         break;
-      case "image":
+      }
+      case "image": {
         let file = window[`${field.name}_preview`].cachedFileArray[0];
         if (file) {
           let imageUrl = uploadFile(file, "users", "user").result[0];
@@ -580,31 +211,39 @@ function getFormData(formId, fields) {
         }
         data[field.name] = manageImageSave(field.name);
         break;
-      case "checkbox":
+      }
+      case "checkbox": {
         data[field.name] = $(`#${formId} [name=${field.name}]`).is(":checked")
           ? 1
           : 0;
         break;
-      case null:
+      }
+      case null: {
         break;
-      case "ignore":
+      }
+      case "ignore": {
         break;
-      case "custom":
-        field.getFormDataFun
-          ? field.getFormDataFun(data)
-          : (data[field.name] = $(`#${formId} [name=${field.name}]`).val());
+      }
+      case "custom": {
+        if (field.getFormDataFun) {
+          field.getFormDataFun(data);
+        } else {
+          data[field.name] = $(`#${formId} [name=${field.name}]`).val();
+        }
         break;
-      default:
+      }
+      default: {
         data[field.name] = $(`#${formId} [name=${field.name}]`).val();
         break;
+      }
     }
-  });
+  }
   return data;
 }
 
 function setInputsType(fields) {
   let inputs = "";
-  fields.forEach((field) => {
+  for (const field of fields) {
     switch (field.type) {
       case "select":
         inputs += selectInput(field);
@@ -622,7 +261,7 @@ function setInputsType(fields) {
         inputs += "";
         break;
       case "ignore":
-        if (field.type2 == "select") {
+        if (field.type2 === "select") {
           inputs += selectInput(field);
         } else {
           inputs += normalInput(field);
@@ -635,16 +274,16 @@ function setInputsType(fields) {
         inputs += normalInput(field);
         break;
     }
-  });
+  }
   return inputs;
 }
 
 function validateForm(formId, fields) {
   let valid = true;
-  fields.forEach((field) => {
+  for (const field of fields) {
     switch (field.type) {
       case "select":
-        if (field.req && $(`#${formId} [name=${field.name}]`).val() == "") {
+        if (field.req && $(`#${formId} [name=${field.name}]`).val() === "") {
           $(`#${formId} [name=${field.name}]`).addClass("is-invalid");
           valid = false;
         } else {
@@ -652,7 +291,7 @@ function validateForm(formId, fields) {
         }
         break;
       case "textarea":
-        if (field.req && $(`#editor_${field.name} .ql-editor`).html() == "") {
+        if (field.req && $(`#editor_${field.name} .ql-editor`).html() === "") {
           $(`#editor_${field.name}`).addClass("is-invalid");
           valid = false;
         } else {
@@ -660,7 +299,7 @@ function validateForm(formId, fields) {
         }
         break;
       case "image":
-        if (field.req && $(`#${formId} [name=${field.name}]`).val() == "") {
+        if (field.req && $(`#${formId} [name=${field.name}]`).val() === "") {
           $(`#${formId} [name=${field.name}]`).addClass("is-invalid");
           valid = false;
         } else {
@@ -670,7 +309,7 @@ function validateForm(formId, fields) {
       case "checkbox":
         if (
           field.req &&
-          $(`#${formId} [name=${field.name}]`).is(":checked") == false
+          $(`#${formId} [name=${field.name}]`).is(":checked") === false
         ) {
           $(`#${formId} [name=${field.name}]`).addClass("is-invalid");
           valid = false;
@@ -681,15 +320,15 @@ function validateForm(formId, fields) {
       case null:
         break;
       case "ignore":
-        if (field.type2 == "select") {
-          if (field.req && $(`#${formId} [name=${field.name}]`).val() == "") {
+        if (field.type2 === "select") {
+          if (field.req && $(`#${formId} [name=${field.name}]`).val() === "") {
             $(`#${formId} [name=${field.name}]`).addClass("is-invalid");
             valid = false;
           } else {
             $(`#${formId} [name=${field.name}]`).removeClass("is-invalid");
           }
         } else {
-          if (field.req && $(`#${formId} [name=${field.name}]`).val() == "") {
+          if (field.req && $(`#${formId} [name=${field.name}]`).val() === "") {
             $(`#${formId} [name=${field.name}]`).addClass("is-invalid");
             valid = false;
           } else {
@@ -703,13 +342,13 @@ function validateForm(formId, fields) {
         }
         break;
       default:
-        if (field.req && $(`#${formId} [name=${field.name}]`).val() == "") {
+        if (field.req && $(`#${formId} [name=${field.name}]`).val() === "") {
           $(`#${formId} [name=${field.name}]`).addClass("is-invalid");
           valid = false;
         }
         break;
     }
-  });
+  }
   return valid;
 }
 
@@ -741,7 +380,7 @@ function checkboxInput(field) {
 }
 
 function selectInput(field) {
-  $(document).ready(function () {
+  $(document).ready(() => {
     $(`#${field.name}`).select2({
       placeholder: `${field.label}`,
       width: "100%",
@@ -765,8 +404,8 @@ function selectInput(field) {
 }
 
 function textareaInput(field) {
-  $(document).ready(function () {
-    let myToolbar = [
+  $(document).ready(() => {
+    const myToolbar = [
       ["bold", "italic", "underline", "strike"],
       [{ font: [] }],
       [{ align: [] }],
@@ -794,7 +433,7 @@ function textareaInput(field) {
 }
 
 function imageHandler() {
-  let range = this.quill.getSelection();
+  const range = this.quill.getSelection();
   const input = document.createElement("input");
   input.setAttribute("type", "file");
   input.click();
@@ -805,7 +444,7 @@ function imageHandler() {
 
     // file type is only image.
     if (/^image\//.test(file.type)) {
-      let value = uploadFile(file).result[0];
+      const value = uploadFile(file).result[0];
       if (value) {
         this.quill.insertEmbed(range.index, "image", value, Quill.sources.USER);
       }
@@ -818,7 +457,7 @@ function imageHandler() {
 function fileInput(field) {
   window[`${field.name}_preview`] = null;
   // dom ready
-  $(document).ready(function () {
+  $(document).ready(() => {
     window[`${field.name}_preview`] = new FileUploadWithPreview(field.name);
   });
   return `<div class="form-group  ${
@@ -937,7 +576,7 @@ function fireSwalForDelete(fun, ...args) {
             Swal.showLoading();
           },
           willClose: () => {
-            if (fun.call(this, ...args) != false) {
+            if (fun.call(this, ...args) !== false) {
               swal.fire({
                 toast: true,
                 position: "bottom-end",
@@ -989,8 +628,8 @@ function fireSwalConfirm(msg, fun, ...args) {
             Swal.showLoading();
           },
           willClose: () => {
-            let data = fun.call(this, ...args);
-            if (data != false) {
+            const data = fun.call(this, ...args);
+            if (data !== false) {
               return data;
             }
           },
@@ -1005,7 +644,7 @@ function fireSwalConfirm(msg, fun, ...args) {
 }
 
 function setServerTable(
-  id = "table",
+  id ,
   endPoint,
   attrFun = () => {
     return {};
@@ -1014,24 +653,24 @@ function setServerTable(
   options = {},
   afterRequest = (json) => {}
 ) {
-  return $(`#${id}`).DataTable({
+  const _id = id ? id : "table";
+  return $(`#${_id}`).DataTable({
     processing: true,
     serverSide: true,
     serverMethod: "post",
     ajax: {
       url: endPoint,
-      data: function (data) {
-        let attr = attrFun();
-        data = {
+      data: (data) => {
+        const attr = attrFun();
+        return {
           ...data,
           ...attr,
         };
-        return data;
       },
       headers: {
-        Authorization: "Bearer " + localStorage.getItem("token"),
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
-      dataSrc: function (json) {
+      dataSrc: (json) => {
         afterRequest(json);
         return json.data;
       },
@@ -1071,7 +710,7 @@ function setServerTable(
         sPrevious: '<i class="fas fa-caret-right"></i>',
         sNext: '<i class="fas fa-caret-left"></i>',
       },
-      lengthMenu: `عرض _MENU_  شريحة`,
+      lengthMenu: "عرض _MENU_  شريحة",
       sSearch:
         '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-search"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>',
       sSearchPlaceholder: "بحث...",
@@ -1114,169 +753,22 @@ function setServerTable(
   });
 }
 
-function setTable(id = "table", table, options = {}) {
-  return $(`#${id}`).DataTable({
-    // columnDefs: [{
-    //     className: 'dtr-control text-center',
-    //     orderable: false,
-    //     targets: -1
-    // }],
-    responsive: {
-      details: {
-        type: "column",
-        target: -1,
-      },
-    },
-    // order: [[3, 'desc']],
-
-    dom:
-      "<'dt--top-section'<'row'<'col-sm-12 col-md-4 d-flex justify-content-md-start justify-content-center'B><'col-sm-12 col-md-4 d-flex justify-content-md-center justify-content-center'l><'col-sm-12 col-md-4 d-flex justify-content-md-end justify-content-center mt-md-0 mt-3'f>>>" +
-      "<'table-responsive'tr>" +
-      "<'dt--bottom-section d-sm-flex justify-content-sm-between text-center'<'dt--pages-count  mb-sm-0 mb-3'i><'dt--pagination'p>>",
-    // search: false,
-
-    oLanguage: {
-      oPaginate: {
-        sPrevious:
-          '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-left"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>',
-        sNext:
-          '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-right"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>',
-      },
-      sInfo: "Showing page _PAGE_ of _PAGES_",
-      sSearch:
-        '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-search"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>',
-      sSearchPlaceholder: "بحث...",
-      sLengthMenu: "النتائج :  _MENU_",
-      processing: `
-                <div class="text-center" >
-                    <img class="spinner-grow-alert" src="${front_url}assets/image/flask.png" width="50" height="50" alt="alert_screen">
-                    <h5 class="text-center">جاري التحميل</h5>
-                </div>
-            `,
-      emptyTable: `
-            <div class="text-center">
-                <img class="" src="${front_url}assets/image/flask.png" width="50" height="50" alt="alert_screen">
-                <h5 class="text-center">لا يوجد بيانات</h5>
-            </div>`,
-    },
-    stripeClasses: [],
-    lengthMenu: [10, 50, 100, 200, 400, 800, 1000, 2000],
-    // "pageLength": 50,
-    order: [],
-    buttons: [
-      // { extend: 'csv', className: 'btn btn-sm btn-info', text: '<i class="fa fa-file-excel-o"></i> تصدير pdf' },
-      {
-        extend: "excel",
-        className: "btn btn-sm btn-success d-none print-excel",
-        text: '<i class="far fa-file-spreadsheet"></i> تصدير إكسيل',
-      },
-      {
-        extend: "print",
-        className: "btn btn-sm btn-primary d-none print-page",
-        text: '<i class="far fa-print"></i> طباعة',
-      },
-      {
-        className: "btn btn-sm btn-success active-print-excel",
-        text: '<i class="far fa-file-spreadsheet"></i> تصدير إكسيل',
-      },
-      {
-        className: "btn btn-sm btn-primary active-print-page",
-        text: '<i class="far fa-print"></i> طباعة',
-      },
-    ],
-    ...options,
-  });
-}
-
 $(".dt-buttons").addClass("btn-group");
-function setTable_1(id = "table", options = {}) {
-  return $("#" + id).DataTable({
-    columnDefs: [
-      {
-        className: "dtr-control text-center",
-        orderable: false,
-        targets: -1,
-      },
-    ],
-    responsive: {
-      details: {
-        type: "column",
-        target: -1,
-      },
-    },
-    // order: [[3, 'desc']],
-    dom:
-      `<'dt--top-section'
-                <'row flex-row-reverse'
-                    <'col-6 col-md-2 d-flex justify-content-md-end justify-content-center mb-md-3 mb-3'l>
-                    <'col-6 col-md-2 d-flex justify-content-md-end justify-content-center mb-md-3 mb-3'f>
-                    <'col-sm-12 col-md-8 d-flex justify-content-md-start justify-content-center addCustomItem'>
-                >
-            >` +
-      "<'table-responsive'tr>" +
-      `<'dt--bottom-section'
-                <'row'
-                    <'col-sm-12 col-md-6 d-flex justify-content-md-start justify-content-center mb-md-3 mb-3'i>
-                    <'col-sm-12 col-md-6 d-flex justify-content-md-end justify-content-center mb-md-3 mb-3 pagination'>
-                    <'col-12 d-flex justify-content-center mb-md-3 mb-3'B>
-                >
-            >`,
-    language: {
-      oPaginate: {
-        sPrevious: '<i class="fas fa-caret-right"></i>',
-        sNext: '<i class="fas fa-caret-left"></i>',
-      },
-      lengthMenu: `عرض _MENU_  شريحة`,
-      sSearch:
-        '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-search"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>',
-      sSearchPlaceholder: "بحث...",
-      sInfo: "عرض _PAGE_ من اصل _PAGES_ صفحة",
-      processing: `
-                <div class="text-center" >
-                    <img class="spinner-grow-alert" src="${front_url}assets/image/flask.png" width="50" height="50" alt="alert_screen">
-                    <h5 class="text-center">جاري التحميل</h5>
-                </div>
-            `,
-      emptyTable: `
-            <div class="text-center">
-                <img class="" src="${front_url}assets/image/flask.png" width="50" height="50" alt="alert_screen">
-                <h5 class="text-center">لا يوجد بيانات</h5>
-            </div>`,
-    },
-    lengthMenu: [10, 50, 100, 200, 400, 800, 1000, 2000],
-    buttons: {
-      buttons: [
-        // { extend: 'csv', className: 'btn btn-sm btn-info', text: '<i class="fa fa-file-excel-o"></i> تصدير pdf' },
-        {
-          extend: "excel",
-          className: "btn btn-sm btn-outline-print print-excel",
-          text: '<i class="far fa-file-spreadsheet"></i> تصدير إكسيل',
-        },
-        {
-          extend: "print",
-          className: "btn btn-sm btn-outline-print print-page",
-          text: '<i class="far fa-print"></i> طباعة',
-        },
-      ],
-    },
-    ...options,
-  });
-}
 
 function manageImageSave(imageId) {
-  let ImageElement = $(`#${imageId}`);
+  const ImageElement = $(`#${imageId}`);
   let value = null;
   if (
     ImageElement.val().includes(`${__domain__}app`) ||
     ImageElement.val().includes(`${__domain__}lab`) ||
-    ImageElement.val().includes(`http://umc.native-code-iq.com/`)
+    ImageElement.val().includes("http://umc.native-code-iq.com/")
   ) {
     value = ImageElement.val();
   } else {
-    if (ImageElement.val() == "") {
+    if (ImageElement.val() === "") {
       value = "";
     } else {
-      value = `${__domain__}app` + "/" + ImageElement.val();
+      value = `${__domain__}app/${ImageElement.val()}`;
     }
   }
   return value;
@@ -1294,8 +786,8 @@ function niceSwal(type, position, msg) {
 }
 
 function uploadFiles(files, folder, name) {
-  let form_data = new FormData();
-  for (let file of files) {
+  const form_data = new FormData();
+  for (const file of files) {
     form_data.append("files[]", file);
   }
   form_data.append("token", localStorage.token);
@@ -1310,7 +802,7 @@ function uploadFiles(files, folder, name) {
 }
 
 function uploadFile(file, folder, name) {
-  let form_data = new FormData();
+  const form_data = new FormData();
   form_data.append("files[]", file);
   form_data.append("token", localStorage.token);
   form_data.append("hash_lab", localStorage.lab_hash);
@@ -1323,11 +815,11 @@ function uploadFile(file, folder, name) {
   }
 }
 
-const Database_Open = async function (options) {
-  return new Promise(function (resolve, reject) {
-    var dbReq = indexedDB.open(options.table, 1);
-    dbReq.onupgradeneeded = function (event) {
-      let db = event.target.result;
+const Database_Open = async (options) => {
+  return new Promise((resolve, reject) => {
+    const dbReq = indexedDB.open(options.table, 1);
+    dbReq.onupgradeneeded = (event) => {
+      const db = event.target.result;
 
       // Create DB Table
       db.createObjectStore(options.table, { keyPath: options.hash });
@@ -1336,24 +828,24 @@ const Database_Open = async function (options) {
       );
     };
     dbReq.onsuccess = (e) => {
-      let db = e.target.result;
+      const db = e.target.result;
       const tx = db.transaction(options.table, "readwrite");
       tx.onerror = (e) => alert(` Error! ${e.target.error}`);
-      let _req = tx.objectStore(options.table);
-      let req = _req.getAll();
+      const _req = tx.objectStore(options.table);
+      const req = _req.getAll();
       req.onsuccess = (e) => {
         if (e.target.result?.[0]) {
           resolve(e.target.result);
         } else {
-          let data = run(options.query).result[0].query0;
-          for (let i of data) {
+          const data = run(options.query).result[0].query0;
+          for (const i of data) {
             _req.add(i);
           }
           resolve(data);
         }
       };
     };
-    dbReq.onerror = function (event) {
+    dbReq.onerror = (event) => {
       reject("error opening database");
     };
   });
@@ -1385,66 +877,6 @@ function printElement(Id, pageZise = "A4", ...args) {
     ],
     printDelay: 1000,
   });
-  // let invoice = $(`${Id}`);
-  // // let printInvoice = '';
-  // // invoice.each(function () {
-  // //     printInvoice += $(this).html();
-  // // })
-  // let mywindow = window.open();
-  // mywindow.document.write("<html><head><title>" + document.title + "</title>");
-  // // add new stylesheet
-  // mywindow.document.write(
-  //   args.map((arg) => `<link rel="stylesheet" href="${arg}">`).join("")
-  // );
-  // mywindow.document.write(`
-  //   <style>
-  //   :root {
-  //       --color-orange: ${invoices?.color ?? "#ff8800"};
-  //       --font_size: ${invoices?.font_size ?? 20}px;
-  //       --logo-height: ${invoices?.header ?? 175}px;
-  //       --invoice-color: ${invoices?.font_color ?? "#000"};
-  //       --typeTest-font: ${parseInt(invoices?.font_size) + 2 ?? 24}px;
-  //   }
-  //   </style>
-  //   `);
-  // // add bootstrap
-  // mywindow.document.write(
-  //   '<link href="bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" />'
-  // );
-  // mywindow.document.write(
-  //   '<link rel="stylesheet" href="plugins/font-awesome/css/all.css">'
-  // );
-  // mywindow.document.write("</head><body >");
-  // invoice.each(function () {
-  //   // remove display none
-  //   let element = $(this).clone();
-  //   element.removeAttr("style");
-  //   mywindow.document.write(element.prop("outerHTML"));
-  // });
-  // // mywindow.document.write(printInvoice);
-  // // add jquery
-  // mywindow.document.write(
-  //   '<script src="assets/js/jquery-3.5.1.min.js"></script>'
-  // );
-  // // add bootstrap
-
-  // mywindow.document.write(
-  //   '<script src="bootstrap/js/bootstrap.min.js"></script>'
-  // );
-  // mywindow.document.write("</body></html>");
-  // mywindow.document.close(); // necessary for IE >= 10
-  // mywindow.focus(); // necessary for IE >= 10*/
-  // //mywindow ready to print
-  // mywindow.onafterprint = function () {
-  //   mywindow.close();
-  // };
-  // mywindow.onload = function () {
-  //   setTimeout(function () {
-  //     mywindow.print();
-  //   }, 100);
-  // };
-  // window["pdf"] = mywindow;
-  // return true;
 }
 
 //dom ready
@@ -1456,9 +888,9 @@ document.addEventListener("keypress", (e) => {
   if (e.keyCode === 13) {
     if (code.length > 10) {
       // get current page
-      let page = window.location.pathname.split("/").pop();
+      const page = window.location.pathname.split("/").pop();
       // check if page visits
-      if (page == "visits.html") {
+      if (page === "visits.html") {
         visitDetail(`${code}`);
         showAddResult(`${code}`);
         $("html, body").animate(
@@ -1469,7 +901,7 @@ document.addEventListener("keypress", (e) => {
         );
       } else {
         // redirect to visits page
-        window.location.href = "visits.html?barcode=" + code;
+        window.location.href = `visits.html?barcode=${code}`;
       }
       /// code ready to use
       code = "";

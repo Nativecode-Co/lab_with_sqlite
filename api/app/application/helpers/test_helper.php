@@ -59,15 +59,21 @@ function manageNormalTests($tests, $patient)
 
             });
             $options = array_map(function ($item) use ($component, $test) {
+                // merge component with item and test
                 if (isset($component['name'])) {
                     $item['name'] = $component['name'];
                 }
+
                 if (isset($component['unit'])) {
                     $item['unit'] = $component['unit'];
                 }
+
                 if (isset($component['result'])) {
-                    $item['result'] = $component['result'];
+                    $item['result_type'] = $component['result'];
                 }
+
+                $item['device'] = $test['device'];
+                $item['unit_name'] = $test['unit_name'];
                 if (isset($test['result'])) {
                     $item['result'] = getResult($test['result']);
                 } else if ($component['name']) {

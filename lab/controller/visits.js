@@ -1,61 +1,68 @@
 const calcOperator = ["+", "-", "*", "/", "(", ")", "Math.log10("];
 let HASH = null;
 
-let units = run(`select name,hash from lab_test_units;`).result[0].query0;
 let __VISIT_TESTS__ = [];
 
-const changePatient = function (el) {
-  if (!el) {
-    el = $("input[name='new_patient']");
-    let is_checked = el.is(":checked");
-    // change prop checked
-    el.prop("checked", !is_checked);
-  }
-  $("#visits_patient_id-form").empty();
-  if (!el.is(":checked")) {
-    $("#visits_patient_id-form").append(`
-            <label for="visits_patient_id">اسم المريض</label>
-            <select class="form-control" id="visits_patient_id" onchange="getOldPatient(this.value)">
-            <option value="0">اختر المريض</option>
-            ${patients
-              .map(
-                (patient) =>
-                  `<option value="${patient.hash}">${patient.name}</option>`
-              )
-              .join("")}
-            </select>
-            <script>
-                $('#visits_patient_id').select2({
-                    width: '100%'
-                });
-            </script>
-            `);
-  } else {
-    lab_visits.resetForm();
-    $("#show_selected_tests").empty();
-    $("#visits_patient_id-form").append(`
-            <label for="visits_patient_id">اسم المريض</label>
-            <input type="text" class="form-control" id="visits_patient_id" placeholder="اسم المريض">
-            `);
-  }
-};
+// dom ready with js
+document.addEventListener("DOMContentLoaded", () => {
+  $("#visit_date").val(TODAY);
+  $("#gender").select2({
+    width: "100%",
+  });
+  $("#doctor_hash").select2({
+    width: "100%",
+  });
+});
+
+// change the patient addEventListener
+document
+  .querySelector("input[name='new_patient']")
+  .addEventListener("change", (e) => {
+    const visitsPatientIdForm = document.getElementById(
+      "visits_patient_id-form"
+    );
+    visitsPatientIdForm.innerHTML = "";
+
+    if (!e.target.checked) {
+      visitsPatientIdForm.innerHTML = `
+      <label for="visits_patient_id">اسم المريض</label>
+      <select class="form-control" id="visits_patient_id" onchange="getOldPatient(this.value)">
+        <option value="0">اختر المريض</option>
+        ${patients
+          .map(
+            (patient) =>
+              `<option value="${patient.hash}">${patient.name}</option>`
+          )
+          .join("")}
+      </select>
+    `;
+      $("#visits_patient_id").select2({
+        width: "100%",
+      });
+    } else {
+      lab_visits.resetForm();
+      document.getElementById("show_selected_tests").innerHTML = "";
+      visitsPatientIdForm.innerHTML = `
+      <label for="visits_patient_id">اسم المريض</label>
+      <input type="text" class="form-control" id="visits_patient_id" placeholder="اسم المريض">
+    `;
+    }
+  });
 
 function toggleHeaderAndFooter() {
   const invoiceShow = $(".book-result .header .row:visible").length;
   try {
-    invoices.footer_header_show = invoiceShow == 0 ? 1 : 0;
+    invoices.footer_header_show = invoiceShow === 0 ? 1 : 0;
   } catch (error) {
     console.log("يجب اضافة الفورمة");
   }
-  run(
-    `update lab_invoice set footer_header_show='${
-      invoiceShow == 0 ? 1 : 0
-    }' where lab_hash='${localStorage.getItem("lab_hash")}';`
-  );
-  let header = $(".book-result .header");
-  let footer = $(".book-result .footer2");
+  fetchApi("/visit/update_invoice", "POST", {
+    lab_hash: localStorage.getItem("lab_hash"),
+    footer_header_show: invoiceShow === 0 ? 1 : 0,
+  });
+  const header = $(".book-result .header");
+  const footer = $(".book-result .footer2");
   header.each(function () {
-    // toggle all header children
     $(this).children().toggle();
   });
   footer.each(function () {
@@ -64,42 +71,41 @@ function toggleHeaderAndFooter() {
 }
 
 function toggleTest() {
-  let test = $(this);
-  let hash = test.attr("id").split("_")[2];
-  let testInvoice = $(`#test_normal_${hash}`);
-  let category = testInvoice.attr("data-cat");
+  const test = $(this);
+  const hash = test.attr("id").split("_")[2];
+  const testInvoice = $(`#test_normal_${hash}`);
+  const category = testInvoice.attr("data-cat");
   if (test.is(":checked")) {
-    if ($(`.category_${category}:visible`).length == 0) {
+    if ($(`.category_${category}:visible`).length === 0) {
       $(`.category_${category}`).first().show();
       $(`.category_${category} p`).show();
     }
     testInvoice.show();
   } else {
     testInvoice.hide();
-    if ($(`.category_${category}:visible`).length == 1) {
+    if ($(`.category_${category}:visible`).length === 1) {
       $(`.category_${category}:visible`).hide();
     }
   }
-  // manageInvoiceHeight();
-  // cloneOldInvoice(manageInvoiceHeight());
 }
 
-const getAge = function (birth) {
-  let ageInMilliseconds = new Date() - new Date(birth);
-  let age = ageInMilliseconds / 1000 / 60 / 60 / 24 / 365;
+const getAge = (birth) => {
+  const ageInMilliseconds = new Date() - new Date(birth);
+  const age = ageInMilliseconds / 1000 / 60 / 60 / 24 / 365;
   // get age in years
-  let age_year = Math.floor(age);
+  const age_year = Math.floor(age);
   // get age in months
-  let age_month = Math.floor((age - age_year) * 12);
+  const age_month = Math.floor((age - age_year) * 12);
   // get age in days
-  let age_day = Math.floor((age - age_year - age_month / 12) * 365);
+  const age_day = Math.floor((age - age_year - age_month / 12) * 365);
   return { year: age_year, month: age_month, day: age_day };
 };
 
-const getOldPatient = function (hash) {
-  if (hash != 0) {
-    let patient = lab_patient.getItem(hash);
-    let { year, month, day } = getAge(patient.birth ?? TODAY);
+const getOldPatient = (hash) => {
+  console.log(hash);
+  if (hash !== 0) {
+    const patient = fetchApi(`/patient/get_patient?hash=${hash}`);
+    const { year, month, day } = getAge(patient.birth ?? TODAY);
     $("#age_year").val(year);
     $("#age_month").val(month);
     $("#age_day").val(day);
@@ -110,7 +116,7 @@ const getOldPatient = function (hash) {
 };
 
 function showPackagesList(hash) {
-  let package = packages.find((package) => package.hash == hash);
+  const package = tests.find((p) => p.hash == hash);
   $(this)
     .popover({
       template: `<div class="popover popover-light" >
@@ -344,51 +350,16 @@ function showVisit(hash) {
 function showAddResult(hash, animate = true) {
   $(".action").removeClass("active");
   $("#show_add_result").addClass("active");
-  let workSpace = $("#work-sapce");
+  const workSpace = $("#work-sapce");
   workSpace.html("");
-  let data = run(`select age,
-                           gender,
-                           phone,
-                           lab_patient.name,
-                           DATE(visit_date) as date,
-                           TIME(visit_date) as time,
-                           (select name from lab_doctor where hash=lab_visits.doctor_hash) as doctor,
-                           visits_patient_id as patient,
-                           lab_visits.hash
-                        from lab_visits 
-                        inner join lab_patient on lab_patient.hash = lab_visits.visits_patient_id
-                        where lab_visits.hash = '${hash}';
-                    select 
-                        option_test as options,
-                        test_name as name,
-                        kit_id,
-                        (select name from devices where devices.id=lab_device_id limit 1) as device_name,
-                        (select name from kits where kits.id =kit_id limit 1) as kit_name,
-                        (select name from lab_test_units where hash=lab_pakage_tests.unit limit 1) as unit_name,
-                        (select name from lab_test_catigory where hash=lab_test.category_hash limit 1) as category,
-                        unit,
-                        result_test,
-                        lab_visits_tests.hash as hash,
-                        test_id
-                    from 
-                        lab_visits_tests 
-                    left join
-                        lab_pakage_tests
-                    on 
-                        lab_pakage_tests.test_id = lab_visits_tests.tests_id and lab_pakage_tests.package_id = lab_visits_tests.package_id
-                    inner join
-                        lab_test
-                    on
-                        lab_test.hash = lab_visits_tests.tests_id
-                    where 
-                        visit_id = '${hash}'
-                    order by sort;`);
-  let visit = data.result[0].query0[0];
-  let visitTests = data.result[1].query1;
+  const { visit, tests: visitTests } = fetchApi(
+    `/visit/get_visit?hash=${hash}`
+  );
 
-  let form = addResult(visit, visitTests);
-  let { invoice, buttons } = showResult(visit, visitTests);
-  let html = `
+  const form = addResult(visitTests);
+  const { invoice, buttons } = { invoice: "", buttons: [] };
+  // showResult(visit, visitTests);
+  const html = `
     <div class="col-lg-12 mt-4">
         <div class="statbox widget box box-shadow bg-white py-3">
             <div class="widget-content widget-content-area m-auto" style="width: 95%;">
@@ -443,48 +414,48 @@ function showAddResult(hash, animate = true) {
     </div>
     `;
   workSpace.append(html);
-  setInvoiceStyle();
-  $("#invoice-tests-buttons .btn").first().addClass("active");
-  $(".book-result").first().show();
-  $(".results").hide();
-  $(`.test-${$(".book-result").first().attr("id").split("-")[1]}`).show();
-  $("#print-invoice-result").attr("onclick", `printOneInvoice()`);
-  $("#print-all-invoice-result").attr("onclick", `printAll();`);
-  getCurrentInvoice($(`#${localStorage.getItem("currentInvoice")}`));
-  $(".results select").each(function () {
-    $(this).select2({
-      width: "100%",
-      tags: true,
-      dropdownParent: $(this).parent().parent(),
-    });
-  });
+  // setInvoiceStyle();
+  // $("#invoice-tests-buttons .btn").first().addClass("active");
+  // $(".book-result").first().show();
+  // $(".results").hide();
+  // $(`.test-${$(".book-result").first().attr("id").split("-")[1]}`).show();
+  // $("#print-invoice-result").attr("onclick", `printOneInvoice()`);
+  // $("#print-all-invoice-result").attr("onclick", `printAll();`);
+  // getCurrentInvoice($(`#${localStorage.getItem("currentInvoice")}`));
+  // $(".results select").each(function () {
+  //   $(this).select2({
+  //     width: "100%",
+  //     tags: true,
+  //     dropdownParent: $(this).parent().parent(),
+  //   });
+  // });
 
-  $(".results select[multiple]").each(function () {
-    // delete Absent if length > 1
-    $(this).on("select2:select", function (e) {
-      if ($(this).val().length > 1) {
-        $(this).val(
-          $(this)
-            .val()
-            .filter((v) => v.toUpperCase() != "ABSENT")
-        );
-        $(this).trigger("change");
-      }
-    });
-  });
-  invoices?.footer_header_show == "1" ? null : toggleHeaderAndFooter();
-  // animate to main-space with js
-  if (animate) {
-    $("html, body").animate(
-      {
-        scrollTop:
-          $("#main-space").offset().top *
-            ($(window).width() < 2100 ? $(window).width() / 2100 : 1) -
-          75,
-      },
-      1000
-    );
-  }
+  // $(".results select[multiple]").each(function () {
+  //   // delete Absent if length > 1
+  //   $(this).on("select2:select", function (e) {
+  //     if ($(this).val().length > 1) {
+  //       $(this).val(
+  //         $(this)
+  //           .val()
+  //           .filter((v) => v.toUpperCase() != "ABSENT")
+  //       );
+  //       $(this).trigger("change");
+  //     }
+  //   });
+  // });
+  // invoices?.footer_header_show == "1" ? null : toggleHeaderAndFooter();
+  // // animate to main-space with js
+  // if (animate) {
+  //   $("html, body").animate(
+  //     {
+  //       scrollTop:
+  //         $("#main-space").offset().top *
+  //           ($(window).width() < 2100 ? $(window).width() / 2100 : 1) -
+  //         75,
+  //     },
+  //     1000
+  //   );
+  // }
 }
 
 function visitEdit(hash) {
@@ -601,176 +572,83 @@ function filterWithGender(reference, gender) {
   });
 }
 
-function manageRange(reference) {
+function manageRange(range) {
   return (
-    reference?.[0]?.range
+    range
       .map((range) => {
         let normalRange = "";
-        let { name = "", low = "", high = "" } = range;
-        if (low != "" && high != "") {
-          normalRange = (name ? `${name} : ` : "") + low + " - " + high;
-        } else if (low == "") {
-          normalRange = (name ? `${name} : ` : "") + " <= " + high;
-        } else if (high == "") {
-          normalRange = (name ? `${name} : ` : "") + low + " <= ";
+        const { name = "", low = "", high = "" } = range;
+        if (low !== "" && high !== "") {
+          normalRange = `${name ? `${name} : ` : ""}${low} - ${high}`;
+        } else if (low === "") {
+          normalRange = `${name ? `${name} : ` : ""}<= ${high}`;
+        } else if (high === "") {
+          normalRange = `${name ? `${name} : ` : ""}${low} <= `;
         }
         return normalRange;
       })
-      .join("<br>") ?? `range : no Range`
+      .join("<br>") || "range : no Range"
   );
 }
 
-{
-  /* 
-<div class="col-md-4 mb-3">
-    <label class="radio high mr-2">
-        <span class="high-value">High</span>
-        <input type="radio" id="color" name="color_${test.hash}" value="danger" ${(resultList?.[`color_${test.name}`])=='danger'?'checked':''}>
-    </label>
-    <label class="radio low mr-2">
-        <span class="low-value">Low</span>
-        <input type="radio" id="color" name="color_${test.hash}" value="info" ${(resultList?.[`color_${test.name}`])=='info'?'checked':''}>
-    </label>
-</div> 
-*/
-}
-
-function generateFieldForTest(test, resultList, reference, testType) {
-  return `
-  <div class="col-md-11 results test-normalTests mb-15 ">
-      <div class="row align-items-center">
-          <div class="col-md-3 h6 text-center">
-              ${testType == "normal" ? `${test?.kit_name ?? "NO KIT"}` : ""}
-              <a 
-                class="text-info"
-              onclick="updateNormal('${test.test_id}', '${test.kit_id}', '${
+function generateNormalFieldForTest(test) {
+  const kit = test?.kit ?? "NO KIT";
+  const device = test?.device ?? "NO DEVICE";
+  const onChange = `updateNormal('${test.test_id ?? 0}', '${test.kit}', '${
     test.unit
-  }')"
-              >
-                <i class="far fa-edit"></i>
-              </a>
-              <br>
-              ${
-                testType == "normal"
-                  ? `(${test?.device_name ?? "NO DEVICE"})`
-                  : ""
-              }
-          </div>
-          
-          <div class="col-md-6">
-              <h4 class="text-center mt-15">${test.name}</h4>
-          </div>
-          <div class="col-md-3 text-center">
-              <label class="text-dark">عرض النتيجة</label>
-              <br>
-              <label class="d-inline switch s-icons s-outline s-outline-invoice-slider mr-5">
-                  <input type="checkbox" id="check_normal_${
-                    test.hash
-                  }" name="check_normal_${test.hash}" ${
-    resultList?.checked ?? true ? "checked" : ""
-  } onclick="toggleTest.call(this)">
-                  <span class="slider invoice-slider"></span>
-              </label>
-          </div>
-          <div class="col-md-7 mb-3 text-center" dir="ltr">
-              <label for="range" class="text-dark">المرجع</label>
-              <h5 class="text-center">${
-                reference?.[0]?.result == "result"
-                  ? reference?.[0]?.right_options
-                  : manageRange(reference)
-              }</h5>
-          </div>
-         
-          <div class="col-md-5 mb-3">
-              <div class="row">
-                  <div class="col-md-4 text-center d-flex justify-content-center align-items-end">
-                      <span class="">${
-                        reference?.[0]?.result?.trim() == "result"
-                          ? ""
-                          : testType == "normal"
-                          ? test?.unit_name ?? ""
-                          : units.find(
-                              (item) => reference?.[0]?.unit == item?.hash
-                            )?.name ?? ""
-                      }</span>
-                  </div>
-                  <div class="col-md-8">
-                      <label for="result" class="w-100 text-center text-dark">النتيجة</label>
-                      ${
-                        reference?.[0]?.result?.trim() == "result"
-                          ? `<select class="form-control result" id="result_${
-                              test.hash
-                            }" name="${test.name}">
-                              ${reference?.[0]?.options
-                                .map((option) => {
-                                  return `<option value="${option}" ${
-                                    resultList?.[test.name]
-                                      ? resultList?.[test.name] == option
-                                        ? "selected"
-                                        : ""
-                                      : reference?.[0]?.right_options.includes(
-                                          option
-                                        )
-                                      ? "selected"
-                                      : ""
-                                  }>${option}</option>`;
-                                })
-                                .join("")}
-                            </select>`
-                          : `<input type="text" class="form-control result text-center" id="result_${
-                              test.hash
-                            }" dir="ltr" name="${
-                              test.name
-                            }" placeholder="ادخل النتيجة" ${
-                              testType === "calc" ? "readonly" : ""
-                            } value="${
-                              testType === "normal" || testType === "calc"
-                                ? resultList?.[test.name] ?? ""
-                                : resultList ?? ""
-                            }">`
-                      }
-                      
-                  </div>
-              </div>
-          </div>
-          
-      </div>
-  </div>
-`;
-}
+  }')`;
+  const id = `check_normal_${test.hash}`;
+  const checked = test.result?.checked ?? true ? "checked" : "";
+  return `
+    <div class="col-md-11 results test-normalTests mb-15 ">
+        <div class="row align-items-center">
+            <div class="col-md-3 h6 text-center">
+                ${kit}
+                <a class="text-info" onclick="${onChange}">
+                  <i class="far fa-edit"></i>
+                </a>
+                <br>
+                ${device}
+            </div>
+            <div class="col-md-6">
+                <h4 class="text-center mt-15">${test.name}</h4>
+            </div>
+            <div class="col-md-3 text-center">
+                <label class="text-dark">عرض النتيجة</label>
+                <br>
+                <label class="d-inline switch s-icons s-outline s-outline-invoice-slider mr-5">
+                    <input type="checkbox" id="${id}" name="${id}" ${checked} onclick="toggleTest.call(this)">
+                    <span class="slider invoice-slider"></span>
+                </label>
+            </div>
+            <div class="col-md-7 mb-3 text-center" dir="ltr">
+                <label for="range" class="text-dark">المرجع</label>
+                <h5 class="text-center">
+                ${manageRange(test.range)}
+                </h5>
+            </div>
 
-function addNormalResult(
-  component,
-  test,
-  visit,
-  result_test,
-  options,
-  resultForm,
-  testType = "normal"
-) {
-  let reference = component?.[0]?.reference ?? [];
-  if (false) {
-    reference = result_test.options;
-  } else {
-    if (reference) {
-      reference = filterWithKit(reference, test.kit_id);
-      if (options.type != "calc") {
-        reference = filterWithUnit(reference, test.unit);
-      }
-      // filter with age
-      reference = filterWithAge(reference, visit.age, "عام");
-      // filter with gender
-      reference = filterWithGender(reference, visit.gender);
-    }
-  }
-  __VISIT_TESTS__.push({ hash: test.hash, options: reference });
-  if ((options.result = "number")) {
-    resultForm.push(
-      generateFieldForTest(test, result_test, reference, testType)
-    );
-  } else if (0) {
-  }
-  return resultForm;
+            <div class="col-md-5 mb-3">
+                <div class="row">
+                    <div class="col-md-4 text-center d-flex justify-content-center align-items-end">
+                        <span class="">${test.unit_name}</span>
+                    </div>
+                    <div class="col-md-8">
+                        <label for="result" class="w-100 text-center text-dark">النتيجة</label>
+                        <input 
+                          type="text" class="form-control result text-center" 
+                          id="result_${test.hash}" 
+                          dir="ltr" name="${test.name}" 
+                          placeholder="ادخل النتيجة" 
+                          value="${test.result?.[test.name] ?? ""}"
+                        >
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+  `;
 }
 
 function addStrcResult(component, test, result_test, resultForm) {
@@ -936,89 +814,64 @@ function addStrcResult(component, test, result_test, resultForm) {
   return resultForm;
 }
 
-function addResult(visit, visitTests) {
-  // clear __VISIT_TESTS__
-  __VISIT_TESTS__ = [];
-  visitTests = visitTests.sort((a, b) => {
-    return a.category > b.category ? 1 : -1;
-  });
+function addResult(visitTests) {
   let resultForm = [
     `<div class="col-11 my-3">
-    <input type="text" class="w-100 form-control search-class test-normalTests results product-search br-30" id="input-search-3" placeholder="ابحث عن التحليل" onkeyup="addTestSearch(this)">
-</div>`,
+        <input type="text" class="w-100 form-control search-class test-normalTests results product-search br-30" id="input-search-3" placeholder="ابحث عن التحليل" onkeyup="addTestSearch(this)">
+      </div>`,
   ];
-  const result_tests = [];
-  for (let test of visitTests) {
-    let options = test.options;
-    options = options.replace(/\\/g, "");
-    try {
-      options = JSON.parse(options);
-    } catch (err) {
-      options = {};
-      console.log("error", err);
-    }
-
-    let { type, component, value } = options;
-    let result_test = test.result_test;
-    try {
-      result_test = result_test.replace(/\\/g, "");
-      result_test = JSON.parse(result_test);
-    } catch (err) {
-      result_test = {};
-    }
-    result_tests.push({
-      name: test.name,
-      result: result_test?.[test.name],
-    });
-    if (type == "calc") {
-      let result = 0;
-      try {
-        let equ = value
-          .map((item) => {
-            // check if item is number
-            if (!isNaN(item)) {
-              return item;
-            } else if (!calcOperator.includes(item)) {
-              let finalResult =
-                result_tests.find((test) => test.name == item)?.result ?? 0;
-              return finalResult == "" ? 0 : finalResult;
-            }
-            return item;
-          })
-          ?.join("");
-
-        let result = eval(equ) ?? 0;
-        // to fixed 2
-        result = result.toFixed(1);
-        finalResult = {};
-        finalResult[test.name] = result;
-        finalResult["checked"] = result_test["checked"];
-      } catch (error) {
-        // console.log(error);
-      }
-
-      addNormalResult(
-        component,
-        test,
-        visit,
-        finalResult,
-        options,
-        resultForm,
-        "calc"
-      );
-    } else if (type == "type") {
-      resultForm = addStrcResult(component, test, result_test, resultForm);
-    } else {
-      resultForm = addNormalResult(
-        component,
-        test,
-        visit,
-        result_test,
-        options,
-        resultForm
-      );
-    }
+  const { normal, special } = visitTests;
+  for (const test of normal) {
+    resultForm.push(generateNormalFieldForTest(test));
   }
+
+  // if (type === "calc") {
+  //   const result = 0;
+  //   try {
+  //     const equ = value
+  //       .map((item) => {
+  //         // check if item is number
+  //         if (Number.isNaN(item)) {
+  //           if (!calcOperator.includes(item)) {
+  //             const finalResult =
+  //               result_tests.find((test) => test.name === item)?.result ?? 0;
+  //             return finalResult === "" ? 0 : finalResult;
+  //           }
+  //         }
+  //         return item;
+  //       })
+  //       .join("");
+
+  //     let result = eval(equ) ?? 0;
+  //     result = result.toFixed(1);
+  //     const finalResult = {
+  //       [test.name]: result,
+  //       checked: result_test.checked,
+  //     };
+  //   } catch (error) {}
+
+  //   addNormalResult(
+  //     component,
+  //     test,
+  //     visit,
+  //     finalResult,
+  //     options,
+  //     resultForm,
+  //     "calc"
+  //   );
+  // } else if (type === "type") {
+  //   resultForm = addStrcResult(component, test, result_test, resultForm);
+  // } else {
+  //   resultForm = addNormalResult(
+  //     component,
+  //     test,
+  //     visit,
+  //     result_test,
+  //     options,
+  //     resultForm
+  //   );
+  // }
+
   return resultForm.join("");
 }
 

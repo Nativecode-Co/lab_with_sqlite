@@ -1,68 +1,37 @@
 const THEME = new PackageTestTheme();
 let TEST = null;
 
-let getData =
-  run(`SELECT name,birth,hash FROM lab_patient WHERE lab_id='${localStorage.getItem(
-    "lab_hash"
-  )}' and isdeleted='0';
-                   SELECT name,hash FROM lab_doctor WHERE lab_id='${localStorage.getItem(
-                     "lab_hash"
-                   )}' and isdeleted='0';
-                   SELECT name,hash FROM lab_visit_status;
-                   SELECT name,price,note,catigory_id as type, category_hash,
-                          (select DISTINCT name from devices where id=lab_pakage_tests.lab_device_id) as device_name,
-                          (select DISTINCT name from kits where id=lab_pakage_tests.kit_id) as kit_name,
-                          lab_package.hash as hash
-                   FROM lab_package 
-                   inner join lab_pakage_tests on lab_package.hash=lab_pakage_tests.package_id 
-                   inner join lab_test on lab_pakage_tests.test_id=lab_test.hash
-                   WHERE lab_package.lab_id='${localStorage.getItem(
-                     "lab_hash"
-                   )}' and test_type <>'3' group by lab_package.hash;
-                   SELECT * from lab_invoice_worker where lab_hash='${localStorage.getItem(
-                     "lab_hash"
-                   )}' and is_available=1 and isdeleted=0 limit 5;
-                   select * from lab_invoice where lab_hash='${localStorage.getItem(
-                     "lab_hash"
-                   )}';SELECT * FROM lab_test_catigory;`);
-
-let patients = getData.result[0].query0;
-let doctors = getData.result[1].query1;
-let visitStatus = getData.result[2].query2;
-let packages = getData.result[3].query3;
-let workers = getData.result[4].query4;
-let invoices = getData.result[5].query5[0];
-let categories = getData.result[6].query6;
+const { patients, units, doctors, tests, packages, categories } = fetchApi(
+  "/visit/get_visit_form_data",
+  "GET",
+  {}
+);
+const { workers, invoices } = fetchApi("/visit/getInvoiceHeader", "GET", {});
 
 // get birth by float age year
 function getBirthByAge(age_year = 0, age_month = 0, age_day = 0) {
-  let ageByDay =
+  const ageByDay =
     Number(age_year) * 365 + Number(age_month) * 30 + Number(age_day);
-  let birth = new Date();
+  const birth = new Date();
   birth.setDate(birth.getDate() - ageByDay);
-  let year = birth.getFullYear();
+  const year = birth.getFullYear();
   let month = birth.getMonth() + 1;
   let day = birth.getDate();
   // month to 2 digit
-  month = month.toString().length == 1 ? "0" + month : month;
+  month = month.toString().length === 1 ? `0${month}` : month;
   // day to 2 digit
-  day = day.toString().length == 1 ? "0" + day : day;
+  day = day.toString().length === 1 ? `0${day}` : day;
   return `${year}-${month}-${day}`;
 }
 class Visit extends Factory {
-  // init() {
-  //     super.init();
-  //     this.dataTable.column(0).visible(false);
-  //     this.orderDataTable();
-  // }
   init() {
     this.createModal();
-    let userType = localStorage.getItem("user_type");
+    const userType = localStorage.getItem("user_type");
     this.dataTable = setServerTable(
       "lab_visits-table",
       `${base_url}Visit/getVisits`,
       () => {
-        let checkInput = $("#currentDay");
+        const checkInput = $("#currentDay");
         let check = 1;
         if (checkInput.length > 0) {
           check = checkInput.is(":checked") ? 1 : 0;
@@ -75,20 +44,20 @@ class Visit extends Factory {
       [
         {
           data: "null",
-          render: function (data, type, row) {
+          render: (data, type, row) => {
             return `<div class="d-none d-print-block-inline">${row.patient_name}</div><input type="text" id="${row.patient_hash}_patient_name" data_hash="${row.patient_hash}" class="form-control" name="patient_name" value="${row.patient_name}" onblur="updatePatientName('${row.patient_hash}',this)">`;
           },
         },
         {
           data: "null",
-          render: function (data, type, row) {
+          render: (data, type, row) => {
             return `<a href="#" class="w-100 d-block" onclick="visitDetail('${row.hash}');fireSwalWithoutConfirm(showAddResult, '${row.hash}')">${row.visit_date}</a>`;
           },
         },
         {
           data: null,
           className: "not-print",
-          render: function (data, type, row) {
+          render: (data, type, row) => {
             return `
                             <a class="btn-action add" title="عرض الزيارة"  onclick="visitDetail('${
                               row.hash
@@ -99,7 +68,7 @@ class Visit extends Factory {
               row.hash
             }')"><i class="far fa-edit"></i></a>
                             ${
-                              userType == "2" && row.ispayed == "0"
+                              userType === "2" && row.ispayed === "0"
                                 ? `<a class="btn-action delete" title="حذف الزيارة" onclick="fireSwalForDelete.call(lab_visits,lab_visits.deleteItem, '${row.hash}')"><i class="far fa-trash-alt"></i></a>`
                                 : ""
                             }
@@ -115,43 +84,8 @@ class Visit extends Factory {
     );
   }
 
-  addRow(row) {
-    console.log(row);
-    if (this.dataTable.row(`#${row.hash}`)[0].length == 0) {
-      let node = this.dataTable.row
-        .add({
-          0: `<a href="#" class="w-100 d-block" onclick="visitDetail('${row.hash}');fireSwalWithoutConfirm(showAddResult, '${row.hash}')">${row.patient_name}</a>`,
-          1: `<a href="#" class="w-100 d-block" onclick="visitDetail('${row.hash}');fireSwalWithoutConfirm(showAddResult, '${row.hash}')">${row.visit_type}</a>`,
-          2: `
-                    <a class="btn-action add" title="عرض الزيارة"  onclick="visitDetail('${row.hash}');fireSwalWithoutConfirm(showAddResult, '${row.hash}')"><i class="far fa-eye"></i></a>
-                    <a class="btn-action add" title="تعديل الزيارة" onclick="fireSwalWithoutConfirm.call(lab_visits, lab_visits.updateItem,'${row.hash}')"><i class="far fa-edit"></i></a>
-                    <a class="btn-action delete" title="حذف الزيارة" onclick="fireSwalForDelete.call(lab_visits,lab_visits.deleteItem, '${row.hash}')"><i class="far fa-trash-alt"></i></a>
-                    `,
-          3: ``,
-        })
-        .node();
-      node.id = row.hash;
-      // $(node).attr('onclick', `visitDetail('${row.hash}');fireSwalWithoutConfirm(showAddResult, '${row.hash}')`);
-      this.dataTable.draw();
-    }
-  }
-
-  orderDataTable() {
-    this.dataTable.order([[0, "desc"]]).draw();
-  }
-
   pageCondition() {
-    return `
-        select count(*) as count from ${this.table}
-        inner join 
-            lab_patient 
-        on 
-            lab_patient.hash = lab_visits.visits_patient_id
-        where 
-            lab_id=${localStorage.getItem("lab_hash")} and 
-            visit_date = ${new Date().toISOString().slice(0, 10)} and
-            lab_visits.isdeleted='0';
-        `;
+    return "";
   }
 
   resetForm() {
@@ -170,10 +104,10 @@ class Visit extends Factory {
     $("#total_price").val(0);
     $("#net_price").val(0);
     // fill packages
-    packages.forEach((x) => {
+    for (const x of [...packages, ...tests]) {
       $(`#package_${x.hash}`).prop("checked", false);
       $(`#package_${x.hash}`).trigger("change");
-    });
+    }
     // change button onclick
     $(`#${this.table}-save`).attr(
       "onclick",
@@ -222,31 +156,8 @@ class Visit extends Factory {
         `;
   }
 
-  createTableBody(data, dataTable = false) {
-    if (dataTable) {
-      this.dataTable = setTable_1(this.tableId, {
-        dom:
-          `<'dt--top-section'
-                <'row flex-row-reverse'
-                    <'col-6 col-md-2 d-flex justify-content-md-end justify-content-center mb-md-3 mb-3'l>
-                    <'col-6 col-md-2 d-flex justify-content-md-end justify-content-center mb-md-3 mb-3'f>
-                    <'col-sm-12 col-md-8 d-flex justify-content-md-start justify-content-center addCustomItem'>
-                >
-            >` +
-          "<'table-responsive'tr>" +
-          `<'dt--bottom-section'
-                <'row'>
-            >`,
-        lengthMenu: [300],
-      });
-    }
-    for (let row of data) {
-      this.addRow(row);
-    }
-  }
-
   orderByQuery() {
-    return `order by visit_date desc`;
+    return "order by visit_date desc";
   }
 
   updateItem(hash) {
@@ -259,8 +170,7 @@ class Visit extends Factory {
       },
       500
     );
-    $(".testSelect").each(function (index, item) {
-      // change attr checked
+    $(".testSelect").each((index, item) => {
       $(item).prop("checked", false);
     });
     $(".itemsActive").removeClass("itemsActive");
@@ -283,16 +193,15 @@ class Visit extends Factory {
             </script>`);
     $('input[name="new_patient"]').prop("checked", false);
     // fill form with item
-    let items = run(
-      this.getItem(hash) +
-        `
-        select package_id, (select name from lab_package where lab_visits_package.package_id = lab_package.hash) as name from lab_visits_package where visit_id = '${hash}';
-        `
-    );
-    let item = items.result[0].query0[0];
-    let visitPackages = items.result[1].query1;
+    const items = run(`
+      ${this.getItem(hash)}
+      select package_id, (select name from lab_package where lab_visits_package.package_id = lab_package.hash) as name from lab_visits_package where visit_id = '${hash}';
+    `);
+    const item = items.result[0].query0[0];
+    const visitPackages = items.result[1].query1;
     $("#visits_patient_id").val(item.visits_patient_id).trigger("change");
     $("#visit_date").val(item.visit_date);
+
     $("#age_year").val(item.age_year);
     $("#age_day").val(item.age_day);
     $("#age_month").val(item.age_month);
@@ -306,13 +215,13 @@ class Visit extends Factory {
     $("#total_price").val(item.total_price);
     $("#net_price").val(item.net_price);
     // fill packages
-    visitPackages.forEach((x) => {
+    for (const x of visitPackages) {
       $(`#package_${x.package_id}`).prop("checked", true);
       $(`#package_${x.package_id}`).trigger("change");
       // $(`#package_${x.package_id}`) parent div has class items add class itemsActive
       $(`#package_${x.package_id}`).parent(".items").addClass("itemsActive");
       showSelectedTests(x.package_id, x.name, true);
-    });
+    }
     // change button onclick
     $(`#${this.table}-save`).attr(
       "onclick",
@@ -322,17 +231,23 @@ class Visit extends Factory {
 
   validate() {
     // check if patient is selected
-    let patientHash = $("#visits_patient_id").val();
-    if (patientHash == "false" || patientHash == "0" || patientHash == "") {
+    const patientHash = $("#visits_patient_id").val();
+    if (patientHash === "false" || patientHash === "0" || patientHash === "") {
       niceSwal("error", "bottom-end", "يجب ادخال بيانات المريض اولا");
       return false;
-    } else if ($("#visit_date").val() == "") {
+    }
+
+    if ($("#visit_date").val() === "") {
       niceSwal("error", "bottom-end", "يجب اختيار تاريخ الزيارة");
       return false;
-    } else if (!$(".testSelect:checked").length) {
+    }
+
+    if (!$(".testSelect:checked").length) {
       niceSwal("error", "bottom-end", "يجب اختيار اختبار واحد على الاقل");
       return false;
-    } else if (
+    }
+
+    if (
       parseInt($("#age_year").val()) * 356 +
         parseInt($("#age_day").val()) +
         parseInt($("#age_month").val()) * 30 <=
@@ -341,23 +256,24 @@ class Visit extends Factory {
       niceSwal("error", "bottom-end", "يجب ادخال العمر");
       return false;
     }
+
     return true;
   }
 
   getNewData() {
-    let age_year = $("#age_year").val();
-    let age_month = $("#age_month").val();
-    let age_day = $("#age_day").val();
-    let birth = getBirthByAge(age_year, age_month, age_day);
-    let age = (
+    const age_year = $("#age_year").val();
+    const age_month = $("#age_month").val();
+    const age_day = $("#age_day").val();
+    const birth = getBirthByAge(age_year, age_month, age_day);
+    const age = (
       Number(age_year) +
       Number(age_month / 12) +
       Number(age_day / 365)
     ).toFixed(2);
-    let name = ($("input[name=new_patient]").is(":checked") ? true : false)
+    const name = ($("input[name=new_patient]").is(":checked") ? true : false)
       ? $("#visits_patient_id").val()
-      : $(`#visits_patient_id option:selected`).html();
-    let data = {
+      : $("#visits_patient_id option:selected").html();
+    const data = {
       visits_patient_id: $("#visits_patient_id").val(),
       name: name,
       visit_date: $("#visit_date").val(),
@@ -384,7 +300,7 @@ class Visit extends Factory {
     if (!this.validate()) {
       return false;
     }
-    let hash = run(
+    const hash = run(
       `select hash from lab_patient where name = '${$(
         "#visits_patient_id"
       ).val()}' and isdeleted = 0;`
@@ -426,7 +342,7 @@ class Visit extends Factory {
 
   saveNewItem() {
     $(".itemsActive").removeClass("itemsActive");
-    let insertedPackages = [];
+    const insertedPackages = [];
     $(".testSelect:checked").each(function () {
       insertedPackages.push($(this).val());
     });
@@ -461,7 +377,7 @@ class Visit extends Factory {
     if (error) {
       return false;
     }
-    let data = this.getNewData();
+    const data = this.getNewData();
     // get birth from age_year and age_month
     let patient_hash = null;
     if (data.new_patient) {
@@ -503,7 +419,7 @@ class Visit extends Factory {
       patient_hash = data.visits_patient_id;
     }
 
-    let newObjectHash = run({
+    const newObjectHash = run({
       table: this.table,
       action: "insert",
       column: {
@@ -531,7 +447,7 @@ class Visit extends Factory {
     insertedTests.map((test) => {
       mainQuery += `insert into lab_visits_tests(visit_id, package_id, tests_id,lab_id,insert_record_date) values('${newObjectHash}', '${test.package_id}', '${test.id}','${localStorage.lab_hash}', '${TODAY}'); `;
     });
-    let newVisit = run(mainQuery).result[0].query0[0];
+    const newVisit = run(mainQuery).result[0].query0[0];
     // empty show_selected_tests except first column
     $("#show_selected_tests div").remove();
     add_calc_tests(
@@ -694,7 +610,7 @@ class Visit extends Factory {
       return await fetch(`${base_url}Invoice/get_or_create?hash=${labHash}`)
         .then((e) => e.json())
         .then((res) => {
-          let setting = JSON.parse(res.data.setting);
+          const setting = JSON.parse(res.data.setting);
           return setting;
         });
     };
@@ -703,155 +619,17 @@ class Visit extends Factory {
     let theme = null;
     switch (labTheme) {
       case "one":
-        theme = new TestsThemeOne(this.table, packages, categories);
-        break;
-      case "two":
-        theme = new TestsThemeTwo(this.table, packages, categories);
+        theme = new TestsThemeOne(this.table, packages, tests, categories);
         break;
       default:
-        theme = new TestsThemeTwo(this.table, packages, categories);
+        theme = new TestsThemeTwo(this.table, packages, tests, categories);
     }
     // append top of div
     $("#testsThemeElement").prepend(theme.build());
-
-    let modal = `<div class="modal fade" id = "${
-      this.modalId
-    }" tabindex="-1" role="dialog" aria-labelledby="${
-      this.modalId
-    }" aria-hidden="true" >
-            <div class="modal-dialog modal-xl" role="document">
-                <div class="modal-content">
-                    ${this.createForm()}
-                </div>
-            </div>
-                    </div > `;
-    // $('body').append(modal);
   }
 
   createForm() {
-    return `
-        <div class="statbox widget box box-shadow bg-white main-visit-form">
-            <div class="widget-content widget-content-area m-auto">
-                <div class="modal-header d-flex justify-content-center">
-                    <h5 class="modal-title" id="${this.modalId}">اضافة مريض</h5>
-                </div>
-                <div class="modal-body style="width: 95%;"">
-                    <form id="${this.formId}">
-                        <div class="row justify-content-sm-between">
-                        <div class="col-md-12  my-4">
-                            <label class="h5 d-inline mr-4">مريض جديد</label>
-                            <label class="d-inline switch s-icons s-outline s-outline-invoice-slider mr-2">
-                                <input type="checkbox" name="new_patient" checked  onchange="changePatient($(this))">
-                                <span class="invoice-slider slider"></span>
-                            </label>
-                        </div>
-                        <div class="col-3">
-                            <!-- اسم المريض -->
-                            <div class="form-group" id="visits_patient_id-form">
-                                <label for="visits_patient_id">اسم المريض</label>
-                                <input type="text" class="form-control" id="visits_patient_id" placeholder="اسم المريض">
-                            </div>
-                        </div>
-                        <div class="col-3">
-                            <!-- تاريخ الزيارة -->
-                            <div class="form-group">
-                                <label for="visit_date">تاريخ الزيارة</label>
-                                <input type="date" class="form-control" id="visit_date"  placeholder="تاريخ الزيارة">
-                            </div>
-                        </div>
-                        <div class="col-2">
-                            <!-- العمر بالسنين -->
-                            <div class="form-group">
-                                <label for="age_year">العمر بالسنين</label>
-                                <input type="number" class="form-control" id="age_year"  placeholder="العمر بالسنين" value="0">
-                            </div>
-                        </div>
-                        <div class="col-2">
-                            <!-- العمر بالشهور -->
-                            <div class="form-group">
-                                <label for="age_month">العمر بالشهور</label>
-                                <input type="number" class="form-control" id="age_month"  placeholder="العمر بالشهور" value="0">
-                            </div>
-                        </div>
-                        <div class="col-2">
-                            <!-- العمر بالايام -->
-                            <div class="form-group">
-                                <label for="age_day">العمر بالايام</label>
-                                <input type="number" class="form-control" id="age_day"  placeholder="العمر بالايام" value="0">
-                            </div>
-                        </div>
-                        <div class="col-3">
-                            <!-- العنوان -->
-                            <div class="form-group">
-                                <label for="address">العنوان</label>
-                                <input type="text" class="form-control" id="address"  placeholder="العنوان">
-                            </div>
-                        </div>
-                        <div class="col-3">
-                            <!-- رقم الهاتف -->
-                            <div class="form-group">
-                                <label for="phone">رقم الهاتف</label>
-                                <input type="number" class="form-control" id="phone"  placeholder="رقم الهاتف">
-                            </div>
-                        </div>
-                        <div class="col-3">
-                            <!-- الجنس -->
-                            <div class="form-group">
-                                <label for="gender">الجنس</label>
-                                <select class="form-control" id="gender">
-                                    <option value="ذكر">ذكر</option>
-                                    <option value="انثى">انثى</option>
-                                </select>
-                                <script>
-                                    $('#visit_date').val(TODAY);
-                                    $('#gender').select2({
-                                        width: '100%'
-                                    });
-                                </script>
-                            </div>
-                        </div>
-                        <div class="col-3">
-                            <!-- الطبيب المعالج -->
-                            <div class="form-group" id="doctor_hash-form">
-                                <label for="note">الطبيب</label>
-                                <select class="form-control" id="doctor_hash">
-                                <option value="false">اختر الطبيب</option>
-                                    ${doctors
-                                      .map(
-                                        (doctor) =>
-                                          `<option value="${doctor.hash}">${doctor.name}</option>`
-                                      )
-                                      .join("")}
-                                </select>
-                                <script>
-                                    $('#doctor_hash').select2({
-                                        width: '100%'
-                                    });
-                                </script>
-                            </div>
-                        </div>
-                        
-                        <div class="col-12">
-                            <!-- ملاحظات -->
-                            <div class="form-group">
-                                <label for="note">ملاحظات</label>
-                                <textarea class="form-control" id="note" style="font-size:14px" rows="3"></textarea>
-                            </div>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-    
-    <!--<div class="modal-footer">
-        <button type="button" class="btn btn-main-add" onclick="fireSwal.call(${
-          this.table
-        },${this.table}.savenewItemaAfterCheckName)" id="${
-      this.table
-    }-save">حفظ</button>
-    </div>-->
-    `;
+    return "";
   }
 
   deleteItem(hash) {
@@ -859,7 +637,7 @@ class Visit extends Factory {
     $("#invoice_button").attr("onclick", "");
     $("#show_add_result").attr("onclick", "");
     $(".action").removeClass("active");
-    let workSpace = $("#work-sapce");
+    const workSpace = $("#work-sapce");
     workSpace.html("");
     run({
       table: this.table,
@@ -877,112 +655,6 @@ class Visit extends Factory {
   }
 }
 
-class Patient extends Factory {
-  addRow(row) {}
-
-  getItem(hash) {
-    return run(`select * from ${this.table} where hash = '${hash}'; `).result[0]
-      .query0[0];
-  }
-
-  init() {
-    this.createModal();
-    this.createTableBody(this.getAll(0), false);
-  }
-
-  saveNewItem() {
-    if (!validateForm(this.formId, this.fields)) {
-      return false;
-    }
-    let data = this.getNewData();
-    data = { ...data, lab_id: localStorage.getItem("lab_hash") };
-    let newObjectHash = run({
-      table: this.table,
-      action: "insert",
-      column: data,
-    }).result[0].query0;
-    let newPatient = run(
-      `select name, birth, hash from lab_patient where hash = '${newObjectHash}'; `
-    ).result[0].query0[0];
-    patients.push(newPatient);
-    $("#visits_patient_id").append(
-      `< option value = "${newObjectHash}" > ${data.name}</ > `
-    );
-    $("#visits_patient_id").val(newObjectHash).trigger("change");
-    $(`#${this.modalId} `).modal("hide");
-  }
-}
-
-class Doctor extends Factory {
-  addRow(row) {}
-
-  init() {
-    this.createModal();
-  }
-
-  getNewData() {
-    let data = super.getNewData();
-    data = { ...data, lab_id: localStorage.getItem("lab_hash") };
-    return data;
-  }
-
-  saveNewItem() {
-    // validate form
-    if (!validateForm(this.formId, this.fields)) {
-      return false;
-    }
-    let data = this.getNewData();
-    let newObjectHash = run({
-      table: this.table,
-      action: "insert",
-      column: data,
-    }).result[0].query0;
-    let newDoctor = run(
-      `select name, hash FROM lab_doctor where hash = '${newObjectHash}'; `
-    ).result[0].query0[0];
-    doctors.push(newDoctor);
-    $("#doctor_hash").append(
-      `< option value = "${newObjectHash}" > ${data.name}</ > `
-    );
-    $("#doctor_hash").val(newObjectHash).trigger("change");
-    $(`#${this.modalId} `).modal("hide");
-  }
-}
-
-// init lab_visits class
-// fields: doctor_hash, age, visit_date, visits_patient_id, visits_status_id, note, total_price, dicount, net_price, ispayed, hash, insert_record_date, isdeleted
-let lab_visits = new Visit("lab_visits", " زيارة", [], {
+const lab_visits = new Visit("lab_visits", " زيارة", [], {
   pageSize: 400,
 });
-
-// init lab_patient class
-let lab_patient = new Patient("lab_patient", " مريض", [
-  { name: "hash", type: null },
-  { name: "name", type: "text", label: "الاسم", req: "required" },
-  {
-    name: "gender",
-    type: "select",
-    label: "الجنس",
-    options: [
-      { hash: "ذكر", text: "ذكر" },
-      { hash: "أنثى", text: "أنثى" },
-    ],
-    req: "required",
-  },
-  { name: "birth", type: "date", label: "تاريخ الميلاد", req: "required" },
-  { name: "phone", type: "text", label: "رقم الهاتف", req: "required" },
-  { name: "address", type: "text", label: "العنوان", req: "required" },
-]);
-
-let lab_doctor = new Doctor("lab_doctor", " طبيب", [
-  { name: "hash", type: null },
-  { name: "name", type: "text", label: "الاسم", req: "required" },
-  {
-    name: "commission",
-    type: "number",
-    label: "نسبة الطبيب %",
-    req: "required",
-  },
-  { name: "jop", type: "text", label: "التخصص", req: "required" },
-  { name: "phone", type: "text", label: "رقم الهاتف", req: "required" },
-]);

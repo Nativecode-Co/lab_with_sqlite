@@ -102,4 +102,25 @@ class Visit extends CI_Controller
             ->set_content_type('application/json')
             ->set_output(json_encode($visit_hash));
     }
+
+    public function getInvoiceHeader()
+    {
+        $data = $this->VisitModel->getInvoiceHeader();
+        $this->output
+            ->set_status_header(200)
+            ->set_content_type('application/json')
+            ->set_output(json_encode($data));
+    }
+
+    public function update_invoice()
+    {
+        $data = $this->input->post();
+        $lab_hash = $data['lab_hash'];
+        unset($data['lab_hash']);
+        $visit_hash = $this->VisitModel->update_invoice($data, $lab_hash);
+        $this->output
+            ->set_status_header(200)
+            ->set_content_type('application/json')
+            ->set_output(json_encode($data));
+    }
 }

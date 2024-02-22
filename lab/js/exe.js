@@ -64,6 +64,28 @@ function fetchData(url = "", type = "GET", data = {}) {
   return res;
 }
 
+function fetchApi(url = "", type = "GET", data = {}) {
+  let res = null;
+  const token = localStorage.getItem("token");
+  $.ajax({
+    url: `http://localhost:8807/api/app/index.php${url}`,
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    type,
+    data,
+    dataType: "JSON",
+    async: false,
+    success: (result) => {
+      res = result;
+    },
+    error: () => {
+      console.log("internet connection or missing link");
+    },
+  });
+  return res;
+}
+
 function fetchDataOnline(url = "", type = "GET", data = {}) {
   let res = null;
   const token = localStorage.getItem("token");

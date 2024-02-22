@@ -1,8 +1,9 @@
 class TestsTheme {
-  constructor(table, testsAndPackages, categories) {
+  constructor(table, packages, tests, categories) {
     this.name = "select Theme";
     this.table = table;
-    this.testsAndPackages = testsAndPackages;
+    this.Packages = packages;
+    this.Tests = tests;
     this.categories = categories;
   }
 
@@ -54,8 +55,8 @@ class TestsTheme {
 }
 
 class TestsThemeOne extends TestsTheme {
-  constructor(table, testsAndPackages, categories) {
-    super(table, testsAndPackages, categories);
+  constructor(table, packages, tests, categories) {
+    super(table, packages, tests, categories);
     this.name = "TestsThemeOne";
   }
 
@@ -218,12 +219,6 @@ class TestsThemeOne extends TestsTheme {
   }
 
   build() {
-    let tests = this.testsAndPackages.filter((item) => item.type == "9");
-    let packages = this.testsAndPackages.filter((item) => item.type != "9");
-    packages = packages.filter(
-      (value, index, self) =>
-        index === self.findIndex((t) => t.name === value.name)
-    );
     return `
     <div class="statbox widget box box-shadow bg-white main-visit-tests mt-4 h-100">
         <div class="widget-content widget-content-area m-auto h-100">
@@ -252,13 +247,13 @@ class TestsThemeOne extends TestsTheme {
                 <div class="tab-pane fade show active" id="all-tests" role="tabpanel"
                     aria-labelledby="all-tests-tab">
                     <div id="all-tests-content">
-                        ${this.createTests(tests)}
+                        ${this.createTests(this.Tests)}
                     </div>
                 </div>
                 <div class="tab-pane fade" id="all-packages" role="tabpanel"
                     aria-labelledby="all-packages-tab">
                     <div id="all-packages-content">
-                        ${this.createPackages(packages)}
+                        ${this.createPackages(this.Packages)}
                     </div>
                 </div>
                 ${this.createSselectedTestsAndPackages()}
@@ -272,8 +267,8 @@ class TestsThemeOne extends TestsTheme {
 }
 
 class TestsThemeTwo extends TestsTheme {
-  constructor(table, testsAndPackages, categories) {
-    super(table, testsAndPackages, categories);
+  constructor(table, packages, tests, categories) {
+    super(table, packages, tests, categories);
     this.name = "TestsThemeTwo";
   }
 
@@ -424,12 +419,6 @@ class TestsThemeTwo extends TestsTheme {
   }
 
   build() {
-    let tests = this.testsAndPackages.filter((item) => item.type == "9");
-    let packages = this.testsAndPackages.filter((item) => item.type != "9");
-    packages = packages.filter(
-      (value, index, self) =>
-        index === self.findIndex((t) => t.name === value.name)
-    );
     return `
     <div class="row" style="height: 550px;">
       <div class="col-7">
@@ -445,8 +434,8 @@ class TestsThemeTwo extends TestsTheme {
                     <div class="col-6 mt-3">
                         ${this.categorySelect(this.categories)}
                     </div>
-                    ${this.createTests(tests)}
-                    ${this.createPackages(packages)}
+                    ${this.createTests(this.Tests)}
+                    ${this.createPackages(this.Packages)}
                 </div>
                 
             </div>

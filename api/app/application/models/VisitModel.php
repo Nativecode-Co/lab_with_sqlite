@@ -85,6 +85,12 @@ class VisitModel extends CI_Model
         return $this->get_visit($visit_hash);
     }
 
+    public function update_invoice($data, $lab_hash)
+    {
+        $this->db->where('lab_hash', $lab_hash);
+        $this->db->update('lab_invoice', $data);
+    }
+
     public function get_visit($hash)
     {
         $visit = $this->db->get('lab_visits', array('hash' => $hash))->row_array();
@@ -92,24 +98,28 @@ class VisitModel extends CI_Model
         $tests = $this->get_visit_tests($hash);
         $packages = $this->db->select('hash')->where('visit_id', $hash)->get('lab_visits_package')->result_array();
         $packages = array_column($packages, 'hash');
+        // merge patient and visit
+        $visit = array_merge($visit, $patient);
         return array(
-            // "packages" => $packages,
-            // "visit" => $visit,
-            // "patient" => $patient,
-            "tests" => $tests['normal']
+            "packages" => $packages,
+            "visit" => $visit,
+            "tests" => $tests
         );
     }
 
     public function get_visit_form_data()
     {
-        // get all patients
         $patients = $this->db->select('hash,name')->get('lab_patient')->result_array();
-        // get all doctors
         $doctors = $this->db->select('hash,name')->get('lab_doctor')->result_array();
-        // return all data
+        $units = $this->db->select('hash,name')->get('lab_test_units')->result_array();
+        $data = $this->get_tests_and_packages();
         return array(
             "patients" => $patients,
             "doctors" => $doctors,
+            "tests" => $data['tests'],
+            "packages" => $data['packages'],
+            "categories" => $data['categories'],
+            "units" => $units
         );
     }
 
@@ -235,14 +245,17 @@ class VisitModel extends CI_Model
             $query = $this->db->query("
                 SELECT
                     kit_id as kit, unit,
+                    lab_test_units.name as unit_name,
                    option_test as options,
                     lab_test_catigory.name as category,
-                    result_test as result
+                    result_test as result,
+                    (select devices.name from devices where devices.id=lab_pakage_tests.lab_device_id) as device
                 FROM
                     lab_visits_tests
                     inner join lab_pakage_tests on lab_pakage_tests.package_id=lab_visits_tests.package_id
                     inner join lab_test on lab_pakage_tests.test_id = lab_test.hash
                     left join lab_test_catigory on lab_test_catigory.hash = lab_test.category_hash
+                    left join lab_test_units on lab_test_units.hash = lab_pakage_tests.unit
                 WHERE
                     visit_id='$hash'
                 order by sort
@@ -389,7 +402,8 @@ class VisitModel extends CI_Model
 
         $result = array(
             "orderOfHeader" => isset($invoice['setting']['orderOfHeader']) ? $invoice['setting']['orderOfHeader'] : array(),
-            "workers" => $invoice['workers']
+            "workers" => $invoice['workers'],
+            "invoices" => $invoice,
         );
         return $result;
     }
@@ -453,5 +467,5 @@ class VisitModel extends CI_Model
         return $result;
 
     }
-    
+
 }
