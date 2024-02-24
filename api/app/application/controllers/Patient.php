@@ -76,4 +76,14 @@ class Patient extends CI_Controller
             ->set_output(json_encode(array("hash" => $hash)));
     }
 
+    public function patientIsExist()
+    {
+        $name = $this->input->post('name');
+        $data = $this->PatientModel->patientIsExist($name);
+        $this->output
+            ->set_status_header(200)
+            ->set_content_type('application/json')
+            ->set_output(json_encode($data));
+    }
+
 }

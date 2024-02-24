@@ -68,4 +68,18 @@ class PatientModel extends CI_Model
             ->update($this->table, ['isdeleted' => 1]);
     }
 
+    public function patientIsExist($name)
+    {
+        $patient = $this->db
+            ->select('name,hash')
+            ->where('isdeleted', 0)
+            ->where('name', $name)
+            ->get($this->table)
+            ->row();
+        return array(
+            "isExist" => $patient != null,
+            "hash" => $patient != null ? $patient->hash : null
+        );
+    }
+
 }

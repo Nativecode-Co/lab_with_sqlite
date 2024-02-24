@@ -58,8 +58,6 @@ $(function () {
   // r.style.setProperty('--color-orange', invoices?.color??'red');
   // r.style.setProperty('--water-mark', `url(${invoices.logo})`??'url(../assets/image/logo2.png)');
   $(".half-page").css("height", $(window).height() - 100);
-  // add visit form
-  $("#visit-form").append(lab_visits.createForm());
   //resize window
   $(window).resize(function () {
     $(".half-page").css("height", $(window).height() - 100);

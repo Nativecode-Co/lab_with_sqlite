@@ -70,7 +70,7 @@ class Visit extends CI_Controller
         $this->output
             ->set_status_header(200)
             ->set_content_type('application/json')
-            ->set_output(json_encode($visit_hash));
+            ->set_output(json_encode($data));
     }
 
     function get_visit()
@@ -118,6 +118,16 @@ class Visit extends CI_Controller
         $lab_hash = $data['lab_hash'];
         unset($data['lab_hash']);
         $visit_hash = $this->VisitModel->update_invoice($data, $lab_hash);
+        $this->output
+            ->set_status_header(200)
+            ->set_content_type('application/json')
+            ->set_output(json_encode($data));
+    }
+
+    public function delete_visit()
+    {
+        $hash = $this->input->post("hash");
+        $data = $this->VisitModel->delete_visit($hash);
         $this->output
             ->set_status_header(200)
             ->set_content_type('application/json')

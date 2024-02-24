@@ -85,6 +85,12 @@ class VisitModel extends CI_Model
         return $this->get_visit($visit_hash);
     }
 
+    public function delete_visit($hash)
+    {
+        $this->db->where('hash', $hash);
+        $this->db->update('lab_visits', array('isdeleted' => '1'));
+    }
+
     public function update_invoice($data, $lab_hash)
     {
         $this->db->where('lab_hash', $lab_hash);
@@ -93,17 +99,28 @@ class VisitModel extends CI_Model
 
     public function get_visit($hash)
     {
-        $visit = $this->db->get('lab_visits', array('hash' => $hash))->row_array();
-        $patient = $this->db->get('lab_patient', array('hash' => $visit['visits_patient_id']))->row_array();
+        // inner join lab_patient on lab_patient.hash=lab_visits.visits_patient_id
+        $visit = $this->db
+            ->select('lab_visits.hash as hash,visits_patient_id as patient,')
+            ->select("lab_patient.name as name,visit_date")
+            ->select("address,phone, age,gender, age_year, age_month, age_day,note,doctor_hash,dicount,net_price,total_price")
+            ->from($this->table)
+            ->join('lab_patient', 'lab_patient.hash = lab_visits.visits_patient_id')
+            ->where(array('lab_visits.isdeleted' => '0', 'lab_visits.hash' => $hash))
+            ->get()->row_array();
         $tests = $this->get_visit_tests($hash);
-        $packages = $this->db->select('hash')->where('visit_id', $hash)->get('lab_visits_package')->result_array();
+        $packages = $this->db
+            ->select('package_id as hash, name')
+            ->where('visit_id', $hash)
+            ->group_by('package_id')
+            ->join('lab_package', 'lab_package.hash=lab_visits_package.package_id')
+            ->get('lab_visits_package')
+            ->result_array();
+        $visit['tests'] = $packages;
         $packages = array_column($packages, 'hash');
-        // merge patient and visit
-        $visit = array_merge($visit, $patient);
         return array(
-            "packages" => $packages,
             "visit" => $visit,
-            "tests" => $tests
+            "tests" => $tests,
         );
     }
 
@@ -190,6 +207,7 @@ class VisitModel extends CI_Model
 
     public function create_visit_package_and_tests($visit_hash = "", $tests)
     {
+        $this->create_calc_tests($tests, $visit_hash);
         $old_packages = $this->db->select("package_id")->where('visit_id', $visit_hash)->get('lab_visits_package')->result_array();
         $old_packages = array_column($old_packages, 'package_id');
         if (isset($old_packages[0])) {
@@ -199,8 +217,11 @@ class VisitModel extends CI_Model
         if (!isset($tests[0])) {
             return [];
         }
+
         $packages = $this->db->select("price,hash")->where_in('hash', $tests)->get('lab_package')->result_array();
-        $tests = $this->db->select("test_id,package_id")->where_in('package_id', $tests)->get('lab_pakage_tests')->result_array();
+        $tests = $this->db->select("test_id,package_id, test_name as name")->where_in('package_id', $tests)
+            ->join('lab_test', 'lab_test.hash=lab_pakage_tests.test_id')
+            ->get('lab_pakage_tests')->result_array();
 
         $packages = array_map(function ($package) use ($visit_hash) {
             return array(
@@ -218,7 +239,8 @@ class VisitModel extends CI_Model
                 "hash" => create_hash(),
                 "result_test" => json_encode(
                     array(
-                        "result" => "",
+                        "checked" => true,
+                        $test['name'] => ""
                     )
                 )
             );
@@ -227,6 +249,60 @@ class VisitModel extends CI_Model
         $this->db->insert_batch('lab_visits_tests', $tests);
 
         return $tests;
+    }
+
+    public function create_calc_tests($tests = [], $visit_hash)
+    {
+        $package_tests = $this->db->select("test_id")->where_in('package_id', $tests)
+            ->get('lab_pakage_tests')->result_array();
+        $calc_tests = $this->db
+            ->select('hash,option_test, test_name as name')
+            ->where('test_type', '3')
+            ->get('lab_test')
+            ->result_array();
+
+        $calc_tests = array_map(function ($test) {
+            $option = str_replace('\\', '', $test['option_test']);
+            $option = json_decode($option, true);
+            $tests = $option['tests'];
+            $test['tests'] = $tests;
+            unset($test['option_test']);
+            return $test;
+        }, $calc_tests);
+
+        $package_tests = array_map(function ($test) {
+            return $test['test_id'];
+        }, $package_tests);
+
+        $calc_tests = array_filter($calc_tests, function ($test) use ($package_tests) {
+            $tests = $test['tests'];
+            // check if all tests in package
+            $result = array_diff($tests, $package_tests);
+            if (count($result) == 0) {
+                return true;
+            } else {
+                return false;
+            }
+        });
+
+        $calc_tests = array_map(function ($test) use ($visit_hash) {
+            return array(
+                "tests_id" => $test['hash'],
+                "package_id" => "",
+                "visit_id" => $visit_hash,
+                "hash" => create_hash(),
+                "result_test" => json_encode(
+                    array(
+                        "checked" => true,
+                        $test['name'] => ""
+                    )
+                )
+            );
+        }, $calc_tests);
+
+        if (isset($calc_tests[0])) {
+            $this->db->insert_batch('lab_visits_tests', $calc_tests);
+        }
     }
 
     public function delete_old_visit_package_and_tests($visit_hash = "", $tests)
@@ -249,11 +325,12 @@ class VisitModel extends CI_Model
                    option_test as options,
                     lab_test_catigory.name as category,
                     result_test as result,
-                    (select devices.name from devices where devices.id=lab_pakage_tests.lab_device_id) as device
+                    (select devices.name from devices where devices.id=lab_pakage_tests.lab_device_id) as device,
+                    lab_test.hash as hash
                 FROM
                     lab_visits_tests
-                    inner join lab_pakage_tests on lab_pakage_tests.package_id=lab_visits_tests.package_id
-                    inner join lab_test on lab_pakage_tests.test_id = lab_test.hash
+                    left join lab_pakage_tests on lab_pakage_tests.package_id=lab_visits_tests.package_id
+                    left join lab_test on lab_visits_tests.tests_id = lab_test.hash
                     left join lab_test_catigory on lab_test_catigory.hash = lab_test.category_hash
                     left join lab_test_units on lab_test_units.hash = lab_pakage_tests.unit
                 WHERE
@@ -270,6 +347,7 @@ class VisitModel extends CI_Model
             }, $tests);
             $tests = split_tests($tests);
             $tests['normal'] = manageNormalTests($tests['normal'], $patient);
+            // $tests['calc'] = manageCalcTests($tests['calc'], $patient);
             return $tests;
         } catch (Exception $e) {
             return [];

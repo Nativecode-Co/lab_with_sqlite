@@ -99,22 +99,25 @@
                                     <h5 class="modal-title" id="modal-lab_visits">اضافة مريض</h5>
                                 </div>
                                 <div class="modal-body">
+                                    <form class="row">
+                                        <div class="col-md-12  my-4">
+                                            <label class="h5 d-inline mr-4">مريض جديد</label>
+                                            <label
+                                                class="d-inline switch s-icons s-outline s-outline-invoice-slider mr-2">
+                                                <input type="checkbox" name="new_patient" checked="">
+                                                <span class="invoice-slider slider"></span>
+                                            </label>
+                                        </div>
+                                    </form>
+
                                     <form id="form-lab_visits">
                                         <div class="row justify-content-sm-between">
-                                            <div class="col-md-12  my-4">
-                                                <label class="h5 d-inline mr-4">مريض جديد</label>
-                                                <label
-                                                    class="d-inline switch s-icons s-outline s-outline-invoice-slider mr-2">
-                                                    <input type="checkbox" name="new_patient" checked="">
-                                                    <span class="invoice-slider slider"></span>
-                                                </label>
-                                            </div>
                                             <div class="col-3">
                                                 <!-- اسم المريض -->
-                                                <div class="form-group" id="visits_patient_id-form">
-                                                    <label for="visits_patient_id">اسم المريض</label>
-                                                    <input type="text" class="form-control" id="visits_patient_id"
-                                                        placeholder="اسم المريض">
+                                                <div class="form-group" id="patient-form">
+                                                    <label for="name">اسم المريض</label>
+                                                    <input type="text" class="form-control" id="name"
+                                                        placeholder="اسم المريض" name="name">
                                                 </div>
                                             </div>
                                             <div class="col-3">
@@ -122,7 +125,7 @@
                                                 <div class="form-group">
                                                     <label for="visit_date">تاريخ الزيارة</label>
                                                     <input type="date" class="form-control" id="visit_date"
-                                                        placeholder="تاريخ الزيارة">
+                                                        name="visit_date" placeholder="تاريخ الزيارة">
                                                 </div>
                                             </div>
                                             <div class="col-2">
@@ -130,7 +133,7 @@
                                                 <div class="form-group">
                                                     <label for="age_year">العمر بالسنين</label>
                                                     <input type="number" class="form-control" id="age_year"
-                                                        placeholder="العمر بالسنين" value="0">
+                                                        name="age_year" placeholder="العمر بالسنين" value="0">
                                                 </div>
                                             </div>
                                             <div class="col-2">
@@ -138,7 +141,7 @@
                                                 <div class="form-group">
                                                     <label for="age_month">العمر بالشهور</label>
                                                     <input type="number" class="form-control" id="age_month"
-                                                        placeholder="العمر بالشهور" value="0">
+                                                        name="age_month" placeholder="العمر بالشهور" value="0">
                                                 </div>
                                             </div>
                                             <div class="col-2">
@@ -146,14 +149,14 @@
                                                 <div class="form-group">
                                                     <label for="age_day">العمر بالايام</label>
                                                     <input type="number" class="form-control" id="age_day"
-                                                        placeholder="العمر بالايام" value="0">
+                                                        name="age_day" placeholder="العمر بالايام" value="0">
                                                 </div>
                                             </div>
                                             <div class="col-3">
                                                 <!-- العنوان -->
                                                 <div class="form-group">
                                                     <label for="address">العنوان</label>
-                                                    <input type="text" class="form-control" id="address"
+                                                    <input type="text" class="form-control" id="address" name="address"
                                                         placeholder="العنوان">
                                                 </div>
                                             </div>
@@ -161,7 +164,7 @@
                                                 <!-- رقم الهاتف -->
                                                 <div class="form-group">
                                                     <label for="phone">رقم الهاتف</label>
-                                                    <input type="number" class="form-control" id="phone"
+                                                    <input type="number" class="form-control" id="phone" name="phone"
                                                         placeholder="رقم الهاتف">
                                                 </div>
                                             </div>
@@ -169,7 +172,7 @@
                                                 <!-- الجنس -->
                                                 <div class="form-group">
                                                     <label for="gender">الجنس</label>
-                                                    <select class="form-control " id="gender">
+                                                    <select class="form-control " id="gender" name="gender">
                                                         <option value="ذكر">ذكر</option>
                                                         <option value="انثى">انثى</option>
                                                     </select>
@@ -179,7 +182,8 @@
                                                 <!-- الطبيب المعالج -->
                                                 <div class="form-group" id="doctor_hash-form">
                                                     <label for="note">الطبيب</label>
-                                                    <select class="form-control" id="doctor_hash">
+                                                    <select class="form-control" id="doctor_hash" name="doctor_hash">
+
 
                                                     </select>
                                                 </div>
@@ -190,7 +194,7 @@
                                                 <div class="form-group">
                                                     <label for="note">ملاحظات</label>
                                                     <textarea class="form-control" id="note" style="font-size:14px"
-                                                        rows="3"></textarea>
+                                                        name="note" rows="3"></textarea>
                                                 </div>
                                             </div>
                                         </div>

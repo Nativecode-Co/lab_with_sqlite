@@ -5,29 +5,30 @@ let __VISIT_TESTS__ = [];
 
 // dom ready with js
 document.addEventListener("DOMContentLoaded", () => {
-  $("#visit_date").val(TODAY);
-  $("#gender").select2({
+  document.getElementById("visit_date").value = TODAY;
+  const genderElement = document.getElementById("gender");
+  const doctorElement = document.getElementById("doctor_hash");
+  doctorElement.innerHTML = `<option value="">اختر الطبيب</option>`;
+  for (let doctor of doctors) {
+    doctorElement.innerHTML += `<option value="${doctor.hash}">${doctor.name}</option>`;
+  }
+  $(genderElement).select2({
     width: "100%",
   });
-  $("#doctor_hash").select2({
+  $(doctorElement).select2({
     width: "100%",
   });
 });
 
-// change the patient addEventListener
-document
-  .querySelector("input[name='new_patient']")
-  .addEventListener("change", (e) => {
-    const visitsPatientIdForm = document.getElementById(
-      "visits_patient_id-form"
-    );
-    visitsPatientIdForm.innerHTML = "";
+const changePatientTag = (e) => {
+  const visitsPatientIdForm = document.getElementById("patient-form");
+  visitsPatientIdForm.innerHTML = "";
 
-    if (!e.target.checked) {
-      visitsPatientIdForm.innerHTML = `
-      <label for="visits_patient_id">اسم المريض</label>
-      <select class="form-control" id="visits_patient_id" onchange="getOldPatient(this.value)">
-        <option value="0">اختر المريض</option>
+  if (!e.checked) {
+    visitsPatientIdForm.innerHTML = `
+      <label for="patient">اسم المريض</label>
+      <select class="form-control" id="patient" name="patient" onchange="getOldPatient(this.value)">
+        <option value="">اختر المريض</option>
         ${patients
           .map(
             (patient) =>
@@ -36,17 +37,24 @@ document
           .join("")}
       </select>
     `;
-      $("#visits_patient_id").select2({
-        width: "100%",
-      });
-    } else {
-      lab_visits.resetForm();
-      document.getElementById("show_selected_tests").innerHTML = "";
-      visitsPatientIdForm.innerHTML = `
-      <label for="visits_patient_id">اسم المريض</label>
-      <input type="text" class="form-control" id="visits_patient_id" placeholder="اسم المريض">
+    $("#patient").select2({
+      width: "100%",
+    });
+  } else {
+    document.getElementById("show_selected_tests").innerHTML = "";
+    visitsPatientIdForm.innerHTML = `
+      <label for="name">اسم المريض</label>
+      <input type="text" class="form-control" name="name" id="name" placeholder="اسم المريض">
     `;
-    }
+  }
+};
+
+// change the patient addEventListener
+document
+  .querySelector("input[name='new_patient']")
+  .addEventListener("change", (e) => {
+    lab_visits.resetForm();
+    changePatientTag(e.target);
   });
 
 function toggleHeaderAndFooter() {
@@ -183,13 +191,12 @@ function showVisit(hash) {
   $(".action").removeClass("active");
   $("#show_visit_button").addClass("active");
   let visit = run(`SELECT name,age,DATE(visit_date) as date,
-    TIME(visit_date) as time,total_price, net_price, note,visits_patient_id,hash,
+    TIME(visit_date) as time,total_price, net_price, note,patient,hash,
                             (select name from lab_doctor where hash=lab_visits.doctor_hash) as doctor 
                      FROM lab_visits WHERE hash = ${hash};`).result[0]
     .query0[0];
-  let patient = run(
-    `SELECT * FROM lab_patient WHERE hash='${visit.visits_patient_id}';`
-  ).result[0].query0[0];
+  let patient = run(`SELECT * FROM lab_patient WHERE hash='${visit.patient}';`)
+    .result[0].query0[0];
   if (!patient) {
     niceSwal("error", "bottom-end", "المريض غير موجود");
     return;
@@ -473,7 +480,7 @@ function visitEdit(hash) {
   let visit_packages = data.result[1].query1;
 
   // set visit details
-  $("#visits_patient_id").val(visit.visits_patient_id).trigger("change");
+  $("#patient").val(visit.patient).trigger("change");
   $("#visits_status_id").val(visit.visits_status_id).trigger("change");
   $("#visit_date").val(visit.visit_date);
   $("#doctor_hash").val(visit.doctor_hash).trigger("change");
@@ -573,6 +580,7 @@ function filterWithGender(reference, gender) {
 }
 
 function manageRange(range) {
+  if (!range) return "range : no Range";
   return (
     range
       .map((range) => {
@@ -599,15 +607,15 @@ function generateNormalFieldForTest(test) {
   }')`;
   const id = `check_normal_${test.hash}`;
   const checked = test.result.checked ?? true ? "checked" : "";
-  const getSelected = (option)=>{
+  const getSelected = (option) => {
     return test.result[test.name]
-    ? test.result[test.name] == option
+      ? test.result[test.name] == option
+        ? "selected"
+        : ""
+      : test.right_options.includes(option)
       ? "selected"
-      : ""
-    : test.right_options.includes(option)
-    ? "selected"
-    : "";
-  }
+      : "";
+  };
   let input = null;
   if (test.result_type === "result") {
     input = `
@@ -618,7 +626,10 @@ function generateNormalFieldForTest(test) {
     >
       ${test.options
         .map(
-          (option) => `<option value="${option}" ${getSelected(option)}>${option}</option>`
+          (option) =>
+            `<option value="${option}" ${getSelected(
+              option
+            )}>${option}</option>`
         )
         .join("")}
     </select>`;
@@ -849,8 +860,11 @@ function addResult(visitTests) {
         <input type="text" class="w-100 form-control search-class test-normalTests results product-search br-30" id="input-search-3" placeholder="ابحث عن التحليل" onkeyup="addTestSearch(this)">
       </div>`,
   ];
-  const { normal, special } = visitTests;
+  const { normal, special, calc } = visitTests;
   for (const test of normal) {
+    resultForm.push(generateNormalFieldForTest(test));
+  }
+  for (const test of calc) {
     resultForm.push(generateNormalFieldForTest(test));
   }
 
@@ -1094,7 +1108,7 @@ function showInvoice(hash) {
                     inner join
                         lab_patient
                     on
-                        lab_patient.hash=lab_visits.visits_patient_id
+                        lab_patient.hash=lab_visits.patient
                     where 
                     lab_visits.hash = '${hash}';
                     

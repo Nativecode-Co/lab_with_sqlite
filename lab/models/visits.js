@@ -8,21 +8,6 @@ const { patients, units, doctors, tests, packages, categories } = fetchApi(
 );
 const { workers, invoices } = fetchApi("/visit/getInvoiceHeader", "GET", {});
 
-// get birth by float age year
-function getBirthByAge(age_year = 0, age_month = 0, age_day = 0) {
-  const ageByDay =
-    Number(age_year) * 365 + Number(age_month) * 30 + Number(age_day);
-  const birth = new Date();
-  birth.setDate(birth.getDate() - ageByDay);
-  const year = birth.getFullYear();
-  let month = birth.getMonth() + 1;
-  let day = birth.getDate();
-  // month to 2 digit
-  month = month.toString().length === 1 ? `0${month}` : month;
-  // day to 2 digit
-  day = day.toString().length === 1 ? `0${day}` : day;
-  return `${year}-${month}-${day}`;
-}
 class Visit extends Factory {
   init() {
     this.createModal();
@@ -84,30 +69,24 @@ class Visit extends Factory {
     );
   }
 
-  pageCondition() {
-    return "";
-  }
-
   resetForm() {
-    $("#visits_patient_id").val("").trigger("change");
-    $("#visit_date").val(TODAY);
-    $("#age_year").val(0);
-    $("#age_day").val(0);
-    $("#age_month").val(0);
-    $("#gender").val("").trigger("change");
-    $("#phone").val("");
-    $("#address").val("");
-    $("#visits_status_id").val("").trigger("change");
-    $("#doctor_hash").val("").trigger("change");
-    $("#note").val("");
-    $("#dicount").val(0);
-    $("#total_price").val(0);
-    $("#net_price").val(0);
-    // fill packages
-    for (const x of [...packages, ...tests]) {
-      $(`#package_${x.hash}`).prop("checked", false);
-      $(`#package_${x.hash}`).trigger("change");
+    const form = document.getElementById("form-lab_visits");
+    form.reset();
+    // change doctor_hash select2 with
+    $("#doctor_hash").val(null).trigger("change");
+    // change visits_date with today
+    document.getElementById("visit_date").value = TODAY;
+
+    const testsElement = document.getElementsByName("tests[]");
+    $(".itemsActive").removeClass("itemsActive");
+    for (const test of testsElement) {
+      test.checked = false;
     }
+    $("#show_selected_tests div").remove();
+    document.getElementById("dicount").value = 0;
+    document.getElementById("total_price").value = 0;
+    document.getElementById("net_price").value = 0;
+    // document.getElementById("input-search-2").value = "";
     // change button onclick
     $(`#${this.table}-save`).attr(
       "onclick",
@@ -116,51 +95,9 @@ class Visit extends Factory {
     $("#show_selected_tests").html("");
   }
 
-  getQuery(resetQuery) {
-    return `select 
-            lab_visits.hash as hash,
-            lab_patient.name as patient_name,
-            visits_patient_id,
-            (select name from lab_visit_status where hash=visits_status_id) as visit_type,
-            visits_status_id,
-            visit_date,
-            doctor_hash,
-            total_price,
-            net_price,
-            dicount,
-            address,
-            age_year,
-            age_day,
-            age_month,
-            gender,
-            phone,
-            lab_visits.id as id,
-            note
-        from 
-            lab_visits 
-        inner join 
-            lab_patient 
-        on 
-            lab_patient.hash = lab_visits.visits_patient_id
-        ${resetQuery};`;
-  }
-
-  getItem(hash) {
-    return this.getQuery(`where lab_visits.hash='${hash}'`);
-  }
-
-  mainCondition() {
-    return ` where lab_id=${localStorage.getItem("lab_hash")}
-        and 
-            visit_date = date('now') and ${this.table}.isdeleted='0'
-        `;
-  }
-
-  orderByQuery() {
-    return "order by visit_date desc";
-  }
-
   updateItem(hash) {
+    const { visit } = fetchApi(`/visit/get_visit?hash=${hash}`, "GET", {});
+
     $("#work-sapce").empty();
     $("#show_selected_tests div").remove();
     // open modal
@@ -170,59 +107,37 @@ class Visit extends Factory {
       },
       500
     );
-    $(".testSelect").each((index, item) => {
-      $(item).prop("checked", false);
-    });
-    $(".itemsActive").removeClass("itemsActive");
-    $("#visits_patient_id-form").empty();
-    $("#visits_patient_id-form").append(`
-            <label for="visits_patient_id"> اسم المريض</label>
-            <select class="form-control" id="visits_patient_id">
-            <option value="false">اختر المريض</option>
-            ${patients
-              .map(
-                (patient) =>
-                  `<option value="${patient.hash}">${patient.name}</option>`
-              )
-              .join("")}
-            </select>
-            <script>
-                $('#visits_patient_id').select2({
-                    width: '100%'
-                });
-            </script>`);
-    $('input[name="new_patient"]').prop("checked", false);
-    // fill form with item
-    const items = run(`
-      ${this.getItem(hash)}
-      select package_id, (select name from lab_package where lab_visits_package.package_id = lab_package.hash) as name from lab_visits_package where visit_id = '${hash}';
-    `);
-    const item = items.result[0].query0[0];
-    const visitPackages = items.result[1].query1;
-    $("#visits_patient_id").val(item.visits_patient_id).trigger("change");
-    $("#visit_date").val(item.visit_date);
-
-    $("#age_year").val(item.age_year);
-    $("#age_day").val(item.age_day);
-    $("#age_month").val(item.age_month);
-    $("#gender").val(item.gender).trigger("change");
-    $("#phone").val(item.phone);
-    $("#address").val(item.address);
-    $("#visits_status_id").val(item.visits_status_id).trigger("change");
-    $("#doctor_hash").val(item.doctor_hash).trigger("change");
-    $("#note").val(item.note);
-    $("#dicount").val(item.dicount);
-    $("#total_price").val(item.total_price);
-    $("#net_price").val(item.net_price);
-    // fill packages
-    for (const x of visitPackages) {
-      $(`#package_${x.package_id}`).prop("checked", true);
-      $(`#package_${x.package_id}`).trigger("change");
-      // $(`#package_${x.package_id}`) parent div has class items add class itemsActive
-      $(`#package_${x.package_id}`).parent(".items").addClass("itemsActive");
-      showSelectedTests(x.package_id, x.name, true);
+    const newPatientElement = document.querySelector(
+      `input[name="new_patient"]`
+    );
+    // change new patient checked
+    newPatientElement.checked = false;
+    changePatientTag(newPatientElement);
+    this.resetForm();
+    // fill form with data
+    for (const [key, value] of Object.entries(visit)) {
+      if (key === "hash") {
+        continue;
+      } else if (key === "tests") {
+        for (const test of value) {
+          // use pure js to check test
+          const testElement = document.getElementById(`package_${test.hash}`);
+          if (testElement) {
+            testElement.checked = true;
+            testElement.parentElement.classList.add("itemsActive");
+          }
+          showSelectedTests(test.hash, test.name, true);
+        }
+      } else {
+        const element = document.getElementById(key);
+        if (element) {
+          element.value = value;
+          if (element.tagName === "SELECT") {
+            $(`#${key}`).val(value).trigger("change");
+          }
+        }
+      }
     }
-    // change button onclick
     $(`#${this.table}-save`).attr(
       "onclick",
       `fireSwal.call(${this.table}, ${this.table}.saveUpdateItem, '${hash}')`
@@ -230,82 +145,64 @@ class Visit extends Factory {
   }
 
   validate() {
-    // check if patient is selected
-    const patientHash = $("#visits_patient_id").val();
-    if (patientHash === "false" || patientHash === "0" || patientHash === "") {
-      niceSwal("error", "bottom-end", "يجب ادخال بيانات المريض اولا");
+    const data = this.getData();
+    if (data.patient === "") {
+      niceSwal("error", "bottom-end", "يجب اختيار المريض");
+      return false;
+    }
+    if (data.name === "") {
+      niceSwal("error", "bottom-end", "يجب ادخال اسم المريض");
       return false;
     }
 
-    if ($("#visit_date").val() === "") {
+    if (data.visit_date === "") {
       niceSwal("error", "bottom-end", "يجب اختيار تاريخ الزيارة");
       return false;
     }
 
-    if (!$(".testSelect:checked").length) {
-      niceSwal("error", "bottom-end", "يجب اختيار اختبار واحد على الاقل");
+    if (data.tests.length === 0) {
+      niceSwal("error", "bottom-end", "يجب اختيار تحاليل");
       return false;
     }
 
     if (
-      parseInt($("#age_year").val()) * 356 +
-        parseInt($("#age_day").val()) +
-        parseInt($("#age_month").val()) * 30 <=
+      parseInt(data.age_year) +
+        parseInt(data.age_month) +
+        parseInt(data.age_day) <=
       0
     ) {
-      niceSwal("error", "bottom-end", "يجب ادخال العمر");
+      niceSwal("error", "bottom-end", "يجب ادخال عمر صحيح");
       return false;
     }
 
-    return true;
+    return data;
   }
 
-  getNewData() {
-    const age_year = $("#age_year").val();
-    const age_month = $("#age_month").val();
-    const age_day = $("#age_day").val();
-    const birth = getBirthByAge(age_year, age_month, age_day);
-    const age = (
-      Number(age_year) +
-      Number(age_month / 12) +
-      Number(age_day / 365)
-    ).toFixed(2);
-    const name = ($("input[name=new_patient]").is(":checked") ? true : false)
-      ? $("#visits_patient_id").val()
-      : $("#visits_patient_id option:selected").html();
+  getData() {
+    const form = document.getElementById("form-lab_visits");
+    let formData = new FormData(form);
+    formData = Object.fromEntries(formData.entries());
+    const tests = [];
+    const testSelects = document.querySelectorAll(".testSelect:checked");
+    testSelects.forEach(function (testSelect) {
+      tests.push(testSelect.value);
+    });
     const data = {
-      visits_patient_id: $("#visits_patient_id").val(),
-      name: name,
-      visit_date: $("#visit_date").val(),
-      age_year: age_year,
-      age_month: age_month,
-      age_day: age_day,
-      birth: birth,
-      age: age,
-      address: $("#address").val(),
-      phone: $("#phone").val(),
-      gender: $("#gender").val(),
-      doctor_hash: $("#doctor_hash").val(),
-      note: $("#note").val(),
-      dicount: $("#dicount").val(),
-      total_price: $("#total_price").val(),
-      net_price: $("#net_price").val(),
-      lab_id: localStorage.getItem("lab_hash"),
-      new_patient: $("input[name=new_patient]").is(":checked") ? true : false,
+      ...formData,
+      dicount: document.getElementById("dicount").value,
+      total_price: document.getElementById("total_price").value,
+      net_price: document.getElementById("net_price").value,
+      tests: tests,
     };
     return data;
   }
 
   savenewItemaAfterCheckName() {
-    if (!this.validate()) {
-      return false;
-    }
-    const hash = run(
-      `select hash from lab_patient where name = '${$(
-        "#visits_patient_id"
-      ).val()}' and isdeleted = 0;`
-    )?.result[0]?.query0[0]?.hash;
-    if (hash) {
+    const data = this.validate();
+    const { isExist, hash } = fetchApi("/patient/patientIsExist", "POST", {
+      name: data.name,
+    });
+    if (isExist) {
       Swal.fire({
         title: "تنبيه",
         text: "هذا المريض موجود بالفعل هل تريد اضافة زيارة له ؟",
@@ -323,7 +220,7 @@ class Visit extends Factory {
             resolve();
           })
             .then(() => {
-              $("#visits_patient_id").val(hash).trigger("change");
+              $("#patient").val(hash).trigger("change");
               this.saveNewItem();
             })
             .then(() => {
@@ -341,281 +238,37 @@ class Visit extends Factory {
   }
 
   saveNewItem() {
-    $(".itemsActive").removeClass("itemsActive");
-    const insertedPackages = [];
-    $(".testSelect:checked").each(function () {
-      insertedPackages.push($(this).val());
-    });
-    let insertedTests = run(`
-        select 
-            test_id as id,
-            package_id,
-            (select test_name from lab_test where lab_test.hash = lab_pakage_tests.test_id limit 1) as name,
-            (select catigory_id from lab_package where lab_package.hash = lab_pakage_tests.package_id limit 1) as catigory_id
-        from 
-            lab_pakage_tests where package_id in (${insertedPackages});`)
-      .result[0].query0;
-    // delete duplicate tests
-    let error = false;
-    insertedTests = insertedTests.filter((test, index, array) => {
-      return (
-        array.findIndex((foundedTest) => {
-          if (
-            foundedTest.id === test.id &&
-            foundedTest.catigory_id != test.catigory_id
-          ) {
-            niceSwal("error", "bottom-end", `التحليل ${test.name} مكرر`);
-            error = true;
-          }
-          return (
-            foundedTest.id === test.id &&
-            foundedTest.catigory_id === test.catigory_id
-          );
-        }) === index
-      );
-    });
-    if (error) {
-      return false;
-    }
-    const data = this.getNewData();
-    // get birth from age_year and age_month
-    let patient_hash = null;
-    if (data.new_patient) {
-      patient_hash = run({
-        action: "insert",
-        table: "lab_patient",
-        column: {
-          name: data.visits_patient_id,
-          lab_id: data.lab_id,
-          phone: data.phone,
-          address: data.address,
-          gender: data.gender,
-          age_year: data.age_year,
-          age_day: data.age_day,
-          age_month: data.age_month,
-          birth: data.birth,
-        },
-      }).result[0].query0;
-      patients.push({
-        name: data.name,
-        hash: patient_hash,
-        birth: data.birth,
-      });
-    } else {
-      run({
-        action: "update",
-        table: "lab_patient",
-        column: {
-          address: data.address,
-          phone: data.phone,
-          gender: data.gender,
-          age_year: data.age_year,
-          age_day: data.age_day,
-          age_month: data.age_month,
-          birth: data.birth,
-        },
-        hash: data.visits_patient_id,
-      });
-      patient_hash = data.visits_patient_id;
-    }
-
-    const newObjectHash = run({
-      table: this.table,
-      action: "insert",
-      column: {
-        labID: data.lab_id,
-        name: data.name,
-        visits_patient_id: patient_hash,
-        visit_date: data.visit_date,
-        visits_status_id: "2",
-        doctor_hash: data.doctor_hash,
-        note: data.note,
-        dicount: data.dicount,
-        total_price: data.total_price,
-        net_price: data.net_price,
-        age: data.age,
-      },
-    }).result[0].query0;
-    let mainQuery = `${this.getItem(newObjectHash)} `;
-    $(".testSelect:checked").each(function () {
-      mainQuery += `insert into lab_visits_package(visit_id, package_id, price,lab_id,insert_record_date) values('${newObjectHash}', '${$(
-        this
-      ).val()}', '${$(this).data("price")}','${
-        localStorage.lab_hash
-      }','${TODAY}'); `;
-    });
-    insertedTests.map((test) => {
-      mainQuery += `insert into lab_visits_tests(visit_id, package_id, tests_id,lab_id,insert_record_date) values('${newObjectHash}', '${test.package_id}', '${test.id}','${localStorage.lab_hash}', '${TODAY}'); `;
-    });
-    const newVisit = run(mainQuery).result[0].query0[0];
-    // empty show_selected_tests except first column
-    $("#show_selected_tests div").remove();
-    add_calc_tests(
-      insertedTests.map((test) => test.id),
-      newObjectHash
-    );
+    const data = this.validate();
+    const { visit } = fetchApi("/visit/create_visit", "POST", data);
     this.dataTable.ajax.reload();
     this.resetForm();
-    visitDetail(newObjectHash);
-    showAddResult(newObjectHash);
-    $("#input-search-2").val("");
+    visitDetail(visit.hash);
+    showAddResult(visit.hash);
   }
 
   saveUpdateItem(hash) {
-    if (!this.validate()) {
-      return false;
-    }
-    $(".itemsActive").removeClass("itemsActive");
-    let insertedPackages = [];
-    $(".testSelect:checked").each(function () {
-      insertedPackages.push($(this).val());
+    const data = this.validate();
+    const { visit } = fetchApi("/visit/update_visit", "POST", {
+      ...data,
+      hash: hash,
     });
-    let insertedTests = run(`
-        select 
-            test_id as id,
-            package_id,
-            (select test_name from lab_test where lab_test.hash = lab_pakage_tests.test_id limit 1) as name,
-            (select catigory_id from lab_package where lab_package.hash = lab_pakage_tests.package_id limit 1) as catigory_id
-        from 
-            lab_pakage_tests where package_id in (${insertedPackages});`)
-      .result[0].query0;
-    // delete duplicate tests
-    let error = false;
-    insertedTests = insertedTests.filter((test, index, array) => {
-      return (
-        array.findIndex((foundedTest) => {
-          if (
-            foundedTest.id === test.id &&
-            foundedTest.package_id === test.package_id &&
-            foundedTest.catigory_id != test.catigory_id
-          ) {
-            niceSwal("error", "bottom-end", `التحليل ${test.name} مكرر`);
-            error = true;
-          }
-          return (
-            foundedTest.id === test.id &&
-            foundedTest.package_id === test.package_id &&
-            foundedTest.catigory_id === test.catigory_id
-          );
-        }) === index
-      );
-    });
-    if (error) {
-      return false;
-    }
-    $("#show_selected_tests div").remove();
-    let data = this.getNewData();
-    let patientData = {
-      age_year: data.age_year,
-      age_month: data.age_month,
-      age_day: data.age_day,
-      address: data.address,
-      phone: data.phone,
-      gender: data.gender,
-      birth: data.birth,
-    };
-
-    let visitData = {
-      visits_patient_id: data.visits_patient_id,
-      visit_date: data.visit_date,
-      doctor_hash: data.doctor_hash,
-      note: data.note,
-      dicount: data.dicount,
-      total_price: data.total_price,
-      net_price: data.net_price,
-      age: data.age,
-    };
-    let mainQuery = `update lab_patient set ${Object.entries(patientData)
-      .map(([key, value]) => `${key}='${value}'`)
-      .join(",")} where hash = '${data.visits_patient_id}'; `;
-    mainQuery += `update ${this.table} set ${Object.entries(visitData)
-      .map(([key, value]) => `${key}='${value}'`)
-      .join(",")} where hash = '${hash}'; `;
-    mainQuery += `${this.getItem(hash)} `;
-    const result = run(`
-            select package_id from lab_visits_package where visit_id = '${hash}';
-            select package_id, tests_id from lab_visits_tests where visit_id = '${hash}';
-        `).result;
-    const oldPackages = result[0].query0.map((item) => item.package_id);
-    const oldTests = result[1].query1;
-    const newPackages = insertedPackages;
-    const newTests = insertedTests;
-    let tests_hashes = newTests.map((test) => test.id);
-
-    const deletedPackages = oldPackages.filter(
-      (_package) => !newPackages.includes(_package)
-    );
-    const deletedTests = oldTests.filter(
-      (_test) =>
-        !newTests.some(
-          (newTest) =>
-            newTest.package_id === _test.package_id &&
-            newTest.id === _test.tests_id
-        )
-    );
-    const addedPackages = newPackages.filter(
-      (_package) => !oldPackages.includes(_package)
-    );
-    const addedTests = newTests.filter(
-      (_test) =>
-        !oldTests.find(
-          (_oldTest) =>
-            _oldTest.package_id === _test.package_id &&
-            _oldTest.tests_id === _test.id
-        )
-    );
-    mainQuery += deletedPackages
-      .map(
-        (_package) =>
-          `delete from lab_visits_package where visit_id = '${hash}' and package_id = '${_package}'; `
-      )
-      .join("");
-    mainQuery += deletedTests
-      .map(
-        (_test) =>
-          `delete from lab_visits_tests where visit_id = '${hash}' and package_id = '${_test.package_id}' and tests_id = '${_test.tests_id}'; `
-      )
-      .join("");
-    mainQuery += addedPackages
-      .map(
-        (_package) =>
-          `insert into lab_visits_package(visit_id, package_id, price,lab_id,insert_record_date) values('${hash}', '${_package}', '${$(
-            `.testSelect[value=${_package}]`
-          ).data("price")}','${localStorage.lab_hash}','${TODAY}'); `
-      )
-      .join("");
-    mainQuery += addedTests
-      .map(
-        (_test) =>
-          `insert into lab_visits_tests(visit_id, package_id, tests_id, lab_id,insert_record_date) values('${hash}', '${_test.package_id}', '${_test.id}','${localStorage.lab_hash}', '${TODAY}'); `
-      )
-      .join("");
-
-    let newVisit = run(mainQuery).result[2].query2[0];
-    add_calc_tests(tests_hashes, hash, "update");
     this.dataTable.ajax.reload();
     this.resetForm();
+    const newPatientElement = document.querySelector(
+      `input[name="new_patient"]`
+    );
+    newPatientElement.checked = false;
+    changePatientTag(newPatientElement);
     $(`#${this.table} -save`).attr(
       "onclick",
       `fireSwal.call(${this.table}, ${this.table}.savenewItemaAfterCheckName)`
     );
     visitDetail(hash);
     showAddResult(hash);
-    $("#input-search-2").val("");
   }
 
-  async createModal() {
-    const fetchInvoice = async () => {
-      const labHash = localStorage.getItem("lab_hash");
-      return await fetch(`${base_url}Invoice/get_or_create?hash=${labHash}`)
-        .then((e) => e.json())
-        .then((res) => {
-          const setting = JSON.parse(res.data.setting);
-          return setting;
-        });
-    };
-    const setting = await fetchInvoice();
-    const labTheme = setting?.visitTestsTheme ?? "default";
+  createModal() {
+    const labTheme = "default";
     let theme = null;
     switch (labTheme) {
       case "one":
@@ -628,10 +281,6 @@ class Visit extends Factory {
     $("#testsThemeElement").prepend(theme.build());
   }
 
-  createForm() {
-    return "";
-  }
-
   deleteItem(hash) {
     $("#show_visit_button").attr("onclick", "");
     $("#invoice_button").attr("onclick", "");
@@ -639,19 +288,8 @@ class Visit extends Factory {
     $(".action").removeClass("active");
     const workSpace = $("#work-sapce");
     workSpace.html("");
-    run({
-      table: this.table,
-      action: "update",
-      column: {
-        isdeleted: 1,
-      },
-      hash: hash,
-    });
-    this.dataTable.row(`#${hash} `).remove().draw();
-  }
-
-  havingQuery(value) {
-    return `having lab_patient.name like '%${value}%'`;
+    fetchApi("/visit/delete_visit", "POST", { hash });
+    this.dataTable.ajax.reload();
   }
 }
 
