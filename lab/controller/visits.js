@@ -419,48 +419,48 @@ function showAddResult(hash, animate = true) {
     </div>
     `;
   workSpace.append(html);
-  // setInvoiceStyle();
-  // $("#invoice-tests-buttons .btn").first().addClass("active");
-  // $(".book-result").first().show();
-  // $(".results").hide();
-  // $(`.test-${$(".book-result").first().attr("id").split("-")[1]}`).show();
-  // $("#print-invoice-result").attr("onclick", `printOneInvoice()`);
-  // $("#print-all-invoice-result").attr("onclick", `printAll();`);
-  // getCurrentInvoice($(`#${localStorage.getItem("currentInvoice")}`));
-  // $(".results select").each(function () {
-  //   $(this).select2({
-  //     width: "100%",
-  //     tags: true,
-  //     dropdownParent: $(this).parent().parent(),
-  //   });
-  // });
+  setInvoiceStyle();
+  $("#invoice-tests-buttons .btn").first().addClass("active");
+  $(".book-result").first().show();
+  $(".results").hide();
+  $(`.test-${$(".book-result").first().attr("id").split("-")[1]}`).show();
+  $("#print-invoice-result").attr("onclick", `printOneInvoice()`);
+  $("#print-all-invoice-result").attr("onclick", `printAll();`);
+  getCurrentInvoice($(`#${localStorage.getItem("currentInvoice")}`));
+  $(".results select").each(function () {
+    $(this).select2({
+      width: "100%",
+      tags: true,
+      dropdownParent: $(this).parent().parent(),
+    });
+  });
 
-  // $(".results select[multiple]").each(function () {
-  //   // delete Absent if length > 1
-  //   $(this).on("select2:select", function (e) {
-  //     if ($(this).val().length > 1) {
-  //       $(this).val(
-  //         $(this)
-  //           .val()
-  //           .filter((v) => v.toUpperCase() != "ABSENT")
-  //       );
-  //       $(this).trigger("change");
-  //     }
-  //   });
-  // });
-  // invoices?.footer_header_show == "1" ? null : toggleHeaderAndFooter();
-  // // animate to main-space with js
-  // if (animate) {
-  //   $("html, body").animate(
-  //     {
-  //       scrollTop:
-  //         $("#main-space").offset().top *
-  //           ($(window).width() < 2100 ? $(window).width() / 2100 : 1) -
-  //         75,
-  //     },
-  //     1000
-  //   );
-  // }
+  $(".results select[multiple]").each(function () {
+    // delete Absent if length > 1
+    $(this).on("select2:select", function (e) {
+      if ($(this).val().length > 1) {
+        $(this).val(
+          $(this)
+            .val()
+            .filter((v) => v.toUpperCase() != "ABSENT")
+        );
+        $(this).trigger("change");
+      }
+    });
+  });
+  invoices?.footer_header_show == "1" ? null : toggleHeaderAndFooter();
+  // animate to main-space with js
+  if (animate) {
+    $("html, body").animate(
+      {
+        scrollTop:
+          $("#main-space").offset().top *
+            ($(window).width() < 2100 ? $(window).width() / 2100 : 1) -
+          75,
+      },
+      1000
+    );
+  }
 }
 
 function visitEdit(hash) {
@@ -611,21 +611,22 @@ function generateNormalFieldForTest(test, type = "normal") {
   `;
 }
 
-function addStrcResult(component, test, result_test, resultForm) {
+function addStrcResult(test) {
   let type = "";
   let results = {};
+  let result_test = test.result;
 
-  let componentMarkup = component
+  let componentMarkup = test.refs
     .map((comp) => {
       let typeDiff = comp.type != type;
       type = typeDiff ? comp.type : type;
       let input = "";
       let editable = "";
-      let result = result_test?.[comp.name] ?? "";
+      let result = /*result_test?.[comp.name] ?? */ "";
 
       if (comp?.calc) {
         comp.eq = comp.eq.map((item) => {
-          if (!isNaN(item)) {
+          if (!Number.isNaN(item)) {
             return item;
           } else if (!calcOperator.includes(item)) {
             item = result_test?.[item] ?? 0;
@@ -646,9 +647,9 @@ function addStrcResult(component, test, result_test, resultForm) {
 
       switch (comp.result) {
         case "result":
-          let options = comp.options;
+          const options = comp.options;
           let htmlOptions = "";
-          let multi = comp.multi === true ? "multiple" : "";
+          const multi = comp.multi === true ? "multiple" : "";
           // check if options is array or object
           if (options instanceof Array) {
             htmlOptions = options
@@ -769,9 +770,7 @@ function addStrcResult(component, test, result_test, resultForm) {
     </div>
   `;
 
-  resultForm.push(resultFormMarkup);
-
-  return resultForm;
+  return resultFormMarkup;
 }
 
 function addResult(visitTests) {
@@ -788,6 +787,7 @@ function addResult(visitTests) {
     resultForm.push(generateNormalFieldForTest(test, "calc"));
   }
   for (const test of special) {
+    resultForm.push(addStrcResult(test));
   }
   return resultForm.join("");
 }

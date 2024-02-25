@@ -209,6 +209,7 @@ function manageSpecialTests($tests, $patient)
             unset($options["component"]);
             $test['options'] = $options;
             $test['refs'] = $component;
+            $test['result'] = getResult($test['result']);
 
         } catch (Exception $e) {
             $test = [];
