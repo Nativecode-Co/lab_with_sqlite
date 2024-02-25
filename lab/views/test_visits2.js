@@ -1,5 +1,3 @@
-"use strict";
-
 // Elmemnts
 // tests container
 const testsElement = document.getElementById("tests");
@@ -88,13 +86,13 @@ const getTests = async () => {
     .then((json) => {
       if (json.data.length > 0) {
         testsElement.innerHTML = "";
-        json.data.reverse().forEach((test) => {
+        for (const test of json.data.reverse()) {
           testsElement.innerHTML += addTest(test);
-        });
+        }
       } else {
         testsElement.innerHTML = `<h1 class="col-6 my-4 text-center alert alert-danger">
-        لا توجد نتائج
-      </h1>`;
+          لا توجد نتائج
+        </h1>`;
       }
     })
     .catch((error) => {
@@ -107,28 +105,19 @@ const getTests = async () => {
 // search button click event
 searchButtonElement.addEventListener("click", getTests);
 
-$(function () {
-  let data = run(`
-        SELECT test_id,(select name from lab_package where package_id=lab_package.hash) as name FROM lab_pakage_tests
-        where lab_pakage_tests.lab_id = ${localStorage.getItem("lab_hash")}
-        group by name ;
-        SELECT name,hash FROM lab_doctor where lab_id = ${localStorage.getItem(
-          "lab_hash"
-        )} and isdeleted =0;
-    `).result;
-  let tests = data[0].query0;
-  let doctors = data[1].query1;
+$(() => {
+  const { tests, doctors } = fetchApi("/tests/get_tests_report_data");
   $(doctorElement).append(`<option value="">كل الاطباء</option>`);
-  doctors.forEach((doctor) => {
+  for (const doctor of doctors) {
     $(doctorElement).append(
       `<option value="${doctor.hash}">${doctor.name}</option>`
     );
-  });
-  tests.forEach((test) => {
+  }
+  for (const test of tests) {
     $(selectedTestsElement).append(
       `<option value="${test.test_id}">${test.name}</option>`
     );
-  });
+  }
   $(selectedTestsElement).select2({
     dropdownParent: $(selectedTestsElement).parent(),
     width: "100%",

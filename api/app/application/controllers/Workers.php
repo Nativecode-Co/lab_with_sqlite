@@ -25,14 +25,17 @@ class Workers extends CI_Controller
     function get_workers()
     {
         $req = $this->input->get();
-        $workers = $this->WorkersModel->get_all($req);
+        $data = $this->WorkersModel->get_all($req);
+        $total = $this->WorkersModel->count_all($req);
         $this->output
             ->set_status_header(200)
             ->set_content_type('application/json')
             ->set_output(
                 json_encode(
                     array(
-                        "workers" => $workers,
+                        "recordsTotal" => $total,
+                        "recordsFiltered" => $total,
+                        "data" => $data
                     )
                 )
             );

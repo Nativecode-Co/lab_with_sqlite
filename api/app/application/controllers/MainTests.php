@@ -25,14 +25,17 @@ class MainTests extends CI_Controller
     function get_main_tests()
     {
         $req = $this->input->get();
-        $main_tests = $this->MainTestsModel->get_all($req);
+        $data = $this->MainTestsModel->get_all($req);
+        $total = $this->MainTestsModel->count_all($req);
         $this->output
             ->set_status_header(200)
             ->set_content_type('application/json')
             ->set_output(
                 json_encode(
                     array(
-                        "main_tests" => $main_tests,
+                        "recordsTotal" => $total,
+                        "recordsFiltered" => $total,
+                        "data" => $data
                     )
                 )
             );

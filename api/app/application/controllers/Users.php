@@ -25,15 +25,16 @@ class Users extends CI_Controller
     function get_users()
     {
         $req = $this->input->get();
-        $users = $this->UsersModel->get_all($req);
+        $data = $this->UsersModel->get_all($req);
+        $total = $this->UsersModel->count_all($req);
         $this->output
             ->set_status_header(200)
             ->set_content_type('application/json')
             ->set_output(
-                json_encode(
-                    array(
-                        "users" => $users,
-                    )
+                array(
+                    "recordsTotal" => $total,
+                    "recordsFiltered" => $total,
+                    "data" => $data
                 )
             );
     }
@@ -112,6 +113,15 @@ class Users extends CI_Controller
             ->set_status_header(200)
             ->set_content_type('application/json')
             ->set_output(json_encode(array("hash" => $hash)));
+    }
+
+    public function get_today_incomes_data()
+    {
+        $data = $this->UsersModel->get_today_incomes_data();
+        $this->output
+            ->set_status_header(200)
+            ->set_content_type('application/json')
+            ->set_output(json_encode($data));
     }
 
 }

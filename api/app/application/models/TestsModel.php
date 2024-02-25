@@ -13,25 +13,24 @@ class TestsModel extends CI_Model
 
     public function count_all($params, $catigory_id = 9)
     {
-        $order = $params['order'];
-        $orderBy = $params['orderBy'];
-        $searchText = $params['searchText'];
+        $searchText = $params['search']['value'];
         return $this->db
 
             ->where('isdeleted', 0)
             ->where('catigory_id', $catigory_id)
             ->like("name", $searchText)
-            ->order_by($orderBy, $order)
             ->count_all_results($this->table);
     }
 
     public function get_all($params, $catigory_id = 9)
     {
-        $page = $params['page'];
-        $rowsPerPage = $params['rowsPerPage'];
-        $order = $params['order'];
-        $orderBy = $params['orderBy'];
-        $searchText = $params['searchText'];
+        $start = $params['start'];
+        $rowsPerPage = $params['length'];
+        $page = $start / $rowsPerPage + 1;
+        $orderBy = $params['order'][0]['column'];
+        $orderBy = $params['columns'][$orderBy]['data'];
+        $order = $params['order'][0]['dir'];
+        $searchText = $params['search']['value'];
 
         $data = $this->db
             ->where('isdeleted', 0)
@@ -148,6 +147,25 @@ class TestsModel extends CI_Model
             return $item->test_id;
         }, $data);
         return $data;
+    }
+
+    public function get_tests_report_data()
+    {
+        $tests = $this->db
+            ->select('test_id,(select name from lab_package where package_id=lab_package.hash) as name')
+            ->group_by('name')
+            ->get('lab_pakage_tests')
+            ->result();
+
+        $doctors = $this->db
+            ->select('name,hash')
+            ->where('isdeleted', 0)
+            ->get('lab_doctor')
+            ->result();
+        return array(
+            "tests" => $tests,
+            "doctors" => $doctors
+        );
     }
 
 }

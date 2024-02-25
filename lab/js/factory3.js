@@ -169,7 +169,6 @@ function fillForm(formId, fields, item) {
         break;
       case "checkbox":
         if (item[field.name] === 1) {
-          console.log(item[field.name]);
           $(`#${formId} [name=${field.name}]`).prop("checked", true);
         } else {
           $(`#${formId} [name=${field.name}]`).prop("checked", false);
@@ -644,12 +643,13 @@ function fireSwalConfirm(msg, fun, ...args) {
 }
 
 function setServerTable(
-  id ,
+  id,
   endPoint,
   attrFun = () => {
     return {};
   },
   columns = [],
+  order = [[0, "desc"]],
   options = {},
   afterRequest = (json) => {}
 ) {
@@ -658,6 +658,7 @@ function setServerTable(
     processing: true,
     serverSide: true,
     serverMethod: "post",
+    order: order,
     ajax: {
       url: endPoint,
       data: (data) => {

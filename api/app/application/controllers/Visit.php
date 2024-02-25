@@ -20,7 +20,7 @@ class Visit extends CI_Controller
 
     function get_visits()
     {
-        $req = $this->input->get();
+        $req = $this->input->post();
         $data = $this->VisitModel->get_visits($req);
         $total = $this->VisitModel->visit_count($req);
         $this->output
@@ -29,7 +29,8 @@ class Visit extends CI_Controller
             ->set_output(
                 json_encode(
                     array(
-                        "total" => $total,
+                        "recordsTotal" => $total,
+                        "recordsFiltered" => $total,
                         "data" => $data
                     )
                 )
@@ -96,11 +97,13 @@ class Visit extends CI_Controller
     function saveTestsResult()
     {
         $data = $this->input->post("data");
-        $visit_hash = $this->VisitModel->saveTestsResults($data);
+        $data = json_decode($data, true);
+        $visit_hash = $this->input->post("visit_hash");
+        $visit_hash = $this->VisitModel->saveTestsResult($data, $visit_hash);
         $this->output
             ->set_status_header(200)
             ->set_content_type('application/json')
-            ->set_output(json_encode($visit_hash));
+            ->set_output(json_encode($data));
     }
 
     public function getInvoiceHeader()
@@ -128,6 +131,17 @@ class Visit extends CI_Controller
     {
         $hash = $this->input->post("hash");
         $data = $this->VisitModel->delete_visit($hash);
+        $this->output
+            ->set_status_header(200)
+            ->set_content_type('application/json')
+            ->set_output(json_encode($data));
+    }
+
+    public function update_visit_status()
+    {
+        $hash = $this->input->post("hash");
+        $status = $this->input->post("status");
+        $data = $this->VisitModel->update_visit_status($hash, $status);
         $this->output
             ->set_status_header(200)
             ->set_content_type('application/json')

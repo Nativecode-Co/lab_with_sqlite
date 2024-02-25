@@ -15,32 +15,31 @@ class VisitModel extends CI_Model
 
     public function visit_count($params)
     {
-        $order = $params['order'];
-        $orderBy = $params['orderBy'];
-        $searchText = $params['searchText'];
+        $searchText = $params['search']['value'];
         $today = $params['today'];
         $opration = $today == 1 ? "=" : "<";
         $data = $this->db->from($this->table)
             ->join('lab_patient', 'lab_patient.hash = lab_visits.visits_patient_id')
             ->like(array('lab_patient.name' => $searchText))
             ->where(array('lab_visits.isdeleted' => '0', 'visit_date ' . $opration => date('Y-m-d')))
-            ->order_by($orderBy, $order)
             ->count_all_results();
         return $data;
     }
 
     public function get_visits($params)
     {
-        // params {page: 1,rowsPerPage: 5,order: "asc",orderBy: "",selected: [],filterList: [],searchText: ""}
-        $page = $params['page'];
-        $rowsPerPage = $params['rowsPerPage'];
-        $order = $params['order'];
-        $orderBy = $params['orderBy'];
-        $searchText = $params['searchText'];
+        // get data table params
+        $start = $params['start'];
+        $rowsPerPage = $params['length'];
+        $page = $start / $rowsPerPage + 1;
+        $orderBy = $params['order'][0]['column'];
+        $orderBy = $params['columns'][$orderBy]['data'];
+        $order = $params['order'][0]['dir'];
+        $searchText = $params['search']['value'];
         $today = $params['today'];
         $opration = $today == 1 ? "=" : "<";
         $data = $this->db
-            ->select('lab_visits.hash as hash ,visits_patient_id as patient_hash,')
+            ->select('lab_visits.hash as hash ,visits_patient_id as patient_hash,ispayed')
             ->select("lab_patient.name as name,visit_date")
             ->select("(select name from lab_visit_status where hash=visits_status_id) as visit_type")
             ->from($this->table)
@@ -117,10 +116,11 @@ class VisitModel extends CI_Model
             ->get('lab_visits_package')
             ->result_array();
         $visit['tests'] = $packages;
-        $packages = array_column($packages, 'hash');
+        $packagesPrice = $this->get_visit_packages($hash);
         return array(
             "visit" => $visit,
             "tests" => $tests,
+            "packages" => $packagesPrice,
         );
     }
 
@@ -562,15 +562,37 @@ class VisitModel extends CI_Model
         return $result;
     }
 
-    public function saveTestsResult($data)
+    public function update_visit_status($status, $hash)
     {
-        // $data is array of tests
+        $result = $this->db
+            ->update('lab_visits', array('visits_status_id' => $status), array('hash' => $hash));
+        return $result;
+    }
+
+    public function saveTestsResult($data, $visit_hash)
+    {
+        $this->update_visit_status(5, $visit_hash);
         $result = $this
             ->db
-            ->update_batch('lab_visits_tests', $data, 'hash')
-            ->affected_rows();
+            ->update_batch('lab_visits_tests', $data, 'hash');
         return $result;
 
     }
+
+    public function get_visit_packages($hash)
+    {
+        $result = $this->db
+            ->select('lab_visits_package.hash as hash,lab_package.name as name,lab_visits_package.price')
+            ->select('GROUP_CONCAT(lab_test.test_name) as tests')
+            ->from('lab_visits_package')
+            ->where('visit_id', $hash)
+            ->join('lab_pakage_tests', 'lab_visits_package.package_id=lab_pakage_tests.package_id')
+            ->join('lab_test', 'lab_test.hash=lab_pakage_tests.test_id')
+            ->join('lab_package', 'lab_package.hash=lab_visits_package.package_id')
+            ->group_by('lab_visits_package.hash')
+            ->get()->result_array();
+        return $result;
+    }
+
 
 }

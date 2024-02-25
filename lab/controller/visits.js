@@ -189,18 +189,7 @@ function visitDetail(hash) {
 function showVisit(hash) {
   $(".action").removeClass("active");
   $("#show_visit_button").addClass("active");
-  let visit = run(`SELECT name,age,DATE(visit_date) as date,
-    TIME(visit_date) as time,total_price, net_price, note,patient,hash,
-                            (select name from lab_doctor where hash=lab_visits.doctor_hash) as doctor 
-                     FROM lab_visits WHERE hash = ${hash};`).result[0]
-    .query0[0];
-  const patient = run(
-    `SELECT * FROM lab_patient WHERE hash='${visit.patient}';`
-  ).result[0].query0[0];
-  if (!patient) {
-    niceSwal("error", "bottom-end", "المريض غير موجود");
-    return;
-  }
+  const { visit } = fetchApi(`/visit/get_visit?hash=${hash}`);
   const workSpace = $("#work-sapce");
   workSpace.html("");
   const visitInfo = `
@@ -217,33 +206,27 @@ function showVisit(hash) {
                         <tbody>
                             <tr>
                                 <td>اسم المريض</td>
-                                <td>${visit?.name ?? ""}</td>
+                                <td>${visit.name}</td>
                             </tr>
                             <tr>
                                 <td>الطبيب المعالج</td>
-                                <td>${visit?.doctor ?? ""}</td>
+                                <td>${visit.doctor_hash}</td>
                             </tr>
                             <tr>
                                 <td>العمر</td>
-                                <td>${
-                                  parseFloat(visit?.age).toFixed(0) ?? ""
-                                } سنة</td>
+                                <td>${parseFloat(visit.age).toFixed(0)} سنة</td>
                             </tr>
                             <tr>
                                 <td>التاريخ</td>
-                                <td>${visit?.visit_date ?? ""}</td>
+                                <td>${visit.visit_date}</td>
                             </tr>
                             <tr>
                                 <td>اجمالي المبلغ</td>
-                                <td>${
-                                  visit?.total_price?.toLocaleString() ?? ""
-                                } IQD</td>
+                                <td>${visit.total_price} IQD</td>
                             </tr>
                             <tr>
                                 <td>صافي الدفع</td>
-                                <td>${
-                                  visit?.net_price?.toLocaleString() ?? ""
-                                } IQD</td>
+                                <td>${visit.net_price} IQD</td>
                             </tr>
                             <tr>
                                 <td>ملاحظات</td>
@@ -304,26 +287,26 @@ function showVisit(hash) {
                         <tbody>
                             <tr>
                                 <td>الاسم</td>
-                                <td>${patient.name}</td>
+                                <td>${visit.name}</td>
                             </tr>
                             <tr>
-                                <td>تاريخ الميلاد</td>
-                                <td>${patient.birth}</td>
+                                <td>العمر</td>
+                                <td>${parseFloat(visit.age).toFixed(0)}</td>
                             </tr>
                             <tr>
                                 <td>النوع</td>
-                                <td>${patient.gender}</td>
+                                <td>${visit.gender}</td>
                             </tr>
                             <tr>
                                 <td>رقم الهاتف</td>
                                 <td>
                                     <div class="input-group my-2">
                                         <input type="text" class="form-control" id="patientPhone" placeholder="${
-                                          patient.phone
-                                        }" value="${patient.phone}">
+                                          visit.phone
+                                        }" value="${visit.phone}">
                                         <div class="input-group-append">
                                             <button class="btn btn-add" type="button" onclick="updatePhone('${
-                                              patient.hash
+                                              visit.patient
                                             }')">حفظ</button>
                                         </div>
                                     </div>
@@ -461,41 +444,6 @@ function showAddResult(hash, animate = true) {
       1000
     );
   }
-}
-
-function visitEdit(hash) {
-  if ($(this).hasClass("active")) {
-    return;
-  }
-  $(".detail-page").empty();
-  $(".action-pan").removeClass("active");
-  $(this).addClass("active");
-  $(".page-form").append(visit_form);
-  $(".detail-page").append(packagesList());
-  let data = run(`select * from lab_visits where hash = '${hash}';
-                    select * from lab_visits_package where visit_id = '${hash}';`);
-  let visit = data.result[0].query0[0];
-  let visit_packages = data.result[1].query1;
-
-  // set visit details
-  $("#patient").val(visit.patient).trigger("change");
-  $("#visits_status_id").val(visit.visits_status_id).trigger("change");
-  $("#visit_date").val(visit.visit_date);
-  $("#doctor_hash").val(visit.doctor_hash).trigger("change");
-  $("#note").val(visit.note);
-  $("#total_price").val(visit.total_price);
-
-  // set visit packages
-  visit_packages.forEach((package) => {
-    $(`#package_${package.package_id}`).prop("checked", true);
-    $(`#package_${package.package_id}`).trigger("change");
-  });
-
-  // change button action
-  $("#visit-save").attr(
-    "onclick",
-    `if(lab_visits.validate()){fireSwal.call(lab_visits,lab_visits.saveUpdateItem, '${hash}');}`
-  );
 }
 
 function manageRange(range) {
@@ -793,39 +741,38 @@ function addResult(visitTests) {
 }
 
 function saveResult(hash) {
-  let result = {};
+  const result = {};
   $(".result").each(function () {
-    let name = $(this).attr("name");
-    let value = $(this).val();
-    let _hash_ = $(this).attr("id").split("_")[1];
-    let checked =
+    const name = $(this).attr("name");
+    const value = $(this).val();
+    const _hash_ = $(this).attr("id").split("_")[1];
+    const checked =
       $(`input[type=checkbox][name=check_normal_${_hash_}]`).is(":checked") ??
       undefined;
-    if (result[_hash_] == undefined) {
+    if (result[_hash_] === undefined) {
       result[_hash_] = {};
     }
     result[_hash_][name] = value;
-    if (checked != undefined) {
+    if (checked !== undefined) {
       result[_hash_]["checked"] = checked;
     }
-    let __visit_test__ = __VISIT_TESTS__.find((test) => test.hash == _hash_);
+    const __visit_test__ = __VISIT_TESTS__.find((test) => test.hash == _hash_);
     if (__visit_test__ != undefined) {
       result[_hash_]["options"] = __visit_test__.options;
     }
   });
-  let query = Object.entries(result)
-    .map(([hash, result]) => {
-      if (hash == "") {
-        return;
-      }
-      return `update lab_visits_tests set result_test = '${JSON.stringify(
-        result
-      )}' where hash = '${hash}'`;
-    })
-    .join(";");
-  query += `;update lab_visits set visits_status_id = '5' where hash = '${hash}';`;
+  let data = Object.entries(result).map(([hash, result]) => {
+    return {
+      hash: hash,
+      result_test: JSON.stringify(result),
+    };
+  });
+  data = data.filter((item) => item);
 
-  run(query);
+  fetchApi("/visit/saveTestsResult", "POST", {
+    data: JSON.stringify(data),
+    visit_hash: hash,
+  });
   showAddResult(hash, false);
   // $(`#${localStorage.getItem('currentInvoice')}`).click();
 }
@@ -962,43 +909,10 @@ const changeInvoiceTitle = (type) => {
 };
 
 function showInvoice(hash) {
-  let workSpace = $("#work-sapce");
-  // workSpace.html('');
-  // $('.action').removeClass('active');
-  // $('#invoice_button').addClass('active');
-  let data = run(`select 
-                        age,
-                        lab_patient.name as name,
-                        gender,
-                        lab_patient.id as id,
-                        date(lab_visits.insert_record_date) as date,
-                        TIME_FORMAT(TIME(lab_visits.insert_record_date), "%l:%i %p") as time,
-                        total_price,
-                        dicount,
-                        (select name from lab_doctor where hash=lab_visits.doctor_hash) as doctor,
-                        net_price
-                    from 
-                        lab_visits 
-                    inner join
-                        lab_patient
-                    on
-                        lab_patient.hash=lab_visits.patient
-                    where 
-                    lab_visits.hash = '${hash}';
-                    
-                    select 
-                        (select name from lab_package where hash=lab_visits_package.package_id) as name,
-                        GROUP_CONCAT((select test_name from lab_test where lab_test.hash=lab_pakage_tests.test_id)) as tests,
-                        price,
-                        lab_visits_package.hash as hash
-                    from 
-                        lab_visits_package
-                    left join lab_pakage_tests on lab_visits_package.package_id=lab_pakage_tests.package_id
-                    where 
-                        visit_id = '${hash}'
-                    group by lab_visits_package.hash;`);
-  let visit = data.result[0].query0[0];
-  let visitPackages = data.result[1].query1;
+  const workSpace = $("#work-sapce");
+  const { visit, packages: visitPackages } = fetchApi(
+    `/visit/get_visit?hash=${hash}`
+  );
   let invoice = `
     <div class="col-md-7 mt-4">
         <div class="statbox widget box box-shadow bg-white py-3">
@@ -1076,7 +990,7 @@ function showInvoice(hash) {
                                     <p class="">Date</p>
                                 </div>
                                 <div class="vidgo">
-                                    <p><span class="note">${visit.date}${
+                                    <p><span class="note">${visit.visit_date}${
     visit.time
       ? `</span>&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;<span
                                     class="note">${visit.time}</span></p>`
@@ -1364,7 +1278,7 @@ function createInvoice(visit, type, form) {
 					</div>
 					<div class="vidgo">
 						<p><span class="note">${
-              visit.date
+              visit.visit_date
             }</span><!--&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;
                         <span class="note">${visit.time}</span></p>-->
 					</div>
@@ -2182,10 +2096,9 @@ const addTestSearch = (e) => {
 };
 
 const updatePhone = (hash) => {
-  let phone = $("#patientPhone").val();
+  const phone = $("#patientPhone").val();
   if (phone.length >= 10) {
-    run(`update lab_patient set phone='${phone}' where hash='${hash}';`);
-    // niceSwal(type, position, msg)
+    fetchApi("/patient/update_patient", "POST", { hash, phone });
     niceSwal("success", "bottom-end", "تم تحديث رقم الموبايل بنجاح");
   } else {
     niceSwal("error", "bottom-end", "رقم الموبايل غير صحيح");
@@ -2254,7 +2167,7 @@ function downloadPdf() {
 }
 
 function printAfterSelect(hash) {
-  run(`update lab_visits set visits_status_id='3' where hash='${hash}';`);
+  fetchApi("/visit/update_visit_status", "POST", { hash: hash, status: 3 });
   let __invoces = $("#work-sapce .book-result");
   // modal body
   let body = $("#print-dialog .modal-body");
@@ -2337,12 +2250,6 @@ const updateNormal = (test, kit, unit) => {
     TEST = JSON.parse(TEST);
     let { component } = TEST;
     let { reference } = component[0];
-    // reference = reference.filter((item) => {
-    //   return (
-    //     (kit == item.kit || (isNull(kit) && isNull(item.kit))) &&
-    //     (unit == item.unit || (isNull(unit) && isNull(item.unit)))
-    //   );
-    // });
     if (reference.length == 0) {
       throw "no refrence";
     }

@@ -120,4 +120,13 @@ class Tests extends CI_Controller
             ->set_output(json_encode(array("hash" => $hash)));
     }
 
+    public function get_tests_report_data()
+    {
+        $data = $this->TestsModel->get_tests_report_data();
+        $this->output
+            ->set_status_header(200)
+            ->set_content_type('application/json')
+            ->set_output(json_encode($data));
+    }
+
 }

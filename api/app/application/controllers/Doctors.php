@@ -25,14 +25,17 @@ class Doctors extends CI_Controller
     function get_doctors()
     {
         $req = $this->input->get();
-        $doctors = $this->DoctorsModel->get_all($req);
+        $data = $this->DoctorsModel->get_all($req);
+        $total = $this->DoctorsModel->count_all($req);
         $this->output
             ->set_status_header(200)
             ->set_content_type('application/json')
             ->set_output(
                 json_encode(
                     array(
-                        "doctors" => $doctors,
+                        "recordsTotal" => $total,
+                        "recordsFiltered" => $total,
+                        "data" => $data
                     )
                 )
             );

@@ -13,23 +13,22 @@ class UsersModel extends CI_Model
 
     public function count_all($params)
     {
-        $order = $params['order'];
-        $orderBy = $params['orderBy'];
-        $searchText = $params['searchText'];
+        $searchText = $params['search']['value'];
         return $this->db
             ->where('is_deleted', 0)
             ->like("name", $searchText)
-            ->order_by($orderBy, $order)
             ->count_all_results($this->table);
     }
 
     public function get_all($params)
     {
-        $page = $params['page'];
-        $rowsPerPage = $params['rowsPerPage'];
-        $order = $params['order'];
-        $orderBy = $params['orderBy'];
-        $searchText = $params['searchText'];
+        $start = $params['start'];
+        $rowsPerPage = $params['length'];
+        $page = $start / $rowsPerPage + 1;
+        $orderBy = $params['order'][0]['column'];
+        $orderBy = $params['columns'][$orderBy]['data'];
+        $order = $params['order'][0]['dir'];
+        $searchText = $params['search']['value'];
         return $this->db
             ->where('is_deleted', 0)
             ->like("name", $searchText)
@@ -68,6 +67,26 @@ class UsersModel extends CI_Model
         $this->db
             ->where($this->main_column, $hash)
             ->update($this->table, ['is_deleted' => 1]);
+    }
+
+    public function get_today_incomes_data()
+    {
+        $users = $this->db
+            ->select('name,hash')
+            ->where('is_deleted', 0)
+            ->get('system_users')
+            ->result();
+
+        $doctors = $this->db
+            ->select('name,hash')
+            ->where('isdeleted', 0)
+            ->get('lab_doctor')
+            ->result();
+        return array(
+            "users" => $users,
+            "doctors" => $doctors
+        );
+
     }
 
 }

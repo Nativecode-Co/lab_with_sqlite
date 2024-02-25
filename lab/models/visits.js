@@ -1,6 +1,6 @@
 const THEME = new PackageTestTheme();
 let TEST = null;
-
+TEST = null;
 const { patients, units, doctors, tests, packages, categories } = fetchApi(
   "/visit/get_visit_form_data",
   "GET",
@@ -14,7 +14,7 @@ class Visit extends Factory {
     const userType = localStorage.getItem("user_type");
     this.dataTable = setServerTable(
       "lab_visits-table",
-      `${base_url}Visit/getVisits`,
+      "http://localhost:8807/api/app/index.php/visit/get_visits",
       () => {
         const checkInput = $("#currentDay");
         let check = 1;
@@ -22,21 +22,29 @@ class Visit extends Factory {
           check = checkInput.is(":checked") ? 1 : 0;
         }
         return {
-          lab_id: localStorage.getItem("lab_hash"),
-          current: check,
+          today: check,
         };
       },
       [
         {
-          data: "null",
+          data: "lab_patient.name",
+          name: "lab_patient.name",
+          order: ["lab_patient.name", "asc"],
           render: (data, type, row) => {
-            return `<div class="d-none d-print-block-inline">${row.patient_name}</div><input type="text" id="${row.patient_hash}_patient_name" data_hash="${row.patient_hash}" class="form-control" name="patient_name" value="${row.patient_name}" onblur="updatePatientName('${row.patient_hash}',this)">`;
+            return `
+              <div class="d-none d-print-block-inline">
+                ${row.name}
+              </div>
+              <input type="text" id="${row.patient_hash}_patient_name" data_hash="${row.patient_hash}" class="form-control" name="patient_name" value="${row.name}" onblur="updatePatientName('${row.patient_hash}',this)">`;
           },
         },
         {
-          data: "null",
+          data: "visit_date",
           render: (data, type, row) => {
-            return `<a href="#" class="w-100 d-block" onclick="visitDetail('${row.hash}');fireSwalWithoutConfirm(showAddResult, '${row.hash}')">${row.visit_date}</a>`;
+            return `
+            <a href="#" class="w-100 d-block" onclick="visitDetail('${row.hash}');fireSwalWithoutConfirm(showAddResult, '${row.hash}')">
+              ${row.visit_date}
+            </a>`;
           },
         },
         {
@@ -65,7 +73,8 @@ class Visit extends Factory {
           className: "text-success",
           defaultContent: '<i class="fas fa-plus"></i>',
         },
-      ]
+      ],
+      [[1, "desc"]]
     );
   }
 

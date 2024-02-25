@@ -19,7 +19,7 @@ class Patient extends CI_Controller
 
     function get_patients()
     {
-        $req = $this->input->get();
+        $req = $this->input->post();
         $data = $this->PatientModel->get_all($req);
         $total = $this->PatientModel->count_all($req);
         $this->output
@@ -28,7 +28,8 @@ class Patient extends CI_Controller
             ->set_output(
                 json_encode(
                     array(
-                        "total" => $total,
+                        "recordsTotal" => $total,
+                        "recordsFiltered" => $total,
                         "data" => $data
                     )
                 )
@@ -59,6 +60,7 @@ class Patient extends CI_Controller
     {
         $req = $this->input->post();
         $hash = $req['hash'];
+        unset($req['hash']);
         $this->PatientModel->update($hash, $req);
         $this->output
             ->set_status_header(200)
@@ -78,8 +80,18 @@ class Patient extends CI_Controller
 
     public function patientIsExist()
     {
-        $name = $this->input->post('name');
-        $data = $this->PatientModel->patientIsExist($name);
+        $data = $this->input->post();
+        $data = $this->PatientModel->patientIsExist($data);
+        $this->output
+            ->set_status_header(200)
+            ->set_content_type('application/json')
+            ->set_output(json_encode($data));
+    }
+
+    public function get_patient_visits()
+    {
+        $hash = $this->input->post('hash');
+        $data = $this->PatientModel->get_patient_visits($hash);
         $this->output
             ->set_status_header(200)
             ->set_content_type('application/json')
