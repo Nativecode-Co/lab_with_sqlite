@@ -326,7 +326,8 @@ class VisitModel extends CI_Model
                     lab_test_catigory.name as category,
                     result_test as result,
                     (select devices.name from devices where devices.id=lab_pakage_tests.lab_device_id) as device,
-                    lab_test.hash as hash
+                    lab_visits_tests.hash as hash,
+                    lab_test.test_name as name
                 FROM
                     lab_visits_tests
                     left join lab_pakage_tests on lab_pakage_tests.package_id=lab_visits_tests.package_id
@@ -346,8 +347,34 @@ class VisitModel extends CI_Model
                 return $test;
             }, $tests);
             $tests = split_tests($tests);
-            $tests['normal'] = manageNormalTests($tests['normal'], $patient);
-            // $tests['calc'] = manageCalcTests($tests['calc'], $patient);
+            $normalData = manageNormalTests($tests['normal'], $patient);
+            $tests['normal'] = $normalData["tests"];
+            $results = $normalData["results"];
+            $tests['calc'] = manageCalcTests($tests['calc'], $patient);
+            $tests['special'] = manageSpecialTests($tests['special'], $patient);
+            if (isset($tests['calc']) && count($tests['calc']) > 0) {
+                $tests['calc'] = array_map(function ($test) use ($results) {
+                    $eq = $test['eq'];
+                    $eq = array_map(function ($item) use ($results) {
+                        // if item not operator or number
+                        if (!is_numeric($item) && !in_array($item, ["+", "-", "*", "/", "(", ")", "Math.log10("])) {
+                            $item = $results[$item];
+                        }
+                        return $item;
+                    }, $eq);
+                    $resultFromEq = eval('return ' . implode($eq) . ';');
+                    $name = $test['name'];
+                    $result = $test['result'];
+                    $result[$name] = $resultFromEq;
+                    $test['result'] = $result;
+
+                    $unit = $test['unit'];
+                    $unit = $this->db->select('name')->where('hash', $unit)->get('lab_test_units')->result_array();
+                    $unit = $unit[0]['name'];
+                    $test['unit_name'] = $unit;
+                    return $test;
+                }, $tests['calc']);
+            }
             return $tests;
         } catch (Exception $e) {
             return [];

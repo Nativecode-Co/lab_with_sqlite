@@ -117,7 +117,6 @@ class Visit extends Factory {
     // fill form with data
     for (const [key, value] of Object.entries(visit)) {
       if (key === "hash") {
-        continue;
       } else if (key === "tests") {
         for (const test of value) {
           // use pure js to check test
@@ -184,9 +183,9 @@ class Visit extends Factory {
     formData = Object.fromEntries(formData.entries());
     const tests = [];
     const testSelects = document.querySelectorAll(".testSelect:checked");
-    testSelects.forEach(function (testSelect) {
+    for (const testSelect of testSelects) {
       tests.push(testSelect.value);
-    });
+    }
     const data = {
       ...formData,
       dicount: document.getElementById("dicount").value,

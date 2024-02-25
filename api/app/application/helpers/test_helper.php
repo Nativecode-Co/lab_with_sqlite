@@ -80,11 +80,12 @@ function manageNormalTests($tests, $patient)
                 $item['unit_name'] = $test['unit_name'];
                 $item['hash'] = $test['hash'];
                 if (isset($test['result'])) {
-                    $item['result'] = getResult($test['result']);
+                    $result = getResult($test['result']);
+                    $item['result'] = $result;
                 } else if ($component['name']) {
                     $item['result'] = array(
                         "checked" => true,
-                        $component['name'] => ""
+                        $component['name'] => "0"
                     );
                 }
                 if (isset($test['category'])) {
@@ -101,12 +102,30 @@ function manageNormalTests($tests, $patient)
         }
         return $test;
     }, $tests);
+    if (empty($tests)) {
+        return array(
+            "tests" => [],
+            "results" => []
+        );
+    }
     $tests = array_merge(...$tests);
     usort($tests, function ($a, $b) {
         return $a['category'] <=> $b['category'];
     });
 
-    return $tests;
+    $results = array_map(function ($test) {
+        $result = $test['result'];
+        unset($result['checked']);
+        return $result;
+    }, $tests);
+
+    $results = array_merge(...$results);
+
+
+    return array(
+        "tests" => $tests,
+        "results" => $results
+    );
 }
 
 function manageCalcTests($tests, $patient)
@@ -114,6 +133,7 @@ function manageCalcTests($tests, $patient)
     $tests = array_map(function ($test) use ($patient) {
         try {
             $options = $test['options'];
+            $eq = $options["value"];
             $component = $options["component"][0];
             $options = $options["component"][0]["reference"];
             $options = array_filter($options, function ($item) use ($patient, $test) {
@@ -134,22 +154,18 @@ function manageCalcTests($tests, $patient)
                 }
 
             });
-            $options = array_map(function ($item) use ($component, $test) {
+            $options = array_map(function ($item) use ($component, $test, $eq) {
                 // merge component with item and test
                 if (isset($component['name'])) {
                     $item['name'] = $component['name'];
                 }
-
-                if (isset($component['unit'])) {
-                    $item['unit'] = $component['unit'];
-                }
+                $item['eq'] = $eq;
 
                 if (isset($component['result'])) {
                     $item['result_type'] = $component['result'];
                 }
 
                 $item['device'] = $test['device'];
-                $item['unit_name'] = $test['unit_name'];
                 $item['hash'] = $test['hash'];
                 if (isset($test['result'])) {
                     $item['result'] = getResult($test['result']);
@@ -173,10 +189,34 @@ function manageCalcTests($tests, $patient)
         }
         return $test;
     }, $tests);
+    if (empty($tests)) {
+        return [];
+    }
     $tests = array_merge(...$tests);
     usort($tests, function ($a, $b) {
         return $a['category'] <=> $b['category'];
     });
 
+    return $tests;
+}
+
+function manageSpecialTests($tests, $patient)
+{
+    $tests = array_map(function ($test) use ($patient) {
+        try {
+            $options = $test['options'];
+            $component = $options["component"];
+            unset($options["component"]);
+            $test['options'] = $options;
+            $test['refs'] = $component;
+
+        } catch (Exception $e) {
+            $test = [];
+        }
+        return $test;
+    }, $tests);
+    if (empty($tests)) {
+        return [];
+    }
     return $tests;
 }
