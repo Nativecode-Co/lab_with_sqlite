@@ -32,16 +32,6 @@ $config = array(
                 'required' => 'هذا الحقل مطلوب',
                 'numeric' => 'يجب ادخال قيمة رقمية'
             )
-        ),
-        array(
-            'field' => 'tests[]',
-            // IS ARRAY AND HAS AT LEAST ONE ITEM
-            'rules' => 'required|is_array|min_length[1]',
-            'errors' => array(
-                'required' => 'هذا الحقل مطلوب',
-                'is_array' => 'يجب ان يكون مصفوفة',
-                'min_length' => 'يجب ادخال عنصر واحد على الاقل'
-            )
         )
     ),
     // name, jop, jop_en

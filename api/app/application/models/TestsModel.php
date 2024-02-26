@@ -11,44 +11,24 @@ class TestsModel extends CI_Model
         $this->load->helper('db');
     }
 
-    public function count_all($params, $catigory_id = 9)
+    public function get_all($params)
     {
-        $searchText = $params['search']['value'];
-        return $this->db
-
-            ->where('isdeleted', 0)
-            ->where('catigory_id', $catigory_id)
-            ->like("name", $searchText)
-            ->count_all_results($this->table);
-    }
-
-    public function get_all($params, $catigory_id = 9)
-    {
-        $start = $params['start'];
-        $rowsPerPage = $params['length'];
-        $page = $start / $rowsPerPage + 1;
-        $orderBy = $params['order'][0]['column'];
-        $orderBy = $params['columns'][$orderBy]['data'];
-        $order = $params['order'][0]['dir'];
-        $searchText = $params['search']['value'];
-
-        $data = $this->db
-            ->where('isdeleted', 0)
-            ->where('catigory_id', $catigory_id)
-            ->like("name", $searchText)
-            ->order_by($orderBy, $order)
-            ->get($this->table, $rowsPerPage, $page * $rowsPerPage)
-            ->result();
-
-        $total = $this->count_all($params, $catigory_id);
-        return array("total" => $total, "data" => $data);
+        $catigory_id = $params['catigory'];
+        if ($catigory_id == 9) {
+            return $this->getPackagesForLAb($params);
+        } else {
+            return $this->getOffersForLAb($params);
+        }
     }
 
     public function get($hash)
     {
         $data = $this->db
-            ->where('isdeleted', 0)
-            ->where($this->main_column, $hash)
+            ->where('lab_pakage_tests.isdeleted', 0)
+            ->where('lab_package.isdeleted', 0)
+            ->where('catigory_id', 9)
+            ->join('lab_pakage_tests', 'lab_pakage_tests.package_id = lab_package.hash', 'inner')
+            ->where('lab_package.hash', $hash)
             ->get($this->table)
             ->row();
         if (isset($data)) {
@@ -72,6 +52,7 @@ class TestsModel extends CI_Model
     // bulk insert for the tests in the package
     public function insert_tests($package_id, $tests)
     {
+
         $data = array_map(function ($test) use ($package_id) {
             return [
                 'package_id' => $package_id,
@@ -103,8 +84,6 @@ class TestsModel extends CI_Model
             ->where('package_id', $package_id)
             ->where_not_in('test_id', $tests_ids)
             ->update('lab_pakage_tests', ['isdeleted' => 1]);
-
-        // if the test is already in the package we will update it, if not we will insert it
         foreach ($tests as $test) {
             $test_exit = $this->db
                 ->where('package_id', $package_id)
@@ -149,6 +128,68 @@ class TestsModel extends CI_Model
         return $data;
     }
 
+    function getPackagesForLAb($params)
+    {
+        $start = $params['start'];
+        $rowsPerPage = $params['length'];
+        $page = $start / $rowsPerPage + 1;
+        $orderBy = $params['order'][0]['column'];
+        $orderBy = $params['columns'][$orderBy]['data'];
+        $order = $params['order'][0]['dir'];
+        $searchText = $params['search']['value'];
+        $data = $this->db
+            ->select('lab_package.hash as hash, lab_device_id, kit_id, test_id, unit, lab_package.name as name, lab_package.price as price, lab_package.cost as cost')
+            ->select('(select name from kits where id=lab_pakage_tests.kit_id limit 1) as kit_name')
+            ->select('(select name from devices where id=lab_pakage_tests.lab_device_id limit 1) as device_name')
+            ->select('(select name from lab_test_units where hash = lab_pakage_tests.unit limit 1) as unit_name')
+            ->join('lab_pakage_tests', 'lab_pakage_tests.package_id = lab_package.hash', 'inner')
+            ->where('catigory_id', 9)
+            ->where('lab_package.isdeleted', 0)
+            ->like('lab_package.name', $searchText)
+            ->order_by($orderBy, $order)
+            ->get($this->table, $rowsPerPage, $page * $rowsPerPage)->result_array();
+        $total = $this->db
+            ->join('lab_pakage_tests', 'lab_pakage_tests.package_id = lab_package.hash', 'inner')
+            ->where('catigory_id', 9)
+            ->where('lab_package.isdeleted', 0)
+            ->like('lab_package.name', $searchText)
+            ->count_all_results($this->table);
+        return array(
+            "recordsTotal" => $total,
+            "recordsFiltered" => $total,
+            "data" => $data
+        );
+    }
+
+    function getOffersForLAb($params)
+    {
+        $start = $params['start'];
+        $rowsPerPage = $params['length'];
+        $page = $start / $rowsPerPage + 1;
+        $orderBy = $params['order'][0]['column'];
+        $orderBy = $params['columns'][$orderBy]['data'];
+        $order = $params['order'][0]['dir'];
+        $searchText = $params['search']['value'];
+        $data = $this->db
+            ->select("hash,name,price,cost")
+            ->where('catigory_id', 8)
+            ->where('lab_package.isdeleted', 0)
+            ->like('lab_package.name', $searchText)
+            ->order_by($orderBy, $order)
+            ->get($this->table, $rowsPerPage, $page * $rowsPerPage)->result_array();
+
+        $total = $this->db
+            ->where('catigory_id', 8)
+            ->where('lab_package.isdeleted', 0)
+            ->like('lab_package.name', $searchText)
+            ->count_all_results($this->table);
+        return array(
+            "recordsTotal" => $total,
+            "recordsFiltered" => $total,
+            "data" => $data
+        );
+    }
+
     public function get_tests_report_data()
     {
         $tests = $this->db
@@ -165,6 +206,47 @@ class TestsModel extends CI_Model
         return array(
             "tests" => $tests,
             "doctors" => $doctors
+        );
+    }
+
+    public function get_packages_test()
+    {
+        $data = $this->db
+            ->select('lab_package.hash as hash, name, price, cost, test_id, unit, lab_device_id, kit_id')
+            ->select('(SELECT IFNULL((SELECT DISTINCT name FROM devices WHERE id=lab_pakage_tests.lab_device_id), "No Device")) AS device_name')
+            ->select('(SELECT IFNULL((SELECT DISTINCT name FROM lab_test_units WHERE hash=lab_pakage_tests.unit), "No Unit")) AS unit_name')
+            ->select('(SELECT IFNULL((SELECT DISTINCT name FROM kits WHERE id=lab_pakage_tests.kit_id), "No Kit")) AS kit_name')
+            ->where(
+                array(
+                    'lab_package.isdeleted' => 0,
+                    'catigory_id' => 9
+                )
+            )
+            ->from('lab_package')
+            ->join('lab_pakage_tests', 'lab_package.hash = lab_pakage_tests.package_id', 'inner')
+            ->get()
+            ->result();
+        return $data;
+    }
+
+    public function get_tests_data()
+    {
+        $kits = $this->db
+            ->select('id, name')
+            ->get('kits')
+            ->result();
+        $devices = $this->db
+            ->select('id, name')
+            ->get('devices')
+            ->result();
+        $units = $this->db
+            ->select('hash, name')
+            ->get('lab_test_units')
+            ->result();
+        return array(
+            "kits" => $kits,
+            "devices" => $devices,
+            "units" => $units
         );
     }
 

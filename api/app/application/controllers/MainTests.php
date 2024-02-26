@@ -9,8 +9,26 @@ class MainTests extends CI_Controller
         parent::__construct();
         $this->load->model('MainTestsModel');
         $this->load->library('form_validation');
+        $this->load->helper('json');
     }
 
+    public function getRefrence()
+    {
+        $fields = $this->input->post();
+        $hash = $fields['hash'];
+        unset($fields['hash']);
+        $test = $this->MainTestsModel->get($hash);
+        // test is stdClass object
+        $test = json_decode(json_encode($test), true);
+        $option_test = $test["option_test"];
+
+        $json = new Json($option_test);
+        $data = $json->getRefrenceByFields($fields);
+        $this->output
+            ->set_status_header(200)
+            ->set_content_type('application/json')
+            ->set_output(json_encode($data));
+    }
 
 
     function index()
@@ -39,6 +57,15 @@ class MainTests extends CI_Controller
                     )
                 )
             );
+    }
+
+    function get_tests_options()
+    {
+        $data = $this->MainTestsModel->get_tests_options();
+        $this->output
+            ->set_status_header(200)
+            ->set_content_type('application/json')
+            ->set_output(json_encode($data));
     }
 
     function get_main_test()

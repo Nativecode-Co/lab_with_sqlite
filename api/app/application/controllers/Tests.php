@@ -24,20 +24,12 @@ class Tests extends CI_Controller
 
     function get_tests()
     {
-        $req = $this->input->get();
-        $tests = $this->TestsModel->get_all($req, 9);
-        $packages = $this->TestsModel->get_all($req, 8);
+        $req = $this->input->post();
+        $data = $this->TestsModel->get_all($req);
         $this->output
             ->set_status_header(200)
             ->set_content_type('application/json')
-            ->set_output(
-                json_encode(
-                    array(
-                        "tests" => $tests,
-                        "packages" => $packages
-                    )
-                )
-            );
+            ->set_output(json_encode($data));
     }
 
     function get_test()
@@ -52,7 +44,7 @@ class Tests extends CI_Controller
 
     function create_test()
     {
-        $req = json_decode(trim(file_get_contents('php://input')), true);
+        $req = $this->input->post();
         $valid = $this->form_validation->
             set_data($req)->
             run('package');
@@ -66,6 +58,7 @@ class Tests extends CI_Controller
         }
         ;
         $tests = $req['tests'];
+        $tests = json_decode($tests, true);
         unset($req['tests']);
         $data = $this->TestsModel->insert($req, $tests);
         $this->output
@@ -76,7 +69,7 @@ class Tests extends CI_Controller
 
     function update_test()
     {
-        $req = json_decode(trim(file_get_contents('php://input')), true);
+        $req = $this->input->post();
         $this->form_validation->set_data($req);
 
         $valid = $this->form_validation->
@@ -102,6 +95,7 @@ class Tests extends CI_Controller
         $hash = $req['hash'];
         unset($req['hash']);
         $tests = $req['tests'];
+        $tests = json_decode($tests, true);
         unset($req['tests']);
         $data = $this->TestsModel->update($hash, $req, $tests);
         $this->output
@@ -123,6 +117,24 @@ class Tests extends CI_Controller
     public function get_tests_report_data()
     {
         $data = $this->TestsModel->get_tests_report_data();
+        $this->output
+            ->set_status_header(200)
+            ->set_content_type('application/json')
+            ->set_output(json_encode($data));
+    }
+
+    public function get_packages_test()
+    {
+        $data = $this->TestsModel->get_packages_test();
+        $this->output
+            ->set_status_header(200)
+            ->set_content_type('application/json')
+            ->set_output(json_encode($data));
+    }
+
+    public function get_tests_data()
+    {
+        $data = $this->TestsModel->get_tests_data();
         $this->output
             ->set_status_header(200)
             ->set_content_type('application/json')

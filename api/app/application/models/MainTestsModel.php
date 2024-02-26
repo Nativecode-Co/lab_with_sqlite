@@ -37,6 +37,18 @@ class MainTestsModel extends CI_Model
             ->result();
     }
 
+    public function get_tests_options()
+    {
+        $tests = $this->db
+            ->select('hash,test_name as name')
+            ->where('isdeleted', 0)
+            ->where('test_type <>', 3)
+            ->order_by('test_name', 'asc')
+            ->get($this->table)
+            ->result();
+        return $tests;
+    }
+
     public function get($hash)
     {
         return $this->db
