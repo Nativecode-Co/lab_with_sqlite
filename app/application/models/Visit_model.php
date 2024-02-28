@@ -89,6 +89,9 @@ class Visit_model extends CI_Model
         lab_pakage_tests.kit_id,
         lab_pakage_tests.test_id,
         lab_pakage_tests.lab_device_id) as t")->result_array();
+        if (!isset($packageIds[0])) {
+            return;
+        }
         $packageIds = array_column($packageIds, 'id');
         $this->db->query("DELETE FROM lab_package WHERE id NOT IN (" . implode(",", $packageIds) . ")");
         $packageHashes = $this->db->query("SELECT hash FROM lab_package")->result_array();
