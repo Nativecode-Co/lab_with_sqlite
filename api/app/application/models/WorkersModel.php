@@ -24,7 +24,7 @@ class WorkersModel extends CI_Model
     {
         $start = $params['start'];
         $rowsPerPage = $params['length'];
-        $page = $start / $rowsPerPage + 1;
+        $page = $start / $rowsPerPage;
         $orderBy = $params['order'][0]['column'];
         $orderBy = $params['columns'][$orderBy]['data'];
         $order = $params['order'][0]['dir'];

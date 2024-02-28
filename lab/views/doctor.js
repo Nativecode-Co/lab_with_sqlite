@@ -1,90 +1,89 @@
-'use strict';
-
-let allData = run_both(`select name as text, hash from lab_doctor_partment;`)
-let partments = allData.result[0].query0;
+const partments = fetchApi("/doctors/get_partments");
 // override Factory class
 class Doctor extends Factory {
-
-    init() {
-        this.createModal();
-        this.dataTable = setServerTable(
-            'lab_doctor-table',
-            `${base_url}Doctor/getDoctorForLab`,
-            () => {
-                return { 'lab_id': localStorage.getItem('lab_hash') }
-            },
-            [
-                { data: 'name' },
-                { data: 'commission' },
-                { data: 'jop' },
-                { data: 'phone' },
-                {
-                    "data": null,
-                    "className": "center not-print",
-                    "render": function (data, type, row) {
-                        return `
+  init() {
+    this.createModal();
+    this.dataTable = setServerTable(
+      "lab_doctor-table",
+      "http://localhost:8807/api/app/index.php/doctors/get_doctors",
+      () => {
+        return { lab_id: localStorage.getItem("lab_hash") };
+      },
+      [
+        { data: "name" },
+        { data: "commission" },
+        { data: "partment_name" },
+        { data: "phone" },
+        {
+          data: null,
+          sortable: false,
+          className: "center not-print",
+          render: (data, type, row) => `
                         <a class="btn-action" onclick="lab_doctor.updateItem('${row.hash}')"><i class="fas fa-edit"></i></a>
                     <a class="btn-action delete" onclick="fireSwalForDelete.call(lab_doctor,lab_doctor.deleteItem, '${row.hash}')"><i class="far fa-trash-alt"></i></a>
-                        `
-                    }
-                },
-                {
-                    "data": null,
-                    "className": "text-success center",
-                    "defaultContent": '<i class="fas fa-plus"></i>'
+                        `,
+        },
+        {
+          data: null,
+          className: "text-success center",
+          defaultContent: '<i class="fas fa-plus"></i>',
+        },
+      ]
+    );
+  }
 
-                }
-            ]
-        );
-    }
-    addRow(row) {
-        if (this.dataTable.row(`#${row.hash}`)[0].length == 0) {
-            this.dataTable.row.add({
-                0: row.name,
-                1: row.commission,
-                2: row.jop,
-                3: row.phone,
-                4: `
-                    <a class="btn-action" onclick="lab_doctor.updateItem('${row.hash}')"><i class="fas fa-edit"></i></a>
-                    <a class="btn-action delete" onclick="fireSwalForDelete.call(lab_doctor,lab_doctor.deleteItem, '${row.hash}')"><i class="far fa-trash-alt"></i></a>`,
-                5: ``
-            }).node().id = row.hash;
-            this.dataTable.draw();
-        }
-    }
+  updateItem(hash) {
+    const data = fetchApi(`/doctors/get_doctor?hash=${hash}`);
+    fillForm(this.formId, this.fields, data);
+    super.updateItem(hash);
+  }
 
-    getNewData() {
-        let data = super.getNewData();
-        data = { ...data, lab_id: localStorage.getItem('lab_hash') };
-        return data;
-    }
+  saveNewItem() {
+    const data = this.getNewData();
+    fetchApi("/doctors/create_doctor", "POST", data);
+    this.dataTable.ajax.reload(null, false);
+    // close modal
+    $(`#${this.modalId}`).modal("hide");
+  }
 
-    newItem() {
-        super.newItem();
-        $('#commission').val(0);
-    }
+  saveUpdateItem(hash) {
+    const data = { ...this.getUpdateData(), hash };
+    fetchApi("/doctors/update_doctor", "POST", data);
+    this.dataTable.ajax.reload(null, false);
+    $(`#${this.modalId}`).modal("hide");
+  }
 
-    mainCondition() {
-        return `where lab_id = '${localStorage.getItem('lab_hash')}' and ${this.table}.isdeleted='0'`;
-    }
-
-    havingQuery(value) {
-        return `having name like '%${value}%'`;
-    }
+  deleteItem(hash) {
+    fetchApi("/doctors/delete_doctor", "POST", { hash });
+    this.dataTable.ajax.reload(null, false);
+  }
 }
 
 // init patient class
 
-let lab_doctor = new Doctor('lab_doctor', ' طبيب', [
-    { name: 'hash', type: null },
-    { name: 'name', type: 'text', label: 'الاسم', req: 'required' },
-    { name: 'partmen_hash', type: 'select', label: 'التخصص', req: 'required', options: partments },
-    { name: 'commission', type: 'number', label: 'نسبة الطبيب %', req: 'required' },
-    // { name: 'jop', type: 'text', label: 'التخصص', req: 'required' },
-    { name: 'phone', type: 'text', label: 'رقم الهاتف', req: 'required' },
+const lab_doctor = new Doctor("lab_doctor", " طبيب", [
+  { name: "hash", type: null },
+  { name: "name", type: "text", label: "الاسم", req: "required" },
+  {
+    name: "partmen_hash",
+    type: "select",
+    label: "التخصص",
+    req: "required",
+    options: partments,
+  },
+  {
+    name: "commission",
+    type: "number",
+    label: "نسبة الطبيب %",
+    req: "required",
+  },
+  // { name: 'jop', type: 'text', label: 'التخصص', req: 'required' },
+  { name: "phone", type: "text", label: "رقم الهاتف", req: "required" },
 ]);
 
-$(function () {
-    $('.dt-buttons').addClass('btn-group');
-    $('div.addCustomItem').html(`<span class="table-title">قائمة الاطباء</span><button onclick="lab_doctor.newItem()" class="btn-main-add ml-4"><i class="far fa-user-md mr-2"></i> أضافة طبيب</button>`);
+$(() => {
+  $(".dt-buttons").addClass("btn-group");
+  $("div.addCustomItem").html(
+    `<span class="table-title">قائمة الاطباء</span><button onclick="lab_doctor.newItem()" class="btn-main-add ml-4"><i class="far fa-user-md mr-2"></i> أضافة طبيب</button>`
+  );
 });

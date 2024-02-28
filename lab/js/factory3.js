@@ -168,7 +168,7 @@ function fillForm(formId, fields, item) {
         ].imagePreview.style.backgroundImage = `url("${item[field.name]}")`;
         break;
       case "checkbox":
-        if (item[field.name] === 1) {
+        if (item[field.name] === "1" || item[field.name] === 1) {
           $(`#${formId} [name=${field.name}]`).prop("checked", true);
         } else {
           $(`#${formId} [name=${field.name}]`).prop("checked", false);

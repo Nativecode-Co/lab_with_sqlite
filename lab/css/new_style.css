@@ -632,11 +632,9 @@ table.information-2 tr:last-child td {
     Test Page
 */
 
-#test-form {
-    border-left: 0.5px solid rgba(0, 0, 0, 0.2);
-}
 
-#test-form .title {
+
+#test-form .title,#package-form .title{
     font-family: var(--fontFamily);
     font-style: normal;
     font-weight: 500;
@@ -646,7 +644,7 @@ table.information-2 tr:last-child td {
     margin: 30px 0 43px;
 }
 
-#test-form label {
+#test-form label, #package-form label {
     font-family: var(--fontFamily);
     font-style: normal;
     font-weight: 300;
@@ -655,13 +653,13 @@ table.information-2 tr:last-child td {
     color: var(--blackColor);
 }
 
-#test-form label sub {
+#test-form label sub, #package-form label sub {
     color: var(--secondaryColor);
     font-size: 14px;
 }
 
-#test-form input,
-#test-form select {
+#test-form input , #package-form input,
+#test-form select, #package-form select {
     font-family: var(--fontFamily);
     font-style: normal;
     font-weight: 300;

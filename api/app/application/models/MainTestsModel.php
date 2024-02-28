@@ -31,7 +31,7 @@ class MainTestsModel extends CI_Model
         $searchText = $params['search']['value'];
         return $this->db
             ->where('isdeleted', 0)
-            ->like("name", $searchText)
+            ->like("test_name", $searchText)
             ->order_by($orderBy, $order)
             ->get($this->table, $rowsPerPage, $page * $rowsPerPage)
             ->result();
@@ -84,6 +84,56 @@ class MainTestsModel extends CI_Model
         $this->db
             ->where($this->main_column, $hash)
             ->update($this->table, ['isdeleted' => 1]);
+    }
+
+    public function get_calc_tests($params)
+    {
+        $start = $params['start'];
+        $rowsPerPage = $params['length'];
+        $page = $start / $rowsPerPage;
+        $orderBy = $params['order'][0]['column'];
+        $orderBy = $params['columns'][$orderBy]['data'];
+        $order = $params['order'][0]['dir'];
+        $searchText = $params['search']['value'];
+        $count = $this->db
+            ->where('isdeleted', 0)
+            ->where('test_type', 3)
+            ->like("test_name", $searchText)
+            ->count_all_results($this->table);
+        $tests = $this->db
+            ->select('hash,test_name')
+            ->where('isdeleted', 0)
+            ->where('test_type', 3)
+            ->like("test_name", $searchText)
+            ->order_by($orderBy, $order)
+            ->get($this->table, $rowsPerPage, $page * $rowsPerPage)
+            ->result();
+        return array(
+            "recordsTotal" => $count,
+            "recordsFiltered" => $count,
+            "data" => $tests
+        );
+
+    }
+
+    public function get_main_tests_data()
+    {
+
+        $categories = $this->db
+            ->select('name as text,hash')
+            ->where('isdeleted', 0)
+            ->get('lab_test_catigory')
+            ->result();
+        $tests = $this->db
+            ->select('test_name as text, hash')
+            ->where('isdeleted', 0)
+            ->where('test_type <>', 3)
+            ->get('lab_test')
+            ->result();
+        return array(
+            "categories" => $categories,
+            "tests" => $tests
+        );
     }
 
 }

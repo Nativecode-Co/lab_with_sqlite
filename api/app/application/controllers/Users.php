@@ -24,22 +24,24 @@ class Users extends CI_Controller
 
     function get_users()
     {
-        $req = $this->input->get();
+        $req = $this->input->post();
         $data = $this->UsersModel->get_all($req);
         $total = $this->UsersModel->count_all($req);
         $this->output
             ->set_status_header(200)
             ->set_content_type('application/json')
             ->set_output(
-                array(
-                    "recordsTotal" => $total,
-                    "recordsFiltered" => $total,
-                    "data" => $data
+                json_encode(
+                    array(
+                        "recordsTotal" => $total,
+                        "recordsFiltered" => $total,
+                        "data" => $data
+                    )
                 )
             );
     }
 
-    function get_doctor()
+    function get_user()
     {
         $hash = $this->input->get('hash');
         $data = $this->UsersModel->get($hash);
@@ -49,9 +51,9 @@ class Users extends CI_Controller
             ->set_output(json_encode($data));
     }
 
-    function create_doctor()
+    function create_user()
     {
-        $req = json_decode(trim(file_get_contents('php://input')), true);
+        $req = $this->input->post();
         $valid = $this->form_validation->
             set_data($req)->
             run('users');
@@ -71,9 +73,9 @@ class Users extends CI_Controller
             ->set_output(json_encode($data));
     }
 
-    function update_doctor()
+    function update_user()
     {
-        $req = json_decode(trim(file_get_contents('php://input')), true);
+        $req = $this->input->post();
         $this->form_validation->set_data($req);
 
         $valid = $this->form_validation->
@@ -105,7 +107,7 @@ class Users extends CI_Controller
             ->set_output(json_encode($data));
     }
 
-    function delete_doctor()
+    function delete_user()
     {
         $hash = $this->input->post('hash');
         $this->UsersModel->delete($hash);

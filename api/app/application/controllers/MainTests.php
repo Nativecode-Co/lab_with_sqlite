@@ -42,7 +42,7 @@ class MainTests extends CI_Controller
 
     function get_main_tests()
     {
-        $req = $this->input->get();
+        $req = $this->input->post();
         $data = $this->MainTestsModel->get_all($req);
         $total = $this->MainTestsModel->count_all($req);
         $this->output
@@ -80,7 +80,7 @@ class MainTests extends CI_Controller
 
     function create_main_test()
     {
-        $req = json_decode(trim(file_get_contents('php://input')), true);
+        $req = $this->input->post();
         $valid = $this->form_validation->
             set_data($req)->
             run('main_tests');
@@ -102,7 +102,7 @@ class MainTests extends CI_Controller
 
     function update_main_test()
     {
-        $req = json_decode(trim(file_get_contents('php://input')), true);
+        $req = $this->input->post();
         $this->form_validation->set_data($req);
 
         $valid = $this->form_validation->
@@ -142,6 +142,24 @@ class MainTests extends CI_Controller
             ->set_status_header(200)
             ->set_content_type('application/json')
             ->set_output(json_encode(array("hash" => $hash)));
+    }
+    public function get_calc_tests()
+    {
+        $params = $this->input->post();
+        $data = $this->MainTestsModel->get_calc_tests($params);
+        $this->output
+            ->set_status_header(200)
+            ->set_content_type('application/json')
+            ->set_output(json_encode($data));
+    }
+
+    public function get_main_tests_data()
+    {
+        $data = $this->MainTestsModel->get_main_tests_data();
+        $this->output
+            ->set_status_header(200)
+            ->set_content_type('application/json')
+            ->set_output(json_encode($data));
     }
 
 }

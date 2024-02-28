@@ -24,7 +24,7 @@ class Workers extends CI_Controller
 
     function get_workers()
     {
-        $req = $this->input->get();
+        $req = $this->input->post();
         $data = $this->WorkersModel->get_all($req);
         $total = $this->WorkersModel->count_all($req);
         $this->output
@@ -53,7 +53,7 @@ class Workers extends CI_Controller
 
     function create_worker()
     {
-        $req = json_decode(trim(file_get_contents('php://input')), true);
+        $req = $this->input->post();
         $valid = $this->form_validation->
             set_data($req)->
             run('workers');
@@ -75,7 +75,7 @@ class Workers extends CI_Controller
 
     function update_worker()
     {
-        $req = json_decode(trim(file_get_contents('php://input')), true);
+        $req = $this->input->post();
         $this->form_validation->set_data($req);
 
         $valid = $this->form_validation->

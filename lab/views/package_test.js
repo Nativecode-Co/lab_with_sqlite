@@ -1,6 +1,10 @@
 // dom ready
 $(document).ready(() => {
-  $("select").select2({
+  // select apllay select2 when parent not have class no-select2
+  $("#test-form select").select2({
+    width: "100%",
+  });
+  $("#package-form select").select2({
     width: "100%",
   });
 

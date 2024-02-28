@@ -24,13 +24,15 @@ class UsersModel extends CI_Model
     {
         $start = $params['start'];
         $rowsPerPage = $params['length'];
-        $page = $start / $rowsPerPage + 1;
+        $page = $start / $rowsPerPage;
         $orderBy = $params['order'][0]['column'];
         $orderBy = $params['columns'][$orderBy]['data'];
         $order = $params['order'][0]['dir'];
         $searchText = $params['search']['value'];
         return $this->db
+            ->select('*')->select('(SELECT name FROM system_group_name WHERE hash = system_users.user_type limit 1) as user_type_name')
             ->where('is_deleted', 0)
+            ->like("user_type", 111)
             ->like("name", $searchText)
             ->order_by($orderBy, $order)
             ->get($this->table, $rowsPerPage, $page * $rowsPerPage)

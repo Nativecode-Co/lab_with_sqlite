@@ -26,7 +26,6 @@ class TestsModel extends CI_Model
         $data = $this->db
             ->where('lab_pakage_tests.isdeleted', 0)
             ->where('lab_package.isdeleted', 0)
-            ->where('catigory_id', 9)
             ->join('lab_pakage_tests', 'lab_pakage_tests.package_id = lab_package.hash', 'inner')
             ->where('lab_package.hash', $hash)
             ->get($this->table)
@@ -132,7 +131,7 @@ class TestsModel extends CI_Model
     {
         $start = $params['start'];
         $rowsPerPage = $params['length'];
-        $page = $start / $rowsPerPage + 1;
+        $page = $start / $rowsPerPage;
         $orderBy = $params['order'][0]['column'];
         $orderBy = $params['columns'][$orderBy]['data'];
         $order = $params['order'][0]['dir'];
@@ -165,7 +164,8 @@ class TestsModel extends CI_Model
     {
         $start = $params['start'];
         $rowsPerPage = $params['length'];
-        $page = $start / $rowsPerPage + 1;
+        // page = 0 / 10  = 1
+        $page = $start / $rowsPerPage;
         $orderBy = $params['order'][0]['column'];
         $orderBy = $params['columns'][$orderBy]['data'];
         $order = $params['order'][0]['dir'];
@@ -212,7 +212,7 @@ class TestsModel extends CI_Model
     public function get_packages_test()
     {
         $data = $this->db
-            ->select('lab_package.hash as hash, name, price, cost, test_id, unit, lab_device_id, kit_id')
+            ->select('test_id as hash, name, test_id, unit, lab_device_id, kit_id')
             ->select('(SELECT IFNULL((SELECT DISTINCT name FROM devices WHERE id=lab_pakage_tests.lab_device_id), "No Device")) AS device_name')
             ->select('(SELECT IFNULL((SELECT DISTINCT name FROM lab_test_units WHERE hash=lab_pakage_tests.unit), "No Unit")) AS unit_name')
             ->select('(SELECT IFNULL((SELECT DISTINCT name FROM kits WHERE id=lab_pakage_tests.kit_id), "No Kit")) AS kit_name')
