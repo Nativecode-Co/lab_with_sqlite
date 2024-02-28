@@ -60,7 +60,7 @@ class Visit_model extends CI_Model
     public function record_count($search, $current = 0)
     {
         /// delete duplicate visits has same hash only one of them is not deleted but id is different
-        $this->deleteDuplicateVisitsAndPatientsAndLabPackageTestsAndLabVisitsTests();
+        $this->deleteDuplicateVisitsAndPatientsAndLabPackageTestsAndLabVisitsTestsAndLabPakageAndLabVisitsPackage();
         $lab_id = $this->input->post('lab_id');
         $date_opration = $current == 1 ? '>=' : '<';
         $count = $this->db
@@ -76,12 +76,25 @@ class Visit_model extends CI_Model
         return $count;
     }
 
-    public function deleteDuplicateVisitsAndPatientsAndLabPackageTestsAndLabVisitsTests()
+    public function deleteDuplicateVisitsAndPatientsAndLabPackageTestsAndLabVisitsTestsAndLabPakageAndLabVisitsPackage()
     {
         $this->db->query("DELETE FROM lab_patient WHERE id NOT IN (SELECT id FROM (SELECT MIN(id) as id FROM lab_patient GROUP BY hash) as t)");
         $this->db->query("DELETE FROM lab_visits WHERE id NOT IN (SELECT id FROM (SELECT MIN(id) as id FROM lab_visits GROUP BY hash) as t)");
-        $this->db->query("DELETE FROM lab_pakage_tests WHERE id NOT IN (SELECT id FROM (SELECT MIN(id) as id FROM lab_pakage_tests GROUP BY package_id,test_id) as t)");
-        $this->db->query("DELETE FROM lab_visits_tests WHERE id NOT IN (SELECT id FROM (SELECT MIN(id) as id FROM lab_visits_tests GROUP BY visit_id,package_id) as t)");
+        // delete duplicate lab_package and lab_pakage_tests expect first one when lab_package hash is same and lab_pakage_tests have same unit and kit_id and test_id and lab_device_id
+        $packageIds = $this->db->query("SELECT t.id FROM 
+        (SELECT MIN(lab_package.id) as id FROM lab_package 
+        inner join lab_pakage_tests on lab_pakage_tests.package_id=lab_package.hash 
+        group by 
+        lab_pakage_tests.unit,
+        lab_pakage_tests.kit_id,
+        lab_pakage_tests.test_id,
+        lab_pakage_tests.lab_device_id) as t")->result_array();
+        $packageIds = array_column($packageIds, 'id');
+        $this->db->query("DELETE FROM lab_package WHERE id NOT IN (" . implode(",", $packageIds) . ")");
+        $packageHashes = $this->db->query("SELECT hash FROM lab_package")->result_array();
+        $packageHashes = array_column($packageHashes, 'hash');
+        $this->db->query("DELETE FROM lab_pakage_tests WHERE package_id NOT IN ('" . implode("','", $packageHashes) . "')");
+
     }
 
     function getVisits($lab_id, $start, $length, $search, $current = 0)
@@ -121,9 +134,9 @@ class Visit_model extends CI_Model
         $tests = array_map(function ($test) {
             // decode result
             $result = json_decode($test['result'], true);
-            if (isset($result[$test['name']])) {
+            if (isset ($result[$test['name']])) {
                 $result = $result[$test['name']];
-                if (!isset($result) || $result == "") {
+                if (!isset ($result) || $result == "") {
                     $result = "";
                 } else {
                     $result = " - Last Result dated " . $test['date'] . "  was : " . $result;
@@ -277,7 +290,7 @@ class Visit_model extends CI_Model
                 $component = $options["component"][0];
                 $options = $options["component"][0]["reference"];
                 $options = array_filter($options, function ($item) use ($patient, $test) {
-                    $lowAge = $this->issetOrValue(isset($item['age low']), 0);
+                    $lowAge = $this->issetOrValue(isset ($item['age low']), 0);
                     $highAge = $this->issetOrValue($item['age high'], 1000);
                     $gender = $this->issetOrValue($item['gender'], "كلاهما");
                     if (
@@ -293,24 +306,24 @@ class Visit_model extends CI_Model
 
                 });
                 $options = array_map(function ($item) use ($component, $test) {
-                    if (isset($component['name'])) {
+                    if (isset ($component['name'])) {
                         $item['name'] = $component['name'];
                     }
-                    if (isset($component['unit'])) {
+                    if (isset ($component['unit'])) {
                         $item['unit'] = $component['unit'];
                     }
-                    if (isset($component['result'])) {
+                    if (isset ($component['result'])) {
                         $item['result'] = $component['result'];
                     }
-                    if (isset($test['result'])) {
+                    if (isset ($test['result'])) {
                         $item['result'] = $this->getResult($test['result']);
                     } else if ($component['name']) {
-                        $item['result'] = array(
+                        $item['result'] = array (
                             "checked" => true,
                             $component['name'] => ""
                         );
                     }
-                    if (isset($test['category'])) {
+                    if (isset ($test['category'])) {
                         $item['category'] = $test['category'];
                     } else {
                         $item['category'] = "Tests";
