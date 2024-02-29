@@ -1,83 +1,43 @@
-"usestrict";
+const { units, categories, kits } = fetchApi("/maintests/get_main_tests_data");
 
-let kits = [];
-let table = true;
-let page = 0;
-let testHash = 0;
-let allTests = [];
-let lab_test;
+const table = true;
+const page = 0;
+const allTests = [];
 
 let THEME = null;
 
-const createTheme = async (kits, units) => {
+const createTheme = (kits, units) => {
   if (THEME) {
     return THEME;
-  } else {
-    const fetchInvoice = async () => {
-      const labHash = localStorage.getItem("lab_hash");
-      return await fetch(`${base_url}Invoice/get_or_create?hash=${labHash}`)
-        .then((e) => e.json())
-        .then((res) => {
-          let setting = JSON.parse(res.data.setting);
-          return setting;
-        });
-    };
-    const setting = await fetchInvoice();
-    let theme = setting?.SuperTestTheme ?? "Form";
-    console.log(theme);
-    // upper case first letter
-    theme = theme.charAt(0).toUpperCase() + theme.slice(1);
-    switch (theme) {
-      case "Form":
-        THEME = new FormTheme(kits, units);
-        break;
-      case "Table":
-        THEME = new TableTheme(kits, units);
-        break;
-      default:
-        THEME = new FormTheme(kits, units);
-        break;
-    }
+  }
+  const setting = fetchApi("/invoice/get_setting");
+  let theme = setting.SuperTestTheme;
+  theme = theme.charAt(0).toUpperCase() + theme.slice(1);
+  switch (theme) {
+    case "Form":
+      THEME = new FormTheme(kits, units);
+      break;
+    case "Table":
+      THEME = new TableTheme(kits, units);
+      break;
+    default:
+      THEME = new FormTheme(kits, units);
+      break;
   }
 };
+createTheme(kits, units);
 
-let testNamerefrence = document.querySelector("#name_editor #test_name");
-let categoryHash = document.getElementById("category_hash");
+const testNamerefrence = document.querySelector("#name_editor #test_name");
+const categoryHash = document.getElementById("category_hash");
 
-let allData = run(`select name,hash from lab_test_units;
-             select name as text,hash from lab_test_catigory;`);
-
-let units = allData.result[0].query0;
-for (let data of units) {
-  let newOption = new Option(data.name, data.hash, false, false);
+for (const data of units) {
+  const newOption = new Option(data.text, data.hash, false, false);
   $("select[name='unit']").append(newOption);
 }
 
-let categories = allData.result[1].query1;
-
-$(document).ready(function () {
-  $("#kit").select2({
-    dropdownParent: $("#refrence_form"),
-    width: "100%",
-  });
-  $("#category_hash").select2({
-    dropdownParent: $("#form_id"),
-    width: "100%",
-  });
-  $("#unit").select2({
-    dropdownParent: $("#refrence_form"),
-    width: "100%",
-  });
-  $("#gender").select2({
-    dropdownParent: $("#refrence_form"),
-    width: "100%",
-  });
-  $("#age_unit_low").select2({
-    dropdownParent: $("#refrence_form"),
-    width: "100%",
-  });
-  $("#age_unit_high").select2({
-    dropdownParent: $("#refrence_form"),
+$(document).ready(() => {
+  $("modal select").select2({
+    dropdownParent: $(this).parent(),
     width: "100%",
   });
   $(".dt-buttons").addClass("btn-group");
@@ -124,59 +84,19 @@ const dwonLoadTestsSync = () => {
 };
 
 const fetchTests = () => {
-  let data = fetchData("LocalApi/installTests", "POST", {
+  const data = fetchData("LocalApi/installTests", "POST", {
     lab_id: localStorage.getItem("lab_hash"),
   });
   if (data.status) niceSwal("success", "top-right", data.message);
   else niceSwal("error", "top-right", data.message);
 };
 
-Swal.fire({
-  title: "الرجاء الانتظار",
-  text: "قد تستغرق العملية بعض الوقت",
-  showDenyButton: false,
-  showCancelButton: false,
-  showConfirmButton: false,
-  willOpen: () => {
-    Swal.showLoading();
-  },
-});
-
-new Promise((resolve, reject) => {
-  kits = run(`SELECT distinct kits.id, kits.name FROM kits;`).result[0].query0;
-  resolve();
-})
-  .then((res) => {
-    let newOption = new Option("No Kit", "", false, false);
-    $("select[name='kit']").append(newOption);
-    for (let data of kits) {
-      let newOption = new Option(data.name, data.id, false, false);
-      $("select[name='kit']").append(newOption);
-    }
-  })
-  .then((res) => {
-    lab_test = new Test("lab_test", "الفحوصات", [
-      { name: "hash", type: null },
-      { name: "test_name", type: "text", label: "الاسم" },
-      {
-        name: "category_hash",
-        type: "select",
-        label: "الفئة",
-        options: categories,
-      },
-    ]);
-  })
-  .then((res) => {
-    createTheme(kits, units);
-    Swal.close();
-  });
-
 class Test extends Factory {
   init() {
     this.createModal();
     this.dataTable = setServerTable(
       "lab_test-table",
-      `${base_url}Tests/getTestsForLab`,
+      "http://localhost:8807/api/app/index.php/maintests/get_main_tests",
       () => {
         return { lab_id: localStorage.getItem("lab_hash") };
       },
@@ -185,18 +105,16 @@ class Test extends Factory {
         {
           data: null,
           className: "center",
-          render: function (data, type, test) {
-            return `<span class="row" id="test-${test.hash}">${getRefrences(
-              test.option_test,
-              test.hash
-            )}</span>`;
-          },
+          render: (data, type, test) =>
+            `<span class="row" id="test-${test.hash}">
+              ${getRefrences(test.refrence, test.hash)}
+            </span>`,
         },
         { data: "category_name" },
         {
           data: null,
           className: "center",
-          render: function (data, type, test) {
+          render: (data, type, test) => {
             allTests.push(test);
             return `<a class="bs-tooltip text-success" onclick="lab_test.updateItem('${test.hash}');" data-toggle="tooltip" data-placement="top" title="Edit">
                                     <i class="far fa-edit fa-lg mx-2"></i>
@@ -219,27 +137,9 @@ class Test extends Factory {
     );
   }
 
-  pageCondition() {
-    return "";
-  }
-
-  getQuery(query) {
-    return `select test_name,category_hash,(select name from lab_test_catigory where hash=lab_test.category_hash) as category_name,hash,option_test from lab_test ${query};`;
-  }
-
-  mainCondition() {
-    return `where ${this.table}.isdeleted='0'`;
-  }
-
-  havingQuery(value) {
-    return `having test_name like '%${value}%'`;
-  }
-
   deleteItem(hash) {
-    let packageFounded = run(
-      `select test_id from lab_pakage_tests where test_id='${hash}';`
-    ).result[0].query0;
-    if (packageFounded.length > 0) {
+    const { isExist } = fetchApi("/maintests/isExist", "post", { id: hash });
+    if (isExist) {
       Swal.fire({
         icon: "error",
         title: "لا يمكن حذف التحليل",
@@ -247,193 +147,88 @@ class Test extends Factory {
       });
       return;
     }
-    run(`update lab_test set isdeleted=1 where hash='${hash}';`);
-    this.dataTable
-      .row($(`#${hash}`))
-      .remove()
-      .draw();
+    fetchApi("/maintests/delete_main_test", "post", { hash });
+    this.dataTable.ajax.reload();
   }
 
   saveUpdateItem(hash) {
     super.saveUpdateItem(hash);
-    let data = this.getUpdateData();
-    let { test_name } = data;
-    let formData = new FormData();
-    formData.append("name", test_name);
-    formData.append("hash", hash);
-    fetch(`${base_url}Packages/updateNameWithTestHsh`, {
-      method: "POST",
-      body: formData,
-      headers: {
-        Authorization: "Bearer " + localStorage.getItem("token"),
-      },
-    }).then((res) => res.json());
+    const data = this.getUpdateData();
+    fetchApi("/maintests/update_main_test", "post", { ...data, hash });
+    this.dataTable.ajax.reload();
+  }
+
+  saveNewItem() {
+    const data = this.getUpdateData();
+    fetchApi("/maintests/add_main_test", "post", data);
+    this.dataTable.ajax.reload();
   }
 }
 
-// function fetchData(page = 0, numerPerPage = 30, term = null) {
-//   term = term ? `having test_name like '%${term}%'` : "";
-//   let tests = run(
-//     `select test_name,hash,option_test,test_type from lab_test ${term} limit ${
-//       numerPerPage * page
-//     }, ${numerPerPage};`
-//   ).result[0].query0;
-//   let body = $(`#user_body`);
-//   for (let test of tests) {
-//     allTests.push(test);
-//     body.append(
-//       `<tr>
-//                 <td class="w-25">${test.test_name}</td>
-//                 <td class="w-50" id="test-${test.hash}">${getRefrences(
-//         test.option_test,
-//         test.hash
-//       )}</td>
-//                 <td class="w-25">
-//                     <a class="bs-tooltip" onclick="editTest('${
-//                       test.hash
-//                     }');" data-toggle="tooltip" data-placement="top" title="Edit">
-//                         <i class="far fa-edit fa-lg mx-2"></i>
-//                     </a>
-//                     <a class="bs-tooltip" onclick="fireSwal(deleteTest,'${
-//                       test.hash
-//                     }')" data-toggle="tooltip" data-placement="top" title="Edit">
-//                         <i class="far fa-trash fa-lg mx-2"></i>
-//                     </a>
-//                     <a class="bs-tooltip" onclick="addRefrence('${
-//                       test.hash
-//                     }');" data-toggle="tooltip" data-placement="top" title="Edit">
-//                         <i class="far fa-plus-circle fa-lg mx-2"></i>
-//                     </a>
-//                 </td>
-//                 <td></td>
-//             </tr>`
-//     );
-//   }
-//   if (table) {
-//     setTable();
-//     table = false;
-//   }
-// }
-
-function getStatus(options) {
-  if (options == '{"": ""}' || options == "") {
-    return '<span class="badge badge-danger"> لا يوجد رينجات </span>';
-  } else {
-    return '<span class="badge badge-success"> يوجد رينجات </span>';
-  }
-}
+const lab_test = new Test("lab_test", "الفحوصات", [
+  { name: "hash", type: null },
+  { name: "test_name", type: "text", label: "الاسم" },
+  {
+    name: "category_hash",
+    type: "select",
+    label: "الفئة",
+    options: categories,
+  },
+]);
 
 function getKits(options) {
-  options = options.replace(/\\/g, "");
+  const sanitizedOptions = options.replace(/\\/g, "");
   let kit = "";
-  if (options == '{"": ""}' || options == "") {
+  if (sanitizedOptions === '{"": ""}' || sanitizedOptions === "") {
     kit = '<span class="badge badge-danger"> لا يوجد kits </span>';
   } else {
-    let refrence = JSON.parse(options)?.component?.[0]?.reference ?? [];
-    newRefrence = refrence.map((item) => item.kit);
+    const refrence =
+      JSON.parse(sanitizedOptions)?.component?.[0]?.reference ?? [];
+    let newRefrence = refrence.map((item) => item.kit);
     newRefrence = [...new Set(newRefrence)];
-    for (let ref of newRefrence) {
-      let kitItem = kits.filter((item) => item.id == ref);
+    for (const ref of newRefrence) {
+      const kitItem = kits.filter((item) => item.id === ref);
       kit += ` <span class="badge badge-info">${kitItem[0].name}</span> `;
     }
   }
   return kit;
 }
 
-// [${item?.range.map(range=>`(${range.name != ''?`${range.name} : `:''}${range.low}-${range.high})`).join(' ')}]
-
-function getRefrences(options, hash) {
-  options = options.replace(/\\/g, "");
-  options = options.replace(/""\d*""/g, (x) => {
-    return x.replace(/""/g, '"');
-  });
-  // replace ""0.0"" to "0.0"
-  options = options.replace(/""\d*.\d*""/g, (x) => {
-    return x.replace(/""/g, '"');
-  });
-  try {
-    if (
-      options == '{"": ""}' ||
-      options == "" ||
-      options == '{"component": []}' ||
-      (JSON.parse(options)?.component?.[0]?.reference ?? []).length <= 0
-    ) {
-      return '<span class="badge badge-danger"> لا يوجد Ranges </span>';
-    } else {
-      let refrence = JSON.parse(options)?.component?.[0]?.reference ?? [];
-      // delete refrence if refrence.kit duplicate in refrence
-      let newRefrence = refrence.filter((item, index, self) => {
-        return self.findIndex((t) => t.kit === item.kit) === index;
-      });
-      newRefrence = newRefrence.map((item, cur) => {
-        let br = "";
-        if ((cur + 1) % 4 == 0) {
-          br = "<br>";
-        }
-        let _kit = kits.find((x) => x.id == item.kit);
-        if (_kit == undefined && item.kit != "") {
-          return;
-        }
-        return `<span class="badge badge-light border border-info p-2 mr-2 mb-2 col-auto" id="test-${hash}_kit-${(
-          _kit?.name.replace(/[^a-zA-Z0-9]/g, "_") ?? "No Kit"
-        )
-          .split(" ")
-          .join("_")}">
-                        ${_kit?.name ?? "No Kit"} 
-                        <a onclick="editRefrence('${hash}',${cur})"><i class="far fa-edit fa-lg mx-2 text-success"></i></a>
-                </span>${br}`;
-      });
-      return newRefrence.join(" ");
-    }
-  } catch (e) {
-    console.log(options);
+function getRefrences(reference, hash) {
+  if (reference.length <= 0) {
     return '<span class="badge badge-danger"> لا يوجد Ranges </span>';
   }
-}
-
-// ${item['age low']??0} ${item['age unit low']} - ${item['age high']??100} ${item['age unit high']}
-
-function deleteTest(hash) {
-  run(`delete from lab_test where hash='${hash}';`);
-  $(`#test-${hash}`).parents("tr").remove();
-}
-
-function saveTest() {
-  $("input[name=user_id]").val(localStorage.getItem("hash"));
-  if (testHash == 0) {
-    run(
-      `insert into lab_test(test_name,category_hash) values('${testNamerefrence.value}','${categoryHash.value}');`
-    );
-  } else {
-    run(
-      `update lab_test set test_name="${testNamerefrence.value}", category_hash='${categoryHash.value}' where hash=${testHash};`
-    );
-  }
-  $("#name_editor").modal("toggle");
-  testHash = 0;
-}
-
-function editTest(hash) {
-  let query_obj = run(
-    `select test_name,category_hash from lab_test where hash=${hash};`
-  ).result[0].query0[0];
-  testNamerefrence.value = query_obj.test_name;
-  // change category hash in select
-  $("#category_hash").val(query_obj.category_hash).trigger("change");
-  testHash = hash;
-  $("#name_editor").modal("toggle");
+  let newRefrence = reference.filter((item, index, self) => {
+    return self.findIndex((t) => t.kit === item.kit) === index;
+  });
+  newRefrence = newRefrence.map((item, cur) => {
+    let br = "";
+    if ((cur + 1) % 4 === 0) {
+      br = "<br>";
+    }
+    const _kit = kits.find((x) => x.id === item.kit);
+    if (_kit === undefined && item.kit !== "") {
+      return;
+    }
+    return `<span class="badge badge-light border border-info p-2 mr-2 mb-2 col-auto" id="test-${hash}_kit-${(
+      _kit?.name.replace(/[^a-zA-Z0-9]/g, "_") ?? "No Kit"
+    )
+      .split(" ")
+      .join("_")}">
+                      ${_kit?.name ?? "No Kit"} 
+                      <a onclick="editRefrence('${hash}',${cur})"><i class="far fa-edit fa-lg mx-2 text-success"></i></a>
+              </span>${br}`;
+  });
+  return newRefrence.join(" ");
 }
 
 function editRefrence(hash, refID) {
-  let test = allTests.filter((item) => item.hash == hash)[0];
-  let options = test.option_test.replace(/\\/g, "");
-  let component = JSON.parse(options).component;
-  let refrence = component[0].reference;
-  let newRefrence = refrence.filter((item, index, self) => {
+  const { refrence } = fetchApi("/maintests/get_main_test", "post", { hash });
+  const newRefrence = refrence.filter((item, index, self) => {
     return self.findIndex((t) => t.kit === item.kit) === index;
   })[refID];
   let form = THEME.build(hash, refrence, newRefrence?.kit);
-  if (form == "") {
+  if (form === "") {
     form = `<div class="alert alert-danger">لا يوجد رينجات</div>`;
   }
   $("#refrence_editor .modal-body").html(form);
@@ -441,32 +236,28 @@ function editRefrence(hash, refID) {
 }
 
 function updateRefrence(hash, refID) {
-  const formContainer = $(`#form_container`);
+  const formContainer = $("#form_container");
   // empty from container
   formContainer.empty();
-  let test = allTests.filter((item) => item.hash == hash)[0];
-  let options = test.option_test.replace(/\\/g, "");
-  let component = JSON.parse(options).component;
-  let refrences = component[0].reference;
-  let refrence = refrences.find((item, index, self) => index == refID);
-  let form = THEME.mainForm(refID, hash, refrence);
+  let { refrence } = fetchApi("/maintests/get_main_test", "post", { hash });
+  refrence = refrence.find((item, index, self) => index === Number(refID));
+  const form = THEME.mainForm(refID, hash, refrence);
   formContainer.append(form);
 }
 
 function saveRefrence(hash, refID) {
-  if (refreshValidation() == false) {
+  if (refreshValidation() === false) {
     return false;
   }
-  let result = $(`#refrence_form_${refID} input[name="type"]:checked`).val();
-  let rightOptions = [];
-  let options = [];
+  const result = $(`#refrence_form_${refID} input[name="type"]:checked`).val();
+  const rightOptions = [];
+  const options = [];
   if (
-    $(`#refrence_form_${refID} input[name="type"]:checked`).val() == "result"
+    $(`#refrence_form_${refID} input[name="type"]:checked`).val() === "result"
   ) {
     $(`#refrence_form_${refID} input[name='select-result-value']`).each(
       function () {
         options.push($(this).val());
-        // get right options
         if (
           $(this)
             .parent()
@@ -479,12 +270,16 @@ function saveRefrence(hash, refID) {
       }
     );
   }
-  let test = allTests.filter((item) => item.hash == hash)[0];
-  let test_options = test.option_test.replace(/\\/g, "");
-  test_options = JSON.parse(test_options);
-  let component = test_options.component;
-  let element = THEME.getData(refID, result, options, rightOptions);
-  console.log(element);
+  const { refrence, name } = fetchApi("/maintests/get_main_test", "post", {
+    hash,
+  });
+  let component = [
+    {
+      name: name,
+      reference: refrence,
+    },
+  ];
+  const element = THEME.getData(refID, result, options, rightOptions);
   if (refID === "null") {
     if (component?.[0]) {
       component[0].reference.push(element);
@@ -497,7 +292,7 @@ function saveRefrence(hash, refID) {
       ];
       document.getElementById(`test-${hash}`).innerHTML = "";
     }
-    let newRefrence = component[0].reference.filter((item, index, self) => {
+    const newRefrence = component[0].reference.filter((item, index, self) => {
       return self.findIndex((t) => t?.kit === item?.kit) === index;
     });
     // (${element['age low']??0} ${element['age unit low']} - ${element['age high']??100} ${element['age unit high']})
@@ -505,23 +300,23 @@ function saveRefrence(hash, refID) {
       $(
         `#test-${hash}_kit-${(
           kits
-            .find((x) => x.id == element.kit)
+            .find((x) => x.id === element.kit)
             ?.name.replace(/[^a-zA-Z0-9]/g, "_") ?? "No Kit"
         )
           .split(" ")
           .join("_")}`
-      ).length == 0
+      ).length === 0
     ) {
       document.getElementById(
         `test-${hash}`
       ).innerHTML += ` <span class="badge badge-light border border-info p-2 mr-2 mb-2 col-auto" id="test-${hash}_kit-${(
         kits
-          .find((x) => x.id == element.kit)
+          .find((x) => x.id === element.kit)
           ?.name.replace(/[^a-zA-Z0-9]/g, "_") ?? "No Kit"
       )
         .split(" ")
         .join("_")}" style="min-width:200px">
-            ${kits.find((x) => x.id == element.kit)?.name ?? "No Kit"} 
+            ${kits.find((x) => x.id === element.kit)?.name ?? "No Kit"} 
             <a onclick="editRefrence('${hash}',${
         newRefrence.length - 1
       })"><i class="far fa-edit fa-lg mx-2 text-success"></i></a>
@@ -529,32 +324,13 @@ function saveRefrence(hash, refID) {
     }
   } else {
     component[0].reference[refID] = element;
-    // document.getElementById(`test-${hash}_ref-${refID}`).innerHTML =
-    // `
-    //     ${kits.find(x => x.id == element.kit)?.name ?? "No Kit"}
-    //     <a onclick="editRefrence('${hash}',${refID})"><i class="far fa-edit fa-lg mx-2 text-success"></i></a>
-    // `
   }
-  test_options["component"] = component;
-  const query = `update lab_test set option_test='${JSON.stringify(
-    test_options
-  )}' where hash=${hash}`;
-
-  let kitUnit = run(
-    `${query}; select kit from lab_kit_unit where kit='${element.kit}' and unit='${element.unit}';`
-  ).result[1].query1[0];
-  run_online(`${query} and lab_hash='${localStorage.getItem("lab_hash")}';`);
-  if (!kitUnit) {
-    run(
-      `insert into lab_kit_unit(kit,unit) values('${element.kit}','${element.unit}');`
-    );
-  }
-  allTests.filter((item, cur) => {
-    if (item.hash == hash) {
-      allTests[cur].option_test = JSON.stringify(test_options);
-    }
+  fetchApi("/maintests/update_main_test", "post", {
+    hash,
+    option_test: JSON.stringify({ component }),
   });
-  $("#refrence_editor").modal("toggle");
+  lab_test.dataTable.ajax.reload();
+  $("#refrence_editor").modal("hide");
   Swal.fire({
     toast: true,
     position: "bottom-end",
@@ -566,88 +342,35 @@ function saveRefrence(hash, refID) {
 }
 
 function deleteRefrence(hash, refID) {
-  let test = allTests.filter((item) => item.hash == hash)[0];
-  let test_options = test.option_test.replace(/\\/g, "");
-  test_options = JSON.parse(test_options);
-  let component = test_options.component;
-  let _kit = component[0].reference[refID].kit;
-  // get refrence i want to delete
-  let deletedRefrence = component[0].reference[refID];
-  let { unit } = deletedRefrence;
-  let checkFoundedInLabTests =
-    run(
-      `select * from lab_pakage_tests where test_id='${hash}' and kit_id='${_kit}' and unit='${unit}';`
-    ).result[0].query0.length > 0;
-  if (checkFoundedInLabTests) {
-    Swal.fire({
-      toast: true,
-      position: "bottom-end",
-      icon: "error",
-      title: "لا يمكن حذف هذا المرجع لانه مرتبط ببعض الفحوصات",
-      showConfirmButton: false,
-      timer: 3000,
-    });
-    return false;
-  }
-  component[0].reference = component[0].reference.filter(
-    (item, cur) => cur != refID
-  );
-  test_options["component"] = component;
-  console.log;
-  run(
-    `update lab_test set option_test='${JSON.stringify(
-      test_options
-    )}' where hash=${hash};`
-  );
-  allTests.filter((item, cur) => {
-    if (item.hash == hash) {
-      allTests[cur].option_test = JSON.stringify({ component: component });
-    }
+  const { refrence, name } = fetchApi("/maintests/get_main_test", "post", {
+    hash,
   });
-  $(`#refrence_form_${refID}`).remove();
-  if ($("#refrence_editor form").length == 0) {
-    // $(
-    //   `#test-${hash}_kit-${(
-    //     kits.find((x) => x.id == _kit)?.name.replace(/[^a-zA-Z0-9]/g, "_") ??
-    //     "No Kit"
-    //   )
-    //     .split(" ")
-    //     .join("_")}`
-    // ).remove();
-    $("#refrence_editor").modal("toggle");
-  }
+  refrence.splice(refID, 1);
+  const component = [
+    {
+      name: name,
+      reference: refrence,
+    },
+  ];
+  fetchApi("/maintests/update_main_test", "post", {
+    hash,
+    option_test: JSON.stringify({ component }),
+  });
+  lab_test.dataTable.ajax.reload();
+  $("#refrence_editor").modal("hide");
+  Swal.fire({
+    toast: true,
+    position: "bottom-end",
+    icon: "success",
+    title: "قد تحتاج الى التعديل في صفحة التحاليل لتطبيق التغييرات  ",
+    showConfirmButton: false,
+    timer: 3000,
+  });
 }
 
 function deleteRange(e, id) {
-  let num = $(`#${id} .range`).length;
+  const num = $(`#${id} .range`).length;
   if (num > 1) {
     e.parents(".range").remove();
   }
-}
-
-function refreshKits() {
-  let req = indexedDB.deleteDatabase("kits");
-  req.onsuccess = function () {
-    console.log("Deleted database successfully");
-  };
-  req.onerror = function () {
-    console.log("Couldn't delete database");
-  };
-  req.onblocked = function () {
-    console.log("Couldn't delete database due to the operation being blocked");
-  };
-  Database_Open({
-    table: "kits",
-    hash: "id",
-    query: `select name,id from kits;`,
-  }).then((result) => {
-    kits = result;
-    $("select[name='kit']").empty();
-    let newOption = new Option("No Kit", "", false, false);
-    $("select[name='kit']").append(newOption);
-    for (let data of result) {
-      let newOption = new Option(data.name, data.id, false, false);
-      $("select[name='kit']").append(newOption);
-    }
-  });
 }

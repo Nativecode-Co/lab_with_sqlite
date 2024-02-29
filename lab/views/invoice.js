@@ -895,7 +895,6 @@ const InvoiceSetting = () => {
 
   const [invoice, setInvoice] = React.useState({});
   const [tests, setTests] = React.useState([]);
-  const [employees, setEmployees] = React.useState([]);
 
   const fetchTests = () => {
     let data = [
@@ -915,13 +914,6 @@ const InvoiceSetting = () => {
     setTests(data);
   };
 
-  const fetchEmployees = () => {
-    let data = run(
-      `SELECT * from lab_invoice_worker where lab_hash='${labHash}' and is_available=1 and isdeleted=0 limit 5;`
-    ).result[0].query0;
-    setEmployees(data);
-  };
-
   const fetchInvoice = async () => {
     let data = await fetch(`${base_url}Invoice/get_or_create?hash=${labHash}`)
       .then((e) => e.json())
@@ -936,7 +928,6 @@ const InvoiceSetting = () => {
 
   React.useEffect(() => {
     fetchInvoice();
-    fetchEmployees();
     fetchTests();
   }, []);
   return (

@@ -67,8 +67,8 @@ class Theme {
       .map(
         (item) =>
           `<option value="${item.hash}" ${
-            item.hash == selectedUnit ? "selected" : ""
-          }>${item.name}</option>`
+            item.hash === selectedUnit ? "selected" : ""
+          }>${item.text}</option>`
       )
       .join(" ");
 
@@ -411,8 +411,7 @@ class TableTheme extends Theme {
   }
 
   createRow(id, hash, refrence) {
-    const { kit, unit, range, result, right_options, options, gender } =
-      refrence;
+    const { kit, unit, range, gender } = refrence;
     const ageLow = refrence?.["age low"] ?? 0;
     const ageLowUnit = refrence?.["age unit low"] ?? "عام";
     const ageHigh = refrence?.["age high"] ?? 0;
@@ -420,14 +419,14 @@ class TableTheme extends Theme {
 
     let kitName = "No Kit";
     this.kits.map((k) => {
-      if (k.id == kit) {
+      if (k.id === kit) {
         kitName = k.name;
       }
     });
     let unitName = "No Unit";
     this.units.map((u) => {
-      if (u.hash == unit) {
-        unitName = u.name;
+      if (u.hash === unit) {
+        unitName = u.text;
       }
     });
     return `

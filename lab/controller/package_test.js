@@ -315,13 +315,9 @@ function deletePackage(hash) {
 }
 
 const updateNormal = (test, kit, unit) => {
-  TEST = run(`select option_test from lab_test where hash='${test}';`).result[0]
-    .query0[0].option_test;
+  TEST = fetchApi("/maintests/get_main_test", "post", { hash });
   try {
-    TEST = TEST.replace(/\\/g, "");
-    TEST = JSON.parse(TEST);
-    const { component } = TEST;
-    let { reference } = component[0];
+    let { reference } = TEST.refrence;
     reference = reference.filter((item) => {
       return (
         (kit === item.kit || (isNull(kit) && isNull(item.kit))) &&
@@ -350,8 +346,7 @@ function updateRefrence(hash, refID, selectedUnit) {
   const formContainer = $("#form_container");
   // empty from container
   formContainer.empty();
-  const { component } = TEST;
-  let refrences = component[0].reference;
+  let refrences = TEST?.refrence;
   refrences = refrences.filter((refrence, id) => {
     const refUnit = refrence?.unit ?? "";
     if (refUnit === selectedUnit) {
@@ -377,7 +372,6 @@ function saveRefrence(hash, refID) {
     $(`#refrence_form_${refID} input[name='select-result-value']`).each(
       function () {
         options.push($(this).val());
-        // get right options
         if (
           $(this)
             .parent()
@@ -390,13 +384,15 @@ function saveRefrence(hash, refID) {
       }
     );
   }
-  if (!TEST) {
-    TEST = run(`select option_test from lab_test where hash='${hash}';`)
-      .result[0].query0[0].option_test;
-    TEST = TEST.replace(/\\/g, "");
-    TEST = JSON.parse(TEST);
-  }
-  let { component } = TEST;
+  const { refrence, name } = fetchApi("/maintests/get_main_test", "post", {
+    hash,
+  });
+  let component = [
+    {
+      name: name,
+      reference: refrence,
+    },
+  ];
   const element = THEME.getData(refID, result, options, rightOptions);
   if (refID === "null") {
     if (component?.[0]) {
@@ -408,26 +404,46 @@ function saveRefrence(hash, refID) {
           reference: [element],
         },
       ];
+      document.getElementById(`test-${hash}`).innerHTML = "";
     }
     const newRefrence = component[0].reference.filter((item, index, self) => {
       return self.findIndex((t) => t?.kit === item?.kit) === index;
     });
+    // (${element['age low']??0} ${element['age unit low']} - ${element['age high']??100} ${element['age unit high']})
+    if (
+      $(
+        `#test-${hash}_kit-${(
+          kits
+            .find((x) => x.id === element.kit)
+            ?.name.replace(/[^a-zA-Z0-9]/g, "_") ?? "No Kit"
+        )
+          .split(" ")
+          .join("_")}`
+      ).length === 0
+    ) {
+      document.getElementById(
+        `test-${hash}`
+      ).innerHTML += ` <span class="badge badge-light border border-info p-2 mr-2 mb-2 col-auto" id="test-${hash}_kit-${(
+        kits
+          .find((x) => x.id === element.kit)
+          ?.name.replace(/[^a-zA-Z0-9]/g, "_") ?? "No Kit"
+      )
+        .split(" ")
+        .join("_")}" style="min-width:200px">
+            ${kits.find((x) => x.id === element.kit)?.name ?? "No Kit"} 
+            <a onclick="editRefrence('${hash}',${
+        newRefrence.length - 1
+      })"><i class="far fa-edit fa-lg mx-2 text-success"></i></a>
+            </span> `;
+    }
   } else {
     component[0].reference[refID] = element;
   }
-  const test_options = { component: component };
-  const kitUnit = run(`update lab_test set option_test='${JSON.stringify(
-    test_options
-  )}' where hash=${hash};
-                    select kit from lab_kit_unit where kit='${
-                      element.kit
-                    }' and unit='${element.unit}';`).result[1].query1[0];
-  if (!kitUnit) {
-    run(
-      `insert into lab_kit_unit(kit,unit) values('${element.kit}','${element.unit}');`
-    );
-  }
-
-  $("#refrence_editor").modal("toggle");
+  fetchApi("/maintests/update_main_test", "post", {
+    hash,
+    option_test: JSON.stringify({ component }),
+  });
+  lab_test.dataTable.ajax.reload();
+  $("#refrence_editor").modal("hide");
   TEST = null;
 }

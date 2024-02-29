@@ -816,57 +816,6 @@ function uploadFile(file, folder, name) {
   }
 }
 
-const Database_Open = async (options) => {
-  return new Promise((resolve, reject) => {
-    const dbReq = indexedDB.open(options.table, 1);
-    dbReq.onupgradeneeded = (event) => {
-      const db = event.target.result;
-
-      // Create DB Table
-      db.createObjectStore(options.table, { keyPath: options.hash });
-      console.log(
-        `upgrade is called database name: ${db.name} version : ${db.version}`
-      );
-    };
-    dbReq.onsuccess = (e) => {
-      const db = e.target.result;
-      const tx = db.transaction(options.table, "readwrite");
-      tx.onerror = (e) => alert(` Error! ${e.target.error}`);
-      const _req = tx.objectStore(options.table);
-      const req = _req.getAll();
-      req.onsuccess = (e) => {
-        if (e.target.result?.[0]) {
-          resolve(e.target.result);
-        } else {
-          const data = run(options.query).result[0].query0;
-          for (const i of data) {
-            _req.add(i);
-          }
-          resolve(data);
-        }
-      };
-    };
-    dbReq.onerror = (event) => {
-      reject("error opening database");
-    };
-  });
-};
-
-function showPopover(title, content, color = "light") {
-  $(this)
-    .popover({
-      template: `<div class="popover popover-${color}" role="tooltip"><div class="arrow"></div><h3 class="popover-header"></h3><div class="popover-body"></div></div>`,
-      title: `<p class="text-center">${title}</p>`,
-      // show price and note
-      html: true,
-      content: `
-            ${content}
-        `,
-      placement: "top",
-    })
-    .popover("show");
-}
-
 function printElement(Id, pageZise = "A4", ...args) {
   $(`${Id}`).printThis({
     importCSS: false,

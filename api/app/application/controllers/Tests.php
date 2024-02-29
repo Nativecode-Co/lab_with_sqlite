@@ -141,4 +141,14 @@ class Tests extends CI_Controller
             ->set_output(json_encode($data));
     }
 
+    public function test_is_exist()
+    {
+        $id = $this->input->post("id");
+        $data = $this->TestsModel->test_is_exist($id);
+        $this->output
+            ->set_status_header(200)
+            ->set_content_type('application/json')
+            ->set_output(json_encode($data));
+    }
+
 }

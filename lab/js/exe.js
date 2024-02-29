@@ -142,11 +142,6 @@ function run_online(json, token = localStorage.getItem("token")) {
   return res;
 }
 
-function run_both(json) {
-  const res = run(json);
-  return res;
-}
-
 function add_calc_tests(tests, visit_hash, action = "insert") {
   localStorage.setItem("last_url", window.location.href);
   const token = localStorage.getItem("token");

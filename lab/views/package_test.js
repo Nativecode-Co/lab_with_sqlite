@@ -35,7 +35,7 @@ $(document).ready(() => {
 const updatePackageDetail = async (hash) => {
   const cost = $(`#${hash}_cost`).val();
   const price = $(`#${hash}_price`).val();
-  let formData = new FormData();
+  const formData = new FormData();
   formData.append("hash", hash);
   formData.append("cost", cost);
   formData.append("price", price);
@@ -47,7 +47,7 @@ const updatePackageDetail = async (hash) => {
     },
   }).then((res) => {});
   await fetch(
-    `http://umc.native-code-iq.com/app/index.php/Packages/updateCostAndPrice`,
+    "http://umc.native-code-iq.com/app/index.php/Packages/updateCostAndPrice",
     {
       method: "POST",
       body: formData,

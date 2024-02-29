@@ -229,6 +229,18 @@ class TestsModel extends CI_Model
         return $data;
     }
 
+    public function test_is_exist($test_id)
+    {
+        $data = $this->db
+            ->where('test_id', $test_id)
+            ->get('lab_pakage_tests')
+            ->row();
+        return array(
+            "isExist" => isset($data),
+            "data" => $data
+        );
+    }
+
     public function get_tests_data()
     {
         $kits = $this->db

@@ -60,7 +60,7 @@ class Test extends Factory {
   }
 
   updateItem(hash) {
-    const data = fetchApi(`/maintests/get_main_test?hash=${hash}`);
+    const data = fetchApi(`/maintests/get_calc_test?hash=${hash}`);
     fillForm(this.formId, this.fields, data);
     super.updateItem(hash);
   }

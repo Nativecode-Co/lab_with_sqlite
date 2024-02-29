@@ -16,7 +16,8 @@ class MainTestsModel extends CI_Model
         $searchText = $params['search']['value'];
         return $this->db
             ->where('isdeleted', 0)
-            ->like("name", $searchText)
+            ->where('lab_test.test_type <>', 3)
+            ->like("test_name", $searchText)
             ->count_all_results($this->table);
     }
 
@@ -29,12 +30,30 @@ class MainTestsModel extends CI_Model
         $orderBy = $params['columns'][$orderBy]['data'];
         $order = $params['order'][0]['dir'];
         $searchText = $params['search']['value'];
-        return $this->db
-            ->where('isdeleted', 0)
+        $tests = $this->db
+            ->select('lab_test.hash,test_name,option_test')
+            // category_name
+            ->select('lab_test_catigory.name as category_name')
+            ->join('lab_test_catigory', 'lab_test_catigory.hash = lab_test.category_hash', 'left')
+            ->where('lab_test.isdeleted', 0)
+            ->where('lab_test.test_type <>', 3)
             ->like("test_name", $searchText)
+            // order by id
+            ->order_by("lab_test.id", "desc")
             ->order_by($orderBy, $order)
             ->get($this->table, $rowsPerPage, $page * $rowsPerPage)
             ->result();
+        // add refrence to the output
+        $this->load->helper('json');
+
+        foreach ($tests as $test) {
+            $option_test = $test->option_test;
+            $json = new Json($option_test);
+            $option_test = $json->getRefrenceByFields(array());
+            $test->refrence = $option_test;
+            unset($test->option_test);
+        }
+        return $tests;
     }
 
     public function get_tests_options()
@@ -49,7 +68,26 @@ class MainTestsModel extends CI_Model
         return $tests;
     }
 
-    public function get($hash)
+    public function get($hash, $fields)
+    {
+        $this->load->helper('json');
+        $output = $this->db
+            ->where('isdeleted', 0)
+            ->where($this->main_column, $hash)
+            ->get($this->table)
+            ->row();
+        $output = json_decode(json_encode($output), true);
+        $option_test = $output["option_test"];
+
+        $json = new Json($option_test);
+        $option_test = $json->getRefrenceByFields($fields);
+        $output["refrence"] = $option_test;
+        unset($output["option_test"]);
+        return $output;
+
+    }
+
+    public function get_calc($hash)
     {
         return $this->db
             ->where('isdeleted', 0)
@@ -130,9 +168,20 @@ class MainTestsModel extends CI_Model
             ->where('test_type <>', 3)
             ->get('lab_test')
             ->result();
+        $units = $this->db
+            ->select('name as text, hash')
+            ->get('lab_test_units')
+            ->result();
+        // SELECT distinct kits.id, kits.name FROM kits;
+        $kits = $this->db
+            ->select('name, id')
+            ->get('kits')
+            ->result();
         return array(
             "categories" => $categories,
-            "tests" => $tests
+            "tests" => $tests,
+            "units" => $units,
+            "kits" => $kits
         );
     }
 

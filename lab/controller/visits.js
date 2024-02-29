@@ -2220,7 +2220,7 @@ function hoverInvoice(element) {
 
 const updatePatientName = async (hash, ele) => {
   const name = $(ele).val();
-  let formData = new FormData();
+  const formData = new FormData();
   formData.append("hash", hash);
   formData.append("name", name);
   await fetch(`${base_url}Patient/updateName`, {
@@ -2233,7 +2233,7 @@ const updatePatientName = async (hash, ele) => {
     .then((res) => res.json())
     .then((res) => {
       const { status, message } = res;
-      if (status == 200) {
+      if (status === 200) {
         lab_visits.dataTable.ajax.reload();
         niceSwal("success", "bottom-end", message);
       } else {
@@ -2243,17 +2243,19 @@ const updatePatientName = async (hash, ele) => {
 };
 
 const updateNormal = (test, kit, unit) => {
-  TEST = run(`select option_test from lab_test where hash='${test}';`).result[0]
-    .query0[0]?.option_test;
+  TEST = fetchApi("/maintests/get_main_test", "post", { hash });
   try {
-    TEST = TEST.replace(/\\/g, "");
-    TEST = JSON.parse(TEST);
-    let { component } = TEST;
-    let { reference } = component[0];
-    if (reference.length == 0) {
+    let { reference } = TEST.refrence;
+    reference = reference.filter((item) => {
+      return (
+        (kit === item.kit || (isNull(kit) && isNull(item.kit))) &&
+        (unit === item.unit || (isNull(unit) && isNull(item.unit)))
+      );
+    });
+    if (reference.length === 0) {
       throw "no refrence";
     }
-    let refrenceTable = THEME.build(test, reference, kit, unit);
+    const refrenceTable = THEME.build(test, reference, kit, unit);
     $("#refrence_editor .modal-body").html(refrenceTable);
     $("#refrence_editor").modal("show");
   } catch (error) {
@@ -2261,7 +2263,7 @@ const updateNormal = (test, kit, unit) => {
       toast: true,
       position: "bottom-end",
       icon: "error",
-      title: "لا يوجد رينجات لتعديلها",
+      title: "لا يوجد رينجات لتعديلها يرجي اضافة رينجات اولا",
       showConfirmButton: false,
       timer: 3000,
     });
@@ -2272,8 +2274,7 @@ function updateRefrence(hash, refID, selectedUnit) {
   const formContainer = $("#form_container");
   // empty from container
   formContainer.empty();
-  const { component } = TEST;
-  let refrences = component[0].reference;
+  let refrences = TEST?.refrence;
   refrences = refrences.filter((refrence, id) => {
     const refUnit = refrence?.unit ?? "";
     if (refUnit === selectedUnit) {
@@ -2281,7 +2282,7 @@ function updateRefrence(hash, refID, selectedUnit) {
     }
     return false;
   });
-  const refrence = refrences.find((item, index, self) => index == refID);
+  const refrence = refrences.find((item, index, self) => index === refID);
   const form = THEME.mainForm(refID, hash, refrence);
   formContainer.append(form);
 }
@@ -2299,7 +2300,6 @@ function saveRefrence(hash, refID) {
     $(`#refrence_form_${refID} input[name='select-result-value']`).each(
       function () {
         options.push($(this).val());
-        // get right options
         if (
           $(this)
             .parent()
@@ -2312,7 +2312,15 @@ function saveRefrence(hash, refID) {
       }
     );
   }
-  let { component } = TEST;
+  const { refrence, name } = fetchApi("/maintests/get_main_test", "post", {
+    hash,
+  });
+  let component = [
+    {
+      name: name,
+      reference: refrence,
+    },
+  ];
   const element = THEME.getData(refID, result, options, rightOptions);
   if (refID === "null") {
     if (component?.[0]) {
@@ -2359,21 +2367,11 @@ function saveRefrence(hash, refID) {
   } else {
     component[0].reference[refID] = element;
   }
-  const test_options = { component: component };
-  const kitUnit = run(`update lab_test set option_test='${JSON.stringify(
-    test_options
-  )}' where hash=${hash};
-                    select kit from lab_kit_unit where kit='${
-                      element.kit
-                    }' and unit='${element.unit}';`).result[1].query1[0];
-  if (!kitUnit) {
-    run(
-      `insert into lab_kit_unit(kit,unit) values('${element.kit}','${element.unit}');`
-    );
-  }
-
-  $("#refrence_editor").modal("toggle");
-  visitDetail(HASH);
-  fireSwalWithoutConfirm(showAddResult, HASH);
+  fetchApi("/maintests/update_main_test", "post", {
+    hash,
+    option_test: JSON.stringify({ component }),
+  });
+  lab_test.dataTable.ajax.reload();
+  $("#refrence_editor").modal("hide");
   TEST = null;
 }
