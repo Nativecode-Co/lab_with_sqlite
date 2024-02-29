@@ -207,10 +207,11 @@ class Visit extends Factory {
 
   savenewItemaAfterCheckName() {
     const data = this.validate();
+    const checked = document.querySelector(`input[name="new_patient"]`).checked;
     const { isExist, hash } = fetchApi("/patient/patientIsExist", "POST", {
       name: data.name,
     });
-    if (isExist) {
+    if (isExist && checked) {
       Swal.fire({
         title: "تنبيه",
         text: "هذا المريض موجود بالفعل هل تريد اضافة زيارة له ؟",
