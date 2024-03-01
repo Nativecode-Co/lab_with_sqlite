@@ -60,7 +60,6 @@ class Visit_model extends CI_Model
     public function record_count($search, $current = 0)
     {
         /// delete duplicate visits has same hash only one of them is not deleted but id is different
-        $this->deleteDuplicateVisitsAndPatientsAndLabPackageTestsAndLabVisitsTestsAndLabPakageAndLabVisitsPackage();
         $lab_id = $this->input->post('lab_id');
         $date_opration = $current == 1 ? '>=' : '<';
         $count = $this->db
