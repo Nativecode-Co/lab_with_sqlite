@@ -319,6 +319,8 @@ function syncOnline() {
   if (!navigator.onLine) {
     return false;
   }
-  fetch(`${__domain__}/sync/sync_up.php`);
+  fetch(`${__domain__}/sync/sync_up.php`).then((res) => {
+    fetchData("Offline_sync/trancate_offline_sync", "GET", {});
+  });
   updateExpireDate();
 }

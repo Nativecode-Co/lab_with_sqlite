@@ -28,4 +28,13 @@ class Offline_sync extends CI_Controller
             ->set_content_type('application/json')
             ->set_output(json_encode(array('message' => 'Sync updated')));
     }
+
+    public function trancate_sync()
+    {
+        $this->Offline_sync_model->trancate_offline_sync();
+        $this->output
+            ->set_status_header(200)
+            ->set_content_type('application/json')
+            ->set_output(json_encode(array('message' => 'Sync trancated')));
+    }
 }
