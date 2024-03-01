@@ -43,7 +43,6 @@ class Packages extends CI_Controller
 
     public function getPackagesForLab()
     {
-        $this->Visit_model->deleteDuplicateVisitsAndPatientsAndLabPackageTestsAndLabVisitsTestsAndLabPakageAndLabVisitsPackage();
         $search = $this->input->post('search');
         $search = $search['value'];
         $draw = intval($this->input->post("draw"));
