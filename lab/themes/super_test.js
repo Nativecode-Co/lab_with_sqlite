@@ -23,8 +23,7 @@ class Theme {
     return {
       gender: $(`#refrence_form_${refID} #gender`).val(),
       kit: $(`#refrence_form_${refID} #kit`).val(),
-      unit:
-        resultStyle == "result" ? "" : $(`#refrence_form_${refID} #unit`).val(),
+      unit: $(`#refrence_editor #unit`).val(),
       "age high": $(`#refrence_form_${refID} #age_high`).val(),
       "age low": $(`#refrence_form_${refID} #age_low`).val(),
       "age unit high": $(`#refrence_form_${refID} #age_unit_high`).val(),
@@ -271,6 +270,7 @@ class FormTheme extends Theme {
   mainForm(id, hash, refrence) {
     const { kit, unit, range, result, right_options, options, gender } =
       refrence;
+
     const ageLow = refrence?.["age low"] ?? 0;
     const ageLowUnit = refrence?.["age unit low"] ?? "عام";
     const ageHigh = refrence?.["age high"] ?? 0;
@@ -446,7 +446,7 @@ class TableTheme extends Theme {
         }</td>
         <td>${unitName}</td>
         <td>
-          <i class="fas fa-edit text-success" onclick="(updateRefrence('${hash}', '${id}','${unit}'))"></i>
+          <i class="fas fa-edit text-success" onclick="updateRefrence('${hash}', '${id}','${unit}')"></i>
           <i class="fas fa-trash text-danger" onclick="fireSwalForDelete(deleteRefrence, '${hash}','${id}')"></i>
         </td>
       </tr>
@@ -517,7 +517,7 @@ class PackageTestTheme extends TableTheme {
     return {
       gender: $(`#refrence_form_${refID} #gender`).val(),
       kit: $(`#refrence_editor #kit`).val(),
-      unit: resultStyle == "result" ? "" : $(`#refrence_editor #unit`).val(),
+      unit: $(`#refrence_editor #unit`).val(),
       "age high": $(`#refrence_form_${refID} #age_high`).val(),
       "age low": $(`#refrence_form_${refID} #age_low`).val(),
       "age unit high": $(`#refrence_form_${refID} #age_unit_high`).val(),
@@ -589,7 +589,7 @@ class PackageTestTheme extends TableTheme {
           }) ?? "No Range"
         }</td>
         <td>
-          <i class="fas fa-edit text-success" onclick="(updateRefrence('${hash}', '${id}','${unit}'))"></i>
+          <i class="fas fa-edit text-success" onclick="updateRefrence('${hash}', '${id}','${unit}')"></i>
         </td>
       </tr>
     `;

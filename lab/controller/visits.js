@@ -536,40 +536,37 @@ function convertAgeToDays(age, unit) {
 function filterWithKit(reference, kit) {
   return reference.filter((ref) => {
     if (
-      (kit == "" || kit == null || kit == undefined || kit == 0) &&
-      (ref?.kit == "" ||
-        ref?.kit == null ||
-        ref?.kit == undefined ||
-        ref?.kit == 0)
+      (kit === "" || kit === null || kit === undefined || kit === 0) &&
+      (ref?.kit === "" ||
+        ref?.kit === null ||
+        ref?.kit === undefined ||
+        ref?.kit === 0)
     ) {
       return true;
     }
-    if (kit == ref?.kit) {
+    if (Number(kit) === Number(ref.kit)) {
       return true;
-    } else {
-      return false;
     }
+    return false;
   });
 }
 
 function filterWithUnit(reference, unit) {
   return reference.filter((ref) => {
     if (
-      unit == ref?.unit ||
-      ((unit == "" || unit == null || unit == undefined || unit == 0) &&
-        (ref?.unit == "" ||
-          ref?.unit == null ||
-          ref?.unit == undefined ||
-          ref?.unit == 0))
+      (unit === "" || unit === null || unit === undefined || unit === 0) &&
+      (ref?.unit === "" ||
+        ref?.unit === null ||
+        ref?.unit === undefined ||
+        ref?.unit === 0)
     ) {
       return true;
     }
-    // else if (ref.kit == '' || ref.kit == null || ref.kit == undefined) {
-    //     return true;
-    // } test
-    else {
-      return false;
+    console.log(Number(unit), Number(ref?.unit));
+    if (Number(unit) === Number(ref?.unit)) {
+      return true;
     }
+    return false;
   });
 }
 
@@ -636,11 +633,12 @@ function manageRange(reference) {
 }
 
 function generateFieldForTest(test, resultList, reference, testType) {
+  console.log(reference);
   return `
   <div class="col-md-11 results test-normalTests mb-15 ">
       <div class="row align-items-center">
           <div class="col-md-3 h6 text-center">
-              ${testType == "normal" ? `${test?.kit_name ?? "NO KIT"}` : ""}
+              ${testType === "normal" ? `${test?.kit_name ?? "NO KIT"}` : ""}
               <a 
                 class="text-info"
               onclick="updateNormal('${test.test_id}', '${test.kit_id}', '${
@@ -651,7 +649,7 @@ function generateFieldForTest(test, resultList, reference, testType) {
               </a>
               <br>
               ${
-                testType == "normal"
+                testType === "normal"
                   ? `(${test?.device_name ?? "NO DEVICE"})`
                   : ""
               }
@@ -675,7 +673,7 @@ function generateFieldForTest(test, resultList, reference, testType) {
           <div class="col-md-7 mb-3 text-center" dir="ltr">
               <label for="range" class="text-dark">المرجع</label>
               <h5 class="text-center">${
-                reference?.[0]?.result == "result"
+                reference?.[0]?.result === "result"
                   ? reference?.[0]?.right_options
                   : manageRange(reference)
               }</h5>
@@ -685,9 +683,9 @@ function generateFieldForTest(test, resultList, reference, testType) {
               <div class="row">
                   <div class="col-md-4 text-center d-flex justify-content-center align-items-end">
                       <span class="">${
-                        reference?.[0]?.result?.trim() == "result"
+                        reference?.[0]?.result?.trim() === "result"
                           ? ""
-                          : testType == "normal"
+                          : testType === "normal"
                           ? test?.unit_name ?? ""
                           : units.find(
                               (item) => reference?.[0]?.unit == item?.hash
@@ -697,7 +695,7 @@ function generateFieldForTest(test, resultList, reference, testType) {
                   <div class="col-md-8">
                       <label for="result" class="w-100 text-center text-dark">النتيجة</label>
                       ${
-                        reference?.[0]?.result?.trim() == "result"
+                        reference?.[0]?.result?.trim() === "result"
                           ? `<select class="form-control result" id="result_${
                               test.hash
                             }" name="${test.name}">
@@ -749,19 +747,19 @@ function addNormalResult(
   testType = "normal"
 ) {
   let reference = component?.[0]?.reference ?? [];
-  if (false) {
-    reference = result_test.options;
-  } else {
-    if (reference) {
-      reference = filterWithKit(reference, test.kit_id);
-      if (options.type != "calc") {
-        reference = filterWithUnit(reference, test.unit);
-      }
-      // filter with age
-      reference = filterWithAge(reference, visit.age, "عام");
-      // filter with gender
-      reference = filterWithGender(reference, visit.gender);
+  if (reference.length > 0) {
+    reference = filterWithKit(reference, test.kit_id);
+    console.log("after kit =>", reference);
+    if (options.type !== "calc") {
+      reference = filterWithUnit(reference, test.unit);
+      console.log("after unit =>", reference);
     }
+    // filter with age
+    reference = filterWithAge(reference, visit.age, "عام");
+    console.log("after age =>", reference);
+    // filter with gender
+    reference = filterWithGender(reference, visit.gender);
+    console.log("after gender =>", reference);
   }
   __VISIT_TESTS__.push({ hash: test.hash, options: reference });
   if ((options.result = "number")) {
@@ -2702,15 +2700,18 @@ function updateRefrence(hash, refID, selectedUnit) {
   // empty from container
   formContainer.empty();
   const { component } = TEST;
-  let refrences = component[0].reference;
-  refrences = refrences.filter((refrence, id) => {
-    const refUnit = refrence?.unit ?? "";
-    if (refUnit === selectedUnit) {
-      return true;
-    }
-    return false;
-  });
-  const refrence = refrences.find((item, index, self) => index == refID);
+  const refrences = component[0].reference;
+  // refrences = refrences.filter((refrence, id) => {
+  //   const refUnit = refrence?.unit ?? "";
+  //   if (refUnit === selectedUnit) {
+  //     return true;
+  //   }
+  //   return false;
+  // });
+  const refrence = refrences.find(
+    (item, index, self) => Number(index) === Number(refID)
+  );
+  console.log(refrence);
   const form = THEME.mainForm(refID, hash, refrence);
   formContainer.append(form);
 }

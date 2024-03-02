@@ -529,11 +529,6 @@ function saveRefrence(hash, refID) {
     }
   } else {
     component[0].reference[refID] = element;
-    // document.getElementById(`test-${hash}_ref-${refID}`).innerHTML =
-    // `
-    //     ${kits.find(x => x.id == element.kit)?.name ?? "No Kit"}
-    //     <a onclick="editRefrence('${hash}',${refID})"><i class="far fa-edit fa-lg mx-2 text-success"></i></a>
-    // `
   }
   test_options["component"] = component;
   const query = `update lab_test set option_test='${JSON.stringify(
