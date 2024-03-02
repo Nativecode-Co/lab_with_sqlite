@@ -320,7 +320,7 @@ function syncOnline() {
     return false;
   }
   fetch(`${__domain__}/sync/sync_up.php`).then((res) => {
-    fetchData("Offline_sync/trancate_offline_sync", "GET", {});
+    fetchData("Offline_sync/Offline_sync");
   });
   updateExpireDate();
 }
