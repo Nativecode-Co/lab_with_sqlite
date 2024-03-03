@@ -359,7 +359,7 @@ class Offline extends CI_Controller
                 }
             }
             $name = $this->db->query("select test_name from lab_test where hash='$hash'")->row();
-            if (isset($name->test_name))
+            if (isset ($name->test_name))
                 $name = $name->test_name;
             else
                 $name = '';
@@ -553,8 +553,14 @@ class Offline extends CI_Controller
         $result = array();
         foreach ($queries as $query) {
             if ($query != "") {
-                $this->db->query($query);
-                array_push($result, $query);
+                // if query contain delete 
+                if (strpos($query, "delete") !== true) {
+                    $this->db->query("insert into   offline_sync(query, lab_id, table_name, operation) values('$query', '0', 'lab_test', 'delete')");
+                } else {
+                    $this->db->query($query);
+                    array_push($result, $query);
+                }
+
             }
         }
         $this->output
