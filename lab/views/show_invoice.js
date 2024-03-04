@@ -638,11 +638,7 @@ function createInvoice(visit, type, form) {
 		<div class="page">
 			<!-- صفحة يمكنك تكرارها -->
 			${header}
-			<div class="center2" ${
-        invoices?.footer_header_show == 1
-          ? 'style="border-top:5px solid #2e3f4c;"'
-          : 'style="border-top:none;"'
-      }>
+			<div class="center2" style="border-top:5px solid #2e3f4c;">
                 <div class="center2-background"></div>
 				<div class="nav">
 					<!-- شريط تخصص التحليل -->
@@ -720,11 +716,7 @@ function createInvoice(visit, type, form) {
 
 			</div>
 
-			<div class="footer2" ${
-        invoices?.footer_header_show == 1
-          ? 'style="border-top:5px solid #2e3f4c;"'
-          : 'style="border-top:none;"'
-      }>
+			<div class="footer2" style="border-top:5px solid #2e3f4c;">
 				<div class="f1">
 					<p>${
             invoices?.address
@@ -911,7 +903,9 @@ function invoiceHeader() {
   }
   return `
     <div class="header">
-        <div class="row justify-content-between">
+        <div class="row justify-content-between ${
+          invoices.footer_header_show == "1" ? "" : "d-none"
+        }">
             ${html}
         </div>
     </div>
