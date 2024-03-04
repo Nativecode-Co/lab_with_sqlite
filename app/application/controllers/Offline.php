@@ -365,7 +365,17 @@ class Offline extends CI_Controller
                 $name = '';
             $query->name = $name;
             $query->hash = $hash;
-            array_push($updates, $query);
+            // check if hash is exist in updates array
+            $isExit = array_search($hash, array_column($updates, 'hash'));
+            if ($isExit === false) {
+                if ($query->name) {
+                    $query->query = "update lab_test set isdeleted=1 where hash='$hash'";
+                }
+                array_push($updates, $query);
+            } else {
+                // add isExit.query to $query.query
+                $updates[$isExit]->query .= ";" . $query->query;
+            }
         }, $updatQueries);
         echo json_encode(
             array(

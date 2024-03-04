@@ -172,7 +172,7 @@ const syncUpdates = async () => {
   updates = updates.filter((item) => {
     const date = updatesTests.find((i) => i.hash === item.hash)?.date;
     if (!date) return false;
-    return new Date(item.date_time) >= new Date(date);
+    return new Date(item.date_time) > new Date(date);
   });
 
   if (updates.length > 0) {
@@ -230,7 +230,10 @@ const saveUpdates = async () => {
     const updateTests = updates.filter((item) =>
       updateTestsHash.includes(item.hash)
     );
-    queries = [...queries, ...updateTests.map((item) => item.query)];
+    updateTests.map((item) => {
+      const qu = item.query.split(";");
+      queries = [...queries, ...qu];
+    });
     const offLineQueries = [
       ...queries,
       ...updateTests.map((item) => {
