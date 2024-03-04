@@ -255,6 +255,13 @@ const saveUpdates = async () => {
       );
     });
 
+    updateTests.map((item) => {
+      fetchData("Packages/updateNameWithTestHsh", "POST", {
+        name: item.name,
+        hash: item.hash,
+      });
+    });
+
     new Promise((resolve) => {
       fetchData("LocalApi/run_queries", "POST", {
         queries: JSON.stringify(offLineQueries),
