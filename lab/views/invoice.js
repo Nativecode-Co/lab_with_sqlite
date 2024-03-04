@@ -1029,7 +1029,9 @@ const InvoiceHeader = ({ invoice }) => {
             if (employee.hash == "logo") {
               return (
                 <div
-                  className="logo"
+                  className={`logo ${
+                    invoice.show_logo == "1" ? "d-flex" : "d-none"
+                  }`}
                   id="logo"
                   key={index}
                   style={{
