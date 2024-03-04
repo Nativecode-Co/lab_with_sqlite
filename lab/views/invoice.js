@@ -657,7 +657,7 @@ const Setting = ({ dispatch, state, invoice, setInvoice }) => {
                   value={invoice.center}
                 />
               </div>
-              <div className="form-group  col-md-3">
+              <div className="form-group  col-md-2">
                 <label
                   htmlFor="footer_header_show"
                   className="w-100 text-center"
@@ -681,7 +681,7 @@ const Setting = ({ dispatch, state, invoice, setInvoice }) => {
                   <span className="slider round"></span>
                 </label>
               </div>
-              <div className="form-group  col-md-3">
+              <div className="form-group  col-md-2">
                 <label htmlFor="water_mark" className="w-100 text-center">
                   اظهار واخفاء العلامة المائية
                 </label>
@@ -701,7 +701,7 @@ const Setting = ({ dispatch, state, invoice, setInvoice }) => {
                   <span className="slider round"></span>
                 </label>
               </div>
-              <div className="form-group  col-md-3">
+              <div className="form-group  col-md-2">
                 <label htmlFor="history" className="w-100 text-center">
                   اظهار واخفاء الزيارات السابقة
                 </label>
@@ -721,7 +721,27 @@ const Setting = ({ dispatch, state, invoice, setInvoice }) => {
                   <span className="slider round"></span>
                 </label>
               </div>
-              <div className="form-group  col-md-3">
+              <div className="form-group  col-md-2">
+                <label htmlFor="show_logo" className="w-100 text-center">
+                  اظهار واخفاء اللوجو
+                </label>
+                <label className="d-flex switch s-icons s-outline s-outline-success mx-auto mt-2">
+                  <input
+                    type="checkbox"
+                    name="show_logo"
+                    id="show_logo"
+                    onChange={(e) => {
+                      setInvoice({
+                        ...invoice,
+                        show_logo: e.target.checked ? "1" : "0",
+                      });
+                    }}
+                    checked={invoice.show_logo == "1" ? true : false}
+                  />
+                  <span className="slider round"></span>
+                </label>
+              </div>
+              <div className="form-group  col-md-2">
                 <label htmlFor="show_name" className="w-100 text-center">
                   اظهار واخفاء اسم المختبر
                 </label>

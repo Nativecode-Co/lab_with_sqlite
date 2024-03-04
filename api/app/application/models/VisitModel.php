@@ -281,7 +281,7 @@ class VisitModel extends CI_Model
 
     public function getInvoice()
     {
-        $this->db->select('color, phone_1,show_name, phone_2 as size, address, facebook, header, center, footer, logo, water_mark, footer_header_show, invoice_about_ar, invoice_about_en, font_size, zoom, doing_by, name_in_invoice, font_color, setting');
+        $this->db->select('color, phone_1,show_name,show_logo, phone_2 as size, address, facebook, header, center, footer, logo, water_mark, footer_header_show, invoice_about_ar, invoice_about_en, font_size, zoom, doing_by, name_in_invoice, font_color, setting');
         $this->db->from('lab_invoice');
         $query = $this->db->get();
         $result = $query->result_array();

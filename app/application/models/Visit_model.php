@@ -16,6 +16,9 @@ class Visit_model extends CI_Model
         if (!$this->db->field_exists('show_name', 'lab_invoice')) {
             $this->db->query("ALTER TABLE `lab_invoice` ADD COLUMN `show_name` INTEGER NOT NULL DEFAULT 0 ;");
         }
+        if (!$this->db->field_exists('show_logo', 'lab_invoice')) {
+            $this->db->query("ALTER TABLE `lab_invoice` ADD COLUMN `show_logo` INTEGER NOT NULL DEFAULT 0 ;");
+        }
     }
 
     public function bothIsset($var1, $var2)

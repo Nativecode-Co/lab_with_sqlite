@@ -1469,16 +1469,17 @@ function showInvoice(hash) {
 function invoiceHeader() {
   let html = "";
   let res = fetchData(`Visit/getInvoice`, "GET", {});
-  let { size, workers, logo, name_in_invoice, show_name } = res.invoice;
+  let { size, workers, logo, name_in_invoice, show_name, show_logo } =
+    res.invoice;
   if (workers.length > 0) {
     html = workers
       .map((worker) => {
         if (worker.hash == "logo") {
           return `
-          <div class="logo p-2" style="
-            flex: 0 0 ${size}%;
-            max-width: ${size}%;
-          ">
+          <div 
+            class="logo p-2 ${show_logo == "1" ? "d-flex" : "d-none"}" 
+            style="flex: 0 0 ${size}%;max-width: ${size}%;"
+          >
           <img src="${logo}" alt="" />
         </div>
         `;
@@ -1513,7 +1514,7 @@ function invoiceHeader() {
       .join("");
   } else {
     html = `
-        <div class="logo col-4 p-2">
+        <div class="logo col-4 p-2 ${show_logo == "1" ? "d-flex" : "d-none"}">
             <img src="${logo ?? ""}"
             alt="${logo ?? "upload Logo"}">
         </div>
