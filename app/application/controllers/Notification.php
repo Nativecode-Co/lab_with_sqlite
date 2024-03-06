@@ -39,6 +39,77 @@ class Notification extends CI_Controller
         echo "hello world";
     }
 
+
+    public function get()
+    {
+        $hash = $this->input->post('hash');
+        $data = $this->Notification_model->get($hash);
+        $this->output
+            ->set_status_header(200)
+            ->set_content_type('application/json')
+            ->set_output(json_encode($data));
+    }
+
+    public function create()
+    {
+        $data = $this->input->post();
+        $labs = $data["labs"];
+        unset($data["labs"]);
+        $data["hash"] = round(microtime(true) * 10000) . rand(0, 1000);
+        $res = $this->Notification_model->add($data, $labs);
+        $this->output
+            ->set_status_header(200)
+            ->set_content_type('application/json')
+            ->set_output(
+                json_encode(
+                    array(
+                        "status" => true,
+                        "message" => "Notification added successfully",
+                        "data" => $res
+                    )
+                )
+            );
+    }
+
+    public function update()
+    {
+        $data = $this->input->post();
+        $hash = $data["hash"];
+        unset($data["hash"]);
+        $labs = $data["labs"];
+        unset($data["labs"]);
+        $res = $this->Notification_model->update($hash, $data, $labs);
+        $this->output
+            ->set_status_header(200)
+            ->set_content_type('application/json')
+            ->set_output(
+                json_encode(
+                    array(
+                        "status" => true,
+                        "message" => "Notification updated successfully",
+                        "data" => $res
+                    )
+                )
+            );
+    }
+
+    public function delete()
+    {
+        $hash = $this->input->post('hash');
+        $res = $this->Notification_model->delete($hash);
+        $this->output
+            ->set_status_header(200)
+            ->set_content_type('application/json')
+            ->set_output(
+                json_encode(
+                    array(
+                        "status" => true,
+                        "message" => "Notification deleted successfully",
+                        "data" => $res
+                    )
+                )
+            );
+    }
     public function getNotifications()
     {
         $search = $this->input->post('search');
@@ -46,18 +117,51 @@ class Notification extends CI_Controller
         $draw = intval($this->input->post("draw"));
         $start = intval($this->input->post("start"));
         $length = intval($this->input->post("length"));
-        $packages = $this->Notification_model->getNotifications($length, $start, $search);
+        $data = $this->Notification_model->getNotifications($length, $start, $search);
         $total_rows = $this->Notification_model->record_count($search);
         $output = array(
             "draw" => $draw,
             "recordsTotal" => $total_rows,
             "recordsFiltered" => $total_rows,
-            "data" => $packages,
+            "data" => $data,
             "search" => $search
         );
 
         echo json_encode($output);
         exit();
+    }
+
+    public function getAll()
+    {
+        $lab_id = $this->input->post('lab');
+        $data = $this->Notification_model->getAll($lab_id);
+        $this->output
+            ->set_status_header(200)
+            ->set_content_type('application/json')
+            ->set_output(
+                json_encode(
+                    array(
+                        "data" => $data,
+                        "count" => count($data)
+                    )
+                )
+            );
+    }
+
+    public function getLabs()
+    {
+        $data = $this->Notification_model->getLabs();
+        $this->output
+            ->set_status_header(200)
+            ->set_content_type('application/json')
+            ->set_output(
+                json_encode(
+                    array(
+                        "data" => $data,
+                        "count" => count($data)
+                    )
+                )
+            );
     }
 
 

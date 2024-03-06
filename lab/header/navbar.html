@@ -6,6 +6,76 @@
         $('html,body').toggleClass('sidebar-noneoverflow');
     };
 </script>
+<script>
+    // notification
+    const notificationInit = () => {
+        const { data: expireDate } = fetchData("Activate/get_last_date", "POST", {
+            lab: localStorage.getItem("lab_hash"),
+        });
+        // check if expire date is after 7 days
+        if (expireDate) {
+            const expireDateInDays = Math.floor(
+                (new Date(expireDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
+            );
+            if (expireDateInDays < 7) {
+                const notificationCount = document.getElementById("notificationCount");
+                notificationCount.classList.remove("d-none");
+                notificationCount.textContent = 1;
+                const notifications = document.getElementById("notifications");
+                notifications.innerHTML = "";
+                const li = document.createElement("li");
+                li.innerHTML = `
+                <a">
+                    <div class="row">
+                        <div class="col-2 d-flex justify-content-center align-items-center">
+                            <img src="assets/image/flask.png" width="50" height="50" class="rounded-circle border" alt="user">
+                        </div>
+                        <div class="col-10">
+                            <h4>تنبيه</h4>
+                            <p class="text-danger">تنبيه: انتهاء صلاحية النظام بعد ${expireDateInDays} يوم</p>
+                        </div>
+                    </div>
+                </a>
+            `;
+                notifications.appendChild(li);
+            }
+        }
+
+        // check internet connection
+        if (!navigator.onLine) {
+            return;
+        }
+        const notificationCount = document.getElementById("notificationCount");
+        const { count, data } = fetchDataOnline("Notification/getAll", "POST", {
+            lab: localStorage.getItem("lab_hash"),
+        });
+        if (count > 0) {
+            data.forEach((item, index) => {
+                const li = document.createElement("li");
+                li.innerHTML = `
+                <a">
+                    <div class="row">
+                        <div class="col-2 d-flex justify-content-center align-items-center">
+                            <img src="${item.image ? item.image : "assets/image/flask.png"}" width="50" height="50" class="rounded-circle border" alt="user">
+                        </div>
+                        <div class="col-10">
+                            <h5>${item.type}</h5>
+                            <p class="">${item.text}</p>
+                        </div>
+                    </div>
+                </a>
+            `;
+                notifications.appendChild(li);
+            });
+        }
+    }
+
+    // check if dom is ready
+    $(document).ready(() => {
+        notificationInit();
+    });
+
+</script>
 
 <!--  BEGIN NAVBAR  -->
 <header class="header navbar navbar-expand-sm">
@@ -193,6 +263,19 @@
                     <li>
                         <a href="${front_url}selectThemeForVisitTests.html">اعدادت الشكل<i class="fas fa-file-alt"></i></a>
                     </li>
+                </ul>
+            </li>
+            <li class="menu single-menu">
+                <a href="#notifications" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle autodroprown collapsed">
+                    <div class="relative">
+                        <i class="far fa-bell fa-2x mr-2 mt-2"></i>
+                        <span class="badge badge-danger text-light py-0 d-none" id="notificationCount" style="position: absolute; top: 8px; left: 9px;">
+                            0
+                        </span>
+                    </div>
+                </a>
+                <ul class="submenu list-unstyled animated fadeInUp collapse" id="notifications" data-parent="#topAccordion" style="width: 600px;">
+                   
                 </ul>
             </li>
             <li class="menu single-menu">
