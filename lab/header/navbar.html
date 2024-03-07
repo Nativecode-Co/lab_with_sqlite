@@ -12,27 +12,29 @@
         const { data: expireDate } = fetchData("Activate/get_last_date", "POST", {
             lab: localStorage.getItem("lab_hash"),
         });
+        const notificationCount = document.getElementById("notificationCount");
+        const notifications = document.getElementById("notifications");
+        notifications.innerHTML = ""
         // check if expire date is after 7 days
         if (expireDate) {
             const expireDateInDays = Math.floor(
                 (new Date(expireDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
             );
             if (expireDateInDays < 7) {
-                const notificationCount = document.getElementById("notificationCount");
+
                 notificationCount.classList.remove("d-none");
                 notificationCount.textContent = 1;
-                const notifications = document.getElementById("notifications");
+
                 notifications.innerHTML = "";
                 const li = document.createElement("li");
                 li.innerHTML = `
-                <a">
+                <a href="${front_url}notification.html">
                     <div class="row">
                         <div class="col-2 d-flex justify-content-center align-items-center">
-                            <img src="assets/image/flask.png" width="50" height="50" class="rounded-circle border" alt="user">
+                            <img src="assets/image/flask.png" width="100%" height="50" class="rounded-circle border" alt="user">
                         </div>
                         <div class="col-10">
-                            <h4>تنبيه</h4>
-                            <p class="text-danger">تنبيه: انتهاء صلاحية النظام بعد ${expireDateInDays} يوم</p>
+                            <p class="">تنبيه: انتهاء صلاحية النظام بعد ${expireDateInDays} يوم</p>
                         </div>
                     </div>
                 </a>
@@ -43,9 +45,22 @@
 
         // check internet connection
         if (!navigator.onLine) {
+            // check if notifications html is empty
+            if (notifications.innerHTML === "") {
+                const li = document.createElement("li");
+                li.innerHTML = `
+                <a href="${front_url}notification.html">
+                    <div class="row justify-content-center align-items-center">
+                        <div class="col-10">
+                            <p class="text-center">لا توجد اشعارات</p>
+                        </div>
+                    </div>
+                </a>
+            `;
+                notifications.appendChild(li);
+            }
             return;
         }
-        const notificationCount = document.getElementById("notificationCount");
         const { count, data } = fetchDataOnline("Notification/getAll", "POST", {
             lab: localStorage.getItem("lab_hash"),
         });
@@ -53,20 +68,36 @@
             data.forEach((item, index) => {
                 const li = document.createElement("li");
                 li.innerHTML = `
-                <a">
+                <a href="${front_url}notification.html">
                     <div class="row">
                         <div class="col-2 d-flex justify-content-center align-items-center">
-                            <img src="${item.image ? item.image : "assets/image/flask.png"}" width="50" height="50" class="rounded-circle border" alt="user">
+                            <img src="${item.image ? item.image : "assets/image/flask.png"}" width="100%" height="40" class="rounded-circle border" alt="user">
                         </div>
                         <div class="col-10">
                             <h5>${item.type}</h5>
-                            <p class="">${item.text}</p>
+                            <p class="">${item.text.substring(0, 100)}...</p>
                         </div>
                     </div>
                 </a>
             `;
                 notifications.appendChild(li);
             });
+        }
+        if (notifications.innerHTML === "") {
+            if (notifications.innerHTML === "") {
+                notifications.innerHTML = "";
+                const li = document.createElement("li");
+                li.innerHTML = `
+                <a href="${front_url}notification.html">
+                    <div class="row justify-content-center align-items-center">
+                        <div class="col-10">
+                            <p class="text-center">لا توجد اشعارات</p>
+                        </div>
+                    </div>
+                </a>
+            `;
+                notifications.appendChild(li);
+            }
         }
     }
 
@@ -274,7 +305,7 @@
                         </span>
                     </div>
                 </a>
-                <ul class="submenu list-unstyled animated fadeInUp collapse" id="notifications" data-parent="#topAccordion" style="width: 600px;">
+                <ul class="submenu list-unstyled animated fadeInUp collapse" id="notifications" data-parent="#topAccordion" style="width: 400px;">
                    
                 </ul>
             </li>
