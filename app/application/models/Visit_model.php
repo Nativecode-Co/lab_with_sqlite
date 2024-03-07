@@ -60,6 +60,45 @@ class Visit_model extends CI_Model
         }
     }
 
+    public function get($hash, $fields)
+    {
+        $this->load->helper('json');
+        $visit = $this->db
+            ->select("lab_visits.hash as hash, lab_patient.name as name, visit_date as date")
+            ->select("lab_patient.hash as patient_hash, gender,age")
+            ->from("lab_visits")
+            ->join("lab_patient", "lab_patient.hash=lab_visits.visits_patient_id")
+            ->where("lab_visits.hash", $hash)
+            ->get()->row();
+        $tests = $this->db
+            ->select("option_test, test_name as name,sort, result_test as result, ifnull(lab_test_catigory.name, 'Tests') as category")
+            ->select("unit, kit_id as kit")
+            ->from("lab_visits_tests")
+            ->join("lab_test", "lab_test.hash=lab_visits_tests.tests_id")
+            ->join("lab_test_catigory", "lab_test_catigory.hash=lab_test.category_hash", "left")
+            ->join("lab_pakage_tests", "lab_pakage_tests.package_id=lab_visits_tests.package_id and lab_pakage_tests.test_id=lab_visits_tests.tests_id")
+            ->where("visit_id", $hash)
+            ->get()->result_array();
+        if (isset($visit) && isset($tests)) {
+            $tests = array_map(function ($test) use ($visit) {
+                $json = new Json($test['option_test']);
+                $filterFeilds = array_merge((array) $test, (array) $visit);
+                $test['option_test'] = $json->filter($filterFeilds)->setHeight()->row();
+                $test['result'] = json_decode($test['result'], true);
+                return $test;
+            }, $tests);
+        }
+        // sort array by category then by sort
+        usort($tests, function ($a, $b) {
+            if ($a['category'] == $b['category']) {
+                return $a['sort'] <=> $b['sort'];
+            }
+            return $a['category'] <=> $b['category'];
+        });
+        $visit->tests = $tests;
+        return $visit;
+    }
+
     public function record_count($search, $current = 0)
     {
         /// delete duplicate visits has same hash only one of them is not deleted but id is different
@@ -78,29 +117,7 @@ class Visit_model extends CI_Model
         return $count;
     }
 
-    public function deleteDuplicateVisitsAndPatientsAndLabPackageTestsAndLabVisitsTestsAndLabPakageAndLabVisitsPackage()
-    {
-        $this->db->query("DELETE FROM lab_patient WHERE id NOT IN (SELECT id FROM (SELECT MIN(id) as id FROM lab_patient GROUP BY hash) as t)");
-        $this->db->query("DELETE FROM lab_visits WHERE id NOT IN (SELECT id FROM (SELECT MIN(id) as id FROM lab_visits GROUP BY hash) as t)");
-        // delete duplicate lab_package and lab_pakage_tests expect first one when lab_package hash is same and lab_pakage_tests have same unit and kit_id and test_id and lab_device_id
-        $packageIds = $this->db->query("SELECT t.id FROM 
-        (SELECT MIN(lab_package.id) as id FROM lab_package 
-        inner join lab_pakage_tests on lab_pakage_tests.package_id=lab_package.hash 
-        group by 
-        lab_pakage_tests.unit,
-        lab_pakage_tests.kit_id,
-        lab_pakage_tests.test_id,
-        lab_pakage_tests.lab_device_id) as t")->result_array();
-        if (!isset($packageIds[0])) {
-            return;
-        }
-        $packageIds = array_column($packageIds, 'id');
-        $this->db->query("DELETE FROM lab_package WHERE id NOT IN (" . implode(",", $packageIds) . ")");
-        $packageHashes = $this->db->query("SELECT hash FROM lab_package")->result_array();
-        $packageHashes = array_column($packageHashes, 'hash');
-        $this->db->query("DELETE FROM lab_pakage_tests WHERE package_id NOT IN ('" . implode("','", $packageHashes) . "')");
 
-    }
 
     function getVisits($lab_id, $start, $length, $search, $current = 0)
     {

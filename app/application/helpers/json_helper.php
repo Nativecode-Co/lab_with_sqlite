@@ -5,6 +5,8 @@ class Json
   {
     $json = json_decode($string, true);
     $refrences = [];
+    $this->type = $json['type'] ?? 'normal';
+    $this->default_refrence = $json;
     if (isset($json['component'])) {
       $json = $json['component'];
       $json = $json[0];
@@ -18,9 +20,13 @@ class Json
     $this->refrences = $refrences;
   }
 
-  public function getRefrenceByFields($fields)
+  public function filter($fields)
   {
     $refrences = $this->refrences;
+    if ($this->type != 'normal') {
+      $this->refrences = $this->default_refrence;
+      return $this;
+    }
     $refrences = array_filter($refrences, function ($refrence) use ($fields) {
       $result = true;
       foreach ($fields as $key => $value) {
@@ -43,7 +49,33 @@ class Json
       }
       return $result;
     });
-    return array_values($refrences);
+    $refrences = array_values($refrences);
+    $this->refrences = $refrences;
+    return $this;
+  }
+  public function setHeight()
+  {
+    if ($this->type != 'normal') {
+      return $this;
+    }
+    $refrences = $this->refrences;
+    $refrences = array_map(function ($refrence) {
+      $rangeCount = count($refrence['range']);
+      $refrence['height'] = $rangeCount;
+      return $refrence;
+    }, $refrences);
+    $this->refrences = $refrences;
+    return $this;
+  }
+
+  public function get()
+  {
+    return $this->refrences;
+  }
+
+  public function row()
+  {
+    return $this->refrences[0] ?? $this->refrences;
   }
 
   public function getAgeRange($refrence)

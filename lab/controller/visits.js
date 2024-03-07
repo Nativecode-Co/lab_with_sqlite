@@ -749,17 +749,13 @@ function addNormalResult(
   let reference = component?.[0]?.reference ?? [];
   if (reference.length > 0) {
     reference = filterWithKit(reference, test.kit_id);
-    console.log("after kit =>", reference);
     if (options.type !== "calc") {
       reference = filterWithUnit(reference, test.unit);
-      console.log("after unit =>", reference);
     }
     // filter with age
     reference = filterWithAge(reference, visit.age, "عام");
-    console.log("after age =>", reference);
     // filter with gender
     reference = filterWithGender(reference, visit.gender);
-    console.log("after gender =>", reference);
   }
   __VISIT_TESTS__.push({ hash: test.hash, options: reference });
   if ((options.result = "number")) {
@@ -1225,9 +1221,9 @@ function showInvoice(hash) {
                     where 
                         visit_id = '${hash}'
                     group by lab_visits_package.hash;`);
-  let visit = data.result[0].query0[0];
-  let visitPackages = data.result[1].query1;
-  let invoice = `
+  const visit = data.result[0].query0[0];
+  const visitPackages = data.result[1].query1;
+  const invoice = `
     <div class="col-md-7 mt-4">
         <div class="statbox widget box box-shadow bg-white py-3">
             <div class="widget-content widget-content-area m-auto" style="width: 95%;">
@@ -1740,26 +1736,18 @@ function normalTestRange(finalResult = "", refrence) {
   return returnResult;
 }
 
-function showResult(visit, visitTests) {
+function showResult(hash) {
+  const visit = fetchData("visit/get", "POST", { hash });
   const { patient, date } = visit;
-  let history = getPatientHistory(patient, date);
-  // add category if null
-  visitTests = visitTests.map((vt) => {
-    vt.category = vt.category ?? "Tests";
-    return vt;
-  });
-  // sort by category
-  visitTests = visitTests.sort((a, b) => {
-    return a.category > b.category ? 1 : -1;
-  });
-  let result_tests = [];
+  const history = getPatientHistory(patient, date);
+  const result_tests = [];
   let category = "";
-  let invoices = { normalTests: `` };
-  let buttons = {};
+  const invoices = { normalTests: "" };
+  const buttons = {};
   // sort visit tests by category
-  let results = {};
-  visitTests.forEach((test, index) => {
-    let options = test.options;
+  const results = {};
+  visit.tests.forEach((test, index) => {
+    let options = test.option_test;
     options = options.replace(/\\/g, "");
     try {
       options = JSON.parse(options);
