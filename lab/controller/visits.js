@@ -188,7 +188,6 @@ function showVisit(hash) {
     niceSwal("error", "bottom-end", "المريض غير موجود");
     return;
   }
-  console.log(visit);
   let workSpace = $("#work-sapce");
   workSpace.html("");
   let visitInfo = `
@@ -387,7 +386,7 @@ function showAddResult(hash, animate = true) {
   let visitTests = data.result[1].query1;
 
   let form = addResult(visit, visitTests);
-  let { invoice, buttons } = showResult(visit, visitTests);
+  let { invoice, buttons } = showResult(hash);
   let html = `
     <div class="col-lg-12 mt-4">
         <div class="statbox widget box box-shadow bg-white py-3">
@@ -562,7 +561,6 @@ function filterWithUnit(reference, unit) {
     ) {
       return true;
     }
-    console.log(Number(unit), Number(ref?.unit));
     if (Number(unit) === Number(ref?.unit)) {
       return true;
     }
@@ -633,7 +631,6 @@ function manageRange(reference) {
 }
 
 function generateFieldForTest(test, resultList, reference, testType) {
-  console.log(reference);
   return `
   <div class="col-md-11 results test-normalTests mb-15 ">
       <div class="row align-items-center">
@@ -1459,7 +1456,7 @@ function showInvoice(hash) {
     },
     1000
   );
-  manageInvoiceHeight();
+  // manageInvoiceHeight();
 }
 
 function invoiceHeader() {
@@ -1531,127 +1528,136 @@ function invoiceHeader() {
   `;
 }
 
-function createInvoice(visit, type, form) {
-  let header = invoiceHeader();
+function createBookResult(invoices, type) {
   return `<div class="book-result" dir="ltr" id="invoice-${type}" style="display: none;">
+            ${invoices}
+          </div>`;
+}
+
+function createInvoiceItems(visit) {
+  const random = Math.floor(Math.random() * 1000000);
+  const header = invoiceHeader();
+  const nav = `
+  <div class="nav">
+    <div class="name">
+      <p class="">Name</p>
+    </div>
+    <div class="namego">
+      <p>
+        ${
+          visit.age > 16
+            ? visit.gender === "ذكر"
+              ? "السيد"
+              : "السيدة"
+            : visit.gender === "ذكر"
+            ? "الطفل"
+            : "الطفلة"
+        } / ${visit.name}
+      </p>
+    </div>
+    <div class="paid">
+      <p class="">Barcode</p>
+    </div>
+    <div class="paidgo d-flex justify-content-center align-items-center">
+      <svg id="visit-${random}-code"></svg>
+    </div>
+    <script>
+        JsBarcode("#visit-${random}-code", '${visit.hash}', {
+            width:2,
+            height:20,
+            displayValue: false
+        });
+    </script>
+    <div class="agesex">
+      <p class="">Sex / Age</p>
+    </div>
+    <div class="agesexgo">
+      <p>
+        <span class="note">
+        ${
+          visit.gender === "ذكر" ? "Male" : "Female"
+        }</span> / <span class="note">${
+    parseFloat(visit.age) < 1
+      ? `${parseInt(visit.age * 356)} Day`
+      : `${parseInt(visit.age)} Year`
+  }
+        </span>
+      </p>
+    </div>
+    <div class="vid">
+      <p class="">Date</p>
+    </div>
+    <div class="vidgo">
+      <p>
+        <span class="note">${visit.date}</span>
+      </p>
+    </div>
+    <div class="refby">
+      <p class="">By</p>
+    </div>
+    <div class="refbygo">
+      <p>${invoices?.doing_by ?? "التحليل"}</p>
+    </div>
+    <div class="prd">
+      <p class="">Doctor</p>
+    </div>
+    <div class="prdgo">
+      <p><span class="note">${
+        visit.doctor === "تحويل من مختبر اخر" ? "" : `${visit.doctor ?? ""}`
+      }</span></p>
+    </div>
+  </div>
+  `;
+  const footer = `
+  <div class="footer2" ${
+    invoices?.footer_header_show == 1
+      ? 'style="border-top:5px solid #2e3f4c;"'
+      : 'style="border-top:none;"'
+  }>
+    <div class="f1">
+      <p>${
+        invoices?.address
+          ? `<i class="fas fa-map-marker-alt"></i> ${invoices?.address}`
+          : ""
+      }</p>
+    </div>
+    <div class="f2">
+      <p>
+        <span class="note">${
+          invoices?.facebook === ""
+            ? ""
+            : `<i class="fas fa-envelope"></i>  ${invoices?.facebook}`
+        }</span>
+        <span class="note">${
+          invoices?.phone_1 === ""
+            ? ""
+            : `<i class="fas fa-phone"></i> &nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;  ${invoices?.phone_1}`
+        }</span>
+      </p>
+    </div>
+  </div>
+  `;
+  return { header, nav, footer };
+}
+
+function createInvoice(form, items) {
+  const { header, nav, footer } = items;
+  return `
 		<div class="page">
-			<!-- صفحة يمكنك تكرارها -->
 			${header}
 			<div class="center2" ${
         invoices?.footer_header_show == 1
           ? 'style="border-top:5px solid #2e3f4c;"'
           : 'style="border-top:none;"'
       }>
-                <div class="center2-background"></div>
-				<div class="nav">
-					<!-- شريط تخصص التحليل -->
-					<div class="name">
-						<p class="">Name</p>
-					</div>
-					<div class="namego">
-						<p>${
-              visit.age > 16
-                ? visit.gender == "ذكر"
-                  ? "السيد"
-                  : "السيدة"
-                : visit.gender == "ذكر"
-                ? "الطفل"
-                : "الطفلة"
-            } / ${visit.name}</p>
-					</div>
-					<div class="paid">
-						<p class="">Barcode</p>
-					</div>
-					<div class="paidgo d-flex justify-content-center align-items-center">
-						<svg id="visit-${type}-code"></svg>
-					</div>
-                    <script>
-                        JsBarcode("#visit-${type}-code", '${visit.hash}', {
-                            width:2,
-                            height:20,
-                            displayValue: false
-                        });
-                    </script>
-					<div class="agesex">
-						<p class="">Sex / Age</p>
-					</div>
-					<div class="agesexgo">
-						<p><span class="note">${
-              visit.gender == "ذكر" ? "Male" : "Female"
-            }</span> / <span class="note">${
-    parseFloat(visit.age) < 1
-      ? parseInt(visit.age * 356) + " Day"
-      : parseInt(visit.age) + " Year"
-  }</span></p>
-					</div>
-					<div class="vid">
-						<p class="">Date</p>
-					</div>
-					<div class="vidgo">
-						<p><span class="note">${
-              visit.date
-            }</span><!--&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;
-                        <span class="note">${visit.time}</span></p>-->
-					</div>
-					<div class="refby">
-						<p class="">By</p>
-					</div>
-					<div class="refbygo">
-						<p>${invoices?.doing_by ?? "التحليل"}</p>
-					</div>
-					<div class="prd">
-						<p class="">Doctor</p>
-					</div>
-					<div class="prdgo">
-						<p><span class="note">${
-              visit.doctor == "تحويل من مختبر اخر"
-                ? ""
-                : `${visit.doctor ?? ""}`
-            }</span></p>
-					</div>
-				</div>
-
+        <div class="center2-background"></div>
+        ${nav}
 				<div class="tester">
-					<!-- دف الخاص بالتحليل الدي سيكرر حسب نوع التحليل ------------------>
-
-
 					${form}
-
-
-				</div>
-
-
-			</div>
-
-			<div class="footer2" ${
-        invoices?.footer_header_show == 1
-          ? 'style="border-top:5px solid #2e3f4c;"'
-          : 'style="border-top:none;"'
-      }>
-				<div class="f1">
-					<p>${
-            invoices?.address
-              ? `<i class="fas fa-map-marker-alt"></i> ${invoices?.address}`
-              : ""
-          }</p>
-				</div>
-				<div class="f2">
-					<p><span class="note">${
-            invoices?.facebook == ""
-              ? ""
-              : `<i class="fas fa-envelope"></i>  ${invoices?.facebook}`
-          }</span>
-                    <span class="note">${
-                      invoices?.phone_1 == ""
-                        ? ""
-                        : `<i class="fas fa-phone"></i> &nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;  ${invoices?.phone_1}`
-                    }</span></p>
 				</div>
 			</div>
-		</div>
-
-
-	</div>`;
+      ${footer}
+		</div>>`;
 }
 
 function getNormalRange(finalResult = "", range = []) {
@@ -1660,8 +1666,8 @@ function getNormalRange(finalResult = "", range = []) {
     color: "dark",
     flag: "",
   };
-  let { name = "", low = "", high = "" } = range;
-  if (low != "" && high != "") {
+  const { name = "", low = "", high = "" } = range;
+  if (low !== "" && high !== "") {
     normalRange = (name ? `${name} : ` : "") + low + " - " + high;
   } else if (low == "") {
     normalRange = (name ? `${name} : ` : "") + " <= " + high;
@@ -1677,10 +1683,10 @@ function getNormalRange(finalResult = "", range = []) {
     console.log(e);
   }
   if (parseFloat(finalResult) < parseFloat(low)) {
-    color = "text-info p-1 border border-dark";
+    color = "text-info bg-dark-75";
     flag = "L";
   } else if (parseFloat(finalResult) > parseFloat(high)) {
-    color = "text-danger p-1 border border-dark";
+    color = "text-danger bg-dark-75";
     flag = "H";
   } else {
     color = "text-dark";
@@ -1689,7 +1695,7 @@ function getNormalRange(finalResult = "", range = []) {
   return { normalRange, color, flag };
 }
 
-function normalTestRange(finalResult = "", refrence) {
+function normalTestRange(finalResult, refrence) {
   let returnResult = {
     color: "text-dark",
     normalRange: "",
@@ -1699,7 +1705,7 @@ function normalTestRange(finalResult = "", refrence) {
   let { result, right_options, range } = refrence;
   switch (result) {
     case "result":
-      finalResult = finalResult == "" ? right_options[0] : finalResult;
+      finalResult = finalResult === "" ? right_options[0] : finalResult;
       if (right_options) {
         returnResult.color = right_options.includes(finalResult)
           ? "text-dark"
@@ -1709,23 +1715,27 @@ function normalTestRange(finalResult = "", refrence) {
       }
       break;
     default:
-      if (range.length == 1) {
+      if (range.length === 1) {
         range = range[0];
         returnResult = getNormalRange(finalResult, range);
       } else if (range.length > 1) {
-        let correctRange = range.find((item) => item?.correct);
+        const correctRange = range.find((item) => item?.correct);
         returnResult = getNormalRange(finalResult, correctRange);
         returnResult = {
           ...returnResult,
           normalRange: range
             .map((item) => {
-              let { name = "", low = "<=", high = "<=" } = item;
-              if (low != "" && high != "") {
-                return (name ? `${name} : ` : "") + low + " - " + high;
-              } else if (low == "") {
-                return (name ? `${name} : ` : "") + " <= " + high;
-              } else if (high == "") {
-                return (name ? `${name} : ` : "") + low + " <= ";
+              const { name = "", low = "<=", high = "<=" } = item;
+              if (low !== "" && high !== "") {
+                return `<span>${
+                  (name ? `${name} : ` : "") + low
+                } - ${high}</span>`;
+              }
+              if (low === "") {
+                return `<span>${name ? `${name} : ` : ""} <= ${high}</span>`;
+              }
+              if (high === "") {
+                return `<span>${(name ? `${name} : ` : "") + low} <= </span>`;
               }
             })
             .join("<br>"),
@@ -1737,45 +1747,94 @@ function normalTestRange(finalResult = "", refrence) {
 }
 
 function showResult(hash) {
-  const visit = fetchData("visit/get", "POST", { hash });
-  const { patient, date } = visit;
-  const history = getPatientHistory(patient, date);
-  const result_tests = [];
+  const { tests, ...visit } = fetchData("visit/get", "POST", { hash });
+  const { data: history } = fetchData("Visit/history", "POST", {
+    date: visit.date,
+    patient: visit.patient_hash,
+  });
+  const invoiceItems = createInvoiceItems(visit);
+  const result_tests = tests.reduce((acc, test) => {
+    if (test.option_test.type === "type") {
+      acc[test.name] = test.result;
+    } else {
+      acc[test.name] = test.result[test.name];
+    }
+    return acc;
+  }, {});
   let category = "";
   const invoices = { normalTests: "" };
   const buttons = {};
   // sort visit tests by category
   const results = {};
-  visit.tests.forEach((test, index) => {
-    let options = test.option_test;
-    options = options.replace(/\\/g, "");
-    try {
-      options = JSON.parse(options);
-    } catch (err) {
-      options = {};
-      console.log(err);
-    }
-    let component = options.component;
-    let value = options?.value;
-    let result_test = test.result_test;
-    try {
-      result_test = result_test.replace(/\\/g, "");
-      result_test = JSON.parse(result_test);
-    } catch (err) {
-      result_test = {};
-    }
-    result_tests.push({
-      name: test.name,
-      result: result_test?.[test.name],
-    });
-    if (options.type == "type") {
-      let font = options?.font ?? invoices?.font ?? "14px";
-      let typeHistory = history.find((item) => item.name == test.name)?.result;
-      // check if typeHistory is nulled
-      if (!typeHistory) {
-        typeHistory = "{}";
+  let height = 0;
+  let normalTests = "";
+  tests.forEach((test, index) => {
+    const reference = test.option_test;
+
+    if (reference.type !== "type") {
+      if (height + reference.height >= 1000) {
+        invoices.normalTests += createInvoice(normalTests, invoiceItems);
+        normalTests = "";
+        height = 0;
+      } else {
+        height += Number(reference.height);
       }
-      typeHistory = JSON.parse(typeHistory);
+      if (buttons?.normalTests ?? true) {
+        buttons.normalTests = `<div class="col-auto">
+            <button class="action btn btn-action mx-2 w-100" id="test-normalTests" onclick="getCurrentInvoice($(this))">التحاليل</button>
+        </div>`;
+      }
+      if (category !== test.category) {
+        height += 51.91;
+        category = test.category;
+        if (category) {
+          normalTests += `
+                        <div class="test typetest category_${category
+                          ?.split(" ")
+                          ?.join("_")}">
+                            <p class="w-100 text-center font-weight-bolder h-22">${category}</p>
+                        </div>
+                        `;
+        }
+      }
+      let result = test.result[test.name];
+      if (reference.type === "calc") {
+        const evaluatedResult = eval(
+          reference.value
+            .map((item) => {
+              // check if item is number
+              if (Number.isNaN(item)) {
+                return item;
+              }
+              if (!calcOperator.includes(item)) {
+                let newValue = result_tests?.[item] ?? 0;
+                newValue = newValue === "" ? 0 : newValue;
+                return newValue;
+              }
+              return item;
+            })
+            .join("")
+        );
+        result = evaluatedResult.toFixed(1);
+      }
+
+      const { color, normalRange, flag } = normalTestRange(result, reference);
+      normalTests += manageTestType("flag", {
+        name: test.name,
+        color: color,
+        result: result,
+        hash: test.hash,
+        category: category,
+        checked: test.result?.checked ?? true ? "flex" : "none",
+        normal: normalRange,
+        flag: flag,
+        history: history.find((item) => item.name == test.name)?.result ?? "",
+        unit: test.unit_name ?? "",
+      });
+    } else {
+      const result_test = test.result;
+      const options = test.option_test;
+      const font = options?.font ?? invoices?.font ?? "16px";
       buttons[
         test.name.replace(/\s/g, "").replace(/[^a-zA-Z0-9]/g, "")
       ] = `<div class="col-auto">
@@ -1798,11 +1857,8 @@ function showResult(hash) {
             </div>
             `;
       let type = "";
-
-      for (let reference of component) {
-        // let defualt = reference?.reference[0]?.range[0]?.low ?? '';
-        let result = result_test?.[reference.name] ?? "";
-        let his = typeHistory?.[reference.name] ?? "";
+      for (const reference of options.component) {
+        let result = test.result?.[reference.name] ?? "";
         // reasult is array
         if (Array.isArray(result)) {
           result = result.slice(0, 3).join("<br>");
@@ -1891,100 +1947,12 @@ function showResult(hash) {
             unit: reference?.unit ?? "",
             flag: flag,
             font: font,
-            history: his,
+            history: "",
           });
         }
       }
       invoices[test.name.replace(/\s/g, "").replace(/[^a-zA-Z0-9]/g, "")] =
         invoiceBody;
-    } else {
-      if (buttons.normalTests ?? true) {
-        buttons.normalTests = `<div class="col-auto">
-                        <button class="action btn btn-action mx-2 w-100" id="test-normalTests" onclick="getCurrentInvoice($(this))">التحاليل</button>
-                    </div>`;
-      }
-      if (category != test.category) {
-        category = test.category;
-        if (category) {
-          invoices.normalTests += `
-                        <div class="test typetest category_${category
-                          ?.split(" ")
-                          ?.join("_")}">
-                            <p class="w-100 text-center font-weight-bolder h-22">${category}</p>
-                        </div>
-                        `;
-        }
-      }
-      let reference;
-      if (result_test?.options !== undefined) {
-        reference = result_test.options;
-      } else {
-        reference = component?.[0]?.reference;
-        if (reference) {
-          reference = filterWithKit(reference, test.kit_id);
-
-          // filter with unit
-          if (options.type != "calc") {
-            reference = filterWithUnit(reference, test.unit);
-          }
-
-          // filter with age
-          reference = filterWithAge(reference, visit.age, "عام");
-
-          // filter with gender
-          reference = filterWithGender(reference, visit.gender);
-        }
-      }
-
-      let result = 0;
-      try {
-        result =
-          options?.type == "calc"
-            ? eval(
-                value
-                  .map((item) => {
-                    if (!isNaN(item)) {
-                      return item;
-                    } else if (!calcOperator.includes(item)) {
-                      let finalResult =
-                        result_tests.find((test) => test.name == item)
-                          ?.result ?? 0;
-                      return finalResult == "" ? 0 : finalResult;
-                    }
-                    return item;
-                  })
-                  .join("")
-              )
-            : result_test?.[test.name];
-        // toFixed 2
-        result = result.toFixed(1);
-      } catch (error) {
-        // console.log(error);
-      }
-
-      let { color, normalRange, flag } = normalTestRange(
-        result,
-        reference?.[0]
-      );
-      invoices.normalTests += manageTestType("flag", {
-        name: test.name,
-        color: color,
-        result: result,
-        hash: test.hash,
-        category: category,
-        checked: result_test?.checked ?? true ? "flex" : "none",
-        normal: normalRange,
-        flag: flag,
-        history: history.find((item) => item.name == test.name)?.result ?? "",
-        unit: `${
-          reference?.[0]?.result == "result"
-            ? ""
-            : options?.type != "calc"
-            ? test?.unit_name ?? ""
-            : units.find((item) => reference?.[0]?.unit == item?.hash)?.name ??
-              ""
-        }`,
-      });
     }
   });
   return {
@@ -1993,7 +1961,10 @@ function showResult(hash) {
                 </div>`,
     invoice: `${Object.entries(invoices)
       .map(([key, value]) => {
-        return createInvoice(visit, key, value);
+        if (key === "normalTests") {
+          return createBookResult(value, key);
+        }
+        return createBookResult(createInvoice(value, invoiceItems), key);
       })
       .join("")}`,
   };
@@ -2018,7 +1989,7 @@ function getCurrentInvoice(ele) {
   $("#invoice-tests-buttons .btn").removeClass("active");
   $(`#test-${id}`).addClass("active");
   $("#print-invoice-result").attr("onclick", `printOneInvoice('${id}')`);
-  manageInvoiceHeight();
+  // manageInvoiceHeight();
   manageInvoiceHeightForScroll();
   // cloneOldInvoice(manageInvoiceHeight());
 }
@@ -2413,8 +2384,6 @@ function manageTestType(type, test = {}) {
       </div>`;
     }
   }
-  console.log("history", history);
-  console.log("htmlHestory", htmlHestory);
 
   switch (type) {
     case "flag":
@@ -2448,10 +2417,8 @@ function manageTestType(type, test = {}) {
                 <div class="testresult col-2">
                     <p> ${unit}</p>
                 </div>
-                <div class="testnormal col-3">
-                    <p class="text-right" contenteditable="true">
-                    ${normal}
-                    </p>
+                <div class="testnormal col-3 text-right" contenteditable="true">
+                    <p class="text-right" contenteditable="true">${normal}</p>
                 </div>
                 ${htmlHestory}
             </div>
@@ -2515,26 +2482,6 @@ const updatePhone = (hash) => {
   }
 };
 
-const getPatientHistory = (patient, date) => {
-  let his = [];
-  $.ajax({
-    url: base_url + "Visit/history",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
-    },
-    type: "POST",
-    dataType: "JSON",
-    data: { patient, date },
-    async: false,
-    success: function (result) {
-      his = result.data;
-    },
-    error: function () {},
-  });
-  return his;
-};
-
 function downloadPdf() {
   let svgs = $("svg.border-print-hover");
   if (svgs.length == 0)
@@ -2545,7 +2492,7 @@ function downloadPdf() {
   svgs.each((i, svg) => {
     let id = $(svg).attr("data-id");
     $(`#${id}`).css("display", "block");
-    manageInvoiceHeight(id);
+    // manageInvoiceHeight(id);
   });
   // .book-result:visible svg is not parent <>,.
 
@@ -2700,7 +2647,6 @@ function updateRefrence(hash, refID, selectedUnit) {
   const refrence = refrences.find(
     (item, index, self) => Number(index) === Number(refID)
   );
-  console.log(refrence);
   const form = THEME.mainForm(refID, hash, refrence);
   formContainer.append(form);
 }

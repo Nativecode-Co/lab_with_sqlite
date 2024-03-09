@@ -63,6 +63,8 @@ class Visit_model extends CI_Model
     public function get($hash, $fields)
     {
         $this->load->helper('json');
+        $font = $this->db->select('font_size')->from('lab_invoice')->get()->row();
+        $font = $font->font_size;
         $visit = $this->db
             ->select("lab_visits.hash as hash, lab_patient.name as name, visit_date as date")
             ->select("lab_patient.hash as patient_hash, gender,age")
@@ -71,28 +73,32 @@ class Visit_model extends CI_Model
             ->where("lab_visits.hash", $hash)
             ->get()->row();
         $tests = $this->db
-            ->select("option_test, test_name as name,sort, result_test as result, ifnull(lab_test_catigory.name, 'Tests') as category")
-            ->select("unit, kit_id as kit")
+            ->select("option_test, test_name as name, kit_id")
+            ->select(" (select name from devices where devices.id=lab_device_id limit 1) as device_name, (select name from kits where kits.id =kit_id limit 1) as kit_name, (select name from lab_test_units where hash=lab_pakage_tests.unit limit 1) as unit_name, (select name from lab_test_catigory where hash=lab_test.category_hash limit 1) as category, unit, result_test as result,sort, lab_visits_tests.hash as hash, test_id")
             ->from("lab_visits_tests")
-            ->join("lab_test", "lab_test.hash=lab_visits_tests.tests_id")
-            ->join("lab_test_catigory", "lab_test_catigory.hash=lab_test.category_hash", "left")
-            ->join("lab_pakage_tests", "lab_pakage_tests.package_id=lab_visits_tests.package_id and lab_pakage_tests.test_id=lab_visits_tests.tests_id")
+            ->join("lab_pakage_tests", "lab_pakage_tests.test_id = lab_visits_tests.tests_id and lab_pakage_tests.package_id = lab_visits_tests.package_id", "left")
+            ->join("lab_test", "lab_test.hash = lab_visits_tests.tests_id")
             ->where("visit_id", $hash)
+            ->order_by("sort")
             ->get()->result_array();
         if (isset($visit) && isset($tests)) {
-            $tests = array_map(function ($test) use ($visit) {
+            $tests = array_map(function ($test) use ($visit, $font) {
                 $json = new Json($test['option_test']);
                 $filterFeilds = array_merge((array) $test, (array) $visit);
-                $test['option_test'] = $json->filter($filterFeilds)->setHeight()->row();
+                $test['option_test'] = $json->filter($filterFeilds)->setHeight($font)->row();
                 $test['result'] = json_decode($test['result'], true);
+                if ($test['result'] == null) {
+                    $test['result'] = array (
+                        "checked" => true,
+                        $test['name'] => ""
+                    );
+                }
+
                 return $test;
             }, $tests);
         }
-        // sort array by category then by sort
+        // sort array by category 
         usort($tests, function ($a, $b) {
-            if ($a['category'] == $b['category']) {
-                return $a['sort'] <=> $b['sort'];
-            }
             return $a['category'] <=> $b['category'];
         });
         $visit->tests = $tests;
