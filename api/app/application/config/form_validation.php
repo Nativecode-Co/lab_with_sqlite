@@ -157,4 +157,30 @@ $config = array(
             )
         ),
     ),
+
+    // aliases => test_hash, alias, type
+    "aliases" => array(
+        array(
+            'field' => 'test_hash',
+            'rules' => 'required|numeric',
+            'errors' => array(
+                'required' => 'هذا الحقل مطلوب',
+                'numeric' => 'يجب ادخال قيمة رقمية'
+            )
+        ),
+        array(
+            'field' => 'alias',
+            'rules' => 'required',
+            'errors' => array(
+                'required' => 'هذا الحقل مطلوب',
+            )
+        ),
+        array(
+            'field' => 'type',
+            'rules' => 'required',
+            'errors' => array(
+                'required' => 'هذا الحقل مطلوب',
+            )
+        ),
+    ),
 );

@@ -151,4 +151,17 @@ class Tests extends CI_Controller
             ->set_output(json_encode($data));
     }
 
+    public function set_result_by_alias()
+    {
+        $alias = $this->input->post("alias");
+        $result = $this->input->post("result");
+        $date = $this->input->post("date");
+        $patient = $this->input->post("patient");
+        $data = $this->TestsModel->set_result_by_alias($alias, $date, $patient, $result);
+        $this->output
+            ->set_status_header(200)
+            ->set_content_type('application/json')
+            ->set_output(json_encode($data));
+    }
+
 }

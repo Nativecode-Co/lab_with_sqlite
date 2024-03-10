@@ -1,14 +1,25 @@
 <?php
-class DoctorsModel extends CI_Model
+class TestAliasModel extends CI_Model
 {
-    private $table = 'lab_doctor';
-    private $main_column = 'hash';
+    private $table = 'test_alias';
+    private $main_column = 'id';
 
     function __construct()
     {
         parent::__construct();
         $this->load->database();
         $this->load->helper('db');
+        if (!$this->db->table_exists($this->table)) {
+            $this->db->query("CREATE TABLE `test_alias` (
+                `id` int(11) NOT NULL AUTO_INCREMENT,
+                `test_hash` varchar(255) NOT NULL,
+                `alias` varchar(255) NOT NULL,
+                `type` varchar(255) NOT NULL,
+                `device_id` varchar(255) NOT NULL,
+                `isdeleted` tinyint(1) NOT NULL DEFAULT '0',
+                PRIMARY KEY (`id`)
+              ) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+        }
     }
 
     public function count_all($params)
@@ -16,7 +27,7 @@ class DoctorsModel extends CI_Model
         $searchText = $params['search']['value'];
         return $this->db
             ->where('isdeleted', 0)
-            ->like("name", $searchText)
+            ->like("alias", $searchText)
             ->count_all_results($this->table);
     }
 
@@ -29,11 +40,12 @@ class DoctorsModel extends CI_Model
         $orderBy = $params['columns'][$orderBy]['data'];
         $order = $params['order'][0]['dir'];
         $searchText = $params['search']['value'];
+
         return $this->db
-            ->select('*')
-            ->select('(SELECT name FROM lab_doctor_partment WHERE hash = lab_doctor.partmen_hash limit 1) as partment_name')
-            ->where('isdeleted', 0)
-            ->like("name", $searchText)
+            ->select('test_alias.id, test_name as test, alias, type, device_id')
+            ->join('lab_test', 'lab_test.hash = test_alias.test_hash')
+            ->where('test_alias.isdeleted', 0)
+            ->like("alias", $searchText)
             ->order_by($orderBy, $order)
             ->get($this->table, $rowsPerPage, $page * $rowsPerPage)
             ->result();
@@ -50,9 +62,9 @@ class DoctorsModel extends CI_Model
 
     public function insert($data)
     {
-        $data['hash'] = create_hash();
         $this->db->insert($this->table, $data);
-        return $this->get($data['hash']);
+        $id = $this->db->insert_id();
+        return $this->get($id);
     }
 
     public function update($hash, $data)
@@ -70,13 +82,14 @@ class DoctorsModel extends CI_Model
             ->update($this->table, ['isdeleted' => 1]);
     }
 
-    public function get_partments()
+    public function get_test_hash_by_alias($alias)
     {
         return $this->db
-            ->select('hash, name as text')
+            ->select('test_hash')
             ->where('isdeleted', 0)
-            ->get('lab_doctor_partment')
-            ->result();
+            ->where('alias', $alias)
+            ->get($this->table)
+            ->row()->test_hash;
     }
 
 }

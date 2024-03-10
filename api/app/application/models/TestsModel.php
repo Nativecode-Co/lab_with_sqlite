@@ -9,6 +9,8 @@ class TestsModel extends CI_Model
         parent::__construct();
         $this->load->database();
         $this->load->helper('db');
+        $this->load->model('VisitModel');
+        $this->load->model('TestAliasModel');
     }
 
     public function get_all($params)
@@ -260,6 +262,31 @@ class TestsModel extends CI_Model
             "devices" => $devices,
             "units" => $units
         );
+    }
+
+    public function set_result_by_alias($alias, $date, $patient, $result)
+    {
+        $test_hash = $this->TestAliasModel->get_test_hash_by_alias($alias);
+        $visit = $this->VisitModel->get_visit_by_patient_and_date($patient, $date);
+        if (isset($visit) && isset($test_hash)) {
+            // test name from lab_test
+            $test_name = $this->db
+                ->select('test_name as name')
+                ->where('hash', $test_hash)
+                ->get('lab_test')
+                ->row()->name;
+            $this->db
+                ->where('visit_id', $visit->hash)
+                ->where('test_id', $test_hash)
+                ->update('lab_visit_tests', [
+                    'result_test' => [
+                        $test_name => $result,
+                        'checked' => true
+                    ]
+                ]);
+            return true;
+        }
+        return false;
     }
 
 }
