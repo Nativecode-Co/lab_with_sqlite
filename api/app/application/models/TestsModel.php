@@ -275,14 +275,17 @@ class TestsModel extends CI_Model
                 ->where('hash', $test_hash)
                 ->get('lab_test')
                 ->row()->name;
+            $result = json_encode(
+                array(
+                    $test_name => $result,
+                    'checked' => true
+                )
+            );
             $this->db
-                ->where('visit_id', $visit->hash)
-                ->where('test_id', $test_hash)
-                ->update('lab_visit_tests', [
-                    'result_test' => [
-                        $test_name => $result,
-                        'checked' => true
-                    ]
+                ->where('visit_id', $visit)
+                ->where('tests_id', $test_hash)
+                ->update('lab_visits_tests', [
+                    'result_test' => $result
                 ]);
             return true;
         }
