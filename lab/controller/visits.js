@@ -69,19 +69,17 @@ function toggleTest() {
   let testInvoice = $(`#test_normal_${hash}`);
   let category = testInvoice.attr("data-cat");
   if (test.is(":checked")) {
-    if ($(`.category_${category}:visible`).length == 0) {
+    if ($(`.category_${category}:visible`).length === 0) {
       $(`.category_${category}`).first().show();
       $(`.category_${category} p`).show();
     }
     testInvoice.show();
   } else {
     testInvoice.hide();
-    if ($(`.category_${category}:visible`).length == 1) {
+    if ($(`.category_${category}:visible`).length === 1) {
       $(`.category_${category}:visible`).hide();
     }
   }
-  // manageInvoiceHeight();
-  // cloneOldInvoice(manageInvoiceHeight());
 }
 
 const getAge = function (birth) {
@@ -343,51 +341,13 @@ function showVisit(hash) {
 function showAddResult(hash, animate = true) {
   $(".action").removeClass("active");
   $("#show_add_result").addClass("active");
-  let workSpace = $("#work-sapce");
+  const workSpace = $("#work-sapce");
   workSpace.html("");
-  let data = run(`select age,
-                           gender,
-                           phone,
-                           lab_patient.name,
-                           DATE(visit_date) as date,
-                           TIME(visit_date) as time,
-                           (select name from lab_doctor where hash=lab_visits.doctor_hash) as doctor,
-                           visits_patient_id as patient,
-                           lab_visits.hash
-                        from lab_visits 
-                        inner join lab_patient on lab_patient.hash = lab_visits.visits_patient_id
-                        where lab_visits.hash = '${hash}';
-                    select 
-                        option_test as options,
-                        test_name as name,
-                        kit_id,
-                        (select name from devices where devices.id=lab_device_id limit 1) as device_name,
-                        (select name from kits where kits.id =kit_id limit 1) as kit_name,
-                        (select name from lab_test_units where hash=lab_pakage_tests.unit limit 1) as unit_name,
-                        (select name from lab_test_catigory where hash=lab_test.category_hash limit 1) as category,
-                        unit,
-                        result_test,
-                        lab_visits_tests.hash as hash,
-                        test_id
-                    from 
-                        lab_visits_tests 
-                    left join
-                        lab_pakage_tests
-                    on 
-                        lab_pakage_tests.test_id = lab_visits_tests.tests_id and lab_pakage_tests.package_id = lab_visits_tests.package_id
-                    inner join
-                        lab_test
-                    on
-                        lab_test.hash = lab_visits_tests.tests_id
-                    where 
-                        visit_id = '${hash}'
-                    order by sort;`);
-  let visit = data.result[0].query0[0];
-  let visitTests = data.result[1].query1;
+  const data = fetchData("visit/get", "POST", { hash });
 
-  let form = addResult(visit, visitTests);
-  let { invoice, buttons } = showResult(hash);
-  let html = `
+  const form = addResult(data);
+  const { invoice, buttons } = showResult(data);
+  const html = `
     <div class="col-lg-12 mt-4">
         <div class="statbox widget box box-shadow bg-white py-3">
             <div class="widget-content widget-content-area m-auto" style="width: 95%;">
@@ -395,7 +355,7 @@ function showAddResult(hash, animate = true) {
                     <div class="col-lg-12">
                     ${buttons}
                     </div>
-                    <div class="col-md-6 mt-48 form-height" style="overflow-y:scroll;">
+                    <div class="col-md-6 mt-48 invoice-height" style="overflow-y:scroll;">
                         ${form}
                         <div class="row mt-15 justify-content-center">
                             
@@ -420,7 +380,7 @@ function showAddResult(hash, animate = true) {
                                 </button>
                             </div>
                             <div class="col-md-2 col-6">
-                                <button type="button" class="btn btn-outline-print w-100" onclick="sendWhatsapp('${hash}', '${visit.phone}', '${visit.name}')">
+                                <button type="button" class="btn btn-outline-print w-100" onclick="sendWhatsapp('${hash}', '${data.phone}', '${data.name}')">
                                     <i class="mr-2 fab fa-whatsapp"></i>  الواتساب
                                 </button>
                             </div>
@@ -597,24 +557,24 @@ function filterWithGender(reference, gender) {
 }
 
 function manageRange(reference) {
-  return (
-    reference?.[0]?.range
-      .map((range) => {
-        let normalRange = "";
-        let { name = "", low = "", high = "" } = range;
-        if (low != "" && high != "") {
-          normalRange = (name ? `${name} : ` : "") + low + " - " + high;
-        } else if (low == "") {
-          normalRange = (name ? `${name} : ` : "") + " <= " + high;
-        } else if (high == "") {
-          normalRange = (name ? `${name} : ` : "") + low + " <= ";
-        }
-        return normalRange;
-      })
-      .join("<br>") ?? `range : no Range`
-  );
+  const { range } = reference;
+  const mapingRange = range.map((r) => {
+    let normalRange = "";
+    const { name = "", low = "", high = "" } = r;
+    if (low !== "" && high !== "") {
+      normalRange = `${(name ? `${name} : ` : "") + low} - ${high}`;
+    } else if (low === "") {
+      normalRange = `${name ? `${name} : ` : ""} <= ${high}`;
+    } else if (high === "") {
+      normalRange = `${(name ? `${name} : ` : "") + low} <= `;
+    }
+    return normalRange;
+  });
+  if (mapingRange.length > 0) {
+    return mapingRange.join("<br>");
+  }
+  return "لا يوجد مرجع";
 }
-
 {
   /* 
 <div class="col-md-4 mb-3">
@@ -630,24 +590,27 @@ function manageRange(reference) {
 */
 }
 
-function generateFieldForTest(test, resultList, reference, testType) {
+function generateFieldForTest(test, resultList) {
+  const { type: testType, ...reference } = test.option_test;
   return `
   <div class="col-md-11 results test-normalTests mb-15 ">
       <div class="row align-items-center">
           <div class="col-md-3 h6 text-center">
-              ${testType === "normal" ? `${test?.kit_name ?? "NO KIT"}` : ""}
+              ${testType === "normal" ? `${test.kit_name ?? "NO KIT"}` : ""}
               <a 
                 class="text-info"
-              onclick="updateNormal('${test.test_id}', '${test.kit_id}', '${
-    test.unit
-  }')"
+                onclick="updateNormal(
+                  '${test.test_id}',
+                  '${test.kit_id}',
+                  '${test.unit}'
+                )"
               >
                 <i class="far fa-edit"></i>
               </a>
               <br>
               ${
                 testType === "normal"
-                  ? `(${test?.device_name ?? "NO DEVICE"})`
+                  ? `(${test.device_name ?? "NO DEVICE"})`
                   : ""
               }
           </div>
@@ -670,8 +633,8 @@ function generateFieldForTest(test, resultList, reference, testType) {
           <div class="col-md-7 mb-3 text-center" dir="ltr">
               <label for="range" class="text-dark">المرجع</label>
               <h5 class="text-center">${
-                reference?.[0]?.result === "result"
-                  ? reference?.[0]?.right_options
+                reference.result_type.trim() === "result"
+                  ? reference.right_options
                   : manageRange(reference)
               }</h5>
           </div>
@@ -679,15 +642,7 @@ function generateFieldForTest(test, resultList, reference, testType) {
           <div class="col-md-5 mb-3">
               <div class="row">
                   <div class="col-md-4 text-center d-flex justify-content-center align-items-end">
-                      <span class="">${
-                        reference?.[0]?.result?.trim() === "result"
-                          ? ""
-                          : testType === "normal"
-                          ? test?.unit_name ?? ""
-                          : units.find(
-                              (item) => reference?.[0]?.unit == item?.hash
-                            )?.name ?? ""
-                      }</span>
+                      <span class="">${test.unit_name}</span>
                   </div>
                   <div class="col-md-8">
                       <label for="result" class="w-100 text-center text-dark">النتيجة</label>
@@ -696,16 +651,14 @@ function generateFieldForTest(test, resultList, reference, testType) {
                           ? `<select class="form-control result" id="result_${
                               test.hash
                             }" name="${test.name}">
-                              ${reference?.[0]?.options
+                              ${reference.options
                                 .map((option) => {
                                   return `<option value="${option}" ${
                                     resultList?.[test.name]
-                                      ? resultList?.[test.name] == option
+                                      ? resultList?.[test.name] === option
                                         ? "selected"
                                         : ""
-                                      : reference?.[0]?.right_options.includes(
-                                          option
-                                        )
+                                      : reference.right_options.includes(option)
                                       ? "selected"
                                       : ""
                                   }>${option}</option>`;
@@ -718,11 +671,7 @@ function generateFieldForTest(test, resultList, reference, testType) {
                               test.name
                             }" placeholder="ادخل النتيجة" ${
                               testType === "calc" ? "readonly" : ""
-                            } value="${
-                              testType === "normal" || testType === "calc"
-                                ? resultList?.[test.name] ?? ""
-                                : resultList ?? ""
-                            }">`
+                            } value="${resultList?.[test.name]}">`
                       }
                       
                   </div>
@@ -734,37 +683,14 @@ function generateFieldForTest(test, resultList, reference, testType) {
 `;
 }
 
-function addNormalResult(
-  component,
-  test,
-  visit,
-  result_test,
-  options,
-  resultForm,
-  testType = "normal"
-) {
-  let reference = component?.[0]?.reference ?? [];
-  if (reference.length > 0) {
-    reference = filterWithKit(reference, test.kit_id);
-    if (options.type !== "calc") {
-      reference = filterWithUnit(reference, test.unit);
-    }
-    // filter with age
-    reference = filterWithAge(reference, visit.age, "عام");
-    // filter with gender
-    reference = filterWithGender(reference, visit.gender);
-  }
-  __VISIT_TESTS__.push({ hash: test.hash, options: reference });
-  if ((options.result = "number")) {
-    resultForm.push(
-      generateFieldForTest(test, result_test, reference, testType)
-    );
-  } else if (0) {
-  }
-  return resultForm;
+function addNormalResult(test, result_test) {
+  __VISIT_TESTS__.push({ hash: test.hash, options: test.reference });
+  return generateFieldForTest(test, result_test);
 }
 
-function addStrcResult(component, test, result_test, resultForm) {
+function addStrcResult(test, result_test) {
+  const { component } = test.option_test;
+
   let type = "";
   let results = {};
 
@@ -922,92 +848,71 @@ function addStrcResult(component, test, result_test, resultForm) {
     </div>
   `;
 
-  resultForm.push(resultFormMarkup);
-
-  return resultForm;
+  return resultFormMarkup;
 }
 
-function addResult(visit, visitTests) {
-  // clear __VISIT_TESTS__
+function addResult(data) {
+  const { tests, ...visit } = data;
   __VISIT_TESTS__ = [];
-  visitTests = visitTests.sort((a, b) => {
-    return a.category > b.category ? 1 : -1;
-  });
-  let resultForm = [
+  const resultForm = [
     `<div class="col-11 my-3">
     <input type="text" class="w-100 form-control search-class test-normalTests results product-search br-30" id="input-search-3" placeholder="ابحث عن التحليل" onkeyup="addTestSearch(this)">
 </div>`,
   ];
-  const result_tests = [];
-  for (let test of visitTests) {
-    let options = test.options;
-    options = options.replace(/\\/g, "");
-    try {
-      options = JSON.parse(options);
-    } catch (err) {
-      options = {};
-      console.log("error", err);
+  const result_tests = tests.reduce((acc, test) => {
+    if (test.option_test.type === "type") {
+      acc[test.name] = test.result;
+    } else {
+      acc[test.name] = test.result[test.name];
     }
-
-    let { type, component, value } = options;
-    let result_test = test.result_test;
-    try {
-      result_test = result_test.replace(/\\/g, "");
-      result_test = JSON.parse(result_test);
-    } catch (err) {
-      result_test = {};
-    }
-    result_tests.push({
-      name: test.name,
-      result: result_test?.[test.name],
-    });
-    if (type == "calc") {
-      let result = 0;
-      try {
-        let equ = value
+    return acc;
+  }, {});
+  for (const test of tests) {
+    const reference = test.option_test;
+    if (reference.type === "calc") {
+      let result = test.result[test.name];
+      console.log(
+        test.name,
+        reference.value
           .map((item) => {
             // check if item is number
             if (!isNaN(item)) {
               return item;
-            } else if (!calcOperator.includes(item)) {
-              let finalResult =
-                result_tests.find((test) => test.name == item)?.result ?? 0;
-              return finalResult == "" ? 0 : finalResult;
+            }
+            if (!calcOperator.includes(item)) {
+              let newValue = result_tests?.[item] ?? 0;
+              newValue = newValue === "" ? 0 : newValue;
+              return newValue;
             }
             return item;
           })
-          ?.join("");
-
-        let result = eval(equ) ?? 0;
-        // to fixed 2
-        result = result.toFixed(1);
-        finalResult = {};
-        finalResult[test.name] = result;
-        finalResult["checked"] = result_test["checked"];
-      } catch (error) {
-        // console.log(error);
-      }
-
-      addNormalResult(
-        component,
-        test,
-        visit,
-        finalResult,
-        options,
-        resultForm,
-        "calc"
+          .join("")
       );
-    } else if (type == "type") {
-      resultForm = addStrcResult(component, test, result_test, resultForm);
+      const evaluatedResult = eval(
+        reference.value
+          .map((item) => {
+            // check if item is number
+            if (!isNaN(item)) {
+              return item;
+            }
+            if (!calcOperator.includes(item)) {
+              let newValue = result_tests?.[item] ?? 0;
+              newValue = newValue === "" ? 0 : newValue;
+              return newValue;
+            }
+            return item;
+          })
+          .join("")
+      );
+      result = evaluatedResult.toFixed(1);
+      finalResult = {};
+      finalResult[test.name] = result;
+      finalResult.checked = test.result.checked;
+      resultForm.push(addNormalResult(test, finalResult));
+    } else if (reference.type === "type") {
+      resultForm.push(addStrcResult(test, result_tests[test.name]));
     } else {
-      resultForm = addNormalResult(
-        component,
-        test,
-        visit,
-        result_test,
-        options,
-        resultForm
-      );
+      resultForm.push(addNormalResult(test, result_tests));
     }
   }
   return resultForm.join("");
@@ -1456,14 +1361,12 @@ function showInvoice(hash) {
     },
     1000
   );
-  // manageInvoiceHeight();
 }
 
-function invoiceHeader() {
+function invoiceHeader(invoice) {
   let html = "";
-  let res = fetchData(`Visit/getInvoice`, "GET", {});
-  let { size, workers, logo, name_in_invoice, show_name, show_logo } =
-    res.invoice;
+  const { size, workers, logo, name_in_invoice, show_name, show_logo } =
+    invoice;
   if (workers.length > 0) {
     html = workers
       .map((worker) => {
@@ -1535,8 +1438,9 @@ function createBookResult(invoices, type) {
 }
 
 function createInvoiceItems(visit) {
+  const { invoice } = fetchData("Visit/getInvoice", "GET", {});
   const random = Math.floor(Math.random() * 1000000);
-  const header = invoiceHeader();
+  const header = invoiceHeader(invoice);
   const nav = `
   <div class="nav">
     <div class="name">
@@ -1596,7 +1500,7 @@ function createInvoiceItems(visit) {
       <p class="">By</p>
     </div>
     <div class="refbygo">
-      <p>${invoices?.doing_by ?? "التحليل"}</p>
+      <p>${invoice.doing_by ?? "التحليل"}</p>
     </div>
     <div class="prd">
       <p class="">Doctor</p>
@@ -1610,43 +1514,43 @@ function createInvoiceItems(visit) {
   `;
   const footer = `
   <div class="footer2" ${
-    invoices?.footer_header_show == 1
+    invoice.footer_header_show == 1
       ? 'style="border-top:5px solid #2e3f4c;"'
       : 'style="border-top:none;"'
   }>
     <div class="f1">
       <p>${
-        invoices?.address
-          ? `<i class="fas fa-map-marker-alt"></i> ${invoices?.address}`
+        invoice.address
+          ? `<i class="fas fa-map-marker-alt"></i> ${invoice.address}`
           : ""
       }</p>
     </div>
     <div class="f2">
       <p>
         <span class="note">${
-          invoices?.facebook === ""
+          invoice.facebook === ""
             ? ""
-            : `<i class="fas fa-envelope"></i>  ${invoices?.facebook}`
+            : `<i class="fas fa-envelope"></i>  ${invoice.facebook}`
         }</span>
         <span class="note">${
-          invoices?.phone_1 === ""
+          invoice.phone_1 === ""
             ? ""
-            : `<i class="fas fa-phone"></i> &nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;  ${invoices?.phone_1}`
+            : `<i class="fas fa-phone"></i> &nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;  ${invoice.phone_1}`
         }</span>
       </p>
     </div>
   </div>
   `;
-  return { header, nav, footer };
+  return { header, nav, footer, invoice };
 }
 
 function createInvoice(form, items) {
-  const { header, nav, footer } = items;
+  const { header, nav, footer, invoice } = items;
   return `
 		<div class="page">
 			${header}
 			<div class="center2" ${
-        invoices?.footer_header_show == 1
+        invoice.footer_header_show == 1
           ? 'style="border-top:5px solid #2e3f4c;"'
           : 'style="border-top:none;"'
       }>
@@ -1657,7 +1561,7 @@ function createInvoice(form, items) {
 				</div>
 			</div>
       ${footer}
-		</div>>`;
+		</div>`;
 }
 
 function getNormalRange(finalResult = "", range = []) {
@@ -1668,11 +1572,11 @@ function getNormalRange(finalResult = "", range = []) {
   };
   const { name = "", low = "", high = "" } = range;
   if (low !== "" && high !== "") {
-    normalRange = (name ? `${name} : ` : "") + low + " - " + high;
-  } else if (low == "") {
-    normalRange = (name ? `${name} : ` : "") + " <= " + high;
-  } else if (high == "") {
-    normalRange = (name ? `${name} : ` : "") + low + " <= ";
+    normalRange = `${(name ? `${name} : ` : "") + low} - ${high}`;
+  } else if (low === "") {
+    normalRange = `${name ? `${name} : ` : ""} <= ${high}`;
+  } else if (high === "") {
+    normalRange = `${(name ? `${name} : ` : "") + low} <= `;
   }
   try {
     let numers = finalResult.match(/\d+/g);
@@ -1746,13 +1650,14 @@ function normalTestRange(finalResult, refrence) {
   return returnResult;
 }
 
-function showResult(hash) {
-  const { tests, ...visit } = fetchData("visit/get", "POST", { hash });
+function showResult(data) {
+  const { tests, ...visit } = data;
   const { data: history } = fetchData("Visit/history", "POST", {
     date: visit.date,
     patient: visit.patient_hash,
   });
-  const invoiceItems = createInvoiceItems(visit);
+  const { invoice, ...invoiceItems } = createInvoiceItems(visit);
+  invoiceItems.invoice = invoice;
   const result_tests = tests.reduce((acc, test) => {
     if (test.option_test.type === "type") {
       acc[test.name] = test.result;
@@ -1767,15 +1672,29 @@ function showResult(hash) {
   // sort visit tests by category
   const results = {};
   let height = 0;
-  let normalTests = "";
+  let normalTests = manageHead("flag");
+  const defaultHeight = (invoice.center ?? 1200) - 250;
   tests.forEach((test, index) => {
     const reference = test.option_test;
 
     if (reference.type !== "type") {
-      if (height + reference.height >= 1000) {
+      if (height + reference.height >= defaultHeight) {
         invoices.normalTests += createInvoice(normalTests, invoiceItems);
-        normalTests = "";
-        height = 0;
+        normalTests = manageHead("flag");
+        if (category !== test.category) {
+          height = 50;
+        } else {
+          if (category) {
+            normalTests += `
+                          <div class="test typetest category_${category
+                            ?.split(" ")
+                            ?.join("_")}">
+                              <p class="w-100 text-center font-weight-bolder h-22">${category}</p>
+                          </div>
+                          `;
+          }
+          height = 102;
+        }
       } else {
         height += Number(reference.height);
       }
@@ -1803,7 +1722,7 @@ function showResult(hash) {
           reference.value
             .map((item) => {
               // check if item is number
-              if (Number.isNaN(item)) {
+              if (!isNaN(item)) {
                 return item;
               }
               if (!calcOperator.includes(item)) {
@@ -1889,18 +1808,18 @@ function showResult(hash) {
           high = "",
           infinit = "",
         } = reference?.reference[0]?.range[0];
-        if (infinit != "" || (low && high)) {
-          let fResult = normalTestRange(result, reference.reference[0]);
+        if (infinit !== "" || (low && high)) {
+          const fResult = normalTestRange(result, reference.reference[0]);
           resultClass = fResult.color;
           defualt = fResult.normalRange;
           flag = fResult.flag;
         } else if (low) {
           defualt = `${low} ${reference?.reference[0]?.unit ?? ""}`;
-          let resultCompare = result
+          const resultCompare = result
             .toString()
             .toUpperCase()
             .replace(/\s+/g, "");
-          let defualtCompare = defualt
+          const defualtCompare = defualt
             .toString()
             .toUpperCase()
             .replace(/\s+/g, "");
@@ -1915,7 +1834,7 @@ function showResult(hash) {
             flag = "H";
           }
         }
-        if (reference.type != type && reference.type != "Notes") {
+        if (reference.type !== type && reference.type !== "Notes") {
           type = reference.type;
           invoiceBody += `
                         <div class="test strc-test row m-0 typetest sp" data-flag="${unit}">
@@ -1928,7 +1847,7 @@ function showResult(hash) {
                         </div>
                     `;
         }
-        if (reference.type == "Notes") {
+        if (reference.type === "Notes") {
           invoiceBody += `
                         <div class="test strc-test row m-0">
                             <!-- تصنيف الجدول او اقسام الجدول ------------>
@@ -1962,7 +1881,8 @@ function showResult(hash) {
     invoice: `${Object.entries(invoices)
       .map(([key, value]) => {
         if (key === "normalTests") {
-          return createBookResult(value, key);
+          const form = value + createInvoice(normalTests, invoiceItems);
+          return createBookResult(form, key);
         }
         return createBookResult(createInvoice(value, invoiceItems), key);
       })
@@ -1971,14 +1891,14 @@ function showResult(hash) {
 }
 
 function getCurrentInvoice(ele) {
-  if (ele && ele.length == 0) {
+  if (ele && ele.length === 0) {
     ele = $("#invoice-tests-buttons").find("button").first();
   }
-  let elementId = ele.attr("id");
+  const elementId = ele.attr("id");
   localStorage.setItem("currentInvoice", elementId);
-  let id = elementId?.split("-")[1];
+  const id = elementId?.split("-")[1];
   // get invoice
-  let invoice = $(`#invoice-${id}`);
+  const invoice = $(`#invoice-${id}`);
   // hide all invoices
   $(".book-result").hide();
   $(".results").hide();
@@ -1989,9 +1909,6 @@ function getCurrentInvoice(ele) {
   $("#invoice-tests-buttons .btn").removeClass("active");
   $(`#test-${id}`).addClass("active");
   $("#print-invoice-result").attr("onclick", `printOneInvoice('${id}')`);
-  // manageInvoiceHeight();
-  manageInvoiceHeightForScroll();
-  // cloneOldInvoice(manageInvoiceHeight());
 }
 
 function printAll() {
@@ -2051,155 +1968,6 @@ function setInvoiceStyle() {
   $(".page .footer2").height(invoices?.footer - 5);
   $(".page .center2").height(invoices?.center - 15);
   $(".page .center").height(invoices?.center);
-}
-
-function manageInvoiceHeight(invoiceId = null) {
-  const elementsWithClasses = document.querySelectorAll(
-    '.typetest[class*="category_"]'
-  );
-  const categoryClasses = Array.from(elementsWithClasses, (element) =>
-    element.classList.value
-      .split(" ")
-      .find((cls) => cls.startsWith("category_"))
-  );
-  for (let cat of categoryClasses) {
-    if ($(`.${cat}:visible`).length == 1) {
-      $(`.${cat}`).hide();
-    }
-  }
-  let allTestsElements = [];
-  let allInvoiceTestsHeight = 0;
-  if (invoiceId) {
-    $(`#${invoiceId} .page .center2 .tester .test:visible`).each(function () {
-      let eleHeight = $(this).outerHeight();
-      allTestsElements.push({
-        html: $(this).clone(),
-        eleHeight,
-      });
-      allInvoiceTestsHeight += eleHeight;
-    });
-  } else {
-    $(
-      ".book-result#invoice-normalTests:visible .page .center2 .tester .test:visible"
-    ).each(function () {
-      let eleHeight = $(this).outerHeight();
-      allTestsElements.push({
-        html: $(this).clone(),
-        eleHeight,
-      });
-      allInvoiceTestsHeight += eleHeight;
-    });
-  }
-
-  let cloneInvoice = $(".book-result#invoice-normalTests:visible .page")
-    .first()
-    .clone();
-  let bookResultInvoiceId = $(".book-result#invoice-normalTests:visible").attr(
-    "id"
-  );
-  cloneInvoice.find(".center2 .tester").empty();
-  let center2 = $(".book-result#invoice-normalTests:visible .center2:last");
-  let center2Scroll;
-  // if (bookResultInvoiceId == "invoice-normalTests") {
-  //   center2Scroll = center2.height() - 400;
-  // } else {
-  //   center2Scroll = center2.height() - 200;
-  // }
-  center2Scroll = center2.height() - 280;
-  let invoices = addTestToInvoice(
-    center2Scroll,
-    allTestsElements,
-    cloneInvoice,
-    center2Scroll
-  );
-  if (invoiceId) {
-    $(`#${invoiceId}`).empty();
-    invoices.map((invoice) => {
-      $(`#${invoiceId}`).append(invoice);
-    });
-  } else {
-    $(".book-result#invoice-normalTests:visible").empty();
-    invoices.map((invoice) => {
-      $(".book-result#invoice-normalTests:visible").append(invoice);
-    });
-  }
-}
-
-function addTestToInvoice(
-  allInvoiceTestsHeight,
-  allTestsElements,
-  cloneInvoice,
-  center2Scroll,
-  lastTestType = null
-) {
-  let invoiceCount = Math.ceil(allInvoiceTestsHeight / center2Scroll);
-  let { invoices, testTypeHeight, testHeadHeight } = {
-    invoices: [],
-    lastTestType: null,
-    testTypeHeight: allTestsElements[0]?.eleHeight,
-    testHeadHeight: allTestsElements[1]?.eleHeight,
-  };
-  for (let i = 1; i <= invoiceCount; i++) {
-    if (allTestsElements?.[0]?.html?.hasClass("border-test")) {
-      if (lastTestType) {
-        allTestsElements.unshift(lastTestType);
-      }
-    }
-    let height = 0;
-    let invoice = cloneInvoice.clone();
-    for (let [index, test] of allTestsElements.entries()) {
-      if (
-        index == 0 &&
-        !test?.html?.hasClass("testhead") &&
-        allTestsElements?.[1]?.html
-      ) {
-        let dataFlag = allTestsElements[1].html.attr("data-flag");
-        invoice.find(".center2 .tester").append(manageHead(dataFlag));
-      }
-      if (test?.html?.hasClass("typetest")) {
-        lastTestType = test;
-        test.html = test.html.clone();
-        if (center2Scroll - height < testTypeHeight + testHeadHeight + 70) {
-          break;
-        }
-      }
-      height += test.eleHeight;
-      if (height <= center2Scroll) {
-        invoice.find(".center2 .tester").append(test.html);
-        allTestsElements = allTestsElements.slice(1);
-      } else {
-        break;
-      }
-    }
-    invoices.push(invoice);
-  }
-  if (allTestsElements.length > 0) {
-    invoices = [
-      ...invoices,
-      ...addTestToInvoice(
-        center2Scroll,
-        allTestsElements,
-        cloneInvoice,
-        center2Scroll,
-        lastTestType
-      ),
-    ];
-  }
-  return invoices;
-}
-
-function cloneOldInvoice(newInvoiceBody) {
-  if (newInvoiceBody != "") {
-    let oldInvoice = $(".book-result:visible .page");
-    let newInvoice = oldInvoice.clone();
-    newInvoice.find(".tester").html(newInvoiceBody);
-    $(".book-result:visible").append(newInvoice);
-  }
-}
-
-function manageInvoiceHeightForScroll() {
-  $(".invoice-height").height(1500);
-  $(".form-height").height(1500);
 }
 
 const waitDwonloadElement = `<div id="alert_screen" class="alert_screen"> 
@@ -2326,19 +2094,19 @@ function manageHead(type) {
     case "flag":
       return `
             <div class="testhead row sections m-0 mt-2 category_category">
-                <div class="col-3">
+                <div class="col-3 pr-0">
                     <p class="text-right">Test Name</p>
                 </div>
-                <div class="col-3 justify-content-between">
+                <div class="col-3 pr-0 justify-content-between">
                     <p class="text-center w-100">Result</p>
                 </div>
-                <div class="col-1 justify-content-between">
+                <div class="col-1 pr-0 justify-content-between">
                     <p class="text-center w-100">Flag</p>
                 </div>
-                <div class="col-2">
+                <div class="col-2 pr-0">
                     <p class="text-right">Unit</p>
                 </div>
-                <div class="col-3">
+                <div class="col-3 pr-0">
                     <p class="text-right">Normal Range</p>
                 </div>
             </div>
@@ -2492,9 +2260,7 @@ function downloadPdf() {
   svgs.each((i, svg) => {
     let id = $(svg).attr("data-id");
     $(`#${id}`).css("display", "block");
-    // manageInvoiceHeight(id);
   });
-  // .book-result:visible svg is not parent <>,.
 
   $(`#work-sapce .book-result:visible`).printThis({
     importCSS: false,

@@ -79,25 +79,16 @@ class Json
     if (count($refrences) == 0) {
       $refrences = $this->default_refrence;
       unset($refrences['component']);
-      $refrences['range'] = array(
-        array(
-          "low" => "0",
-          "high" => "1",
-        ),
-        array(
-          "low" => "2",
-          "high" => "3",
-        ),
-        array(
-          "low" => "4",
-          "high" => "5",
-        ),
-      );
+      $refrences['range'] = array();
+      $refrences['type'] = $this->type;
+      $refrences['result_type'] = $this->result_type;
       $height = isset($refrences['range']) ? count($refrences['range']) : 1;
+      $height = $height == 0 ? 1 : $height;
       $refrences['height'] = 9 + ($height * 5.5) + (1.15944 * $height * $font);
     } else {
       $refrences = array_map(function ($refrence) use ($font) {
         $height = isset ($refrence['range']) ? count($refrence['range']) : 1;
+        $height = $height == 0 ? 1 : $height;
         $refrence['height'] = 9.01 + ($height * 5.5) + (1.14 * $height * $font);
         return $refrence;
       }, $refrences);

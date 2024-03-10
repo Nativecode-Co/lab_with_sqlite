@@ -66,7 +66,9 @@ class Visit_model extends CI_Model
         $font = $this->db->select('font_size')->from('lab_invoice')->get()->row();
         $font = $font->font_size;
         $visit = $this->db
-            ->select("lab_visits.hash as hash, lab_patient.name as name, visit_date as date")
+            ->select("age,gender,phone,lab_patient.name,DATE(visit_date) as date")
+            ->select("TIME(visit_date) as time,visits_patient_id as patient,lab_visits.hash")
+            ->select("(select name from lab_doctor where hash=lab_visits.doctor_hash) as doctor")
             ->select("lab_patient.hash as patient_hash, gender,age")
             ->from("lab_visits")
             ->join("lab_patient", "lab_patient.hash=lab_visits.visits_patient_id")

@@ -352,10 +352,11 @@
     margin-block-end: 8px;
     margin-inline-end: 10px;
     font-family: 'play';
-    font-size: var(--font_size);
+    font-size: 18px;
     font-weight: bold;
     color: var(--invoice-color);
 }
+
 
 .testname,
 .testresult,
@@ -452,11 +453,15 @@
     height: 335mm;
     margin-left: 45px;
     margin-right: 45px;
-    margin-bottom: 30px;
+    /* margin-bottom: 30px;
     padding-bottom: 5px;
-    padding-top: 5px;
+    padding-top: 5px; */
     border-top: 5px solid #2e3f4c;
     position: relative;
+}
+
+.invoice-height{
+    height: 1500px;
 }
 
 .center2-background {
