@@ -8,7 +8,6 @@ class TestAliasModel extends CI_Model
     {
         parent::__construct();
         $this->load->database();
-        $this->load->helper('db');
         if (!$this->db->table_exists($this->table)) {
             $this->db->query("CREATE TABLE `test_alias` (
                 `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -36,18 +35,15 @@ class TestAliasModel extends CI_Model
         $start = $params['start'];
         $rowsPerPage = $params['length'];
         $page = $start / $rowsPerPage;
-        $orderBy = $params['order'][0]['column'];
-        $orderBy = $params['columns'][$orderBy]['data'];
-        $order = $params['order'][0]['dir'];
         $searchText = $params['search']['value'];
 
         return $this->db
             ->select('test_alias.id, test_name as test,devices.name as device, alias, test_alias.type, device_id')
-            ->join('lab_test', 'lab_test.hash = test_alias.test_hash', 'left')
+            ->join('lab_test', 'lab_test.hash = test_alias.test_hash and lab_test.lab_hash is null', 'left')
             ->join('devices', 'devices.id = test_alias.device_id', 'left')
             ->where('test_alias.isdeleted', 0)
             ->like("alias", $searchText)
-            ->order_by($orderBy, $order)
+            ->order_by('id', 'desc')
             ->get($this->table, $rowsPerPage, $page * $rowsPerPage)
             ->result();
     }
@@ -91,6 +87,27 @@ class TestAliasModel extends CI_Model
             ->where('alias', $alias)
             ->get($this->table)
             ->row()->test_hash;
+    }
+
+    public function get_tests()
+    {
+        $tests = $this->db
+            ->select('hash,test_name as text')
+            ->where('isdeleted', 0)
+            ->where('lab_hash', null)
+            ->order_by('test_name', 'asc')
+            ->get('lab_test')
+            ->result();
+        return $tests;
+    }
+
+    public function get_devices()
+    {
+        $devices = $this->db
+            ->select('id as hash, name as text')
+            ->get('devices')
+            ->result();
+        return $devices;
     }
 
 }

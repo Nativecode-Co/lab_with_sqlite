@@ -117,4 +117,22 @@ class Alias extends CI_Controller
             ->set_output(json_encode(array("hash" => $hash)));
     }
 
+    public function get_tests()
+    {
+        $data = $this->TestAliasModel->get_tests();
+        $this->output
+            ->set_status_header(200)
+            ->set_content_type('application/json')
+            ->set_output(json_encode($data));
+    }
+
+    public function get_devices()
+    {
+        $data = $this->TestAliasModel->get_devices();
+        $this->output
+            ->set_status_header(200)
+            ->set_content_type('application/json')
+            ->set_output(json_encode($data));
+    }
+
 }
