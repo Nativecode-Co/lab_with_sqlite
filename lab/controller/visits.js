@@ -2557,7 +2557,9 @@ function downloadPdf() {
   svgs.each((i, svg) => {
     let id = $(svg).attr("data-id");
     $(`#${id}`).css("display", "block");
-    manageInvoiceHeight(id);
+    if (id === "invoice-normalTests") {
+      manageInvoiceHeight(id);
+    }
   });
   // .book-result:visible svg is not parent <>,.
 
