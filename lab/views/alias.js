@@ -1,5 +1,5 @@
-let tests = fetchApi("/maintests/get_tests_options");
-tests = tests.map((test) => ({ hash: test.hash, text: test.name }));
+const tests = fetchApi("/maintests/get_tests_options");
+const { devices } = fetchApi("/tests/get_tests_data");
 // override Factory class
 class Alias extends Factory {
   init() {
@@ -13,13 +13,14 @@ class Alias extends Factory {
       [
         { data: "alias" },
         { data: "test" },
+        { data: "device" },
         {
           data: null,
           sortable: false,
           className: "center not-print",
           render: (data, type, row) => `
-                        <a class="btn-action" onclick="test_alias.updateItem('${row.hash}')"><i class="fas fa-edit"></i></a>
-                    <a class="btn-action delete" onclick="fireSwalForDelete.call(test_alias,test_alias.deleteItem, '${row.hash}')"><i class="far fa-trash-alt"></i></a>
+                        <a class="btn-action" onclick="test_alias.updateItem('${row.id}')"><i class="fas fa-edit"></i></a>
+                    <a class="btn-action delete" onclick="fireSwalForDelete.call(test_alias,test_alias.deleteItem, '${row.id}')"><i class="far fa-trash-alt"></i></a>
                         `,
         },
         {
@@ -69,6 +70,13 @@ const test_alias = new Alias("test_alias", " اختصار", [
     label: "التحليل",
     req: "required",
     options: tests,
+  },
+  {
+    name: "device_id",
+    type: "select",
+    label: "الجهاز",
+    req: "required",
+    options: devices,
   },
   {
     name: "type",

@@ -42,8 +42,9 @@ class TestAliasModel extends CI_Model
         $searchText = $params['search']['value'];
 
         return $this->db
-            ->select('test_alias.id, test_name as test, alias, type, device_id')
-            ->join('lab_test', 'lab_test.hash = test_alias.test_hash')
+            ->select('test_alias.id, test_name as test,devices.name as device, alias, test_alias.type, device_id')
+            ->join('lab_test', 'lab_test.hash = test_alias.test_hash', 'left')
+            ->join('devices', 'devices.id = test_alias.device_id', 'left')
             ->where('test_alias.isdeleted', 0)
             ->like("alias", $searchText)
             ->order_by($orderBy, $order)

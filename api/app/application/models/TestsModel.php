@@ -246,15 +246,15 @@ class TestsModel extends CI_Model
     public function get_tests_data()
     {
         $kits = $this->db
-            ->select('id, name')
+            ->select('id as hash, name as text')
             ->get('kits')
             ->result();
         $devices = $this->db
-            ->select('id, name')
+            ->select('id as hash, name as text')
             ->get('devices')
             ->result();
         $units = $this->db
-            ->select('hash, name')
+            ->select('hash, name as text')
             ->get('lab_test_units')
             ->result();
         return array(

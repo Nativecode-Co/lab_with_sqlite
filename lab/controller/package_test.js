@@ -19,25 +19,25 @@ document.addEventListener("DOMContentLoaded", () => {
   for (const test of tests) {
     const option = document.createElement("option");
     option.value = test.hash;
-    option.textContent = test.name;
+    option.textContent = test.text;
     testsSelect.appendChild(option);
   }
   for (const kit of kits) {
     const option = document.createElement("option");
-    option.value = kit.id;
-    option.textContent = kit.name;
+    option.value = kit.hash;
+    option.textContent = kit.text;
     kitsSelect.appendChild(option);
   }
   for (const unit of units) {
     const option = document.createElement("option");
     option.value = unit.hash;
-    option.textContent = unit.name;
+    option.textContent = unit.text;
     unitsSelect.appendChild(option);
   }
   for (const device of devices) {
     const option = document.createElement("option");
-    option.value = device.id;
-    option.textContent = device.name;
+    option.value = device.hash;
+    option.textContent = device.text;
     devicesSelect.appendChild(option);
   }
 });
