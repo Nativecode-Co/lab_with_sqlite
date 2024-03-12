@@ -16,6 +16,9 @@ class Visit_model extends CI_Model
         if (!$this->db->field_exists('show_name', 'lab_invoice')) {
             $this->db->query("ALTER TABLE `lab_invoice` ADD COLUMN `show_name` INTEGER NOT NULL DEFAULT 0 ;");
         }
+        if (!$this->db->field_exists('show_logo', 'lab_invoice')) {
+            $this->db->query("ALTER TABLE `lab_invoice` ADD COLUMN `show_logo` INTEGER NOT NULL DEFAULT 1 ;");
+        }
     }
 
     public function bothIsset($var1, $var2)
@@ -57,10 +60,56 @@ class Visit_model extends CI_Model
         }
     }
 
+    public function get($hash, $fields)
+    {
+        $this->load->helper('json');
+        $font = $this->db->select('font_size')->from('lab_invoice')->get()->row();
+        $font = $font->font_size;
+        $visit = $this->db
+            ->select("age,gender,phone,lab_patient.name,DATE(visit_date) as date")
+            ->select("TIME(visit_date) as time,visits_patient_id as patient,lab_visits.hash")
+            ->select("(select name from lab_doctor where hash=lab_visits.doctor_hash) as doctor")
+            ->select("lab_patient.hash as patient_hash, gender,age")
+            ->from("lab_visits")
+            ->join("lab_patient", "lab_patient.hash=lab_visits.visits_patient_id")
+            ->where("lab_visits.hash", $hash)
+            ->get()->row();
+        $tests = $this->db
+            ->select("option_test, test_name as name, kit_id")
+            ->select(" (select name from devices where devices.id=lab_device_id limit 1) as device_name, (select name from kits where kits.id =kit_id limit 1) as kit_name, (select name from lab_test_units where hash=lab_pakage_tests.unit limit 1) as unit_name, (select name from lab_test_catigory where hash=lab_test.category_hash limit 1) as category, unit, result_test as result,sort, lab_visits_tests.hash as hash, test_id")
+            ->from("lab_visits_tests")
+            ->join("lab_pakage_tests", "lab_pakage_tests.test_id = lab_visits_tests.tests_id and lab_pakage_tests.package_id = lab_visits_tests.package_id", "left")
+            ->join("lab_test", "lab_test.hash = lab_visits_tests.tests_id")
+            ->where("visit_id", $hash)
+            ->order_by("sort")
+            ->get()->result_array();
+        if (isset($visit) && isset($tests)) {
+            $tests = array_map(function ($test) use ($visit, $font) {
+                $json = new Json($test['option_test']);
+                $filterFeilds = array_merge((array) $test, (array) $visit);
+                $test['option_test'] = $json->filter($filterFeilds)->setHeight($font)->row();
+                $test['result'] = json_decode($test['result'], true);
+                if ($test['result'] == null) {
+                    $test['result'] = array (
+                        "checked" => true,
+                        $test['name'] => ""
+                    );
+                }
+
+                return $test;
+            }, $tests);
+        }
+        // sort array by category 
+        usort($tests, function ($a, $b) {
+            return $a['category'] <=> $b['category'];
+        });
+        $visit->tests = $tests;
+        return $visit;
+    }
+
     public function record_count($search, $current = 0)
     {
         /// delete duplicate visits has same hash only one of them is not deleted but id is different
-        $this->deleteDuplicateVisitsAndPatientsAndLabPackageTestsAndLabVisitsTests();
         $lab_id = $this->input->post('lab_id');
         $date_opration = $current == 1 ? '>=' : '<';
         $count = $this->db
@@ -76,13 +125,7 @@ class Visit_model extends CI_Model
         return $count;
     }
 
-    public function deleteDuplicateVisitsAndPatientsAndLabPackageTestsAndLabVisitsTests()
-    {
-        $this->db->query("DELETE FROM lab_patient WHERE id NOT IN (SELECT id FROM (SELECT MIN(id) as id FROM lab_patient GROUP BY hash) as t)");
-        $this->db->query("DELETE FROM lab_visits WHERE id NOT IN (SELECT id FROM (SELECT MIN(id) as id FROM lab_visits GROUP BY hash) as t)");
-        $this->db->query("DELETE FROM lab_pakage_tests WHERE id NOT IN (SELECT id FROM (SELECT MIN(id) as id FROM lab_pakage_tests GROUP BY package_id,test_id) as t)");
-        $this->db->query("DELETE FROM lab_visits_tests WHERE id NOT IN (SELECT id FROM (SELECT MIN(id) as id FROM lab_visits_tests GROUP BY visit_id,package_id) as t)");
-    }
+
 
     function getVisits($lab_id, $start, $length, $search, $current = 0)
     {
@@ -121,9 +164,9 @@ class Visit_model extends CI_Model
         $tests = array_map(function ($test) {
             // decode result
             $result = json_decode($test['result'], true);
-            if (isset($result[$test['name']])) {
+            if (isset ($result[$test['name']])) {
                 $result = $result[$test['name']];
-                if (!isset($result) || $result == "") {
+                if (!isset ($result) || $result == "") {
                     $result = "";
                 } else {
                     $result = " - Last Result dated " . $test['date'] . "  was : " . $result;
@@ -277,7 +320,7 @@ class Visit_model extends CI_Model
                 $component = $options["component"][0];
                 $options = $options["component"][0]["reference"];
                 $options = array_filter($options, function ($item) use ($patient, $test) {
-                    $lowAge = $this->issetOrValue(isset($item['age low']), 0);
+                    $lowAge = $this->issetOrValue(isset ($item['age low']), 0);
                     $highAge = $this->issetOrValue($item['age high'], 1000);
                     $gender = $this->issetOrValue($item['gender'], "كلاهما");
                     if (
@@ -293,24 +336,24 @@ class Visit_model extends CI_Model
 
                 });
                 $options = array_map(function ($item) use ($component, $test) {
-                    if (isset($component['name'])) {
+                    if (isset ($component['name'])) {
                         $item['name'] = $component['name'];
                     }
-                    if (isset($component['unit'])) {
+                    if (isset ($component['unit'])) {
                         $item['unit'] = $component['unit'];
                     }
-                    if (isset($component['result'])) {
+                    if (isset ($component['result'])) {
                         $item['result'] = $component['result'];
                     }
-                    if (isset($test['result'])) {
+                    if (isset ($test['result'])) {
                         $item['result'] = $this->getResult($test['result']);
                     } else if ($component['name']) {
-                        $item['result'] = array(
+                        $item['result'] = array (
                             "checked" => true,
                             $component['name'] => ""
                         );
                     }
-                    if (isset($test['category'])) {
+                    if (isset ($test['category'])) {
                         $item['category'] = $test['category'];
                     } else {
                         $item['category'] = "Tests";
@@ -359,7 +402,7 @@ class Visit_model extends CI_Model
 
     public function getInvoice()
     {
-        $this->db->select('color, phone_1,show_name, phone_2 as size, address, facebook, header, center, footer, logo, water_mark, footer_header_show, invoice_about_ar, invoice_about_en, font_size, zoom, doing_by, name_in_invoice, font_color, setting');
+        $this->db->select('color, phone_1,show_name,show_logo, phone_2 as size, address, facebook, header, center, footer, logo, water_mark, footer_header_show, invoice_about_ar, invoice_about_en, font_size, zoom, doing_by, name_in_invoice, font_color, setting');
         $this->db->from('lab_invoice');
         $query = $this->db->get();
         $result = $query->result_array();

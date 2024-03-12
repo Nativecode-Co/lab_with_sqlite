@@ -24,4 +24,9 @@ class Offline_sync_model extends CI_Model
     {
         $this->db->set('sync', 1)->update('offline_sync');
     }
+
+    public function trancate_offline_sync()
+    {
+        $this->db->truncate('offline_sync');
+    }
 }

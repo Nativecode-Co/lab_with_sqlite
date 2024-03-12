@@ -170,7 +170,7 @@
                                 <div class="row mt-4 justify-content-center">
                                     <div class="col-auto">
                                         <h4 class="text-center">ارسل رسالة عبر الواتساب</h4>
-                                        <img src="assets/image/qrcode.png" alt="QrCode" width="300" height="300" />
+                                        <div id="contact-us" class="d-flex justify-content-center mt-5"></div>
                                     </div>
                                 </div>
                             </div>
@@ -497,6 +497,15 @@
                     });
                     var qrcode = new QRCode("screen_img", {
                         text: res.url + '/lab/screen.html',
+                        width: 300,
+                        height: 300,
+                        colorDark: "#000000",
+                        colorLight: "#ffffff",
+                        correctLevel: QRCode.CorrectLevel.H,
+                    });
+
+                    var qrcode = new QRCode("contact-us", {
+                        text: "https://wa.me/+9647700111748",
                         width: 300,
                         height: 300,
                         colorDark: "#000000",
