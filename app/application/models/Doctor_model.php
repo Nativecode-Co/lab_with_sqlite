@@ -26,7 +26,7 @@ class Doctor_model extends CI_Model
     {
         // like
         $this->db->select(
-            'hash,name,partmen_hash,commission,phone,(select name from lab_doctor_partment where hash=partmen_hash) as jop'
+            'hash,name,partmen_hash,commission,phone,(select name from lab_doctor_partment where hash=partmen_hash limit 1) as jop'
         );
         // inner join 
         $this->db->from('lab_doctor');

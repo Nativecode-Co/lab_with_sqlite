@@ -43,6 +43,18 @@ class Visit extends CI_Controller
         echo "hello world";
     }
 
+    public function get()
+    {
+        $fields = $this->input->post();
+        $hash = $fields['hash'];
+        unset($fields['hash']);
+        $res = $this->Visit_model->get($hash, $fields);
+        $this->output
+            ->set_status_header(200)
+            ->set_content_type('application/json')
+            ->set_output(json_encode($res));
+    }
+
     public function getVisits()
     {
         $search = $this->input->post('search');

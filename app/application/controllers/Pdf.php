@@ -35,7 +35,7 @@ class Pdf extends CI_Controller
         }
         // file name
         $file = "c:\patient\\$name\\$date\\$date.pdf";
-        $command = 'C:\xampp\ch\chrome --headless --disable-gpu --print-to-pdf="' . $file . '" --print-to-pdf-no-header  --virtual-time-budget=10000 http://localhost:8807/lab/show_invoice.html?pk=' . $parm . ' 2>&1';
+        $command = 'C:\xampp\ch\chrome --headless --disable-gpu --print-to-pdf="' . $file . '" --print-to-pdf-no-header  --virtual-time-budget=50000 http://localhost:8807/lab/show_invoice.html?pk=' . $parm . ' 2>&1';
         $output = exec($command);
         return array(
             "file" => $file,

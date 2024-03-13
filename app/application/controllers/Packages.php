@@ -12,6 +12,7 @@ class Packages extends CI_Controller
         parent::__construct();
         $this->load->model('Menu_db');
         $this->load->model('Package_model');
+        $this->load->model('Visit_model');
         $this->load->library('ApiMiddelware');
         $token = $this->input->get_request_header('Authorization', TRUE);
         $token = str_replace("Bearer ", "", $token);
@@ -37,6 +38,7 @@ class Packages extends CI_Controller
     public function index()
     {
         echo "hello world";
+
     }
 
     public function getPackagesForLab()
