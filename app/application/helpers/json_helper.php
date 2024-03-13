@@ -28,7 +28,7 @@ class Json
   public function filter($fields)
   {
     $refrences = $this->refrences;
-    if ($this->type == 'type') {
+    if ($this->type == 'type' || $this->type == 'culture') {
       $this->refrences = $this->default_refrence;
       return $this;
     }
@@ -72,7 +72,7 @@ class Json
   }
   public function setHeight($font)
   {
-    if ($this->type == 'type') {
+    if ($this->type == 'type' || $this->type == 'culture') {
       return $this;
     }
     $refrences = $this->refrences;

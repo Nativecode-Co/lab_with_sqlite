@@ -724,6 +724,167 @@ function addStrcResult(test, result_test) {
   return resultFormMarkup;
 }
 
+function selectInput({ options, result, multi, name, hash }) {
+  let htmlOptions = "";
+  const multiple = Boolean(multi) === true ? "multiple" : "";
+  htmlOptions = options
+    .map((option, index) => {
+      let selected = "";
+
+      if (!result) {
+        selected = index == 0 ? "selected" : "";
+      } else {
+        if (Boolean(multi) === true) {
+          selected = result.includes(option) ? "selected" : "";
+        } else {
+          selected = result === option ? "selected" : "";
+        }
+      }
+
+      return `<option value="${option}" ${selected}>${option}</option>`;
+    })
+    .join("");
+  return `
+          <select 
+            class="form-control result text-center h6"
+            name="${name}"
+            id="result_${hash}" 
+            ${multiple}
+          >
+            ${htmlOptions}
+          </select>`;
+}
+
+function addCultureResult(test, result_test) {
+  const { component } = test.option_test;
+
+  let type = "";
+
+  const componentMarkup = component
+    .map((comp) => {
+      const {
+        options,
+        multi,
+        name,
+        type: componentType,
+        result: resultType,
+      } = comp;
+      const typeDiff = componentType !== type;
+      type = typeDiff ? componentType : type;
+      let input = "";
+      const editable = "";
+      const result = result_test?.[name] ?? "";
+
+      switch (resultType) {
+        case "result":
+          input = selectInput({
+            options,
+            result,
+            multi,
+            name,
+            hash: test.hash,
+          });
+          break;
+        case "multi": {
+          const items = comp.component
+            .map((item) => {
+              const length = comp.component.length;
+              switch (item.type) {
+                case "result": {
+                  const select = selectInput({
+                    options: item.options,
+                    result: "",
+                    multi: item.multi,
+                    name: item.name,
+                    hash: test.hash,
+                  });
+                  return `
+              <div class="col-md-${Number(10 / length)}">
+                <label for="result" class="w-100 text-center text-black font-weight-bold h5">
+                  ${item.name}
+                </label>
+                ${select}
+              </div>
+              `;
+                }
+                default:
+                  return `
+              <div class="col-md-${Number(10 / length)}">
+                <label for="result" class="w-100 text-center text-black font-weight-bold h5">
+                  ${item.name}
+                </label>
+                <input 
+                  type="text" 
+                  class="form-control result text-center"
+                  value="${result_test?.[item.name] ?? ""}" 
+                  id="result_${test.hash}" 
+                  name="${item.name}"
+                  placeholder="ادخل النتيجة"
+                >
+              </div>
+              `;
+              }
+            })
+            .join("");
+          input = `
+          <div class="row">
+            ${items}
+            <div class="col-md-2 text-center text-danger">
+              <i class="fal fa-minus-circle"></i>
+            </div>  
+          </div>
+          <div class="row">
+            <div class="col-md-2">
+              <i class="fal fa-plus-circle"></i>
+            </div>
+          </div>
+          `;
+          break;
+        }
+
+        default:
+          input = `<textarea 
+                      class="form-control result text-center" 
+                      ${editable} 
+                      id="result_${test.hash}" 
+                      name="${comp.name}"
+                      placeholder="ادخل النتيجة"
+                  >${result}</textarea>`;
+          break;
+      }
+
+      const typeMarkup = typeDiff
+        ? `<div class="col-md-12 text-center">${componentType}</div>`
+        : "";
+
+      const size = resultType === "multi" ? "col-md-6" : "col-md-12";
+      return `
+      ${typeMarkup}
+      <div class="${size} mb-3 text-left">
+        <label for="result" class="w-100 text-center text-black font-weight-bold h5">
+          ${name} 
+        </label>
+        ${input}
+      </div>`;
+    })
+    .join("");
+
+  let resultFormMarkup = `
+    <div class="col-md-11 results test-${test.name
+      .replace(/\s/g, "")
+      .replace(/[^a-zA-Z0-9]/g, "")} mb-15 ">
+      <div class="row align-items-center justify-content-center">
+        <div class="col-md-12">
+          <h4 class="text-center mt-15">${test.name}</h4>
+        </div>
+        ${componentMarkup}
+      </div>
+    </div>
+  `;
+
+  return resultFormMarkup;
+}
+
 function addResult(data) {
   const { tests, ...visit } = data;
   __VISIT_TESTS__ = [];
@@ -784,6 +945,8 @@ function addResult(data) {
       resultForm.push(addNormalResult(test, finalResult));
     } else if (reference.type === "type") {
       resultForm.push(addStrcResult(test, result_tests[test.name]));
+    } else if (reference.type === "culture") {
+      resultForm.push(addCultureResult(test, result_tests[test.name]));
     } else {
       resultForm.push(addNormalResult(test, result_tests));
     }
@@ -1485,6 +1648,15 @@ function normalTestRange(finalResult = "", refrence) {
   return returnResult;
 }
 
+function addInviceButton(id, name) {
+  return `
+  <div class="col-auto">
+    <button class="action btn btn-action mx-2 w-100" dir="ltr" id="test-${id}" onclick="getCurrentInvoice($(this))">
+      ${name}
+    </button>
+  </div>`;
+}
+
 function showResult(data) {
   const { tests, ...visit } = data;
   const { data: history } = fetchData("Visit/history", "POST", {
@@ -1504,7 +1676,6 @@ function showResult(data) {
   let category = "";
   const invoices = { normalTests: "" };
   const buttons = {};
-  // sort visit tests by category
   const results = {};
   let height = 0;
   let normalTests = manageHead("flag");
@@ -1512,98 +1683,14 @@ function showResult(data) {
   tests.forEach((test, index) => {
     const reference = test.option_test;
 
-    if (reference.type !== "type") {
-      if (height + reference.height >= defaultHeight) {
-        invoices.normalTests += createInvoice(normalTests, invoiceItems);
-        normalTests = manageHead("flag");
-        if (category !== test.category) {
-          height = 50;
-        } else {
-          if (category) {
-            normalTests += `
-                          <div class="test typetest category_${category
-                            ?.split(" ")
-                            ?.join("_")}">
-                              <p class="w-100 text-center font-weight-bolder h-22">${category}</p>
-                          </div>
-                          `;
-          }
-          height = 102;
-        }
-      } else {
-        height += Number(reference.height);
-      }
-      if (buttons?.normalTests ?? true) {
-        buttons.normalTests = `<div class="col-auto">
-            <button class="action btn btn-action mx-2 w-100" id="test-normalTests" onclick="getCurrentInvoice($(this))">التحاليل</button>
-        </div>`;
-      }
-      if (category !== test.category) {
-        height += 51.91;
-        category = test.category;
-        if (category) {
-          normalTests += `
-                        <div class="test typetest category_${category
-                          ?.split(" ")
-                          ?.join("_")}">
-                            <p class="w-100 text-center font-weight-bolder h-22">${category}</p>
-                        </div>
-                        `;
-        }
-      }
-      let result = test.result[test.name];
-      if (reference.type === "calc") {
-        const evaluatedResult = eval(
-          reference.value
-            .map((item) => {
-              // check if item is number
-              if (!isNaN(item)) {
-                return item;
-              }
-              if (!calcOperator.includes(item)) {
-                let newValue = result_tests?.[item] ?? 0;
-                newValue = newValue === "" ? 0 : newValue;
-                return newValue;
-              }
-              return item;
-            })
-            .join("")
-        );
-        result = evaluatedResult.toFixed(1);
-      }
-
-      const { color, normalRange, flag } = normalTestRange(result, reference);
-      normalTests += manageTestType("flag", {
-        name: test.name,
-        color: color,
-        result: result,
-        hash: test.hash,
-        category: category,
-        checked: test.result?.checked ?? true ? "flex" : "none",
-        normal: normalRange,
-        flag: flag,
-        history: history.find((item) => item.name == test.name)?.result ?? "",
-        unit: test.unit_name ?? "",
-      });
-    } else {
+    if (reference.type === "type") {
       const result_test = test.result;
       const options = test.option_test;
       const font = options?.font ?? invoices?.font ?? "16px";
-      buttons[
-        test.name.replace(/\s/g, "").replace(/[^a-zA-Z0-9]/g, "")
-      ] = `<div class="col-auto">
-                    <button class="action btn btn-action mx-2 w-100" dir="ltr" id="test-${test.name
-                      .replace(/\s/g, "")
-                      .replace(
-                        /[^a-zA-Z0-9]/g,
-                        ""
-                      )}" onclick="getCurrentInvoice($(this))">${
-        test.name
-      }</button>
-                </div>
-                `;
+      const idName = test.name.replace(/\s/g, "").replace(/[^a-zA-Z0-9]/g, "");
+      buttons[idName] = addInviceButton(idName, test.name);
       let invoiceBody = "";
-      let unit = options?.unit ?? "result";
+      const unit = options?.unit ?? "result";
       invoiceBody += `
             <div class="typetest test " data-flag="${unit}">
                 <!-- عنوان التحليل ------------------>
@@ -1707,6 +1794,128 @@ function showResult(data) {
       }
       invoices[test.name.replace(/\s/g, "").replace(/[^a-zA-Z0-9]/g, "")] =
         invoiceBody;
+    } else if (reference.type === "culture") {
+      const { name, option_test: options } = test;
+      const idName = name.replace(/\s/g, "").replace(/[^a-zA-Z0-9]/g, "");
+      buttons[idName] = addInviceButton(idName, name);
+      let invoiceBody = "";
+      invoiceBody += `
+            <div class="typetest test">
+                <p>${name}</p>
+            </div>
+            `;
+      let type = "";
+      for (const reference of options.component) {
+        const result = "";
+        // if (Array.isArray(result)) {
+        //   result = result.slice(0, 3).join("<br>");
+        // }
+        if (reference.type !== type && reference.type !== "Notes") {
+          type = reference.type;
+          invoiceBody += `
+          <div class="test strc-test row m-0 typetest sp">
+              <div class="col-12 px-0">
+                  <p style="font-size: 22px;">${reference.type}</p>
+              </div>
+          </div>`;
+        }
+        if (reference.type === "Notes") {
+          invoiceBody += `
+          <div class="test strc-test row m-0 typetest sp">
+              <div class="col-12 px-0">
+              <p style="font-size: 22px;">${reference.type}</p>
+              </div>
+          </div>`;
+          invoiceBody += result;
+        } else {
+          console.log(reference);
+          const testType = manageTestType("culture", {
+            name: reference.name,
+            result: "",
+            color: "",
+            normal: "",
+            unit: reference?.unit ?? "",
+            flag: "",
+            font: "18px",
+            history: "",
+          });
+          invoiceBody += testType;
+        }
+      }
+      invoices[idName] = invoiceBody;
+    } else {
+      if (height + reference.height >= defaultHeight) {
+        invoices.normalTests += createInvoice(normalTests, invoiceItems);
+        normalTests = manageHead("flag");
+        if (category !== test.category) {
+          height = 50;
+        } else {
+          if (category) {
+            normalTests += `
+                          <div class="test typetest category_${category
+                            ?.split(" ")
+                            ?.join("_")}">
+                              <p class="w-100 text-center font-weight-bolder h-22">${category}</p>
+                          </div>
+                          `;
+          }
+          height = 102;
+        }
+      } else {
+        height += Number(reference.height);
+      }
+      if (buttons?.normalTests ?? true) {
+        buttons.normalTests = `<div class="col-auto">
+            <button class="action btn btn-action mx-2 w-100" id="test-normalTests" onclick="getCurrentInvoice($(this))">التحاليل</button>
+        </div>`;
+      }
+      if (category !== test.category) {
+        height += 51.91;
+        category = test.category;
+        if (category) {
+          normalTests += `
+                        <div class="test typetest category_${category
+                          ?.split(" ")
+                          ?.join("_")}">
+                            <p class="w-100 text-center font-weight-bolder h-22">${category}</p>
+                        </div>
+                        `;
+        }
+      }
+      let result = test.result[test.name];
+      if (reference.type === "calc") {
+        const evaluatedResult = eval(
+          reference.value
+            .map((item) => {
+              // check if item is number
+              if (!isNaN(item)) {
+                return item;
+              }
+              if (!calcOperator.includes(item)) {
+                let newValue = result_tests?.[item] ?? 0;
+                newValue = newValue === "" ? 0 : newValue;
+                return newValue;
+              }
+              return item;
+            })
+            .join("")
+        );
+        result = evaluatedResult.toFixed(1);
+      }
+
+      const { color, normalRange, flag } = normalTestRange(result, reference);
+      normalTests += manageTestType("flag", {
+        name: test.name,
+        color: color,
+        result: result,
+        hash: test.hash,
+        category: category,
+        checked: test.result?.checked ?? true ? "flex" : "none",
+        normal: normalRange,
+        flag: flag,
+        history: history.find((item) => item.name == test.name)?.result ?? "",
+        unit: test.unit_name ?? "",
+      });
     }
   });
   return {
@@ -2053,6 +2262,24 @@ function manageTestType(type, test = {}) {
                         <p contenteditable="true">${normal}</p>
                     </div>
                 </div>`;
+    case "notes":
+      return `
+            <div class="test strc-test row m-0">
+                <div class="testname col-12">
+                    <p>${name}</p> : <p class="text-danger">${result}</p>
+                </div>
+            </div>
+            `;
+    case "culture":
+      return `
+            <div style="font-size:${font} !important" data-flag="result" class="test strc-test row m-0">
+                    <div class="testname col-6">
+                        <p>${name}</p>
+                    </div>
+                    <div class="testresult result-field col-6 justify-content-center">
+                        <p class="w-75 text-center">${result.toString()} </p>
+                    </div>
+            </div>`;
     default:
       break;
   }
