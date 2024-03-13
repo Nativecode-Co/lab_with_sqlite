@@ -426,7 +426,9 @@ class Visit_model extends CI_Model
                     );
                 } else {
                     $orderOfHeader = $setting['orderOfHeader'];
-                    $orderOfHeader = json_decode($orderOfHeader, true);
+                    if (is_string($orderOfHeader)) {
+                        $orderOfHeader = json_decode($orderOfHeader, true);
+                    }
                     $isFounded = in_array("name", $orderOfHeader);
                     if (!$isFounded) {
                         $orderOfHeader[] = "name";

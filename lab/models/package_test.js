@@ -59,7 +59,7 @@ class PackageTest extends Factory {
                           <i class="fas fa-syringe fa-lg mx-2"></i>
                         </a>
                         <a class="text-success" onclick="updateTest('${row.hash}')"><i class="fa-lg mx-2 fas fa-edit"></i></a>
-                        <a class="text-danger" onclick="fireSwal(deleteTest, '${row.hash}')"><i class="fa-lg mx-2 far fa-trash-alt"></i></a>
+                        <a class="text-danger" onclick="fireSwalForDelete(deleteTest, '${row.hash}')"><i class="fa-lg mx-2 far fa-trash-alt"></i></a>
             `,
         },
         {

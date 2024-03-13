@@ -277,9 +277,9 @@ class Visit extends Factory {
   }
 
   createModal() {
-    const labTheme = "default";
+    const { visitTestsTheme } = fetchApi("/invoice/get_setting");
     let theme = null;
-    switch (labTheme) {
+    switch (visitTestsTheme) {
       case "one":
         theme = new TestsThemeOne(this.table, packages, tests, categories);
         break;

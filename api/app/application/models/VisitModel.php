@@ -158,7 +158,7 @@ class VisitModel extends CI_Model
             ->select('kits.name as kit')
             ->select('devices.name as device')
             ->select('lab_test_units.name as unit')
-            ->select('category_hash as catigory')
+            ->select('lab_test.category_hash as catigory')
             ->where(
                 array(
                     'lab_package.isdeleted' => '0',
@@ -317,8 +317,7 @@ class VisitModel extends CI_Model
 
     public function get_visit_tests($hash)
     {
-        try {
-            $query = $this->db->query("
+        return $this->db->query("
                 SELECT
                     kit_id as kit, unit,
                     lab_test_units.name as unit_name,
@@ -337,48 +336,7 @@ class VisitModel extends CI_Model
                 WHERE
                     visit_id='$hash'
                 order by sort
-            ");
-            $patient = $this->getPatientDetail($hash);
-            $tests = $query->result_array();
-            $tests = array_map(function ($test) {
-                $option = str_replace('\\', '', $test['options']);
-                $option = json_decode($option, true);
-                $test['options'] = $option;
-                return $test;
-            }, $tests);
-            $tests = split_tests($tests);
-            $normalData = manageNormalTests($tests['normal'], $patient);
-            $tests['normal'] = $normalData["tests"];
-            $results = $normalData["results"];
-            $tests['calc'] = manageCalcTests($tests['calc'], $patient);
-            $tests['special'] = manageSpecialTests($tests['special'], $patient);
-            if (isset($tests['calc']) && count($tests['calc']) > 0) {
-                $tests['calc'] = array_map(function ($test) use ($results) {
-                    $eq = $test['eq'];
-                    $eq = array_map(function ($item) use ($results) {
-                        // if item not operator or number
-                        if (!is_numeric($item) && !in_array($item, ["+", "-", "*", "/", "(", ")", "Math.log10("])) {
-                            $item = $results[$item];
-                        }
-                        return $item;
-                    }, $eq);
-                    $resultFromEq = eval ('return ' . implode($eq) . ';');
-                    $name = $test['name'];
-                    $result = $test['result'];
-                    $result[$name] = $resultFromEq;
-                    $test['result'] = $result;
-
-                    $unit = $test['unit'];
-                    $unit = $this->db->select('name')->where('hash', $unit)->get('lab_test_units')->result_array();
-                    $unit = $unit[0]['name'];
-                    $test['unit_name'] = $unit;
-                    return $test;
-                }, $tests['calc']);
-            }
-            return $tests;
-        } catch (Exception $e) {
-            return [];
-        }
+            ")->result_array();
     }
 
     public function getPatientDetail($visit_id)
@@ -423,7 +381,9 @@ class VisitModel extends CI_Model
                     );
                 } else {
                     $orderOfHeader = $setting['orderOfHeader'];
-                    $orderOfHeader = json_decode($orderOfHeader, true);
+                    if (is_string($orderOfHeader)) {
+                        $orderOfHeader = json_decode($orderOfHeader, true);
+                    }
                     $isFounded = in_array("name", $orderOfHeader);
                     if (!$isFounded) {
                         $orderOfHeader[] = "name";

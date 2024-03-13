@@ -315,9 +315,9 @@ function deletePackage(hash) {
 }
 
 const updateNormal = (test, kit, unit) => {
-  TEST = fetchApi("/maintests/get_main_test", "post", { hash });
+  TEST = fetchApi("/maintests/get_main_test", "post", { hash: test });
   try {
-    let { reference } = TEST.refrence;
+    let { refrence: reference } = TEST;
     reference = reference.filter((item) => {
       return (
         (kit === item.kit || (isNull(kit) && isNull(item.kit))) &&
@@ -331,6 +331,7 @@ const updateNormal = (test, kit, unit) => {
     $("#refrence_editor .modal-body").html(refrenceTable);
     $("#refrence_editor").modal("show");
   } catch (error) {
+    console.log(error);
     Swal.fire({
       toast: true,
       position: "bottom-end",
@@ -354,7 +355,9 @@ function updateRefrence(hash, refID, selectedUnit) {
     }
     return false;
   });
-  const refrence = refrences.find((item, index, self) => index === refID);
+  const refrence = refrences.find(
+    (item, index, self) => index === Number(refID)
+  );
   const form = THEME.mainForm(refID, hash, refrence);
   formContainer.append(form);
 }
@@ -443,7 +446,6 @@ function saveRefrence(hash, refID) {
     hash,
     option_test: JSON.stringify({ component }),
   });
-  lab_test.dataTable.ajax.reload();
   $("#refrence_editor").modal("hide");
   TEST = null;
 }

@@ -36,12 +36,14 @@ class InvoiceModel extends CI_Model
     public function set_setting($setting)
     {
         $default = $this->default;
-        $setting = json_decode($setting, true);
+        if (is_string($setting)) {
+            $setting = json_decode($setting, true);
+        }
         $old = $this->db
             ->select('setting')
             ->get($this->table)
             ->row();
-        if (isset($old->setting)) {
+        if (isset($old->setting) && $old->setting != "null" && $old->setting != "") {
             $old = json_decode($old->setting, true);
             $setting = array_merge($old, $setting);
         }

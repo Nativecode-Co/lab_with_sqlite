@@ -1,5 +1,5 @@
-const urlParams = new URLSearchParams(window.location.search),
-  barcode = urlParams.get("barcode");
+const urlParams = new URLSearchParams(window.location.search);
+const barcode = urlParams.get("barcode");
 
 if (barcode) {
   visitDetail(`${barcode}`);
@@ -7,14 +7,14 @@ if (barcode) {
 }
 
 function get_var(_var = "") {
-  let r = document.querySelector(":root");
-  let rs = getComputedStyle(r);
-  alert(`The value of ${_var} is: ` + rs.getPropertyValue(_var));
+  const r = document.querySelector(":root");
+  const rs = getComputedStyle(r);
+  alert(`The value of ${_var} is: ${rs.getPropertyValue(_var)}`);
 }
 
 // Create a function for setting a variable value
 function set_var(_var, value) {
-  let r = document.querySelector(":root");
+  const r = document.querySelector(":root");
   // Set the value of variable --blue to another value (in this case "lightblue")
   r.style.setProperty(_var, value);
 }
@@ -22,33 +22,7 @@ function set_var(_var, value) {
 // on page load
 
 // dom ready
-$(function () {
-  setTimeout(() => {
-    // const driverObj = driver.js.driver({
-    //   overlayOpacity: 0,
-    //   popoverClass: "text-white bg-dark text-center",
-    //   popoverOffset: 0,
-    //   nextBtnText: "التالي",
-    //   prevBtnText: "السابق",
-    //   doneBtnText: "تم",
-    //   steps: [
-    //     {
-    //       element: "#form-lab_visits",
-    //       popover: {
-    //         title: "اضافة مريض",
-    //         description: "هنا يمكن اضافة تفاصيل المريض",
-    //         side: "left",
-    //         align: "center",
-    //       },
-    //     },
-    //   ],
-    // });
-    // driverObj.drive();
-  });
-  // change format date of #visit_date to 01-apr-2023
-
-  // let root = document.documentElement;
-  // change :root  font_size
+$(() => {
   set_var("--font_size", `${invoices?.font_size ?? 20}px`);
   set_var("--typeTest-font", `${parseInt(invoices?.font_size) + 2 ?? 20}px`);
   set_var("--color-orange", invoices?.color ?? "#ff8800");
@@ -59,12 +33,12 @@ $(function () {
   // r.style.setProperty('--water-mark', `url(${invoices.logo})`??'url(../assets/image/logo2.png)');
   $(".half-page").css("height", $(window).height() - 100);
   //resize window
-  $(window).resize(function () {
+  $(window).resize(() => {
     $(".half-page").css("height", $(window).height() - 100);
   });
 
   // visits button
-  $("#visits-button").click(function () {
+  $("#visits-button").click(() => {
     $(".page-form").empty();
     $(".pan").addClass("d-none");
     $(".visits").removeClass("d-none");
@@ -73,7 +47,7 @@ $(function () {
   });
 
   // add-visit button
-  $("#add-visit-button").click(function () {
+  $("#add-visit-button").click(() => {
     $(".page-form").empty();
     $(".page-form").append(visit_form);
     $(".pan").addClass("d-none");
@@ -84,14 +58,14 @@ $(function () {
     $("#add-visit-button").addClass("active");
   });
 
-  $(document).keydown(function (e) {
+  $(document).keydown((e) => {
     if (
-      $(`input.result`).is(":focus") &&
-      (e.keyCode == 40 || e.keyCode == 13)
+      $("input.result").is(":focus") &&
+      (e.keyCode === 40 || e.keyCode === 13)
     ) {
       e.preventDefault();
       focusInput("add");
-    } else if ($(`input.result`).is(":focus") && e.keyCode == 38) {
+    } else if ($("input.result").is(":focus") && e.keyCode === 38) {
       e.preventDefault();
       focusInput("12");
     }
@@ -110,16 +84,16 @@ $(function () {
   // wait 500ms to load data
   setTimeout(() => {
     $("#input-search-all").on("keyup change", function () {
-      let category = $("#categorySelect-all").val();
-      var rex = new RegExp($(this).val(), "i");
-      $(".searchable-container .item").hide();
-      if (category == 0 || category == "" || !category) {
-        $(`.searchable-container .items.package`)
+      const category = $("#categorySelect-all").val();
+      const rex = new RegExp($(this).val(), "i");
+      $(".searchable-container .test").hide();
+      if (Number(category) === 0 || category === "" || !category) {
+        $(".searchable-container .items.package")
           .filter(function () {
             return rex.test($(this).text());
           })
           .show();
-        $(`.searchable-container .item`)
+        $(".searchable-container .test")
           .filter(function () {
             return rex.test($(this).text());
           })
@@ -130,7 +104,7 @@ $(function () {
             return rex.test($(this).text());
           })
           .show();
-        $(`.searchable-container .item[data-category='${category}']`)
+        $(`.searchable-container .test[data-category='${category}']`)
           .filter(function () {
             return rex.test($(this).text());
           })
@@ -140,23 +114,23 @@ $(function () {
 
     $("#categorySelect-all").on("change", function () {
       $("#input-search-all").val("");
-      var category = $(this).val();
-      if (category == 0 || category == "" || !category) {
-        $(".searchable-container .item").show();
+      const category = $(this).val();
+      if (Number(category) === 0 || category === "" || !category) {
+        $(".searchable-container .test").show();
         return;
       }
-      $(".searchable-container .item").hide();
+      $(".searchable-container .test").hide();
       $(
         `.searchable-container .items.package[data-category='${category}']`
       ).show();
-      $(`.searchable-container .item[data-category='${category}']`).show();
+      $(`.searchable-container .test[data-category='${category}']`).show();
     });
     $("#input-search-2").on("keyup change", function () {
-      let category = $("#categorySelect-2").val();
-      var rex = new RegExp($(this).val(), "i");
+      const category = $("#categorySelect-2").val();
+      const rex = new RegExp($(this).val(), "i");
       $(".searchable-container .test").hide();
-      if (category == 0 || category == "" || !category) {
-        $(`.searchable-container .test`)
+      if (Number(category) === 0 || category === "" || !category) {
+        $(".searchable-container .test")
           .filter(function () {
             return rex.test($(this).text());
           })
@@ -172,8 +146,8 @@ $(function () {
 
     $("#categorySelect-2").on("change", function () {
       $("#input-search-2").val("");
-      var category = $(this).val();
-      if (category == 0 || category == "" || !category) {
+      const category = $(this).val();
+      if (Number(category) === 0 || category === "" || !category) {
         $(".searchable-container .test").show();
         return;
       }
@@ -182,11 +156,11 @@ $(function () {
     });
 
     $("#input-search-3").on("keyup change", function () {
-      let category = $("#categorySelect-3").val();
-      var rex = new RegExp($(this).val(), "i");
+      const category = $("#categorySelect-3").val();
+      const rex = new RegExp($(this).val(), "i");
       $(".searchable-container .package").hide();
-      if (category == 0 || category == "" || !category) {
-        $(`.searchable-container .package`)
+      if (Number(category) === 0 || category === "" || !category) {
+        $(".searchable-container .package")
           .filter(function () {
             return rex.test($(this).text());
           })
@@ -201,8 +175,8 @@ $(function () {
     });
 
     $("#categorySelect-3").on("change", function () {
-      var category = $(this).val();
-      if (category == 0 || category == "" || !category) {
+      const category = $(this).val();
+      if (Number(category) === 0 || category === "" || !category) {
         $(".searchable-container .package").show();
         return;
       }

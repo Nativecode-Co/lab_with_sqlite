@@ -167,6 +167,7 @@ const lab_test = new Test("lab_test", "تحليل حسابي", [
 // dom ready jquery
 $(() => {
   $("#input-search-2").on("keyup", function () {
+    console.log($(this).val());
     const rex = new RegExp($(this).val(), "i");
     $(".test-item").hide();
     $(".test-item")

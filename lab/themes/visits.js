@@ -3,8 +3,7 @@ const createTest = (test, type) => {
     case "1":
       return `
       <div 
-        class="n-chk item text-left mb-3" 
-        data-category="${test.category_hash}"
+        class="n-chk package text-left mb-3 ml-3"
       >
         <label 
           class="new-control items offer new-checkbox new-checkbox-rounded checkbox-outline-success font-weight-bolder mb-0"
@@ -27,8 +26,8 @@ const createTest = (test, type) => {
     case "2":
       return `
       <div 
-        class="n-chk item text-left mb-3" 
-        data-category="${test.category_hash}"
+        class="n-chk test text-left mb-3 ml-3" 
+        data-category="${test.catigory}"
       >
         <label 
           class="new-control items offer new-checkbox new-checkbox-rounded checkbox-outline-success font-weight-bolder mb-0" 

@@ -151,6 +151,12 @@ class Test extends Factory {
     this.dataTable.ajax.reload();
   }
 
+  updateItem(hash) {
+    const data = fetchApi("/maintests/get_main_test", "post", { hash });
+    fillForm(this.formId, this.fields, data);
+    super.updateItem(hash);
+  }
+
   saveUpdateItem(hash) {
     super.saveUpdateItem(hash);
     const data = this.getUpdateData();

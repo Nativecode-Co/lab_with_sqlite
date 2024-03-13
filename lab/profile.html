@@ -53,6 +53,14 @@
         $(document).ready(function () {
             $(".header-container").load("header/navbar.html");
         })
+        const showPassword = (id) => {
+            const password = document.getElementById(id);
+            if (password.type === "password") {
+                password.type = "text";
+            } else {
+                password.type = "password";
+            }
+        };
     </script>
 
 </head>
@@ -89,109 +97,69 @@
             <div class="layout-px-spacing">
 
                 <div class="page-header">
-                    <nav class="breadcrumb-one" aria-label="breadcrumb">
-                        <div class="title">
-                            <h3>أعدادات الحساب</h3>
-                        </div>
-                    </nav>
-
-                    <div class="toggle-switch">
-                        <label class="switch s-icons s-outline  s-outline-secondary">
-                            <input type="checkbox" checked="" class="theme-shifter">
-                            <span class="slider round">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round" class="feather feather-sun">
-                                    <circle cx="12" cy="12" r="5"></circle>
-                                    <line x1="12" y1="1" x2="12" y2="3"></line>
-                                    <line x1="12" y1="21" x2="12" y2="23"></line>
-                                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-                                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-                                    <line x1="1" y1="12" x2="3" y2="12"></line>
-                                    <line x1="21" y1="12" x2="23" y2="12"></line>
-                                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-                                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-                                </svg>
-
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round" class="feather feather-moon">
-                                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-                                </svg>
-                            </span>
-                        </label>
-                    </div>
-
                 </div>
 
-                <div class="account-settings-container layout-top-spacing">
+                <div class="row layout-spacing">
+                    <div class="col-lg-12">
+                        <div class="statbox widget box box-shadow bg-white">
+                            <div class="widget-content widget-content-area m-auto">
+                                <h3 class="text-center  mt-2">تعديل البيانات الشخصية</h3>
+                                <div class="form m-5">
+                                    <div class="row justify-content-center">
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label for="username">اسم المستخدم</label>
+                                                <input type="text" class="form-control mb-4" id="username"
+                                                    placeholder="اسم المستخدم" name="username" required>
 
-                    <div class="account-content">
-                        <div class="scrollspy-example" data-spy="scroll" data-target="#account-settings-scroll"
-                            data-offset="-100">
-                            <div class="row">
-                                <div class="col-xl-12 col-lg-12 col-md-12 layout-spacing">
-                                    <form id="user-form" class="section user-form">
-                                        <div class="info">
-                                            <h6 class="">ادخل البيانات</h6>
-                                            <div class="row">
-                                                <div class="col-lg-11 mx-auto">
-                                                    <div class="form">
-                                                        <div class="row justify-content-center">
-                                                            <div class="col-sm-6">
-                                                                <div class="form-group">
-                                                                    <label for="username">اسم المستخدم</label>
-                                                                    <input type="text" class="form-control mb-4"
-                                                                        id="username" placeholder="اسم المستخدم"
-                                                                        name="username" required>
-
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-sm-6">
-                                                                <div class="form-group">
-                                                                    <label for="old_password">كلمة المرور
-                                                                        القديمة</label>
-                                                                    <input type="password" class="form-control mb-4"
-                                                                        id="old_password" name="old_password"
-                                                                        placeholder="كلمة المرور القديمة" required>
-                                                                    <div class="invalid-feedback invalid-old-password">
-                                                                        كلمة المرور القديمة خطئ
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-sm-6">
-                                                                <div class="form-group">
-                                                                    <label for="new_password">كلمة المرور</label>
-                                                                    <input type="password" class="form-control mb-4"
-                                                                        id="new_password" name="new_password"
-                                                                        placeholder="كلمة المرور" required>
-
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-sm-6">
-                                                                <div class="form-group">
-                                                                    <label for="confirm_password">اعادة كلمة
-                                                                        المرور</label>
-                                                                    <input type="password" class="form-control mb-4"
-                                                                        id="confirm_password" name="confirm_password"
-                                                                        placeholder="اعادة كلمة المرور" required>
-                                                                    <div class="invalid-feedback invalid-password2">
-                                                                        كلمات المرور غير متطابقة
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label for="old_password">كلمة المرور
+                                                    القديمة
+                                                    <i class="fas fa-eye"
+                                                        onclick="showPassword('old_password')"></i></label>
+                                                <input type="password" class="form-control mb-4" id="old_password"
+                                                    name="old_password" placeholder="كلمة المرور القديمة" required>
+                                                <div class="invalid-feedback invalid-old-password">
+                                                    كلمة المرور القديمة خطئ
                                                 </div>
                                             </div>
                                         </div>
-                                    </form>
-                                </div>
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label for="new_password">كلمة المرور
+                                                    <i class="fas fa-eye" onclick="showPassword('new_password')"></i>
 
+                                                </label>
+                                                <input type="password" class="form-control mb-4" id="new_password"
+                                                    name="new_password" placeholder="كلمة المرور" required>
+
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label for="confirm_password">اعادة كلمة
+                                                    المرور
+                                                    <i class="fas fa-eye"
+                                                        onclick="showPassword('confirm_password')"></i>
+                                                </label>
+                                                <input type="password" class="form-control mb-4" id="confirm_password"
+                                                    name="confirm_password" placeholder="اعادة كلمة المرور" required>
+                                                <div class="invalid-feedback invalid-password2">
+                                                    كلمات المرور غير متطابقة
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
+                </div>
 
+                <div class="account-settings-container layout-top-spacing">
                     <div class="account-settings-footer">
 
                         <div class="as-footer-container">
