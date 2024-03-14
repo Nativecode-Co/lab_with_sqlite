@@ -336,6 +336,22 @@ function showVisit(hash) {
   );
 }
 
+function hideHederelments() {
+  const headersElements = document.querySelectorAll(".test.typetest");
+  for (const test of headersElements) {
+    const classes = test.classList;
+    const category = Array.from(classes).find((c) => c.includes("category_"));
+    let categoryElements = document.querySelectorAll(`.${category}`);
+    // filter if category is visible
+    categoryElements = Array.from(categoryElements).filter(
+      (c) => c.style.display !== "none"
+    );
+    if (categoryElements.length <= 1) {
+      test.style.display = "none";
+    }
+  }
+}
+
 function showAddResult(hash, animate = true) {
   $(".action").removeClass("active");
   $("#show_add_result").addClass("active");
@@ -428,7 +444,7 @@ function showAddResult(hash, animate = true) {
       }
     });
   });
-  invoices?.footer_header_show == "1" ? null : toggleHeaderAndFooter();
+  Number(invoices?.footer_header_show) === 1 ? null : toggleHeaderAndFooter();
   // animate to main-space with js
   if (animate) {
     $("html, body").animate(
@@ -441,6 +457,7 @@ function showAddResult(hash, animate = true) {
       1000
     );
   }
+  hideHederelments();
 }
 
 function manageRange(reference) {
@@ -503,7 +520,7 @@ function generateFieldForTest(test, resultList) {
                   <input type="checkbox" id="check_normal_${
                     test.hash
                   }" name="check_normal_${test.hash}" ${
-    resultList?.checked ?? true ? "checked" : ""
+    resultList?.[test.name]?.checked ?? true ? "checked" : ""
   } onclick="toggleTest.call(this)">
                   <span class="slider invoice-slider"></span>
               </label>
@@ -549,7 +566,7 @@ function generateFieldForTest(test, resultList) {
                               test.name
                             }" placeholder="ادخل النتيجة" ${
                               testType === "calc" ? "readonly" : ""
-                            } value="${resultList?.[test.name]}">`
+                            } value="${resultList?.[test.name]?.[test.name]}">`
                       }
                       
                   </div>
@@ -897,7 +914,7 @@ function addResult(data) {
     if (test.option_test.type === "type") {
       acc[test.name] = test.result;
     } else {
-      acc[test.name] = test.result[test.name];
+      acc[test.name] = test.result;
     }
     return acc;
   }, {});
@@ -1226,9 +1243,9 @@ function showInvoice(hash) {
                                     ${visitPackages
                                       .map(
                                         (item, index) => `
-                                        <div class="mytest test" id="testprice-${
+                                        <div class="mytest test testprice-${
                                           item.hash
-                                        }">
+                                        }" id="testprice-${item.hash}">
                                         <!--سطر تسعيرة التحليل الذي سيتكرر----------------------------------------------------------------------->
                                         <div class="testname col-1">
                                             <p>${index + 1}</p>
@@ -1244,7 +1261,7 @@ function showInvoice(hash) {
                                                 <input 
                                                   type="checkbox" 
                                                   name="new_patient" 
-                                                  onchange="$('#testprice-${
+                                                  onchange="$('.testprice-${
                                                     item.hash
                                                   }').toggleClass('d-print-none opicty__4')"
                                                   id="check-${item.hash}"
@@ -1262,7 +1279,7 @@ function showInvoice(hash) {
                                       .map((test, index) => {
                                         if (item.name != test) {
                                           return `
-                                    <div class="mytest test mr-5 border-0" style="">
+                                    <div class="mytest test mr-5 border-0 testprice-${item.hash}" style="">
                                         <div class="testname col-1">
                                             <p></p>
                                         </div>
@@ -1515,11 +1532,7 @@ function createInvoiceItems(visit) {
   </div>
   `;
   const footer = `
-  <div class="footer2" ${
-    invoice.footer_header_show == 1
-      ? 'style="border-top:5px solid #2e3f4c;"'
-      : 'style="border-top:none;"'
-  }>
+  <div class="footer2">
     <div class="f1">
       <p>${
         invoice.address
@@ -1551,11 +1564,7 @@ function createInvoice(form, items) {
   return `
 		<div class="page">
 			${header}
-			<div class="center2" ${
-        invoice.footer_header_show == 1
-          ? 'style="border-top:5px solid #2e3f4c;"'
-          : 'style="border-top:none;"'
-      }>
+			<div class="center2">
         <div class="center2-background"></div>
         ${nav}
 				<div class="tester">
@@ -1693,7 +1702,6 @@ function showResult(data) {
       const unit = options?.unit ?? "result";
       invoiceBody += `
             <div class="typetest test " data-flag="${unit}">
-                <!-- عنوان التحليل ------------------>
                 <p>${test.name}</p>
             </div>
             `;
@@ -1851,10 +1859,9 @@ function showResult(data) {
           height = 50;
         } else {
           if (category) {
+            const classCategory = category.split(" ").join("_");
             normalTests += `
-                          <div class="test typetest category_${category
-                            ?.split(" ")
-                            ?.join("_")}">
+                          <div class="test typetest category_${classCategory}">
                               <p class="w-100 text-center font-weight-bolder h-22">${category}</p>
                           </div>
                           `;
@@ -1873,10 +1880,9 @@ function showResult(data) {
         height += 51.91;
         category = test.category;
         if (category) {
+          const classCategory = category.split(" ").join("_");
           normalTests += `
-                        <div class="test typetest category_${category
-                          ?.split(" ")
-                          ?.join("_")}">
+                        <div class="test typetest category_${classCategory}">
                             <p class="w-100 text-center font-weight-bolder h-22">${category}</p>
                         </div>
                         `;

@@ -10,6 +10,21 @@ document.addEventListener("DOMContentLoaded", () => {
   const devicesSelect = document.getElementById("lab_device_id");
   const testsSelect = document.getElementById("test_id");
   const packagesSelect = document.querySelector("select[name='tests']");
+  // add no kit option
+  const noKitOption = document.createElement("option");
+  noKitOption.value = "0";
+  noKitOption.textContent = "No Kit";
+  kitsSelect.appendChild(noKitOption);
+  // add no unit option
+  const noUnitOption = document.createElement("option");
+  noUnitOption.value = "0";
+  noUnitOption.textContent = "No Unit";
+  unitsSelect.appendChild(noUnitOption);
+  // add no device option
+  const noDeviceOption = document.createElement("option");
+  noDeviceOption.value = "0";
+  noDeviceOption.textContent = "No Device";
+  devicesSelect.appendChild(noDeviceOption);
   for (const test of packages) {
     const option = document.createElement("option");
     option.value = test.hash;
@@ -366,6 +381,7 @@ function saveRefrence(hash, refID) {
   if (refreshValidation() === false) {
     return false;
   }
+  const { kits } = fetchApi("/tests/get_tests_data");
   const result = $(`#refrence_form_${refID} input[name="type"]:checked`).val();
   const rightOptions = [];
   const options = [];
@@ -412,33 +428,6 @@ function saveRefrence(hash, refID) {
     const newRefrence = component[0].reference.filter((item, index, self) => {
       return self.findIndex((t) => t?.kit === item?.kit) === index;
     });
-    // (${element['age low']??0} ${element['age unit low']} - ${element['age high']??100} ${element['age unit high']})
-    if (
-      $(
-        `#test-${hash}_kit-${(
-          kits
-            .find((x) => x.id === element.kit)
-            ?.name.replace(/[^a-zA-Z0-9]/g, "_") ?? "No Kit"
-        )
-          .split(" ")
-          .join("_")}`
-      ).length === 0
-    ) {
-      document.getElementById(
-        `test-${hash}`
-      ).innerHTML += ` <span class="badge badge-light border border-info p-2 mr-2 mb-2 col-auto" id="test-${hash}_kit-${(
-        kits
-          .find((x) => x.id === element.kit)
-          ?.name.replace(/[^a-zA-Z0-9]/g, "_") ?? "No Kit"
-      )
-        .split(" ")
-        .join("_")}" style="min-width:200px">
-            ${kits.find((x) => x.id === element.kit)?.name ?? "No Kit"} 
-            <a onclick="editRefrence('${hash}',${
-        newRefrence.length - 1
-      })"><i class="far fa-edit fa-lg mx-2 text-success"></i></a>
-            </span> `;
-    }
   } else {
     component[0].reference[refID] = element;
   }

@@ -102,20 +102,20 @@ $config = array(
 
     // name, username, password
     "users" => array(
-        array(
-            'field' => 'name',
-            'rules' => 'required',
-            'errors' => array(
-                'required' => 'هذا الحقل مطلوب',
-            )
-        ),
         // array(
-        //     'field' => 'username',
+        //     'field' => 'name',
         //     'rules' => 'required',
         //     'errors' => array(
         //         'required' => 'هذا الحقل مطلوب',
         //     )
         // ),
+        array(
+            'field' => 'username',
+            'rules' => 'required',
+            'errors' => array(
+                'required' => 'هذا الحقل مطلوب',
+            )
+        ),
         // array(
         //     'field' => 'password',
         //     'rules' => 'required',

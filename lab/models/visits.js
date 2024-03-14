@@ -248,6 +248,7 @@ class Visit extends Factory {
 
   saveNewItem() {
     const data = this.validate();
+    if (!data) return;
     const { visit } = fetchApi("/visit/create_visit", "POST", data);
     this.dataTable.ajax.reload();
     this.resetForm();

@@ -7,6 +7,21 @@ const pk = urlParams.get("pk").split("-")[0];
 const number = urlParams.get("pk").split("-")[1];
 showAddResult(pk);
 
+function hideHederelments() {
+  const headersElements = document.querySelectorAll(".test.typetest");
+  for (const test of headersElements) {
+    const classes = test.classList;
+    const category = Array.from(classes).find((c) => c.includes("category_"));
+    let categoryElements = document.querySelectorAll(`.${category}`);
+    // filter if category is visible
+    categoryElements = Array.from(categoryElements).filter(
+      (c) => c.style.display !== "none"
+    );
+    if (categoryElements.length <= 1) {
+      test.style.display = "none";
+    }
+  }
+}
 function showAddResult(hash) {
   const workSpace = $("#root");
   const data = fetchData("visit/get", "POST", { hash });
@@ -17,6 +32,7 @@ function showAddResult(hash) {
     </div>
         `;
   workSpace.append(html);
+  hideHederelments();
 }
 
 // Create a function for setting a variable value
@@ -569,6 +585,7 @@ function showResult(data) {
 }
 
 function invoiceHeader(invoice) {
+  const displayHeaderAndFooter = invoice.footer_header_show === "1";
   let html = "";
   const { size, workers, logo, name_in_invoice, show_name, show_logo } =
     invoice;
@@ -629,7 +646,9 @@ function invoiceHeader(invoice) {
   }
   return `
     <div class="header">
-        <div class="row justify-content-between">
+        <div class="row justify-content-between" style="display: ${
+          displayHeaderAndFooter ? "flex" : "none"
+        }">
             ${html}
         </div>
     </div>
@@ -644,6 +663,7 @@ function createBookResult(invoices, type) {
 
 function createInvoiceItems(visit) {
   const { invoice } = fetchData("Visit/getInvoice", "GET", {});
+  const displayHeaderAndFooter = invoice.footer_header_show === "1";
   const random = Math.floor(Math.random() * 1000000);
   const header = invoiceHeader(invoice);
   const nav = `
@@ -718,19 +738,19 @@ function createInvoiceItems(visit) {
   </div>
   `;
   const footer = `
-  <div class="footer2" ${
-    invoice.footer_header_show == 1
-      ? 'style="border-top:5px solid #2e3f4c;"'
-      : 'style="border-top:none;"'
-  }>
-    <div class="f1">
+  <div class="footer2">
+    <div class="f1" style="display: ${
+      displayHeaderAndFooter ? "flex" : "none"
+    }">
       <p>${
         invoice.address
           ? `<i class="fas fa-map-marker-alt"></i> ${invoice.address}`
           : ""
       }</p>
     </div>
-    <div class="f2">
+    <div class="f2" style="display: ${
+      displayHeaderAndFooter ? "flex" : "none"
+    }">
       <p>
         <span class="note">${
           invoice.facebook === ""
@@ -754,11 +774,7 @@ function createInvoice(form, items) {
   return `
 		<div class="page">
 			${header}
-			<div class="center2" ${
-        invoice.footer_header_show == 1
-          ? 'style="border-top:5px solid #2e3f4c;"'
-          : 'style="border-top:none;"'
-      }>
+			<div class="center2">
         <div class="center2-background"></div>
         ${nav}
 				<div class="tester">
@@ -767,11 +783,4 @@ function createInvoice(form, items) {
 			</div>
       ${footer}
 		</div>`;
-}
-
-function hide_header_if_not_have_tests(category) {
-  const newCategory = category.split(" ").join("_");
-  if ($(`.row.category_${newCategory}:visible`).length === 0) {
-    $(`.typetest.category_${newCategory}`).first().hide();
-  }
 }
