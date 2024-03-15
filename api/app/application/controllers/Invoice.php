@@ -21,6 +21,15 @@ class Invoice extends CI_Controller
             ->set_output(json_encode(array("message" => "Welcome to the Invoice API")));
     }
 
+    public function get()
+    {
+        $data = $this->InvoiceModel->get();
+        $this->output
+            ->set_status_header(200)
+            ->set_content_type('application/json')
+            ->set_output(json_encode($data));
+    }
+
 
     public function get_setting()
     {

@@ -917,7 +917,7 @@ const InvoiceSetting = () => {
   const [tests, setTests] = React.useState([]);
 
   const fetchTests = () => {
-    let data = [
+    const data = [
       {
         category: null,
         device_name: null,
@@ -979,9 +979,9 @@ const InvoiceHeader = ({ invoice }) => {
   const [workers, setWorkers] = React.useState([]);
 
   React.useEffect(() => {
-    $(function () {
-      UIkit.util.on("#sortable", "moved", function (item) {
-        let newOrder = item.detail[0].items.map((el) => el.id);
+    $(() => {
+      UIkit.util.on("#sortable", "moved", (item) => {
+        const newOrder = item.detail[0].items.map((el) => el.id);
         setOrder(newOrder);
         fetchData("Visit/setOrderOfHeader", "POST", {
           orderOfHeader: newOrder,
@@ -992,16 +992,16 @@ const InvoiceHeader = ({ invoice }) => {
   }, []);
 
   React.useEffect(() => {
-    let data = fetchData("Visit/getInvoiceHeader", "GET", {}).invoice;
-    setWorkers(data.workers);
-    setOrder(data.orderOfHeader);
+    const { workers, orderOfHeader, ...data } = fetchApi("/invoice/get");
+    setWorkers(workers);
+    setOrder(orderOfHeader);
   }, []);
 
   return (
     <div
       className="header"
       style={{
-        height: invoice.header + "px",
+        height: `${invoice.header}px`,
       }}
     >
       <div
@@ -1012,16 +1012,18 @@ const InvoiceHeader = ({ invoice }) => {
         } uk-sortable`}
         id="sortable"
         data-uk-sortable
-        style={{ display: invoice.footer_header_show == "1" ? "" : "none" }}
+        style={{
+          display: Number(invoice.footer_header_show) === 1 ? "" : "none",
+        }}
       >
         {workers.length > 0 ? (
           workers.map((employee, index) => {
             if (!employee) return;
-            if (employee.hash == "logo") {
+            if (employee.hash === "logo") {
               return (
                 <div
                   className={`logo ${
-                    invoice.show_logo == "1" ? "d-flex" : "d-none"
+                    Number(invoice.show_logo) === 1 ? "d-flex" : "d-none"
                   }`}
                   id="logo"
                   key={index}

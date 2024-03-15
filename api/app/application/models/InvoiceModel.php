@@ -5,7 +5,10 @@ class InvoiceModel extends CI_Model
     private $main_column = 'hash';
 
     private $default = array(
-        "orderOfHeader" => array(),
+        "orderOfHeader" => array(
+            "logo",
+            "name",
+        ),
         "visitTestsTheme" => "one",
         "SuperTestTheme" => "table",
     );
@@ -15,11 +18,35 @@ class InvoiceModel extends CI_Model
         parent::__construct();
         $this->load->database();
         $this->load->helper('db');
+        $this->load->model('WorkersModel');
+    }
+
+    public function get()
+    {
+        $setting = $this->get_setting();
+        $invoice = $this->db->select('color, phone_1,show_name,show_logo, footer, invoice_about_en')
+            ->select(" phone_2 as size, address, facebook, header, center")
+            ->select("logo, water_mark, footer_header_show, invoice_about_ar")
+            ->select("font_size, zoom, doing_by, name_in_invoice, font_color,setting")
+            ->limit(1)
+            ->get('lab_invoice')->row_array();
+        $invoice = array_merge($invoice, $setting);
+        $workers = $this->WorkersModel->getVisibleWorkers();
+        $orderOfHeader = $setting["orderOfHeader"];
+        // sort workers with hash using orderOfHeader
+        usort($workers, function ($a, $b) use ($orderOfHeader) {
+            $posA = array_search($a['hash'], $orderOfHeader);
+            $posB = array_search($b['hash'], $orderOfHeader);
+            return $posA - $posB;
+        });
+        $invoice['workers'] = $workers;
+        return $invoice;
     }
 
     public function get_setting()
     {
         $default = $this->default;
+        $orderOfHeader = $default["orderOfHeader"];
         $setting = $this->db
             ->select('setting')
             ->get($this->table)
@@ -30,6 +57,7 @@ class InvoiceModel extends CI_Model
                 $default = array_merge($default, $setting);
             }
         }
+        $default['orderOfHeader'] = array_merge(json_decode($default['orderOfHeader'], true), $orderOfHeader);
         return $default;
     }
 
@@ -47,7 +75,6 @@ class InvoiceModel extends CI_Model
             $old = json_decode($old->setting, true);
             $setting = array_merge($old, $setting);
         }
-        // sure that the setting has all the default keys
         $setting = array_merge($default, $setting);
         $this->db
             ->set('setting', json_encode($setting))

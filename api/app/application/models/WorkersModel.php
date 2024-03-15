@@ -37,6 +37,25 @@ class WorkersModel extends CI_Model
             ->result();
     }
 
+    public function getVisibleWorkers()
+    {
+        $defaultworkers = array(
+            array(
+                "hash" => "logo"
+            ),
+            array(
+                "hash" => "name"
+            ),
+        );
+        $workers = $this->db->select('name, jop, jop_en,hash')
+            ->from('lab_invoice_worker')
+            ->where('isdeleted', '0')
+            ->where('is_available', '1')
+            ->get()
+            ->result_array();
+        return array_merge($defaultworkers, $workers);
+    }
+
     public function get($hash)
     {
         return $this->db

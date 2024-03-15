@@ -24,7 +24,7 @@ function hideHederelments() {
 }
 function showAddResult(hash) {
   const workSpace = $("#root");
-  const data = fetchData("visit/get", "POST", { hash });
+  const data = fetchApi("/visit/get_visit", "GET", { hash });
   const { invoice } = showResult(data);
   const html = `
     <div class="col-md-12 mt-48">
@@ -662,7 +662,7 @@ function createBookResult(invoices, type) {
 }
 
 function createInvoiceItems(visit) {
-  const { invoice } = fetchData("Visit/getInvoice", "GET", {});
+  const invoice = fetchApi("/invoice/get");
   const displayHeaderAndFooter = invoice.footer_header_show === "1";
   const random = Math.floor(Math.random() * 1000000);
   const header = invoiceHeader(invoice);

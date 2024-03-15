@@ -1,27 +1,16 @@
 <?php
 
-function get_birth_date($age_year, $age_month, $age_day)
+function get_birth_date($age)
 {
-    $year = date('Y') - $age_year;
-    $month = date('m') - $age_month;
-    $day = date('d') - $age_day;
-    if ($month < 0) {
-        $year--;
-        $month += 12;
-    }
-    if ($day < 0) {
-        $month--;
-        $day += 30;
-    }
-    return $year . '-' . $month . '-' . $day;
+    $age = $age * 365;
+    $birth = date('Y-m-d', strtotime("-$age days"));
+    return $birth;
 }
 
-function get_age($birth_date)
+function get_age($age_year, $age_month, $age_day)
 {
-    $birth_date = new DateTime($birth_date);
-    $today = new DateTime('today');
-    $age = $birth_date->diff($today)->y;
-    return $age;
+    $age = ($age_year * 365) + ($age_month * 30) + $age_day;
+    return round($age / 365, 1);
 }
 
 function split_data($data)
@@ -29,8 +18,8 @@ function split_data($data)
     $age_month = (isset($data["age_month"]) && $data["age_month"] != "") ? $data["age_month"] : 0;
     $age_day = (isset($data["age_day"]) && $data["age_day"] != "") ? $data["age_day"] : 0;
     $age_year = (isset($data["age_year"]) && $data["age_year"] != "") ? $data["age_year"] : 0;
-    $birth = get_birth_date($data["age_year"], $data["age_month"], $data["age_day"]);
-    $age = get_age($birth);
+    $age = get_age($age_year, $age_month, $age_day);
+    $birth = get_birth_date($age);
     $doctor_hash = (isset($data["doctor_hash"]) && $data["doctor_hash"] != "") ? $data["doctor_hash"] : "";
     $address = (isset($data["address"]) && $data["address"] != "") ? $data["address"] : "";
     $phone = (isset($data["phone"]) && $data["phone"] != "") ? $data["phone"] : "";

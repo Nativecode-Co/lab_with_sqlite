@@ -3,7 +3,7 @@ const THEME = new PackageTestTheme();
 const urlParams = new URLSearchParams(window.location.search);
 const VisitHash = urlParams.get("visit");
 
-const { workers, invoices } = fetchApi("/visit/getInvoiceHeader", "GET", {});
+const { workers, ...invoices } = fetchApi("/invoice/get");
 
 // document ready
 $(document).ready(() => {

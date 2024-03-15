@@ -6,7 +6,7 @@ const { patients, units, doctors, tests, packages, categories } = fetchApi(
   "GET",
   {}
 );
-const { workers, invoices } = fetchApi("/visit/getInvoiceHeader", "GET", {});
+const { workers, ...invoices } = fetchApi("/invoice/get");
 
 class Visit extends Factory {
   init() {
@@ -249,7 +249,7 @@ class Visit extends Factory {
   saveNewItem() {
     const data = this.validate();
     if (!data) return;
-    const { visit } = fetchApi("/visit/create_visit", "POST", data);
+    const visit = fetchApi("/visit/create_visit", "POST", data);
     this.dataTable.ajax.reload();
     this.resetForm();
     visitDetail(visit.hash);
@@ -258,7 +258,7 @@ class Visit extends Factory {
 
   saveUpdateItem(hash) {
     const data = this.validate();
-    const { visit } = fetchApi("/visit/update_visit", "POST", {
+    const visit = fetchApi("/visit/update_visit", "POST", {
       ...data,
       hash: hash,
     });

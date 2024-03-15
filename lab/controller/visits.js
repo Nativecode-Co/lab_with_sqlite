@@ -357,7 +357,7 @@ function showAddResult(hash, animate = true) {
   $("#show_add_result").addClass("active");
   const workSpace = $("#work-sapce");
   workSpace.html("");
-  const data = fetchData("visit/get", "POST", { hash });
+  const data = fetchApi("/visit/get_visit", "GET", { hash });
   const form = addResult(data);
   const { invoice, buttons } = showResult(data);
   const html = `
@@ -744,6 +744,8 @@ function addStrcResult(test, result_test) {
 function selectInput({ options, result, multi, name, hash }) {
   let htmlOptions = "";
   const multiple = Boolean(multi) === true ? "multiple" : "";
+  const InputNmae = isNaN(hash) ? `${hash}.${name}[]` : name;
+  console.log("result", InputNmae);
   htmlOptions = options
     .map((option, index) => {
       let selected = "";
@@ -764,12 +766,209 @@ function selectInput({ options, result, multi, name, hash }) {
   return `
           <select 
             class="form-control result text-center h6"
-            name="${name}"
+            name="${InputNmae}"
             id="result_${hash}" 
             ${multiple}
           >
             ${htmlOptions}
           </select>`;
+}
+
+function addSensitive(hash) {
+  const randomId = Math.random().toString(36).substring(7);
+  const component = [
+    {
+      name: "name",
+      type: "result",
+      options: [
+        "Penicillins",
+        "Cephalosporins",
+        "Carbapenems",
+        "Vancomycin",
+        "Clindamycin",
+        "Erythromycin",
+        "Linezolid",
+        "Tetracyclines",
+        "Quinolones",
+        "Rifampin",
+        "Aminoglycosides",
+        "Sulfonamides",
+        "Trimethoprim",
+        "Daptomycin",
+        "Glycopeptides",
+        "Oxazolidinones",
+        "Streptogramins",
+        "Fosfomycin",
+        "Tedizolid",
+        "Bacitracin",
+        "Mupirocin",
+        "Novobiocin",
+        "Rifamycins",
+        "Fluoroquinolones",
+        "Lipopeptides",
+        "Fusidic Acid",
+        "Cycloserine",
+        "Chloramphenicol",
+        "Bactrim (combination of sulfamethoxazole and trimethoprim)",
+        "Methicillin",
+        "Telithromycin",
+        "Rifabutin",
+        "Ceftaroline",
+        "Tedizolid phosphate",
+        "Moxifloxacin",
+        "Cephalosporins",
+        "Carbapenems",
+        "Aminoglycosides",
+        "Fluoroquinolones",
+        "Tetracyclines",
+        "Sulfonamides",
+        "Trimethoprim",
+        "Monobactams",
+        "Polymyxins",
+        "Aztreonam",
+        "Fosfomycin",
+        "Colistin",
+        "Glycopeptides (e.g., Vancomycin for certain Gram-negative bacteria with resistant profiles)",
+        "Nitrofurans",
+        "Quinolones",
+        "Tigecycline",
+        "Chloramphenicol",
+        "Mupirocin",
+      ],
+    },
+    {
+      name: "dose",
+      type: "result",
+      options: ["+", "++", "+++", "++++"],
+    },
+  ];
+  const item = component
+    .map((item) => {
+      const select = selectInput({
+        options: item.options,
+        result: "",
+        multi: item.multi,
+        name: item.name,
+        hash: hash,
+      });
+      const element = `
+              <div class="col-md-5">
+                <label for="result" class="w-100 text-center text-black font-weight-bold h5">
+                  ${item.name}
+                </label>
+                ${select}
+              </div>
+              `;
+      return element;
+    })
+    .join("");
+  const sensitive = document.getElementById("sensitive-items");
+  sensitive.innerHTML += `
+    <div class="row justify-content-center align-items-center" id="sensitive-${randomId}">
+      ${item}
+      <div class="col-md-2 text-center text-danger">
+        <i class="fal fa-minus-circle" onclick="deleteElement('sensitive-${randomId}')"></i>
+      </div>
+    </div>
+    `;
+}
+
+function deleteElement(id) {
+  document.getElementById(id).remove();
+}
+
+function addResisteant(hash) {
+  const randomId = Math.random().toString(36).substring(7);
+  const component = [
+    {
+      name: "name",
+      type: "result",
+      options: [
+        "Penicillins",
+        "Cephalosporins",
+        "Carbapenems",
+        "Vancomycin",
+        "Clindamycin",
+        "Erythromycin",
+        "Linezolid",
+        "Tetracyclines",
+        "Quinolones",
+        "Rifampin",
+        "Aminoglycosides",
+        "Sulfonamides",
+        "Trimethoprim",
+        "Daptomycin",
+        "Glycopeptides",
+        "Oxazolidinones",
+        "Streptogramins",
+        "Fosfomycin",
+        "Tedizolid",
+        "Bacitracin",
+        "Mupirocin",
+        "Novobiocin",
+        "Rifamycins",
+        "Fluoroquinolones",
+        "Lipopeptides",
+        "Fusidic Acid",
+        "Cycloserine",
+        "Chloramphenicol",
+        "Bactrim (combination of sulfamethoxazole and trimethoprim)",
+        "Methicillin",
+        "Telithromycin",
+        "Rifabutin",
+        "Ceftaroline",
+        "Tedizolid phosphate",
+        "Moxifloxacin",
+        "Cephalosporins",
+        "Carbapenems",
+        "Aminoglycosides",
+        "Fluoroquinolones",
+        "Tetracyclines",
+        "Sulfonamides",
+        "Trimethoprim",
+        "Monobactams",
+        "Polymyxins",
+        "Aztreonam",
+        "Fosfomycin",
+        "Colistin",
+        "Glycopeptides (e.g., Vancomycin for certain Gram-negative bacteria with resistant profiles)",
+        "Nitrofurans",
+        "Quinolones",
+        "Tigecycline",
+        "Chloramphenicol",
+        "Mupirocin",
+      ],
+    },
+  ];
+  const item = component
+    .map((item) => {
+      const select = selectInput({
+        options: item.options,
+        result: "",
+        multi: item.multi,
+        name: item.name,
+        hash: hash,
+      });
+      const element = `
+              <div class="col-md-10">
+                <label for="result" class="w-100 text-center text-black font-weight-bold h5">
+                  ${item.name}
+                </label>
+                ${select}
+              </div>
+              `;
+      return element;
+    })
+    .join("");
+  const resisteant = document.getElementById("Resisteant-items");
+  resisteant.innerHTML += `
+    <div class="row justify-content-center align-items-center" id="resisteant-${randomId}">
+      ${item}
+      <div class="col-md-2 text-center text-danger">
+        <i class="fal fa-minus-circle" onclick="deleteElement('resisteant-${randomId}')"></i>
+      </div>
+    </div>
+    `;
 }
 
 function addCultureResult(test, result_test) {
@@ -803,56 +1002,12 @@ function addCultureResult(test, result_test) {
           });
           break;
         case "multi": {
-          const items = comp.component
-            .map((item) => {
-              const length = comp.component.length;
-              switch (item.type) {
-                case "result": {
-                  const select = selectInput({
-                    options: item.options,
-                    result: "",
-                    multi: item.multi,
-                    name: item.name,
-                    hash: test.hash,
-                  });
-                  return `
-              <div class="col-md-${Number(10 / length)}">
-                <label for="result" class="w-100 text-center text-black font-weight-bold h5">
-                  ${item.name}
-                </label>
-                ${select}
-              </div>
-              `;
-                }
-                default:
-                  return `
-              <div class="col-md-${Number(10 / length)}">
-                <label for="result" class="w-100 text-center text-black font-weight-bold h5">
-                  ${item.name}
-                </label>
-                <input 
-                  type="text" 
-                  class="form-control result text-center"
-                  value="${result_test?.[item.name] ?? ""}" 
-                  id="result_${test.hash}" 
-                  name="${item.name}"
-                  placeholder="ادخل النتيجة"
-                >
-              </div>
-              `;
-              }
-            })
-            .join("");
+          const addFunction =
+            comp.name === "sensitive" ? "addSensitive" : "addResisteant";
           input = `
-          <div class="row">
-            ${items}
-            <div class="col-md-2 text-center text-danger">
-              <i class="fal fa-minus-circle"></i>
-            </div>  
-          </div>
-          <div class="row">
-            <div class="col-md-2">
-              <i class="fal fa-plus-circle"></i>
+          <div id="${name}-items" class="row justify-content-center align-items-start">
+            <div class="col-md-2 text-center">
+              <i class="fal fa-plus-circle" onclick="${addFunction}('${test.hash}')"></i>
             </div>
           </div>
           `;
@@ -885,18 +1040,16 @@ function addCultureResult(test, result_test) {
       </div>`;
     })
     .join("");
-
-  let resultFormMarkup = `
-    <div class="col-md-11 results test-${test.name
-      .replace(/\s/g, "")
-      .replace(/[^a-zA-Z0-9]/g, "")} mb-15 ">
+  const testId = test.name.replace(/\s/g, "").replace(/[^a-zA-Z0-9]/g, "");
+  const resultFormMarkup = `
+    <form class="col-md-11 results test-${testId} mb-15" id="${testId}">
       <div class="row align-items-center justify-content-center">
         <div class="col-md-12">
           <h4 class="text-center mt-15">${test.name}</h4>
         </div>
         ${componentMarkup}
       </div>
-    </div>
+    </form>
   `;
 
   return resultFormMarkup;
@@ -922,39 +1075,26 @@ function addResult(data) {
     const reference = test.option_test;
     if (reference.type === "calc") {
       let result = test.result[test.name];
-      console.log(
-        test.name,
-        reference.value
-          .map((item) => {
-            // check if item is number
-            if (!isNaN(item)) {
+
+      let evaluatedResult = 0;
+      try {
+        evaluatedResult = eval(
+          reference.value
+            .map((item) => {
+              // check if item is number
+              if (!isNaN(item)) {
+                return item;
+              }
+              if (!calcOperator.includes(item)) {
+                let newValue = result_tests?.[item]?.[item] ?? 0;
+                newValue = newValue === "" ? 0 : newValue;
+                return newValue;
+              }
               return item;
-            }
-            if (!calcOperator.includes(item)) {
-              let newValue = result_tests?.[item] ?? 0;
-              newValue = newValue === "" ? 0 : newValue;
-              return newValue;
-            }
-            return item;
-          })
-          .join("")
-      );
-      const evaluatedResult = eval(
-        reference.value
-          .map((item) => {
-            // check if item is number
-            if (!isNaN(item)) {
-              return item;
-            }
-            if (!calcOperator.includes(item)) {
-              let newValue = result_tests?.[item] ?? 0;
-              newValue = newValue === "" ? 0 : newValue;
-              return newValue;
-            }
-            return item;
-          })
-          .join("")
-      );
+            })
+            .join("")
+        );
+      } catch (e) {}
       result = evaluatedResult.toFixed(1);
       finalResult = {};
       finalResult[test.name] = result;
@@ -1502,7 +1642,7 @@ function createInvoiceItems(visit) {
         }</span> / <span class="note">${
     parseFloat(visit.age) < 1
       ? `${parseInt(visit.age * 356)} Day`
-      : `${parseInt(visit.age)} Year`
+      : `${parseFloat(visit.age)} Year`
   }
         </span>
       </p>
@@ -1890,22 +2030,25 @@ function showResult(data) {
       }
       let result = test.result[test.name];
       if (reference.type === "calc") {
-        const evaluatedResult = eval(
-          reference.value
-            .map((item) => {
-              // check if item is number
-              if (!isNaN(item)) {
+        let evaluatedResult = 0;
+        try {
+          evaluatedResult = eval(
+            reference.value
+              .map((item) => {
+                // check if item is number
+                if (!isNaN(item)) {
+                  return item;
+                }
+                if (!calcOperator.includes(item)) {
+                  let newValue = result_tests?.[item] ?? 0;
+                  newValue = newValue === "" ? 0 : newValue;
+                  return newValue;
+                }
                 return item;
-              }
-              if (!calcOperator.includes(item)) {
-                let newValue = result_tests?.[item] ?? 0;
-                newValue = newValue === "" ? 0 : newValue;
-                return newValue;
-              }
-              return item;
-            })
-            .join("")
-        );
+              })
+              .join("")
+          );
+        } catch (e) {}
         result = evaluatedResult.toFixed(1);
       }
 
@@ -2292,10 +2435,10 @@ function manageTestType(type, test = {}) {
 }
 
 const addTestSearch = (e) => {
-  let value = $(e).val();
-  var rex = new RegExp(value, "i");
+  const value = $(e).val();
+  const rex = new RegExp(value, "i");
   $(".results.test-normalTests:not(.search-class)").hide();
-  $(`.results.test-normalTests:not(.search-class)`)
+  $(".results.test-normalTests:not(.search-class)")
     .filter(function () {
       return rex.test($(this).text());
     })
@@ -2399,7 +2542,7 @@ async function printAllInvoices(hash) {
 }
 
 function hoverInvoice(element) {
-  if (element.nodeName.toLowerCase() == "svg") {
+  if (element.nodeName.toLowerCase() === "svg") {
     $(element).toggleClass("border-print-hover");
   }
 }

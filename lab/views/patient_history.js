@@ -6,7 +6,7 @@ const patient = fetchApi(`/patient/get_patient?hash=${patientHash}`);
 const visits = fetchApi("/patient/get_patient_visits", "POST", {
   hash: patientHash,
 });
-const { workers, invoices } = fetchApi("/visit/getInvoiceHeader", "GET", {});
+const { workers, ...invoices } = fetchApi("/invoice/get");
 
 // Dom Elements
 const patientName = document.querySelector("#patient_name");

@@ -11,6 +11,7 @@ class VisitModel extends CI_Model
         $this->load->helper('db');
         $this->load->helper('visit');
         $this->load->helper('test');
+        $this->load->helper('json');
     }
 
     public function visit_count($params)
@@ -98,30 +99,49 @@ class VisitModel extends CI_Model
 
     public function get_visit($hash)
     {
-        // inner join lab_patient on lab_patient.hash=lab_visits.visits_patient_id
+        $this->load->helper('json');
+        $font = $this->db->select('font_size')->from('lab_invoice')->get()->row();
+        $font = $font->font_size;
         $visit = $this->db
-            ->select('lab_visits.hash as hash,visits_patient_id as patient,')
-            ->select("lab_patient.name as name,visit_date")
-            ->select("address,phone, age,gender, age_year, age_month, age_day,note,doctor_hash,dicount,net_price,total_price")
-            ->from($this->table)
-            ->join('lab_patient', 'lab_patient.hash = lab_visits.visits_patient_id')
-            ->where(array('lab_visits.isdeleted' => '0', 'lab_visits.hash' => $hash))
-            ->get()->row_array();
-        $tests = $this->get_visit_tests($hash);
-        $packages = $this->db
-            ->select('package_id as hash, name')
-            ->where('visit_id', $hash)
-            ->group_by('package_id')
-            ->join('lab_package', 'lab_package.hash=lab_visits_package.package_id')
-            ->get('lab_visits_package')
-            ->result_array();
-        $visit['tests'] = $packages;
-        $packagesPrice = $this->get_visit_packages($hash);
-        return array(
-            "visit" => $visit,
-            "tests" => $tests,
-            "packages" => $packagesPrice,
-        );
+            ->select("age,gender,phone,lab_patient.name,DATE(visit_date) as date")
+            ->select("TIME(visit_date) as time,visits_patient_id as patient,lab_visits.hash")
+            ->select("(select name from lab_doctor where hash=lab_visits.doctor_hash) as doctor")
+            ->select("lab_patient.hash as patient_hash, gender,age")
+            ->from("lab_visits")
+            ->join("lab_patient", "lab_patient.hash=lab_visits.visits_patient_id")
+            ->where("lab_visits.hash", $hash)
+            ->get()->row();
+        $tests = $this->db
+            ->select("option_test, test_name as name, kit_id")
+            ->select(" (select name from devices where devices.id=lab_device_id limit 1) as device_name, (select name from kits where kits.id =kit_id limit 1) as kit_name, (select name from lab_test_units where hash=lab_pakage_tests.unit limit 1) as unit_name, (select name from lab_test_catigory where hash=lab_test.category_hash limit 1) as category, unit, result_test as result,sort, lab_visits_tests.hash as hash, test_id")
+            ->from("lab_visits_tests")
+            ->join("lab_pakage_tests", "lab_pakage_tests.test_id = lab_visits_tests.tests_id and lab_pakage_tests.package_id = lab_visits_tests.package_id", "left")
+            ->join("lab_test", "lab_test.hash = lab_visits_tests.tests_id")
+            ->where("visit_id", $hash)
+            ->order_by("sort")
+            ->get()->result_array();
+        if (isset($visit) && isset($tests)) {
+            $tests = array_map(function ($test) use ($visit, $font) {
+                $json = new Json($test['option_test']);
+                $filterFeilds = array_merge((array) $test, (array) $visit);
+                $test['option_test'] = $json->filter($filterFeilds)->setHeight($font)->row();
+                $test['result'] = json_decode($test['result'], true);
+                if ($test['result'] == null) {
+                    $test['result'] = array (
+                        "checked" => true,
+                        $test['name'] => ""
+                    );
+                }
+
+                return $test;
+            }, $tests);
+        }
+        // sort array by category 
+        usort($tests, function ($a, $b) {
+            return $a['category'] <=> $b['category'];
+        });
+        $visit->tests = $tests;
+        return $visit;
     }
 
     public function get_visit_form_data()
@@ -169,7 +189,7 @@ class VisitModel extends CI_Model
             ->join('kits', 'lab_pakage_tests.kit_id=kits.id', "left")
             ->join("devices", "lab_pakage_tests.lab_device_id=devices.id", "left")
             ->join("lab_test_units", "lab_pakage_tests.unit=lab_test_units.hash", "left")
-            ->join("lab_test", "lab_test.id=lab_pakage_tests.test_id", "left")
+            ->join("lab_test", "lab_test.hash=lab_pakage_tests.test_id", "left")
             ->get('lab_package')->result_array();
         // return all data
         return array(
@@ -264,7 +284,11 @@ class VisitModel extends CI_Model
         $calc_tests = array_map(function ($test) {
             $option = str_replace('\\', '', $test['option_test']);
             $option = json_decode($option, true);
-            $tests = $option['tests'];
+            try {
+                $tests = $option['tests'];
+            } catch (Exception $e) {
+                $tests = [];
+            }
             $test['tests'] = $tests;
             unset ($test['option_test']);
             return $test;
@@ -285,6 +309,7 @@ class VisitModel extends CI_Model
             }
         });
 
+
         $calc_tests = array_map(function ($test) use ($visit_hash) {
             return array (
                 "tests_id" => $test['hash'],
@@ -299,8 +324,7 @@ class VisitModel extends CI_Model
                 )
             );
         }, $calc_tests);
-
-        if (isset($calc_tests[0])) {
+        if (count($calc_tests) > 0) {
             $this->db->insert_batch('lab_visits_tests', $calc_tests);
         }
     }
@@ -353,155 +377,6 @@ class VisitModel extends CI_Model
         } else {
             return $visit_id;
         }
-    }
-
-    public function getInvoice()
-    {
-        $this->db->select('color, phone_1,show_name,show_logo, phone_2 as size, address, facebook, header, center, footer, logo, water_mark, footer_header_show, invoice_about_ar, invoice_about_en, font_size, zoom, doing_by, name_in_invoice, font_color, setting');
-        $this->db->from('lab_invoice');
-        $query = $this->db->get();
-        $result = $query->result_array();
-        $result = $result[0];
-        $workers = $this->getWorkers();
-        $newWorkers = array();
-        if (isset($result['setting']) && $result['setting'] != "null" && $result['setting'] != "") {
-            $setting = json_decode($result['setting'], true);
-            if (isset($setting['orderOfHeader'])) {
-                if ($setting['orderOfHeader'] == "null") {
-                    $newWorkers = $workers;
-                    // append logo to first 
-                    array_unshift(
-                        $newWorkers,
-                        array(
-                            "hash" => "logo",
-                        )
-                    );
-                    $newWorkers[] = array(
-                        "hash" => "name",
-                    );
-                } else {
-                    $orderOfHeader = $setting['orderOfHeader'];
-                    if (is_string($orderOfHeader)) {
-                        $orderOfHeader = json_decode($orderOfHeader, true);
-                    }
-                    $isFounded = in_array("name", $orderOfHeader);
-                    if (!$isFounded) {
-                        $orderOfHeader[] = "name";
-                    }
-                    foreach ($orderOfHeader as $key => $value) {
-                        if ($value == 'logo') {
-                            $newWorkers[] = array(
-                                "hash" => "logo",
-                            );
-                            continue;
-                        }
-                        if ($value == 'name') {
-                            $newWorkers[] = array(
-                                "hash" => "name",
-                            );
-                            continue;
-                        }
-                        // loop on workers
-                        foreach ($workers as $worker) {
-                            if ($worker['hash'] == $value) {
-                                $newWorkers[] = $worker;
-                                // delete worker from workers
-                                unset($workers[array_search($worker, $workers)]);
-                            }
-                        }
-                    }
-                }
-            } else {
-                $newWorkers = $workers;
-                // append logo to first 
-                array_unshift(
-                    $newWorkers,
-                    array(
-                        "hash" => "logo",
-                    )
-                );
-                $newWorkers[] = array(
-                    "hash" => "name",
-                );
-            }
-            $result['setting'] = $setting;
-            $result['workers'] = $newWorkers;
-            $result["unUsedWorkers"] = $workers;
-        } else {
-            $result['setting'] = array(
-                "orderOfHeader" => array()
-            );
-            array_unshift(
-                $workers,
-                array(
-                    "hash" => "logo",
-                )
-            );
-            $workers[] = array(
-                "hash" => "name",
-            );
-            $result['workers'] = $workers;
-        }
-        if (isset($result['width'])) {
-            $result['width'] = (int) $result['width'];
-        } else {
-            $result['width'] = 4;
-        }
-        return $result;
-    }
-
-    public function getWorkers()
-    {
-        $this->db->select('name, jop, jop_en,hash');
-        $this->db->from('lab_invoice_worker');
-        $this->db->where('isdeleted', '0');
-        $this->db->where('is_available', '1');
-        $query = $this->db->get();
-        $result = $query->result_array();
-        return $result;
-    }
-
-    public function getInvoiceHeader()
-    {
-        $invoice = $this->getInvoice();
-
-        $result = array(
-            "orderOfHeader" => isset($invoice['setting']['orderOfHeader']) ? $invoice['setting']['orderOfHeader'] : array(),
-            "workers" => $invoice['workers'],
-            "invoices" => $invoice,
-        );
-        return $result;
-    }
-
-    public function getUnusedWorkers()
-    {
-        $invoice = $this->getInvoice();
-        $workers = $invoice['unUsedWorkers'];
-        // make Workers array
-        $result = array();
-        foreach ($workers as $worker) {
-            $result[] = array(
-                "hash" => $worker['hash'],
-                "name" => $worker['name'],
-                "jop" => $worker['jop'],
-                "jop_en" => $worker['jop_en'],
-            );
-        }
-        return $result;
-    }
-
-    public function setOrderOfHeader()
-    {
-        $setting = $this->db->query("select setting from lab_invoice");
-        $setting = $setting->result_array();
-        $setting = $setting[0]['setting'];
-        $setting = json_decode($setting, true);
-        $orderOfHeader = $this->input->post('orderOfHeader');
-        $setting['orderOfHeader'] = json_encode($orderOfHeader);
-        $setting = json_encode($setting);
-        $query = $this->db->set('setting', $setting);
-        $query = $this->db->update('lab_invoice');
-        return $query;
     }
 
     public function getScreenDetail()
