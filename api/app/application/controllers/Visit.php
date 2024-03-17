@@ -67,7 +67,7 @@ class Visit extends CI_Controller
     function update_visit()
     {
         $data = split_data($this->input->post());
-       $this->VisitModel->update_visit($data);
+        $this->VisitModel->update_visit($data);
         $this->output
             ->set_status_header(200)
             ->set_content_type('application/json')

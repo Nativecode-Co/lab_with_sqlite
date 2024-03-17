@@ -105,8 +105,7 @@ class Visit extends Factory {
   }
 
   updateItem(hash) {
-    const { visit } = fetchApi(`/visit/get_visit?hash=${hash}`, "GET", {});
-
+    const visit = fetchApi("/visit/get_visit", "GET", { hash });
     $("#work-sapce").empty();
     $("#show_selected_tests div").remove();
     // open modal
@@ -123,18 +122,32 @@ class Visit extends Factory {
     newPatientElement.checked = false;
     changePatientTag(newPatientElement);
     this.resetForm();
+    for (const p of visit.packages) {
+      const testElement = document.getElementById(`package_${p.hash}`);
+      if (testElement) {
+        testElement.checked = true;
+        testElement.parentElement.classList.add("itemsActive");
+      }
+      // showSelectedTests(p.hash, p.name, true);
+    }
+    document.getElementById("visit_date").value = visit.date;
+    document.getElementById("doctor_hash").value = visit.doctor;
+    document.getElementById("dicount").value = visit.dicount;
+    document.getElementById("total_price").value = visit.total_price;
+    document.getElementById("net_price").value = visit.net_price;
+
     // fill form with data
     for (const [key, value] of Object.entries(visit)) {
       if (key === "hash") {
-      } else if (key === "tests") {
-        for (const test of value) {
+      } else if (key === "packages") {
+        for (const p of value) {
           // use pure js to check test
-          const testElement = document.getElementById(`package_${test.hash}`);
+          const testElement = document.getElementById(`package_${p.hash}`);
           if (testElement) {
             testElement.checked = true;
             testElement.parentElement.classList.add("itemsActive");
           }
-          showSelectedTests(test.hash, test.name, true);
+          showSelectedTests(p.hash, p.name, true);
         }
       } else {
         const element = document.getElementById(key);
@@ -174,9 +187,9 @@ class Visit extends Factory {
     }
 
     if (
-      parseInt(data.age_year) +
-        parseInt(data.age_month) +
-        parseInt(data.age_day) <=
+      Number.parseInt(data.age_year) +
+        Number.parseInt(data.age_month) +
+        Number.parseInt(data.age_day) <=
       0
     ) {
       niceSwal("error", "bottom-end", "يجب ادخال عمر صحيح");
@@ -258,6 +271,7 @@ class Visit extends Factory {
 
   saveUpdateItem(hash) {
     const data = this.validate();
+    if (!data) return;
     const visit = fetchApi("/visit/update_visit", "POST", {
       ...data,
       hash: hash,

@@ -189,7 +189,8 @@ function visitDetail(hash) {
 function showVisit(hash) {
   $(".action").removeClass("active");
   $("#show_visit_button").addClass("active");
-  const { visit } = fetchApi(`/visit/get_visit?hash=${hash}`);
+  const visit = fetchApi(`/visit/get_visit?hash=${hash}`);
+  console.log(visit);
   const workSpace = $("#work-sapce");
   workSpace.html("");
   const visitInfo = `
@@ -210,15 +211,17 @@ function showVisit(hash) {
                             </tr>
                             <tr>
                                 <td>الطبيب المعالج</td>
-                                <td>${visit.doctor_hash}</td>
+                                <td>${visit.doctor ?? ""}</td>
                             </tr>
                             <tr>
                                 <td>العمر</td>
-                                <td>${parseFloat(visit.age).toFixed(0)} سنة</td>
+                                <td>${Number.parseFloat(visit.age).toFixed(
+                                  0
+                                )} سنة</td>
                             </tr>
                             <tr>
                                 <td>التاريخ</td>
-                                <td>${visit.visit_date}</td>
+                                <td>${visit.date}</td>
                             </tr>
                             <tr>
                                 <td>اجمالي المبلغ</td>
@@ -337,7 +340,8 @@ function showVisit(hash) {
 }
 
 function hideHederelments() {
-  const headersElements = document.querySelectorAll(".test.typetest");
+  // get headers elements has class test and typetest not have class sp
+  const headersElements = document.querySelectorAll(".test.typetest:not(.sp)");
   for (const test of headersElements) {
     const classes = test.classList;
     const category = Array.from(classes).find((c) => c.includes("category_"));
@@ -430,6 +434,10 @@ function showAddResult(hash, animate = true) {
       dropdownParent: $(this).parent().parent(),
     });
   });
+  $("form.culture select").each(function () {
+    // clear value
+    // $(this).val(null).trigger("change");
+  });
 
   $(".results select[multiple]").each(function () {
     // delete Absent if length > 1
@@ -438,7 +446,7 @@ function showAddResult(hash, animate = true) {
         $(this).val(
           $(this)
             .val()
-            .filter((v) => v.toUpperCase() != "ABSENT")
+            .filter((v) => v.toUpperCase() !== "ABSENT")
         );
         $(this).trigger("change");
       }
@@ -488,7 +496,7 @@ function addNormalResult(test, result_test) {
 function generateFieldForTest(test, resultList) {
   const { type: testType, ...reference } = test.option_test;
   return `
-  <div class="col-md-11 results test-normalTests mb-15 ">
+  <form class="col-md-11 results test-normalTests mb-15" id="${test.hash}">
       <div class="row align-items-center">
           <div class="col-md-3 h6 text-center">
               ${testType === "normal" ? `${test.kit_name ?? "NO KIT"}` : ""}
@@ -513,15 +521,18 @@ function generateFieldForTest(test, resultList) {
           <div class="col-md-6">
               <h4 class="text-center mt-15">${test.name}</h4>
           </div>
+          <input type="hidden" value="false" name="checked">
           <div class="col-md-3 text-center">
               <label class="text-dark">عرض النتيجة</label>
               <br>
               <label class="d-inline switch s-icons s-outline s-outline-invoice-slider mr-5">
                   <input type="checkbox" id="check_normal_${
                     test.hash
-                  }" name="check_normal_${test.hash}" ${
+                  }" name="checked" ${
     resultList?.[test.name]?.checked ?? true ? "checked" : ""
-  } onclick="toggleTest.call(this)">
+  } onclick="toggleTest.call(this)"
+    value="true"
+  >
                   <span class="slider invoice-slider"></span>
               </label>
           </div>
@@ -574,7 +585,7 @@ function generateFieldForTest(test, resultList) {
           </div>
           
       </div>
-  </div>
+  </form>
 `;
 }
 
@@ -708,14 +719,14 @@ function addStrcResult(test, result_test) {
           break;
       }
 
-      let typeMarkup = typeDiff
+      const typeMarkup = typeDiff
         ? `<div class="col-md-12 text-center">${comp.type}</div>`
         : "";
 
       return `
       ${typeMarkup}
       <div class="${
-        comp.type == "Notes" ? "col-md-12" : "col-md-4"
+        comp.type === "Notes" ? "col-md-12" : "col-md-4"
       } mb-3 text-left">
         <label for="result" class="w-100 text-center text-black font-weight-bold h5">${
           comp.name
@@ -724,34 +735,32 @@ function addStrcResult(test, result_test) {
       </div>`;
     })
     .join("");
-
-  let resultFormMarkup = `
-    <div class="col-md-11 results test-${test.name
-      .replace(/\s/g, "")
-      .replace(/[^a-zA-Z0-9]/g, "")} mb-15 ">
+  const fromId = `test-${test.name
+    .replace(/\s/g, "")
+    .replace(/[^a-zA-Z0-9]/g, "")}`;
+  const resultFormMarkup = `
+    <form class="col-md-11 results ${fromId} mb-15" id="${test.hash}">
       <div class="row align-items-center justify-content-center">
         <div class="col-md-12">
           <h4 class="text-center mt-15">${test.name}</h4>
         </div>
         ${componentMarkup}
       </div>
-    </div>
+    </form>
   `;
 
   return resultFormMarkup;
 }
 
-function selectInput({ options, result, multi, name, hash }) {
+function selectInput({ options, result, multi, name }) {
   let htmlOptions = "";
   const multiple = Boolean(multi) === true ? "multiple" : "";
-  const InputNmae = isNaN(hash) ? `${hash}.${name}[]` : name;
-  console.log("result", InputNmae);
   htmlOptions = options
     .map((option, index) => {
       let selected = "";
 
       if (!result) {
-        selected = index == 0 ? "selected" : "";
+        // selected = index === 0 ? "selected" : "";
       } else {
         if (Boolean(multi) === true) {
           selected = result.includes(option) ? "selected" : "";
@@ -766,15 +775,14 @@ function selectInput({ options, result, multi, name, hash }) {
   return `
           <select 
             class="form-control result text-center h6"
-            name="${InputNmae}"
-            id="result_${hash}" 
+            name="${name}"
             ${multiple}
           >
             ${htmlOptions}
           </select>`;
 }
 
-function addSensitive(hash) {
+function addSusceptibility(type, name, dose) {
   const randomId = Math.random().toString(36).substring(7);
   const component = [
     {
@@ -846,10 +854,9 @@ function addSensitive(hash) {
     .map((item) => {
       const select = selectInput({
         options: item.options,
-        result: "",
+        result: item.name === "name" ? name : dose,
         multi: item.multi,
-        name: item.name,
-        hash: hash,
+        name: `${type}.${item.name}`,
       });
       const element = `
               <div class="col-md-5">
@@ -862,12 +869,11 @@ function addSensitive(hash) {
       return element;
     })
     .join("");
-  const sensitive = document.getElementById("sensitive-items");
-  sensitive.innerHTML += `
-    <div class="row justify-content-center align-items-center" id="sensitive-${randomId}">
+  return `
+    <div class="row justify-content-center align-items-center" id="${type}-${randomId}">
       ${item}
       <div class="col-md-2 text-center text-danger">
-        <i class="fal fa-minus-circle" onclick="deleteElement('sensitive-${randomId}')"></i>
+        <i class="fal fa-minus-circle" onclick="deleteElement('${type}-${randomId}')"></i>
       </div>
     </div>
     `;
@@ -877,100 +883,6 @@ function deleteElement(id) {
   document.getElementById(id).remove();
 }
 
-function addResisteant(hash) {
-  const randomId = Math.random().toString(36).substring(7);
-  const component = [
-    {
-      name: "name",
-      type: "result",
-      options: [
-        "Penicillins",
-        "Cephalosporins",
-        "Carbapenems",
-        "Vancomycin",
-        "Clindamycin",
-        "Erythromycin",
-        "Linezolid",
-        "Tetracyclines",
-        "Quinolones",
-        "Rifampin",
-        "Aminoglycosides",
-        "Sulfonamides",
-        "Trimethoprim",
-        "Daptomycin",
-        "Glycopeptides",
-        "Oxazolidinones",
-        "Streptogramins",
-        "Fosfomycin",
-        "Tedizolid",
-        "Bacitracin",
-        "Mupirocin",
-        "Novobiocin",
-        "Rifamycins",
-        "Fluoroquinolones",
-        "Lipopeptides",
-        "Fusidic Acid",
-        "Cycloserine",
-        "Chloramphenicol",
-        "Bactrim (combination of sulfamethoxazole and trimethoprim)",
-        "Methicillin",
-        "Telithromycin",
-        "Rifabutin",
-        "Ceftaroline",
-        "Tedizolid phosphate",
-        "Moxifloxacin",
-        "Cephalosporins",
-        "Carbapenems",
-        "Aminoglycosides",
-        "Fluoroquinolones",
-        "Tetracyclines",
-        "Sulfonamides",
-        "Trimethoprim",
-        "Monobactams",
-        "Polymyxins",
-        "Aztreonam",
-        "Fosfomycin",
-        "Colistin",
-        "Glycopeptides (e.g., Vancomycin for certain Gram-negative bacteria with resistant profiles)",
-        "Nitrofurans",
-        "Quinolones",
-        "Tigecycline",
-        "Chloramphenicol",
-        "Mupirocin",
-      ],
-    },
-  ];
-  const item = component
-    .map((item) => {
-      const select = selectInput({
-        options: item.options,
-        result: "",
-        multi: item.multi,
-        name: item.name,
-        hash: hash,
-      });
-      const element = `
-              <div class="col-md-10">
-                <label for="result" class="w-100 text-center text-black font-weight-bold h5">
-                  ${item.name}
-                </label>
-                ${select}
-              </div>
-              `;
-      return element;
-    })
-    .join("");
-  const resisteant = document.getElementById("Resisteant-items");
-  resisteant.innerHTML += `
-    <div class="row justify-content-center align-items-center" id="resisteant-${randomId}">
-      ${item}
-      <div class="col-md-2 text-center text-danger">
-        <i class="fal fa-minus-circle" onclick="deleteElement('resisteant-${randomId}')"></i>
-      </div>
-    </div>
-    `;
-}
-
 function addCultureResult(test, result_test) {
   const { component } = test.option_test;
 
@@ -978,10 +890,12 @@ function addCultureResult(test, result_test) {
 
   const componentMarkup = component
     .map((comp) => {
-      const {
+      let {
         options,
         multi,
         name,
+        dependOn,
+        hidden,
         type: componentType,
         result: resultType,
       } = comp;
@@ -998,17 +912,23 @@ function addCultureResult(test, result_test) {
             result,
             multi,
             name,
-            hash: test.hash,
           });
           break;
         case "multi": {
-          const addFunction =
-            comp.name === "sensitive" ? "addSensitive" : "addResisteant";
           input = `
           <div id="${name}-items" class="row justify-content-center align-items-start">
             <div class="col-md-2 text-center">
-              <i class="fal fa-plus-circle" onclick="${addFunction}('${test.hash}')"></i>
+              <i class="fal fa-plus-circle" onclick="document.getElementById('${name}-items').insertAdjacentHTML('beforeend', addSusceptibility('${name}','',''))"></i>
             </div>
+            ${
+              Array.isArray(result)
+                ? result
+                    .map((item) => {
+                      return addSusceptibility(name, item.name, item.dose);
+                    })
+                    .join("")
+                : ""
+            }
           </div>
           `;
           break;
@@ -1030,9 +950,50 @@ function addCultureResult(test, result_test) {
         : "";
 
       const size = resultType === "multi" ? "col-md-6" : "col-md-12";
+      // remove all .script
+      const scripts = document.querySelectorAll(".script");
+      for (const script of scripts) {
+        script.remove();
+      }
       return `
       ${typeMarkup}
-      <div class="${size} mb-3 text-left">
+      ${
+        dependOn
+          ? ` <script class="script">
+      ${dependOn
+        .map((depend) => {
+          const { name, when } = depend;
+          const dependResult = result_test?.[name] ?? "";
+          if (Array.isArray(dependResult)) {
+            hidden = dependResult.includes(when) ? "false" : "true";
+          } else {
+            hidden = dependResult === when ? "false" : "true";
+          }
+          return `
+          $(document).on('change', '[name="${name}"]', function(){
+            const value = $(this).val();
+            const id = "${comp.name.split(" ").join("-")}";
+            const item = document.querySelector(".dependon-show-" + id);
+            const itemFlex = document.querySelector(".flex-dependon-show-" + id);
+            if(value.includes("${when}")){
+              item.style.display = "block";
+              itemFlex.style.display = "flex";
+            }
+            else{
+              item.style.display = "none";
+              itemFlex.style.display = "none";
+            }
+          });
+          `;
+        })
+        .join("")}
+
+    </script>`
+          : ""
+      }
+      <div class="${size} mb-3 text-left dependon-show-${name
+        .split(" ")
+        .join("-")}" style="display:${hidden === "true" ? "none" : "block"}">
         <label for="result" class="w-100 text-center text-black font-weight-bold h5">
           ${name} 
         </label>
@@ -1042,7 +1003,7 @@ function addCultureResult(test, result_test) {
     .join("");
   const testId = test.name.replace(/\s/g, "").replace(/[^a-zA-Z0-9]/g, "");
   const resultFormMarkup = `
-    <form class="col-md-11 results test-${testId} mb-15" id="${testId}">
+    <form class="col-md-11 results culture test-${testId} mb-15" id="${test.hash}">
       <div class="row align-items-center justify-content-center">
         <div class="col-md-12">
           <h4 class="text-center mt-15">${test.name}</h4>
@@ -1112,53 +1073,62 @@ function addResult(data) {
 }
 
 function saveResult(hash) {
-  const result = {};
-  $(".result").each(function () {
-    const name = $(this).attr("name");
-    const value = $(this).val();
-    const _hash_ = $(this).attr("id").split("_")[1];
-    const checked =
-      $(`input[type=checkbox][name=check_normal_${_hash_}]`).is(":checked") ??
-      undefined;
-    if (result[_hash_] === undefined) {
-      result[_hash_] = {};
+  const finalResults = [];
+  const forms = document.querySelectorAll("form.results");
+  for (const form of forms) {
+    const data = {};
+    const formData = new FormData(form);
+    for (const [key, value] of formData) {
+      if (key.includes(".")) {
+        const [type, name] = key.split(".");
+        if (!data[type]) {
+          data[type] = [];
+        }
+        if (data[type].length === 0) {
+          data[type].push({ [name]: value });
+        } else {
+          const lastObject = data[type][data[type].length - 1];
+          if (lastObject[name] !== undefined) {
+            data[type].push({ [name]: value });
+          } else {
+            data[type][data[type].length - 1] = {
+              ...lastObject,
+              [name]: value,
+            };
+          }
+        }
+      } else if (data[key]) {
+        if (Array.isArray(data[key])) {
+          data[key].push(value);
+        } else {
+          data[key] = [data[key], value];
+        }
+      } else {
+        data[key] = value;
+      }
     }
-    result[_hash_][name] = value;
-    if (checked !== undefined) {
-      result[_hash_]["checked"] = checked;
-    }
-    const __visit_test__ = __VISIT_TESTS__.find((test) => test.hash == _hash_);
-    if (__visit_test__ != undefined) {
-      result[_hash_]["options"] = __visit_test__.options;
-    }
-  });
-  let data = Object.entries(result).map(([hash, result]) => {
-    return {
-      hash: hash,
-      result_test: JSON.stringify(result),
-    };
-  });
-  data = data.filter((item) => item);
-
+    const hash = form.id;
+    finalResults.push({
+      hash,
+      result_test: JSON.stringify(data),
+    });
+  }
   fetchApi("/visit/saveTestsResult", "POST", {
-    data: JSON.stringify(data),
+    data: JSON.stringify(finalResults),
     visit_hash: hash,
   });
   showAddResult(hash, false);
-  // $(`#${localStorage.getItem('currentInvoice')}`).click();
 }
 
 function focusInput(type) {
-  let list = $(`input.result:visible`);
-  let index = list.index($(`input.result:visible:focus`));
-  if (type == "add") {
+  const list = $("input.result:visible");
+  let index = list.index($("input.result:visible:focus"));
+  if (type === "add") {
     index = (index + 1) % list.length;
   } else {
     index = (index - 1) % list.length;
   }
-  index = index == -1 ? list.length - 1 : index;
-  // list.eq(index).focus();
-  // focus with animation
+  index = index === -1 ? list.length - 1 : index;
   $("html, body").animate(
     {
       scrollTop:
@@ -1167,14 +1137,14 @@ function focusInput(type) {
         100,
     },
     250,
-    function () {
+    () => {
       list.eq(index).focus();
     }
   );
 }
 
 function changeTotalPrice(hash) {
-  let input = document.querySelector(`input[type=checkbox][value="${hash}"]`);
+  const input = document.querySelector(`input[type=checkbox][value="${hash}"]`);
   let totalPrice = parseInt(document.querySelector("#total_price").value);
   try {
     let searchInput = document.querySelector("#input-search-all");
@@ -1281,7 +1251,7 @@ const changeInvoiceTitle = (type) => {
 
 function showInvoice(hash) {
   const workSpace = $("#work-sapce");
-  const { visit, packages: visitPackages } = fetchApi(
+  const { packages: visitPackages, ...visit } = fetchApi(
     `/visit/get_visit?hash=${hash}`
   );
   const invoice = `
@@ -1394,7 +1364,7 @@ function showInvoice(hash) {
                                             <p> ${item.name}</p>
                                         </div>
                                         <div class="testnormal col-2">
-                                            <p class="money-show">${parseInt(
+                                            <p class="money-show">${Number.parseInt(
                                               item.price
                                             )?.toLocaleString()}<span class="note">&nbsp; IQD</span></p>
                                             <label class="d-inline switch s-icons s-outline s-outline-invoice-slider custom-doctor d-print-none" style="display: none;">
@@ -1417,7 +1387,7 @@ function showInvoice(hash) {
                                     ${item.tests
                                       .split(",")
                                       .map((test, index) => {
-                                        if (item.name != test) {
+                                        if (item.name !== test) {
                                           return `
                                     <div class="mytest test mr-5 border-0 testprice-${item.hash}" style="">
                                         <div class="testname col-1">
@@ -1444,7 +1414,7 @@ function showInvoice(hash) {
                                     <p class="">Total</p>
                                 </div>
                                 <div class="namegot">
-                                    <p class="">${parseInt(
+                                    <p class="">${Number.parseInt(
                                       visit.total_price
                                     )?.toLocaleString()}<span class="note">&nbsp; IQD</span></p>
                                 </div>
@@ -1452,7 +1422,7 @@ function showInvoice(hash) {
                                     <p class="">Discount</p>
                                 </div>
                                 <div class="paidgot">
-                                    <p class="">${parseInt(
+                                    <p class="">${Number.parseInt(
                                       visit.dicount
                                     )?.toLocaleString()}<span class="note">&nbsp; IQD</span></p>
                                 </div>
@@ -1460,7 +1430,7 @@ function showInvoice(hash) {
                                     <p class="">Total Amount</p>
                                 </div>
                                 <div class="vidgot">
-                                    <p class="">${parseInt(
+                                    <p class="">${Number.parseInt(
                                       visit.net_price
                                     )?.toLocaleString()}<span class="note">&nbsp; IQD</span></p>
                                 </div>
@@ -1486,13 +1456,13 @@ function showInvoice(hash) {
                                     : ""
                                 }
                                 <span class="note">${
-                                  invoices?.facebook == ""
+                                  invoices?.facebook === ""
                                     ? ""
                                     : `&nbsp;&nbsp;&nbsp;&nbsp;  ${invoices?.facebook}  <i class="fas fa-envelope"></i>&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;`
                                 }</span>
                                 
                                 <span class="note">${
-                                  invoices?.phone_1 == ""
+                                  invoices?.phone_1 === ""
                                     ? ""
                                     : `${invoices?.phone_1} <i class="fas fa-phone"></i>`
                                 }</span></p>
@@ -1954,11 +1924,34 @@ function showResult(data) {
             `;
       let type = "";
       for (const reference of options.component) {
-        const result = "";
-        // if (Array.isArray(result)) {
-        //   result = result.slice(0, 3).join("<br>");
-        // }
-        if (reference.type !== type && reference.type !== "Notes") {
+        const result = test.result?.[reference.name] ?? "";
+        let finalResult = "";
+        const typeOfResult = reference?.result ?? "result";
+        switch (typeOfResult) {
+          case "result":
+            if (Array.isArray(result)) {
+              finalResult = result.join("<br>");
+            } else {
+              finalResult = result;
+            }
+            break;
+          case "multi":
+            // if result is Array
+            if (Array.isArray(result)) {
+              finalResult = "";
+              for (const obj of result) {
+                for (const [key, value] of Object.entries(obj)) {
+                  finalResult += ` ${value} `;
+                }
+                finalResult += "<br>";
+              }
+            }
+            break;
+          default:
+            finalResult = result;
+            break;
+        }
+        if (reference.type !== type) {
           type = reference.type;
           invoiceBody += `
           <div class="test strc-test row m-0 typetest sp">
@@ -1967,28 +1960,23 @@ function showResult(data) {
               </div>
           </div>`;
         }
-        if (reference.type === "Notes") {
-          invoiceBody += `
-          <div class="test strc-test row m-0 typetest sp">
-              <div class="col-12 px-0">
-              <p style="font-size: 22px;">${reference.type}</p>
-              </div>
-          </div>`;
-          invoiceBody += result;
-        } else {
-          console.log(reference);
-          const testType = manageTestType("culture", {
+        const testType = manageTestType(
+          reference.type === "Notes" ? "notes" : "culture",
+          {
             name: reference.name,
-            result: "",
-            color: "",
+            result: finalResult,
+            color: reference.italic,
             normal: "",
             unit: reference?.unit ?? "",
             flag: "",
             font: "18px",
             history: "",
-          });
-          invoiceBody += testType;
-        }
+            hidden: reference.hidden,
+            dependOn: reference.dependOn,
+            allResults: test.result,
+          }
+        );
+        invoiceBody += testType;
       }
       invoices[idName] = invoiceBody;
     } else {
@@ -2331,6 +2319,9 @@ function manageTestType(type, test = {}) {
     flag,
     font,
     history,
+    hidden,
+    dependOn,
+    allResults,
   } = test;
   let htmlHestory = "";
   if (invoices?.history === "1") {
@@ -2413,20 +2404,33 @@ function manageTestType(type, test = {}) {
                 </div>`;
     case "notes":
       return `
-            <div class="test strc-test row m-0">
+            <div class="strc-test row m-0">
                 <div class="testname col-12">
-                    <p>${name}</p> : <p class="text-danger">${result}</p>
+                    <p class="text-right pr-2">${result}</p>
                 </div>
             </div>
             `;
     case "culture":
+      const showClass = `flex-dependon-show-${name.split(" ").join("-")}`;
+      const italic = color === "italic" ? "font-style: italic;" : "";
+      let hiddenClass = hidden;
+      dependOn
+        ? dependOn.map((depend) => {
+            const { name, when } = depend;
+            const d = allResults?.[name] ?? "";
+            hiddenClass = d.includes(when) ? "false" : "true";
+          })
+        : null;
+
       return `
-            <div style="font-size:${font} !important" data-flag="result" class="test strc-test row m-0">
+            <div style="font-size:${font} !important;display:${
+        hiddenClass === "true" ? "none" : "flex"
+      }" data-flag="result" class="test strc-test row m-0 border-test ${showClass}" >
                     <div class="testname col-6">
-                        <p>${name}</p>
+                        <p style="${italic}" class="text-right">${name}</p>
                     </div>
-                    <div class="testresult result-field col-6 justify-content-center">
-                        <p class="w-75 text-center">${result.toString()} </p>
+                    <div class="testresult result-field col-6 justify-content-center ">
+                        <p style="${italic}" class="w-75 text-right">${result.toString()} </p>
                     </div>
             </div>`;
     default:

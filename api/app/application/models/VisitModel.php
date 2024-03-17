@@ -106,7 +106,7 @@ class VisitModel extends CI_Model
             ->select("age,gender,phone,lab_patient.name,DATE(visit_date) as date")
             ->select("TIME(visit_date) as time,visits_patient_id as patient,lab_visits.hash")
             ->select("(select name from lab_doctor where hash=lab_visits.doctor_hash) as doctor")
-            ->select("lab_patient.hash as patient_hash, gender,age")
+            ->select("lab_patient.hash as patient_hash, gender,age,dicount,total_price,net_price")
             ->from("lab_visits")
             ->join("lab_patient", "lab_patient.hash=lab_visits.visits_patient_id")
             ->where("lab_visits.hash", $hash)
@@ -120,7 +120,10 @@ class VisitModel extends CI_Model
             ->where("visit_id", $hash)
             ->order_by("sort")
             ->get()->result_array();
-        if (isset($visit) && isset($tests)) {
+        // packges get name and hash only
+        $packages = $this->get_visit_packages($hash);
+        $visit->packages = $packages;
+        if (isset ($visit) && isset ($tests)) {
             $tests = array_map(function ($test) use ($visit, $font) {
                 $json = new Json($test['option_test']);
                 $filterFeilds = array_merge((array) $test, (array) $visit);
@@ -205,7 +208,7 @@ class VisitModel extends CI_Model
     {
         $hash = $data['hash'];
         $visit = $this->db->get_where('lab_visits', array('hash' => $hash))->row_array();
-        if (isset($visit)) {
+        if (isset ($visit)) {
             $this->db->where('hash', $hash);
             $this->db->update('lab_visits', $data);
         } else {
@@ -217,7 +220,7 @@ class VisitModel extends CI_Model
     {
         $hash = $data['hash'];
         $patient = $this->db->get_where('lab_patient', array('hash' => $hash))->row_array();
-        if (isset($patient)) {
+        if (isset ($patient)) {
             $this->db->where('hash', $hash);
             $this->db->update('lab_patient', $data);
         } else {
@@ -230,11 +233,11 @@ class VisitModel extends CI_Model
         $this->create_calc_tests($tests, $visit_hash);
         $old_packages = $this->db->select("package_id")->where('visit_id', $visit_hash)->get('lab_visits_package')->result_array();
         $old_packages = array_column($old_packages, 'package_id');
-        if (isset($old_packages[0])) {
+        if (isset ($old_packages[0])) {
             $tests = array_diff($tests, $old_packages);
         }
         $tests = array_values($tests);
-        if (!isset($tests[0])) {
+        if (!isset ($tests[0])) {
             return [];
         }
 
@@ -371,7 +374,7 @@ class VisitModel extends CI_Model
             where lab_visits.hash='$visit_id'
         ");
         $result = $query->result_array();
-        if (isset($result[0])) {
+        if (isset ($result[0])) {
             $result = $result[0];
             return $result;
         } else {
@@ -417,7 +420,7 @@ class VisitModel extends CI_Model
     public function get_visit_packages($hash)
     {
         $result = $this->db
-            ->select('lab_visits_package.hash as hash,lab_package.name as name,lab_visits_package.price')
+            ->select('lab_pakage_tests.package_id as hash,lab_package.name as name,lab_visits_package.price')
             ->select('GROUP_CONCAT(lab_test.test_name) as tests')
             ->from('lab_visits_package')
             ->where('visit_id', $hash)
