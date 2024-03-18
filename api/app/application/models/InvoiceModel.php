@@ -32,7 +32,7 @@ class InvoiceModel extends CI_Model
             ->get('lab_invoice')->row_array();
         $invoice = array_merge($invoice, $setting);
         $workers = $this->WorkersModel->getVisibleWorkers();
-        $orderOfHeader = $setting["orderOfHeader"] ??[];
+        $orderOfHeader = $setting["orderOfHeader"] ?? [];
         // sort workers with hash using orderOfHeader
         usort($workers, function ($a, $b) use ($orderOfHeader) {
             $posA = array_search($a['hash'], $orderOfHeader);
@@ -51,13 +51,15 @@ class InvoiceModel extends CI_Model
             ->select('setting')
             ->get($this->table)
             ->row();
-        if (isset($setting->setting)) {
+        if (isset ($setting->setting)) {
             $setting = json_decode($setting->setting, true);
             if (is_array($setting)) {
                 $default = array_merge($default, $setting);
             }
         }
-        $default['orderOfHeader'] = array_merge(json_decode($default['orderOfHeader'], true), $orderOfHeader);
+        if (!is_array($default['orderOfHeader'])) {
+            $default['orderOfHeader'] = array_merge(json_decode($default['orderOfHeader'], true), $orderOfHeader);
+        }
         return $default;
     }
 
@@ -71,7 +73,7 @@ class InvoiceModel extends CI_Model
             ->select('setting')
             ->get($this->table)
             ->row();
-        if (isset($old->setting) && $old->setting != "null" && $old->setting != "") {
+        if (isset ($old->setting) && $old->setting != "null" && $old->setting != "") {
             $old = json_decode($old->setting, true);
             $setting = array_merge($old, $setting);
         }
