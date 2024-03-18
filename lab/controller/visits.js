@@ -719,9 +719,10 @@ function addStrcResult(test, result_test) {
           break;
       }
 
-      const typeMarkup = typeDiff
-        ? `<div class="col-md-12 text-center">${comp.type}</div>`
-        : "";
+      const typeMarkup =
+        typeDiff && comp.type !== "Notes"
+          ? `<div class="col-md-12 text-center">${comp.type}</div>`
+          : "";
 
       return `
       ${typeMarkup}
@@ -945,9 +946,10 @@ function addCultureResult(test, result_test) {
           break;
       }
 
-      const typeMarkup = typeDiff
-        ? `<div class="col-md-12 text-center">${componentType}</div>`
-        : "";
+      const typeMarkup =
+        typeDiff && componentType !== "Notes"
+          ? `<div class="col-md-12 text-center">${componentType}</div>`
+          : "";
 
       const size = resultType === "multi" ? "col-md-6" : "col-md-12";
       // remove all .script
@@ -1951,12 +1953,20 @@ function showResult(data) {
             finalResult = result;
             break;
         }
-        if (reference.type !== type) {
+        if (reference.type !== type && reference.type !== "Notes") {
           type = reference.type;
           invoiceBody += `
           <div class="test strc-test row m-0 typetest sp">
               <div class="col-12 px-0">
                   <p style="font-size: 22px;">${reference.type}</p>
+              </div>
+          </div>`;
+        }
+        if (reference.type === "Notes") {
+          invoiceBody += `
+          <div class="test strc-test row m-0 typetest sp">
+              <div class="col-12 px-0">
+                  <p style="font-size: 22px;">${reference.name}</p>
               </div>
           </div>`;
         }

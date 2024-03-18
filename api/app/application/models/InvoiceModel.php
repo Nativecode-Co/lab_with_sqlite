@@ -32,7 +32,7 @@ class InvoiceModel extends CI_Model
             ->get('lab_invoice')->row_array();
         $invoice = array_merge($invoice, $setting);
         $workers = $this->WorkersModel->getVisibleWorkers();
-        $orderOfHeader = $setting["orderOfHeader"];
+        $orderOfHeader = $setting["orderOfHeader"] ??[];
         // sort workers with hash using orderOfHeader
         usort($workers, function ($a, $b) use ($orderOfHeader) {
             $posA = array_search($a['hash'], $orderOfHeader);
