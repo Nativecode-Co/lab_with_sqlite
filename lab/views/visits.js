@@ -19,12 +19,13 @@ function set_var(_var, value) {
   r.style.setProperty(_var, value);
 }
 
-// on page load
-
 // dom ready
 $(() => {
   set_var("--font_size", `${invoices?.font_size ?? 20}px`);
-  set_var("--typeTest-font", `${parseInt(invoices?.font_size) + 2 ?? 20}px`);
+  set_var(
+    "--typeTest-font",
+    `${Number.parseInt(invoices?.font_size) + 2 ?? 20}px`
+  );
   set_var("--color-orange", invoices?.color ?? "#ff8800");
   set_var("--invoice-color", invoices?.font_color ?? "#000");
   // set_var("--logo-height", `${invoices?.header ?? 175}px`);

@@ -775,7 +775,7 @@ function selectInput({ options, result, multi, name }) {
     .join("");
   return `
           <select 
-            class="form-control result text-center h6"
+            class="form-control result text-center h6 w-100"
             name="${name}"
             ${multiple}
           >
@@ -783,7 +783,7 @@ function selectInput({ options, result, multi, name }) {
           </select>`;
 }
 
-function addSusceptibility(type, name, dose) {
+function addSusceptibility(funType, id, type, name, dose) {
   const randomId = Math.random().toString(36).substring(7);
   const component = [
     {
@@ -870,14 +870,22 @@ function addSusceptibility(type, name, dose) {
       return element;
     })
     .join("");
-  return `
-    <div class="row justify-content-center align-items-center" id="${type}-${randomId}">
+  const newItem = `
+    <div class="row justify-content-center align-items-center mr-0" id="${type}-${randomId}">
       ${item}
-      <div class="col-md-2 text-center text-danger">
-        <i class="fal fa-minus-circle" onclick="deleteElement('${type}-${randomId}')"></i>
+      <div class="col-md-2 text-center w-100 border mt-30 bg-danger border-dark rounded" onclick="deleteElement('${type}-${randomId}')">
+        <i class="fal fa-minus-circle" ></i>
       </div>
     </div>
     `;
+  if (funType === "return") return newItem;
+  const items = document.querySelector(`.${id} #${type}-items`);
+  items.insertAdjacentHTML("beforeend", newItem);
+  $(`#${type}-${randomId} select`).select2({
+    width: "100%",
+    tags: true,
+    dropdownParent: $(`#${type}-${randomId}`),
+  });
 }
 
 function deleteElement(id) {
@@ -886,6 +894,8 @@ function deleteElement(id) {
 
 function addCultureResult(test, result_test) {
   const { component } = test.option_test;
+  const baseId = test.name.replace(/\s/g, "").replace(/[^a-zA-Z0-9]/g, "");
+  const testId = `test-${baseId}`;
 
   let type = "";
 
@@ -917,15 +927,21 @@ function addCultureResult(test, result_test) {
           break;
         case "multi": {
           input = `
-          <div id="${name}-items" class="row justify-content-center align-items-start">
-            <div class="col-md-2 text-center">
-              <i class="fal fa-plus-circle" onclick="document.getElementById('${name}-items').insertAdjacentHTML('beforeend', addSusceptibility('${name}','',''))"></i>
+          <div id="${name}-items" >
+            <div class="text-center w-100 border rounded bg-success border-dark" onclick="addSusceptibility('void','${testId}','${name}','','')">
+              <i class="fal fa-plus-circle" ></i>
             </div>
             ${
               Array.isArray(result)
                 ? result
                     .map((item) => {
-                      return addSusceptibility(name, item.name, item.dose);
+                      return addSusceptibility(
+                        "return",
+                        testId,
+                        name,
+                        item.name,
+                        item.dose
+                      );
                     })
                     .join("")
                 : ""
@@ -953,7 +969,7 @@ function addCultureResult(test, result_test) {
 
       const size = resultType === "multi" ? "col-md-6" : "col-md-12";
       // remove all .script
-      const scripts = document.querySelectorAll(".script");
+      const scripts = document.querySelectorAll(`.script-${testId}`);
       for (const script of scripts) {
         script.remove();
       }
@@ -961,7 +977,7 @@ function addCultureResult(test, result_test) {
       ${typeMarkup}
       ${
         dependOn
-          ? ` <script class="script">
+          ? ` <script class="script-${testId}">
       ${dependOn
         .map((depend) => {
           const { name, when } = depend;
@@ -972,11 +988,11 @@ function addCultureResult(test, result_test) {
             hidden = dependResult === when ? "false" : "true";
           }
           return `
-          $(document).on('change', '[name="${name}"]', function(){
+          $(document).on('change', '.${testId} [name="${name}"]', function(){
             const value = $(this).val();
             const id = "${comp.name.split(" ").join("-")}";
-            const item = document.querySelector(".dependon-show-" + id);
-            const itemFlex = document.querySelector(".flex-dependon-show-" + id);
+            const item = document.querySelector(".${testId} .dependon-show-" + id);
+            const itemFlex = document.querySelector("#invoice-${baseId} .flex-dependon-show-" + id);
             if(value.includes("${when}")){
               item.style.display = "block";
               itemFlex.style.display = "flex";
@@ -1003,10 +1019,9 @@ function addCultureResult(test, result_test) {
       </div>`;
     })
     .join("");
-  const testId = test.name.replace(/\s/g, "").replace(/[^a-zA-Z0-9]/g, "");
   const resultFormMarkup = `
-    <form class="col-md-11 results culture test-${testId} mb-15" id="${test.hash}">
-      <div class="row align-items-center justify-content-center">
+    <form class="col-md-11 results culture ${testId} mb-15" id="${test.hash}">
+      <div class="row align-items-start justify-content-center">
         <div class="col-md-12">
           <h4 class="text-center mt-15">${test.name}</h4>
         </div>
