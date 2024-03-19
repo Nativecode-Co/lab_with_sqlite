@@ -9,14 +9,17 @@ class Json
     $this->type = $json['type'] ?? 'normal';
     $this->default_refrence = $json;
 
-    if (isset($json['component'])) {
+    if (isset ($json['component'])) {
       $json = $json['component'];
-      $json = $json[0];
-      $this->result_type = isset($json['result']) ? $json['result'] : 'number';
+      if (isset ($json[0]))
+        $json = $json[0];
+      else
+        $json = array();
+      $this->result_type = isset ($json['result']) ? $json['result'] : 'number';
     } else {
       $json = array();
     }
-    if (isset($json['reference'])) {
+    if (isset ($json['reference'])) {
       $refrences = $json['reference'];
     }
     $this->json = $json;
@@ -70,6 +73,34 @@ class Json
     $this->refrences = $refrences;
     return $this;
   }
+
+  public function filterToArray($fields)
+  {
+    $refrences = $this->refrences;
+    $refrences = array_filter($refrences, function ($refrence) use ($fields) {
+      $result = true;
+      foreach ($fields as $key => $value) {
+        if (isset ($refrence[$key]) || $key == 'age' || $key = 'gender') {
+          if ($key == 'age') {
+            $ageRange = $this->getAgeRange($refrence);
+            $age = $value * 365; // convert age to days
+            // if age out of range return false
+            if ($age < $ageRange['low'] || $age > $ageRange['high']) {
+              $result = false;
+            }
+          } else if ($key == 'gender') {
+            if ($refrence[$key] != 'كلاهما' && $refrence[$key] != $value) {
+              $result = false;
+            }
+          } else if ($refrence[$key] != $value) {
+            $result = false;
+          }
+        }
+      }
+      return $result;
+    });
+    return array_values($refrences);
+  }
   public function setHeight($font)
   {
     if ($this->type == 'type' || $this->type == 'culture') {
@@ -82,7 +113,7 @@ class Json
       $refrences['range'] = array();
       $refrences['type'] = $this->type;
       $refrences['result_type'] = $this->result_type;
-      $height = isset($refrences['range']) ? count($refrences['range']) : 1;
+      $height = isset ($refrences['range']) ? count($refrences['range']) : 1;
       $height = $height == 0 ? 1 : $height;
       $refrences['height'] = 9 + ($height * 5.5) + (1.15944 * $height * $font);
     } else {

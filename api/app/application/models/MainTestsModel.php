@@ -49,7 +49,7 @@ class MainTestsModel extends CI_Model
         foreach ($tests as $test) {
             $option_test = $test->option_test;
             $json = new Json($option_test);
-            $option_test = $json->getRefrenceByFields(array());
+            $option_test = $json->filterToArray(array());
             $test->refrence = $option_test;
             unset($test->option_test);
         }
@@ -80,7 +80,7 @@ class MainTestsModel extends CI_Model
         $option_test = $output["option_test"];
 
         $json = new Json($option_test);
-        $option_test = $json->getRefrenceByFields($fields);
+        $option_test = $json->filterToArray($fields);
         $output["refrence"] = $option_test;
         unset($output["option_test"]);
         return $output;

@@ -49,7 +49,7 @@ class User_model extends CI_Model
     {
         // like
         $this->db->select(
-            'hash,name,username,password,
+            'hash,name,username,password,note,
              (select name from system_group_name where hash=system_users.user_type) as user_type_name,
              user_type,
              (select name from lab where id=system_users.lab_id) as lab_name,
