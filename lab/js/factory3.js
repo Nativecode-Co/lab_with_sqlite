@@ -509,19 +509,23 @@ async function fireSwal(fun = null, ...args) {
         new Date())) /
     1000 /
     60;
-  if (diffTimeInMin > 0.1) {
-    syncOnline();
-    localStorage.setItem("lastSync", new Date());
-  }
+
   const body = document.getElementsByTagName("body")[0];
   body.insertAdjacentHTML("beforeend", waitElement);
   setTimeout(async () => {
     new Promise((resolve, reject) => {
       fun.call(this, ...args);
       resolve();
-    }).then(() => {
-      document.getElementById("alert_screen").remove();
-    });
+    })
+      .then(() => {
+        document.getElementById("alert_screen").remove();
+      })
+      .then(() => {
+        if (diffTimeInMin > 0.1) {
+          syncOnline();
+          localStorage.setItem("lastSync", new Date());
+        }
+      });
   }, 100);
 }
 

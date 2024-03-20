@@ -336,8 +336,6 @@ function syncOnline() {
   if (!navigator.onLine) {
     return false;
   }
-  fetch(`${__domain__}/sync/sync_up.php`).then((res) => {
-    fetchData("Offline_sync/Offline_sync");
-  });
+  fetch(`${__domain__}/sync/sync_up.php`);
   updateExpireDate();
 }

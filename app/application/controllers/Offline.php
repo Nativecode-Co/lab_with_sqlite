@@ -1,6 +1,6 @@
 <?php
 
-defined('BASEPATH') or exit('No direct script access allowed');
+defined('BASEPATH') or exit ('No direct script access allowed');
 require __DIR__ . '/jwt/autoload.php';
 
 use Firebase\JWT\JWT;
@@ -559,23 +559,75 @@ class Offline extends CI_Controller
     public function run_sync()
     {
         $queries = $this->input->post("queries");
+        $lab = $this->input->post("lab");
+        $labCols = array(
+            "lab_doctor" => "lab_id",
+            "lav_invoice" => "lab_hash",
+            "lab_invoice_worker" => "lab_hash",
+            "lab_package" => "lab_id",
+            "lab_pakage_tests" => "lab_id",
+            "lab_patient" => "lab_id",
+            "lab_test" => "lab_hash",
+            "lab_visits_package" => "lab_id",
+            "lab_visits_tests" => "lab_id",
+            "system_users" => "lab_id",
+            "lab_visits" => "labId"
+        );
+        if (is_array($queries)) {
+            $queries = implode(";", $queries);
+        }
         $queries = explode(";", $queries);
         $result = array();
         foreach ($queries as $query) {
             if ($query != "") {
-                // if query contain delete 
-                if (strpos($query, "delete") !== true) {
-                    $this->db->query("insert into   offline_sync(query, lab_id, table_name, operation) values('$query', '0', 'lab_test', 'delete')");
+                // check if query update or insert or delete
+                if (strpos($query, "UPDATE") !== false) {
+                    foreach ($labCols as $table => $col) {
+                        if (strpos($query, $table) !== false) {
+                            $query = str_replace("WHERE", "WHERE $col='$lab' and", $query);
+                            break;
+                        }
+                    }
+                    $re = $this->db->query($query);
+                    array_push(
+                        $result,
+                        array(
+                            "query" => $query,
+                            "result" => $re
+                        )
+                    );
+                } else if (strpos($query, "INSERT") !== false) {
+                    foreach ($labCols as $table => $col) {
+                        if (strpos($query, $table) !== false) {
+                            $query = str_replace(") VALUES", ",`$col`) VALUES", $query);
+                            $query = str_replace("')", "','$lab')", $query);
+                            break;
+                        }
+                    }
+                    $re = $this->db->query($re);
+                    array_push(
+                        $result,
+                        array(
+                            "query" => $query,
+                            "result" => $re
+                        )
+                    );
                 } else {
-                    $this->db->query($query);
                     array_push($result, $query);
                 }
-
             }
         }
         $this->output
             ->set_status_header(200)
             ->set_content_type('application/json')
-            ->set_output(json_encode("re"));
+            ->set_output(
+                json_encode(
+                    array(
+                        'status' => 200,
+                        'message' => 'Sync updated',
+                        'data' => $result
+                    )
+                )
+            );
     }
 }

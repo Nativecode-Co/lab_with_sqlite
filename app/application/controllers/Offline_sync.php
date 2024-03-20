@@ -1,5 +1,5 @@
 <?php
-defined('BASEPATH') or exit('No direct script access allowed');
+defined('BASEPATH') or exit ('No direct script access allowed');
 
 class Offline_sync extends CI_Controller
 {
@@ -13,11 +13,18 @@ class Offline_sync extends CI_Controller
     public function index()
     {
         $resultQueries = $this->Offline_sync_model->offline_sync_query();
-
+        $lab_id = $this->db->get('lab')->row()->id;
         $this->output
             ->set_status_header(200)
             ->set_content_type('application/json')
-            ->set_output(json_encode($resultQueries));
+            ->set_output(
+                json_encode(
+                    array(
+                        'queries' => $resultQueries,
+                        'lab_id' => $lab_id
+                    )
+                )
+            );
     }
 
     public function update_sync()
