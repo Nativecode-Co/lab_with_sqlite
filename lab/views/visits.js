@@ -1,5 +1,6 @@
-const urlParams = new URLSearchParams(window.location.search),
-  barcode = urlParams.get("barcode");
+const urlParams = new URLSearchParams(window.location.search);
+const barcode = urlParams.get("barcode");
+let lastSearch = "";
 
 if (barcode) {
   visitDetail(`${barcode}`);
@@ -7,50 +8,70 @@ if (barcode) {
 }
 
 function get_var(_var = "") {
-  let r = document.querySelector(":root");
-  let rs = getComputedStyle(r);
-  alert(`The value of ${_var} is: ` + rs.getPropertyValue(_var));
+  const r = document.querySelector(":root");
+  const rs = getComputedStyle(r);
+  alert(`The value of ${_var} is: ${rs.getPropertyValue(_var)}`);
 }
 
 // Create a function for setting a variable value
 function set_var(_var, value) {
-  let r = document.querySelector(":root");
+  const r = document.querySelector(":root");
   // Set the value of variable --blue to another value (in this case "lightblue")
   r.style.setProperty(_var, value);
 }
 
+const searchPackages = () => {
+  const value = $("#input-search-all").val();
+  const category = $("#categorySelect-all").val();
+  const rex = new RegExp(value, "i");
+  if (value && category) {
+    $(".searchable-container .item").hide();
+    $(`.searchable-container .items.package[data-category='${category}']`)
+      .filter(function () {
+        return rex.test($(this).text());
+      })
+      .show();
+    $(`.searchable-container .item[data-category='${category}']`)
+      .filter(function () {
+        return rex.test($(this).text());
+      })
+      .show();
+  } else if (value) {
+    $(".searchable-container .item").hide();
+    $(".searchable-container .item")
+      .filter(function () {
+        return rex.test($(this).text());
+      })
+      .show();
+  } else if (category) {
+    $(".searchable-container .item").hide();
+    $(
+      `.searchable-container .items.package[data-category='${category}']`
+    ).show();
+    $(`.searchable-container .item[data-category='${category}']`).show();
+  } else {
+    if (lastSearch !== value) {
+      $(".searchable-container .item").slice(0, 20).show();
+    } else {
+      $(".searchable-container .item").show();
+    }
+    lastSearch = value;
+  }
+};
+
 // on page load
 
 // dom ready
-$(function () {
-  setTimeout(() => {
-    // const driverObj = driver.js.driver({
-    //   overlayOpacity: 0,
-    //   popoverClass: "text-white bg-dark text-center",
-    //   popoverOffset: 0,
-    //   nextBtnText: "التالي",
-    //   prevBtnText: "السابق",
-    //   doneBtnText: "تم",
-    //   steps: [
-    //     {
-    //       element: "#form-lab_visits",
-    //       popover: {
-    //         title: "اضافة مريض",
-    //         description: "هنا يمكن اضافة تفاصيل المريض",
-    //         side: "left",
-    //         align: "center",
-    //       },
-    //     },
-    //   ],
-    // });
-    // driverObj.drive();
-  });
+$(() => {
   // change format date of #visit_date to 01-apr-2023
 
   // let root = document.documentElement;
   // change :root  font_size
   set_var("--font_size", `${invoices?.font_size ?? 20}px`);
-  set_var("--typeTest-font", `${parseInt(invoices?.font_size) + 2 ?? 20}px`);
+  set_var(
+    "--typeTest-font",
+    `${Number.parseInt(invoices?.font_size) + 2 ?? 20}px`
+  );
   set_var("--color-orange", invoices?.color ?? "#ff8800");
   set_var("--invoice-color", invoices?.font_color ?? "#000");
   // set_var("--logo-height", `${invoices?.header ?? 175}px`);
@@ -61,12 +82,12 @@ $(function () {
   // add visit form
   $("#visit-form").append(lab_visits.createForm());
   //resize window
-  $(window).resize(function () {
+  $(window).resize(() => {
     $(".half-page").css("height", $(window).height() - 100);
   });
 
   // visits button
-  $("#visits-button").click(function () {
+  $("#visits-button").click(() => {
     $(".page-form").empty();
     $(".pan").addClass("d-none");
     $(".visits").removeClass("d-none");
@@ -75,7 +96,7 @@ $(function () {
   });
 
   // add-visit button
-  $("#add-visit-button").click(function () {
+  $("#add-visit-button").click(() => {
     $(".page-form").empty();
     $(".page-form").append(visit_form);
     $(".pan").addClass("d-none");
@@ -86,14 +107,14 @@ $(function () {
     $("#add-visit-button").addClass("active");
   });
 
-  $(document).keydown(function (e) {
+  $(document).keydown((e) => {
     if (
-      $(`input.result`).is(":focus") &&
-      (e.keyCode == 40 || e.keyCode == 13)
+      $("input.result").is(":focus") &&
+      (e.keyCode === 40 || e.keyCode === 13)
     ) {
       e.preventDefault();
       focusInput("add");
-    } else if ($(`input.result`).is(":focus") && e.keyCode == 38) {
+    } else if ($("input.result").is(":focus") && e.keyCode === 38) {
       e.preventDefault();
       focusInput("12");
     }
@@ -111,54 +132,16 @@ $(function () {
 
   // wait 500ms to load data
   setTimeout(() => {
-    $("#input-search-all").on("keyup change", function () {
-      let category = $("#categorySelect-all").val();
-      var rex = new RegExp($(this).val(), "i");
-      $(".searchable-container .item").hide();
-      if (category == 0 || category == "" || !category) {
-        $(`.searchable-container .items.package`)
-          .filter(function () {
-            return rex.test($(this).text());
-          })
-          .show();
-        $(`.searchable-container .item`)
-          .filter(function () {
-            return rex.test($(this).text());
-          })
-          .show();
-      } else {
-        $(`.searchable-container .items.package[data-category='${category}']`)
-          .filter(function () {
-            return rex.test($(this).text());
-          })
-          .show();
-        $(`.searchable-container .item[data-category='${category}']`)
-          .filter(function () {
-            return rex.test($(this).text());
-          })
-          .show();
-      }
-    });
+    // input-search-all or categorySelect-all
+    $("#input-search-all").on("keyup change", searchPackages);
+    $("#categorySelect-all").on("change", searchPackages);
 
-    $("#categorySelect-all").on("change", function () {
-      $("#input-search-all").val("");
-      var category = $(this).val();
-      if (category == 0 || category == "" || !category) {
-        $(".searchable-container .item").show();
-        return;
-      }
-      $(".searchable-container .item").hide();
-      $(
-        `.searchable-container .items.package[data-category='${category}']`
-      ).show();
-      $(`.searchable-container .item[data-category='${category}']`).show();
-    });
     $("#input-search-2").on("keyup change", function () {
-      let category = $("#categorySelect-2").val();
-      var rex = new RegExp($(this).val(), "i");
+      const category = $("#categorySelect-2").val();
+      const rex = new RegExp($(this).val(), "i");
       $(".searchable-container .test").hide();
-      if (category == 0 || category == "" || !category) {
-        $(`.searchable-container .test`)
+      if (category === 0 || category === "" || !category) {
+        $(".searchable-container .test")
           .filter(function () {
             return rex.test($(this).text());
           })
@@ -174,8 +157,8 @@ $(function () {
 
     $("#categorySelect-2").on("change", function () {
       $("#input-search-2").val("");
-      var category = $(this).val();
-      if (category == 0 || category == "" || !category) {
+      const category = $(this).val();
+      if (category === 0 || category === "" || !category) {
         $(".searchable-container .test").show();
         return;
       }
@@ -185,10 +168,10 @@ $(function () {
 
     $("#input-search-3").on("keyup change", function () {
       let category = $("#categorySelect-3").val();
-      var rex = new RegExp($(this).val(), "i");
+      const rex = new RegExp($(this).val(), "i");
       $(".searchable-container .package").hide();
-      if (category == 0 || category == "" || !category) {
-        $(`.searchable-container .package`)
+      if (category === 0 || category === "" || !category) {
+        $(".searchable-container .package")
           .filter(function () {
             return rex.test($(this).text());
           })
@@ -203,8 +186,8 @@ $(function () {
     });
 
     $("#categorySelect-3").on("change", function () {
-      var category = $(this).val();
-      if (category == 0 || category == "" || !category) {
+      const category = $(this).val();
+      if (category === 0 || category === "" || !category) {
         $(".searchable-container .package").show();
         return;
       }
@@ -220,8 +203,4 @@ $(function () {
     $(".main-visit-tests").height(mainHeight);
     $(".main-visit-selected-tests").height(mainHeight);
   }, 200);
-  // $(document).on('select2:open', (e) => {
-  //   // focus on search input for this select2
-  //   document.querySelector('.select2-search__field').focus();
-  // });
 });
