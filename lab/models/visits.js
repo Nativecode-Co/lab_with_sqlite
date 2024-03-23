@@ -83,6 +83,13 @@ class Visit extends Factory {
     form.reset();
     // change doctor_hash select2 with
     $("#doctor_hash").val(null).trigger("change");
+    $("#gender").val(null).trigger("change");
+    const newPatientElement = document.querySelector(
+      `input[name="new_patient"]`
+    );
+    // change new patient checked
+    newPatientElement.checked = true;
+    changePatientTag();
     // change visits_date with today
     document.getElementById("visit_date").value = TODAY;
 
@@ -120,7 +127,7 @@ class Visit extends Factory {
     );
     // change new patient checked
     newPatientElement.checked = false;
-    changePatientTag(newPatientElement);
+    changePatientTag();
     this.resetForm();
     for (const p of visit.packages) {
       const testElement = document.getElementById(`package_${p.hash}`);
@@ -261,6 +268,8 @@ class Visit extends Factory {
   }
 
   saveNewItem() {
+    const data = this.validate();
+    if (!data) return;
     const visit = fetchApi("/visit/create_visit", "POST", data);
     this.dataTable.ajax.reload();
     this.resetForm();
@@ -281,7 +290,7 @@ class Visit extends Factory {
       `input[name="new_patient"]`
     );
     newPatientElement.checked = false;
-    changePatientTag(newPatientElement);
+    changePatientTag();
     $(`#${this.table} -save`).attr(
       "onclick",
       `fireSwal.call(${this.table}, ${this.table}.savenewItemaAfterCheckName)`

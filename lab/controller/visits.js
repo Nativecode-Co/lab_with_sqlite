@@ -20,11 +20,12 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-const changePatientTag = (e) => {
+const changePatientTag = () => {
   const visitsPatientIdForm = document.getElementById("patient-form");
-  visitsPatientIdForm.innerHTML = "";
+  const newPatientElement = document.querySelector(`input[name="new_patient"]`);
 
-  if (!e.checked) {
+  visitsPatientIdForm.innerHTML = "";
+  if (!newPatientElement.checked) {
     visitsPatientIdForm.innerHTML = `
       <label for="patient">اسم المريض</label>
       <select class="form-control" id="patient" name="patient" onchange="getOldPatient(this.value)">
@@ -52,10 +53,7 @@ const changePatientTag = (e) => {
 // change the patient addEventListener
 document
   .querySelector("input[name='new_patient']")
-  .addEventListener("change", (e) => {
-    lab_visits.resetForm();
-    changePatientTag(e.target);
-  });
+  .addEventListener("change", changePatientTag);
 
 function toggleHeaderAndFooter() {
   const invoiceShow = $(".book-result .header .row:visible").length;
@@ -112,10 +110,9 @@ const getAge = (birth) => {
 const getOldPatient = (hash) => {
   if (hash !== 0) {
     const patient = fetchApi(`/patient/get_patient?hash=${hash}`);
-    const { year, month, day } = getAge(patient.birth ?? TODAY);
-    $("#age_year").val(year);
-    $("#age_month").val(month);
-    $("#age_day").val(day);
+    $("#age_year").val(patient.age_year);
+    $("#age_month").val(patient.age_month);
+    $("#age_day").val(patient.age_day);
     $("#gender").val(patient.gender).trigger("change");
     $("#phone").val(patient.phone);
     $("#address").val(patient.address);
@@ -495,6 +492,7 @@ function addNormalResult(test, result_test) {
 
 function generateFieldForTest(test, resultList) {
   const { type: testType, ...reference } = test.option_test;
+  const checked = resultList?.[test.name]?.checked === "false" ? false : true;
   return `
   <form class="col-md-11 results test-normalTests mb-15" id="${test.hash}">
       <div class="row align-items-center">
@@ -529,7 +527,7 @@ function generateFieldForTest(test, resultList) {
                   <input type="checkbox" id="check_normal_${
                     test.hash
                   }" name="checked" ${
-    resultList?.[test.name]?.checked ?? true ? "checked" : ""
+    checked ? "checked" : ""
   } onclick="toggleTest.call(this)"
     value="true"
   >
@@ -1348,12 +1346,7 @@ function showInvoice(hash) {
                                     <p class="">Date</p>
                                 </div>
                                 <div class="vidgo">
-                                    <p><span class="note">${visit.visit_date}${
-    visit.time
-      ? `</span>&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;<span
-                                    class="note">${visit.time}</span></p>`
-      : ""
-  }
+                                    <p><span class="note">${visit.date}
                                 </div>
                                 <div class="prd">
                                 <p class="doctor-name">Doctor</p>
@@ -2072,7 +2065,7 @@ function showResult(data) {
         result: result,
         hash: test.hash,
         category: category,
-        checked: test.result?.checked ?? true ? "flex" : "none",
+        checked: test.result?.checked === "false" ? "none" : "flex",
         normal: normalRange,
         flag: flag,
         history: history.find((item) => item.name == test.name)?.result ?? "",
@@ -2734,4 +2727,11 @@ function saveRefrence(hash, refID) {
   });
   $("#refrence_editor").modal("hide");
   TEST = null;
+}
+
+function deleteRange(e, id) {
+  const num = $(`#${id} .range`).length;
+  if (num > 1) {
+    e.parents(".range").remove();
+  }
 }

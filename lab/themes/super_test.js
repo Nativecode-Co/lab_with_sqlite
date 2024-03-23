@@ -828,7 +828,7 @@ function resultTypeChange(id) {
 function createRefrenceForm(hash, refrence, id) {
   const { kits } = fetchApi("/tests/get_tests_data");
   $("#refrence_editor .modal-title").text(
-    `${kits.find((x) => x.id == refrence.kit)?.name ?? "No Kit"}`
+    `${kits.find((x) => x.id == refrence.kit)?.name ?? "ادخل البيانات"}`
   );
   return THEME.build(hash, null, null);
 }

@@ -312,7 +312,7 @@ function saveUpdatePackage(hash) {
     name: formData.name,
     price: formData.price,
     cost: formData.cost,
-    note: formData.notes,
+    note: formData.note,
     tests: JSON.stringify(tests),
     hash,
   };
@@ -437,4 +437,11 @@ function saveRefrence(hash, refID) {
   });
   $("#refrence_editor").modal("hide");
   TEST = null;
+}
+
+function deleteRange(e, id) {
+  const num = $(`#${id} .range`).length;
+  if (num > 1) {
+    e.parents(".range").remove();
+  }
 }

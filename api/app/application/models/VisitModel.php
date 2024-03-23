@@ -32,24 +32,24 @@ class VisitModel extends CI_Model
         // get data table params
         $start = $params['start'];
         $rowsPerPage = $params['length'];
-        $page = $start / $rowsPerPage + 1;
+        $page = $start / $rowsPerPage;
+
         $orderBy = $params['order'][0]['column'];
         $orderBy = $params['columns'][$orderBy]['data'];
         $order = $params['order'][0]['dir'];
         $searchText = $params['search']['value'];
         $today = $params['today'];
-        $opration = $today == 1 ? "=" : "<";
+        $opration = $today == 1 ? "=" : "<=";
         $data = $this->db
             ->select('lab_visits.hash as hash ,visits_patient_id as patient_hash,ispayed')
             ->select("lab_patient.name as name,visit_date")
             ->select("(select name from lab_visit_status where hash=visits_status_id) as visit_type")
-            ->from($this->table)
             ->join('lab_patient', 'lab_patient.hash = lab_visits.visits_patient_id')
             ->like(array('lab_patient.name' => $searchText))
             ->where(array('lab_visits.isdeleted' => '0', 'visit_date ' . $opration => date('Y-m-d')))
             ->order_by($orderBy, $order)
-            ->limit($rowsPerPage, ($page - 1) * $rowsPerPage)
-            ->get()->result_array();
+            ->get($this->table, $rowsPerPage, $page * $rowsPerPage)
+            ->result_array();
         return $data;
     }
 
@@ -103,7 +103,7 @@ class VisitModel extends CI_Model
         $font = $this->db->select('font_size')->from('lab_invoice')->get()->row();
         $font = $font->font_size;
         $visit = $this->db
-            ->select("age,gender,phone,lab_patient.name,DATE(visit_date) as date")
+            ->select("age,gender,phone,lab_patient.name,DATE(visit_date) as date,age_year,age_month,age_day")
             ->select("TIME(visit_date) as time,visits_patient_id as patient,lab_visits.hash")
             ->select("(select name from lab_doctor where hash=lab_visits.doctor_hash) as doctor")
             ->select("lab_patient.hash as patient_hash, gender,age,dicount,total_price,net_price")
@@ -114,7 +114,6 @@ class VisitModel extends CI_Model
         $tests = $this->db
             ->select("option_test, test_name as name, kit_id")
             ->select(" (select name from devices where devices.id=lab_device_id limit 1) as device_name, (select name from kits where kits.id =kit_id limit 1) as kit_name, (select name from lab_test_units where hash=lab_pakage_tests.unit limit 1) as unit_name")
-            // (select name from lab_test_catigory where hash=lab_test.category_hash limit 1) as category if null return Tests
             ->select("ifnull(lab_test_catigory.name,'Tests') as category")
             ->select("unit, result_test as result,sort, lab_visits_tests.hash as hash, test_id")
             ->from("lab_visits_tests")
@@ -153,8 +152,10 @@ class VisitModel extends CI_Model
 
     public function get_visit_form_data()
     {
-        $patients = $this->db->select('hash,name')->get('lab_patient')->result_array();
-        $doctors = $this->db->select('hash,name')->get('lab_doctor')->result_array();
+        $patients = $this->db->select('hash,name')
+            ->where("isdeleted", "0")
+            ->get('lab_patient')->result_array();
+        $doctors = $this->db->select('hash,name')->where("isdeleted", "0")->get('lab_doctor')->result_array();
         $units = $this->db->select('hash,name')->get('lab_test_units')->result_array();
         $data = $this->get_tests_and_packages();
         return array(

@@ -482,6 +482,7 @@
     height: 80px;
     margin-left: 45px;
     margin-right: 45px;
+    border-top: 5px solid #2e3f4c;
 }
 
 .footer2 {

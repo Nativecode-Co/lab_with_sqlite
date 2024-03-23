@@ -64,6 +64,28 @@ function fetchData(url = "", type = "GET", data = {}) {
   return res;
 }
 
+function fetchSync(url = "", type = "GET", data = {}) {
+  let res = null;
+  const token = localStorage.getItem("token");
+  $.ajax({
+    url: base_url + url,
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    type,
+    data,
+    dataType: "JSON",
+    async: true,
+    success: (result) => {
+      res = result;
+    },
+    error: () => {
+      console.log("internet connection or missing link");
+    },
+  });
+  return res;
+}
+
 function fetchApi(url = "", type = "GET", data = {}) {
   let res = null;
   const token = localStorage.getItem("token");
@@ -87,6 +109,9 @@ function fetchApi(url = "", type = "GET", data = {}) {
 }
 
 function fetchDataOnline(url = "", type = "GET", data = {}) {
+  if (!navigator.onLine) {
+    return false;
+  }
   let res = null;
   const token = localStorage.getItem("token");
   $.ajax({
