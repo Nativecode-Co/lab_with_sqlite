@@ -195,8 +195,4 @@ $(() => {
     $(".main-visit-tests").height(mainHeight);
     $(".main-visit-selected-tests").height(mainHeight);
   }, 200);
-  // $(document).on('select2:open', (e) => {
-  //   // focus on search input for this select2
-  //   document.querySelector('.select2-search__field').focus();
-  // });
 });
