@@ -1114,7 +1114,7 @@ function saveResult(hash) {
             };
           }
         }
-      } else if (data[key]) {
+      } else if (data[key] && key !== "checked") {
         if (Array.isArray(data[key])) {
           data[key].push(value);
         } else {

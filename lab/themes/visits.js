@@ -1,3 +1,4 @@
+
 const createTest = (test, type) => {
   switch (type) {
     case "1":
@@ -177,7 +178,7 @@ class TestsThemeOne extends TestsTheme {
   }
 
   saveButton(table) {
-    return `<button type="button" class="btn btn-main-add w-100" onclick="fireSwal.call(${table},${table}.saveNewItem)" id="${table}-save">حفظ</button>`;
+    return `<button type="button" class="btn btn-main-add w-100" onclick="fireSwal.call(${table},${table}.savenewItemaAfterCheckName)" id="${table}-save">حفظ</button>`;
   }
 
   priceInputs(table) {
@@ -361,7 +362,7 @@ class TestsThemeTwo extends TestsTheme {
 
   saveButton(table) {
     return `
-    <button type="button" class="btn btn-main-add" onclick="fireSwal.call(${table},${table}.saveNewItem)" id="${table}-save">حفظ</button>
+    <button type="button" class="btn btn-main-add" onclick="fireSwal.call(${table},${table}.savenewItemaAfterCheckName)" id="${table}-save">حفظ</button>
     `;
   }
 

@@ -220,6 +220,7 @@ class Visit extends Factory {
 
   savenewItemaAfterCheckName() {
     const data = this.validate();
+    if (!data) return;
     const checked = document.querySelector(`input[name="new_patient"]`).checked;
     const { isExist, hash } = fetchApi("/patient/patientIsExist", "POST", {
       name: data.name,
@@ -260,8 +261,6 @@ class Visit extends Factory {
   }
 
   saveNewItem() {
-    const data = this.validate();
-    if (!data) return;
     const visit = fetchApi("/visit/create_visit", "POST", data);
     this.dataTable.ajax.reload();
     this.resetForm();
