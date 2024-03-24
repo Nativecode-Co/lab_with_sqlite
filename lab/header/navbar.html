@@ -62,14 +62,14 @@
             lab: localStorage.getItem("lab_hash"),
         });
         if (count > 0) {
-            data.forEach((item, index) => {
+            data.slice(0, 5).forEach((item, index) => {
                 const li = document.createElement("li");
                 li.innerHTML = `
                 <a href="${front_url}notification.html">
                     <div class="row">
                         <div class="col-12">
                             <h5>${item.type}</h5>
-                            <p class="">${item.text.substring(0, 100)}...</p>
+                            <p class="">${item.text.substring(0, 20)}</p>
                         </div>
                     </div>
                 </a>
