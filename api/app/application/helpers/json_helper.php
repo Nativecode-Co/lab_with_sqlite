@@ -36,6 +36,7 @@ class Json
       return $this;
     }
     $index = 0;
+
     $refrences = array_map(function ($refrence) use ($index) {
       $refrence['index'] = $index;
       $index++;
