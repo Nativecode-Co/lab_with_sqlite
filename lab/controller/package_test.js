@@ -281,7 +281,7 @@ function saveNewPackage() {
     name: formData.name,
     price: formData.price,
     cost: formData.cost,
-    note: formData.notes,
+    note: formData.note,
     catigory_id: 8,
     tests: JSON.stringify(tests),
   };
