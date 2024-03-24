@@ -205,12 +205,12 @@ class Theme {
     `;
   }
 
-  mainForm(id, hash, refrence) {
-    return ``;
+  mainForm(hash, refrence) {
+    return "";
   }
 
   build() {
-    return ``;
+    return "";
   }
 }
 
@@ -267,8 +267,9 @@ class FormTheme extends Theme {
     `;
   }
 
-  mainForm(id, hash, refrence) {
-    const { kit, unit, range, result, right_options, options, gender } =
+  mainForm(hash, refrence) {
+    console.log(refrence);
+    const { id, kit, unit, range, result, right_options, options, gender } =
       refrence;
 
     const ageLow = refrence?.["age low"] ?? 0;
@@ -318,13 +319,13 @@ class FormTheme extends Theme {
   build(hash, refrences, selectedKit) {
     let form = "";
     if (refrences) {
-      refrences.map((refrence, id) => {
+      refrences.map((refrence) => {
         if (refrence?.kit == selectedKit) {
-          form += this.mainForm(id, hash, refrence);
+          form += this.mainForm(hash, refrence);
         }
       });
     } else {
-      form = this.mainForm(null, hash, deafultRefrence);
+      form = this.mainForm(hash, deafultRefrence);
     }
     return form;
   }
@@ -366,8 +367,9 @@ class TableTheme extends Theme {
     `;
   }
 
-  mainForm(id, hash, refrence) {
-    const { kit, unit, range, result, right_options, options, gender } =
+  mainForm(hash, refrence) {
+    console.log(refrence);
+    const { id, kit, unit, range, result, right_options, options, gender } =
       refrence;
     const ageLow = refrence?.["age low"] ?? 0;
     const ageLowUnit = refrence?.["age unit low"] ?? "عام";
@@ -410,8 +412,8 @@ class TableTheme extends Theme {
     `;
   }
 
-  createRow(id, hash, refrence) {
-    const { kit, unit, range, gender } = refrence;
+  createRow(hash, refrence) {
+    const { id, kit, unit, range, gender } = refrence;
     const ageLow = refrence?.["age low"] ?? 0;
     const ageLowUnit = refrence?.["age unit low"] ?? "عام";
     const ageHigh = refrence?.["age high"] ?? 0;
@@ -445,7 +447,7 @@ class TableTheme extends Theme {
         }</td>
         <td>${unitName}</td>
         <td>
-          <i class="fas fa-edit text-success" onclick="updateRefrence('${hash}', '${id}','${unit}')"></i>
+          <i class="fas fa-edit text-success" onclick="updateRefrence('${hash}', '${id}')"></i>
           <i class="fas fa-trash text-danger" onclick="fireSwalForDelete(deleteRefrence, '${hash}','${id}')"></i>
         </td>
       </tr>
@@ -485,7 +487,7 @@ class TableTheme extends Theme {
               const kit = refrence?.kit ?? "";
               // check if kit in this kits
               if (kit == selectedKit) {
-                return this.createRow(id, hash, refrence);
+                return this.createRow(hash, refrence);
               }
             })
             .join("")}
@@ -567,8 +569,8 @@ class PackageTestTheme extends TableTheme {
     `;
   }
 
-  createRow(id, hash, refrence) {
-    const { range, gender, unit } = refrence;
+  createRow(hash, refrence) {
+    const { id, range, gender, unit } = refrence;
     const ageLow = refrence?.["age low"] ?? 0;
     const ageLowUnit = refrence?.["age unit low"] ?? "عام";
     const ageHigh = refrence?.["age high"] ?? 0;
@@ -588,7 +590,7 @@ class PackageTestTheme extends TableTheme {
           }) ?? "No Range"
         }</td>
         <td>
-          <i class="fas fa-edit text-success" onclick="updateRefrence('${hash}', '${id}','${unit}')"></i>
+          <i class="fas fa-edit text-success" onclick="updateRefrence('${hash}', '${id}')"></i>
         </td>
       </tr>
     `;
@@ -612,14 +614,7 @@ class PackageTestTheme extends TableTheme {
         <tbody>
           ${refrences
             .map((refrence, id) => {
-              const kit = refrence?.kit;
-              const unit = refrence?.unit;
-              if (
-                (kit == selectedKit || (isNull(kit) && isNull(selectedKit))) &&
-                (unit == selectedUnit || (isNull(unit) && isNull(selectedUnit)))
-              ) {
-                return this.createRow(id, hash, refrence);
-              }
+              return this.createRow(hash, refrence);
             })
             .join("")}
         </tbody>

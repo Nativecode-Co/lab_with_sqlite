@@ -55,7 +55,7 @@ class PackageTest extends Factory {
                         <a class="text-info" onclick="addRefrence('${row.test_id}','${row.unit}');">
                           <i class="far fa-plus-circle fa-lg mx-2"></i>
                         </a>
-                        <a class="text-success" onclick="updateNormal('${row.test_id}','${row.kit_id}','${row.unit}')">
+                        <a class="text-success" onclick="updateNormal('${row.test_id}')">
                           <i class="fas fa-syringe fa-lg mx-2"></i>
                         </a>
                         <a class="text-success" onclick="updateTest('${row.hash}')"><i class="fa-lg mx-2 fas fa-edit"></i></a>

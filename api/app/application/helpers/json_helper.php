@@ -23,7 +23,23 @@ class Json
       $refrences = $json['reference'];
     }
     $this->json = $json;
+    $index = 0;
+    $refrences = array_map(function ($refrence) use (&$index) {
+      if (!isset ($refrence['id'])) {
+        $id = $index++;
+      } else {
+        $id = $refrence['id'];
+        $index = $id + 1;
+      }
+      $refrence['id'] = $id;
+      return $refrence;
+    }, $refrences);
     $this->refrences = $refrences;
+  }
+
+  public function isnull($value)
+  {
+    return $value == null || $value == '' || $value == 'null' || $value == 'undefined' || $value == '0' || $value == 0;
   }
 
 
@@ -35,17 +51,17 @@ class Json
       $this->refrences = $this->default_refrence;
       return $this;
     }
-    $index = 0;
 
-    $refrences = array_map(function ($refrence) use ($index) {
-      $refrence['index'] = $index;
-      $index++;
-      return $refrence;
-    }, $refrences);
     $refrences = array_filter($refrences, function ($refrence) use ($fields) {
       $result = true;
       foreach ($fields as $key => $value) {
-        if (isset ($refrence[$key]) || $key == 'age' || $key = 'gender') {
+        if (isset ($refrence[$key]) || $key == 'age' || $key == 'gender') {
+          if ($key == 'kit' || $key == 'unit') {
+            if ($this->isnull($value))
+              $value = null;
+            if ($this->isnull($refrence[$key]))
+              $refrence[$key] = null;
+          }
           if ($key == 'age') {
             $ageRange = $this->getAgeRange($refrence);
             $age = $value * 365; // convert age to days
@@ -54,7 +70,12 @@ class Json
               $result = false;
             }
           } else if ($key == 'gender') {
-            if ($refrence[$key] != 'كلاهما' && $refrence[$key] != $value) {
+            // if key in['انثي','انثى'] and value in ['انثي','انثى'] return true
+            if ($refrence[$key] == 'انثي' && $value == 'انثى') {
+              $result = true;
+            } else if ($refrence[$key] == 'انثى' && $value == 'انثي') {
+              $result = true;
+            } else if ($refrence[$key] != 'كلاهما' && $refrence[$key] != $value) {
               $result = false;
             }
           } else if ($refrence[$key] != $value) {
@@ -65,10 +86,6 @@ class Json
       return $result;
     });
     $refrences = array_map(function ($refrence) {
-      unset ($refrence['age low']);
-      unset ($refrence['age high']);
-      unset ($refrence['age unit low']);
-      unset ($refrence['age unit high']);
       $refrence['result_type'] = $this->result_type;
       $refrence['type'] = $this->type;
       return $refrence;

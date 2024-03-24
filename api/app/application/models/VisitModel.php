@@ -110,7 +110,7 @@ class VisitModel extends CI_Model
             ->from("lab_visits")
             ->join("lab_patient", "lab_patient.hash=lab_visits.visits_patient_id")
             ->where("lab_visits.hash", $hash)
-            ->get()->row();
+            ->get()->row_array();
         $tests = $this->db
             ->select("option_test, test_name as name, kit_id")
             ->select(" (select name from devices where devices.id=lab_device_id limit 1) as device_name, (select name from kits where kits.id =kit_id limit 1) as kit_name, (select name from lab_test_units where hash=lab_pakage_tests.unit limit 1) as unit_name")
@@ -125,11 +125,16 @@ class VisitModel extends CI_Model
             ->get()->result_array();
         // packges get name and hash only
         $packages = $this->get_visit_packages($hash);
-        $visit->packages = $packages;
+        $visit['packages'] = $packages;
         if (isset ($visit) && isset ($tests)) {
             $tests = array_map(function ($test) use ($visit, $font) {
                 $json = new Json($test['option_test']);
-                $filterFeilds = array_merge((array) $test, (array) $visit);
+                $filterFeilds = array (
+                    "kit" => $test['kit_id'],
+                    "unit" => $test['unit'],
+                    "gender" => $visit['gender'],
+                    "age" => $visit['age'],
+                );
                 $test['option_test'] = $json->filter($filterFeilds)->setHeight($font)->row();
                 $test['result'] = json_decode($test['result'], true);
                 if ($test['result'] == null) {
@@ -146,7 +151,7 @@ class VisitModel extends CI_Model
         usort($tests, function ($a, $b) {
             return $a['category'] <=> $b['category'];
         });
-        $visit->tests = $tests;
+        $visit["tests"] = $tests;
         return $visit;
     }
 

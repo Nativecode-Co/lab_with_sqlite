@@ -246,8 +246,9 @@ function updateRefrence(hash, refID) {
   // empty from container
   formContainer.empty();
   let { refrence } = fetchApi("/maintests/get_main_test", "post", { hash });
-  refrence = refrence.find((item, index, self) => index === Number(refID));
-  const form = THEME.mainForm(refID, hash, refrence);
+  refrence = refrence.find((item) => Number(item.id) === Number(refID));
+
+  const form = THEME.mainForm(hash, refrence);
   formContainer.append(form);
 }
 

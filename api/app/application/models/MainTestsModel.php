@@ -103,20 +103,23 @@ class MainTestsModel extends CI_Model
 
         $visit = $this->db
             ->select("age,gender")
-            ->select("lab_patient.hash as patient_hash, gender,age,dicount,total_price,net_price")
             ->from("lab_visits")
             ->join("lab_patient", "lab_patient.hash=lab_visits.visits_patient_id")
             ->where("lab_visits.hash", $visit_hash)
             ->get()->row_array();
         $test = $this->db
-            ->select("kit_id,unit")
+            ->select("kit_id as kit,unit")
             ->from("lab_visits_tests")
+            ->join("lab_test", "lab_test.hash = lab_visits_tests.tests_id")
             ->join("lab_pakage_tests", "lab_pakage_tests.test_id = lab_visits_tests.tests_id and lab_pakage_tests.package_id = lab_visits_tests.package_id", "left")
-            ->where("visit_id", $visit_hash)
-            ->where("tests_id", $hash)
+            // where lab_test.hash = hash and visit_hash = visit_hash
+            // or lab_test.id = hash and visit_hash = visit_hash
+            ->where(array("lab_test.hash" => $hash, "visit_id" => $visit_hash))
+            ->or_where(array("lab_test.id" => $hash, "visit_id" => $visit_hash))
+
             ->get()->row_array();
-        //merge test and visit data
-        $fields = array_merge($visit, $test);
+        //die last query
+        $fields = array_merge($test, $visit);
 
         $json = new Json($option_test);
         $option_test = $json->filter($fields)->row();
