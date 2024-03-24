@@ -19,6 +19,15 @@ class InvoiceModel extends CI_Model
         $this->load->database();
         $this->load->helper('db');
         $this->load->model('WorkersModel');
+        if (!$this->db->field_exists('history', 'lab_invoice')) {
+            $this->db->query("ALTER TABLE lab_invoice ADD COLUMN history INTEGER NOT NULL DEFAULT 0;");
+        }
+        if (!$this->db->field_exists('show_name', 'lab_invoice')) {
+            $this->db->query("ALTER TABLE `lab_invoice` ADD COLUMN `show_name` INTEGER NOT NULL DEFAULT 0 ;");
+        }
+        if (!$this->db->field_exists('show_logo', 'lab_invoice')) {
+            $this->db->query("ALTER TABLE `lab_invoice` ADD COLUMN `show_logo` INTEGER NOT NULL DEFAULT 1 ;");
+        }
     }
 
     public function get()
