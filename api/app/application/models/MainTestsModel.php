@@ -15,9 +15,10 @@ class MainTestsModel extends CI_Model
     {
         $searchText = $params['search']['value'];
         return $this->db
-            ->where('isdeleted', 0)
+            ->where('lab_test.isdeleted', 0)
             ->where('lab_test.test_type <>', 3)
             ->like("test_name", $searchText)
+            ->join('lab_test_catigory', 'lab_test_catigory.hash = lab_test.category_hash', 'left')
             ->count_all_results($this->table);
     }
 
@@ -25,7 +26,7 @@ class MainTestsModel extends CI_Model
     {
         $start = $params['start'];
         $rowsPerPage = $params['length'];
-        $page = $start / $rowsPerPage + 1;
+        $page = $start / $rowsPerPage;
         $orderBy = $params['order'][0]['column'];
         $orderBy = $params['columns'][$orderBy]['data'];
         $order = $params['order'][0]['dir'];
@@ -43,6 +44,8 @@ class MainTestsModel extends CI_Model
             ->order_by($orderBy, $order)
             ->get($this->table, $rowsPerPage, $page * $rowsPerPage)
             ->result();
+        // print query 
+        // echo $this->db->last_query();
         // add refrence to the output
         $this->load->helper('json');
 
@@ -87,6 +90,42 @@ class MainTestsModel extends CI_Model
 
     }
 
+    public function get_by_patient_and_test($hash, $visit_hash)
+    {
+        $this->load->helper('json');
+        $output = $this->db
+            ->where('isdeleted', 0)
+            ->where($this->main_column, $hash)
+            ->get($this->table)
+            ->row();
+        $output = json_decode(json_encode($output), true);
+        $option_test = $output["option_test"];
+
+        $visit = $this->db
+            ->select("age,gender")
+            ->select("lab_patient.hash as patient_hash, gender,age,dicount,total_price,net_price")
+            ->from("lab_visits")
+            ->join("lab_patient", "lab_patient.hash=lab_visits.visits_patient_id")
+            ->where("lab_visits.hash", $visit_hash)
+            ->get()->row_array();
+        $test = $this->db
+            ->select("kit_id,unit")
+            ->from("lab_visits_tests")
+            ->join("lab_pakage_tests", "lab_pakage_tests.test_id = lab_visits_tests.tests_id and lab_pakage_tests.package_id = lab_visits_tests.package_id", "left")
+            ->where("visit_id", $visit_hash)
+            ->where("tests_id", $hash)
+            ->get()->row_array();
+        //merge test and visit data
+        $fields = array_merge($visit, $test);
+
+        $json = new Json($option_test);
+        $option_test = $json->filter($fields)->row();
+        $output["refrence"] = $option_test;
+        unset($output["option_test"]);
+        return $output;
+
+    }
+
     public function get_calc($hash)
     {
         return $this->db
@@ -103,7 +142,7 @@ class MainTestsModel extends CI_Model
         // replace backslashes with empty string to avoid SQL injection
         $option_test = str_replace('\\', '', $option_test);
         $this->db->insert($this->table, $data);
-        return $this->get($data['hash']);
+        return $this->get($data['hash'], array());
     }
 
     public function update($hash, $data)
@@ -114,7 +153,7 @@ class MainTestsModel extends CI_Model
         $this->db
             ->where($this->main_column, $hash)
             ->update($this->table, $data);
-        return $this->get($hash);
+        return $this->get($hash, array());
     }
 
     public function delete($hash)

@@ -62,6 +62,16 @@ class MainTests extends CI_Controller
             ->set_content_type('application/json')
             ->set_output(json_encode($data));
     }
+    function get_by_patient_and_test()
+    {
+        $hash = $this->input->post("hash");
+        $visit_hash = $this->input->post("visit_hash");
+        $data = $this->MainTestsModel->get_by_patient_and_test($hash, $visit_hash);
+        $this->output
+            ->set_status_header(200)
+            ->set_content_type('application/json')
+            ->set_output(json_encode($data));
+    }
 
     function get_calc_test()
     {

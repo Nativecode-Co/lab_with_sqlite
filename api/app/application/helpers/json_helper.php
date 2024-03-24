@@ -35,6 +35,12 @@ class Json
       $this->refrences = $this->default_refrence;
       return $this;
     }
+    $index = 0;
+    $refrences = array_map(function ($refrence) use ($index) {
+      $refrence['index'] = $index;
+      $index++;
+      return $refrence;
+    }, $refrences);
     $refrences = array_filter($refrences, function ($refrence) use ($fields) {
       $result = true;
       foreach ($fields as $key => $value) {

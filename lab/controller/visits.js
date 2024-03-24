@@ -485,12 +485,12 @@ function manageRange(reference) {
   return "لا يوجد مرجع";
 }
 
-function addNormalResult(test, result_test) {
+function addNormalResult(test, result_test, visit_hash) {
   __VISIT_TESTS__.push({ hash: test.hash, options: test.reference });
-  return generateFieldForTest(test, result_test);
+  return generateFieldForTest(test, result_test, visit_hash);
 }
 
-function generateFieldForTest(test, resultList) {
+function generateFieldForTest(test, resultList, visit_hash) {
   const { type: testType, ...reference } = test.option_test;
   const checked = resultList?.[test.name]?.checked === "false" ? false : true;
   return `
@@ -502,8 +502,7 @@ function generateFieldForTest(test, resultList) {
                 class="text-info"
                 onclick="updateNormal(
                   '${test.test_id}',
-                  '${test.kit_id}',
-                  '${test.unit}'
+                  '${visit_hash}'
                 )"
               >
                 <i class="far fa-edit"></i>
@@ -1075,13 +1074,13 @@ function addResult(data) {
       finalResult = {};
       finalResult[test.name] = result;
       finalResult.checked = test.result.checked;
-      resultForm.push(addNormalResult(test, finalResult));
+      resultForm.push(addNormalResult(test, finalResult, visit.hash));
     } else if (reference.type === "type") {
       resultForm.push(addStrcResult(test, result_tests[test.name]));
     } else if (reference.type === "culture") {
       resultForm.push(addCultureResult(test, result_tests[test.name]));
     } else {
-      resultForm.push(addNormalResult(test, result_tests));
+      resultForm.push(addNormalResult(test, result_tests, visit.hash));
     }
   }
   return resultForm.join("");
@@ -2593,20 +2592,23 @@ const updatePatientName = async (hash, ele) => {
     });
 };
 
-const updateNormal = (test, kit, unit) => {
-  TEST = fetchApi("/maintests/get_main_test", "post", { hash: test });
+const updateNormal = (test, visit_hash) => {
+  TEST = fetchApi("/maintests/get_by_patient_and_test", "post", {
+    hash: test,
+    visit_hash,
+  });
   try {
-    let { refrence: reference } = TEST;
-    reference = reference.filter((item) => {
-      return (
-        (kit === item.kit || (isNull(kit) && isNull(item.kit))) &&
-        (unit === item.unit || (isNull(unit) && isNull(item.unit)))
-      );
-    });
+    let { refrence } = TEST;
+    reference = [refrence];
     if (reference.length === 0) {
       throw "no refrence";
     }
-    const refrenceTable = THEME.build(test, reference, kit, unit);
+    const refrenceTable = THEME.build(
+      test,
+      reference,
+      refrence?.kit ?? "",
+      refrence?.unit ?? ""
+    );
     $("#refrence_editor .modal-body").html(refrenceTable);
     $("#refrence_editor").modal("show");
   } catch (error) {
@@ -2626,18 +2628,7 @@ function updateRefrence(hash, refID, selectedUnit) {
   const formContainer = $("#form_container");
   // empty from container
   formContainer.empty();
-  let refrences = TEST?.refrence;
-  refrences = refrences.filter((refrence, id) => {
-    const refUnit = refrence?.unit ?? "";
-    const unit = selectedUnit ?? "";
-    if (unit === refUnit || (isNull(unit) && isNull(refUnit))) {
-      return true;
-    }
-    return false;
-  });
-  const refrence = refrences.find(
-    (item, index, self) => index === Number(refID)
-  );
+  let refrence = TEST?.refrence;
   const form = THEME.mainForm(refID, hash, refrence);
   formContainer.append(form);
 }
