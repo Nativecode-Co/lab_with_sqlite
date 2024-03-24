@@ -334,6 +334,7 @@ const updateNormal = (test, kit, unit) => {
   try {
     let { refrence: reference } = TEST;
     reference = reference.filter((item) => {
+      console.log(unit, item.unit);
       return (
         (kit === item.kit || (isNull(kit) && isNull(item.kit))) &&
         (unit === item.unit || (isNull(unit) && isNull(item.unit)))
@@ -365,7 +366,8 @@ function updateRefrence(hash, refID, selectedUnit) {
   let refrences = TEST?.refrence;
   refrences = refrences.filter((refrence, id) => {
     const refUnit = refrence?.unit ?? "";
-    if (refUnit === selectedUnit) {
+    const unit = selectedUnit ?? "";
+    if (unit === refUnit || (isNull(unit) && isNull(refUnit))) {
       return true;
     }
     return false;

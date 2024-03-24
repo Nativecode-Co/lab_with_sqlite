@@ -35,7 +35,7 @@ class pull extends CI_Controller
         // try to pull update
         //$output = shell_exec('cd /var/www/html/ && git pull https://nativecode2020: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@github.com/nativecode2020/lab.git 2>&1'); api branch
 
-        $command = 'cd C:\xampp\htdocs && C:\xampp\PortableGit\bin\git.exe config --global --add safe.directory C:/xampp/htdocs && C:\xampp\PortableGit\bin\git.exe reset --hard 2>&1 && C:\xampp\PortableGit\bin\git.exe stash --include-untracked 2>&1 && C:\xampp\PortableGit\bin\git.exe pull https://nativecode2020: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@github.com/Nativecode-Co/lab_with_sqlite.git/tree/api 2>&1';
+        $command = 'cd C:\xampp\htdocs && C:\xampp\PortableGit\bin\git.exe config --global --add safe.directory C:/xampp/htdocs && C:\xampp\PortableGit\bin\git.exe reset --hard 2>&1 && C:\xampp\PortableGit\bin\git.exe stash --include-untracked 2>&1 && C:\xampp\PortableGit\bin\git.exe pull https://nativecode2020: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@github.com/Nativecode-Co/lab_with_sqlite.git 2>&1';
         $output = exec($command);
 
         // $output = shell_exec('cd /var/www/html/ &&  git reset --hard 2>&1 && git stash --include-untracked 2>&1 && git pull https://nativecode2020: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@github.com/nativecode2020/lab.git 2>&1');
@@ -117,7 +117,7 @@ class pull extends CI_Controller
     public function needUpdate()
     {
         // check internet 
-        
+
         $currentVersion = $this->getVersion();
         $offlineVersion = $this->db->query("select version from lab_version where isdeleted=0 order by id desc limit 1")->row();
         $offlineVersion = $offlineVersion->version;

@@ -2629,7 +2629,8 @@ function updateRefrence(hash, refID, selectedUnit) {
   let refrences = TEST?.refrence;
   refrences = refrences.filter((refrence, id) => {
     const refUnit = refrence?.unit ?? "";
-    if (refUnit === selectedUnit) {
+    const unit = selectedUnit ?? "";
+    if (unit === refUnit || (isNull(unit) && isNull(refUnit))) {
       return true;
     }
     return false;

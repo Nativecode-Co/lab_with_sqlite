@@ -1,5 +1,5 @@
 <?php
-defined('BASEPATH') or exit('No direct script access allowed');
+defined('BASEPATH') or exit ('No direct script access allowed');
 require __DIR__ . '/jwt/autoload.php';
 
 use Firebase\JWT\JWT;

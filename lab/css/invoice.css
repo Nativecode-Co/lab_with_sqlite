@@ -109,6 +109,7 @@
 .page .header:not(.money) {
     height: var(--logo-height);
     overflow: hidden;
+    padding: 0 15px;
 }
 
 .header.money,
