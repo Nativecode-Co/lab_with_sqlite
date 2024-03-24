@@ -604,7 +604,7 @@ class Offline extends CI_Controller
                             break;
                         }
                     }
-                    $re = $this->db->query($re);
+                    $re = $this->db->query($query);
                     array_push(
                         $result,
                         array(

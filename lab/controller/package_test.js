@@ -412,33 +412,6 @@ function saveRefrence(hash, refID) {
     const newRefrence = component[0].reference.filter((item, index, self) => {
       return self.findIndex((t) => t?.kit === item?.kit) === index;
     });
-    // (${element['age low']??0} ${element['age unit low']} - ${element['age high']??100} ${element['age unit high']})
-    if (
-      $(
-        `#test-${hash}_kit-${(
-          kits
-            .find((x) => x.id === element.kit)
-            ?.name.replace(/[^a-zA-Z0-9]/g, "_") ?? "No Kit"
-        )
-          .split(" ")
-          .join("_")}`
-      ).length === 0
-    ) {
-      document.getElementById(
-        `test-${hash}`
-      ).innerHTML += ` <span class="badge badge-light border border-info p-2 mr-2 mb-2 col-auto" id="test-${hash}_kit-${(
-        kits
-          .find((x) => x.id === element.kit)
-          ?.name.replace(/[^a-zA-Z0-9]/g, "_") ?? "No Kit"
-      )
-        .split(" ")
-        .join("_")}" style="min-width:200px">
-              ${kits.find((x) => x.id === element.kit)?.name ?? "No Kit"} 
-              <a onclick="editRefrence('${hash}',${
-        newRefrence.length - 1
-      })"><i class="far fa-edit fa-lg mx-2 text-success"></i></a>
-              </span> `;
-    }
   } else {
     component[0].reference[refID] = element;
   }

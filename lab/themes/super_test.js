@@ -268,10 +268,9 @@ class FormTheme extends Theme {
   }
 
   mainForm(hash, refrence) {
-    console.log(refrence);
+    console.log("1", hash);
     const { id, kit, unit, range, result, right_options, options, gender } =
       refrence;
-
     const ageLow = refrence?.["age low"] ?? 0;
     const ageLowUnit = refrence?.["age unit low"] ?? "عام";
     const ageHigh = refrence?.["age high"] ?? 0;
@@ -368,7 +367,7 @@ class TableTheme extends Theme {
   }
 
   mainForm(hash, refrence) {
-    console.log(refrence);
+    console.log("2", hash);
     const { id, kit, unit, range, result, right_options, options, gender } =
       refrence;
     const ageLow = refrence?.["age low"] ?? 0;
@@ -496,7 +495,7 @@ class TableTheme extends Theme {
 
       `;
     } else {
-      form = this.mainForm(null, hash, deafultRefrence);
+      form = this.mainForm(hash, deafultRefrence);
     }
     return `
       <div id="form_container">
@@ -531,7 +530,7 @@ class PackageTestTheme extends TableTheme {
     };
   }
 
-  mainForm(id, hash, refrence) {
+  mainForm(hash, refrence) {
     const { kit, unit, range, result, right_options, options, gender } =
       refrence;
     const ageLow = refrence?.["age low"] ?? 0;
@@ -622,7 +621,7 @@ class PackageTestTheme extends TableTheme {
 
       `;
     } else {
-      form = this.mainForm(null, hash, deafultRefrence);
+      form = this.mainForm(hash, deafultRefrence);
     }
     return `
       <div id="form_container">
@@ -829,11 +828,10 @@ function createRefrenceForm(hash, refrence, id) {
 }
 
 function addRefrence(hash, unit) {
-  let form = createRefrenceForm(hash, {}, null);
+  const form = createRefrenceForm(hash, {}, null);
   $("#refrence_editor .modal-body").html(form);
   $("#refrence_editor").modal("show");
   if (unit) {
     $("#refrence_editor .modal-body #unit").val(`${unit}`);
   }
-  // $('#submit-refrence').attr('onclick', `fireSwal(saveRefrence, '${hash}', null)`)
 }

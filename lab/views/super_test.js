@@ -287,7 +287,12 @@ function saveRefrence(hash, refID) {
     },
   ];
   const element = THEME.getData(refID, result, options, rightOptions);
-  if (refID === "null") {
+  if (
+    refID === "null" ||
+    refID === "undefined" ||
+    refID === null ||
+    refID === undefined
+  ) {
     if (component?.[0]) {
       component[0].reference.push(element);
     } else {

@@ -115,6 +115,8 @@ class Visit extends Factory {
     const visit = fetchApi("/visit/get_visit", "GET", { hash });
     $("#work-sapce").empty();
     $("#show_selected_tests div").remove();
+    this.resetForm();
+
     // open modal
     $("html, body").animate(
       {
@@ -128,7 +130,6 @@ class Visit extends Factory {
     // change new patient checked
     newPatientElement.checked = false;
     changePatientTag();
-    this.resetForm();
     for (const p of visit.packages) {
       const testElement = document.getElementById(`package_${p.hash}`);
       if (testElement) {

@@ -30,6 +30,7 @@ function split_data($data)
     $net_price = (isset ($data["net_price"]) && $data["net_price"] != "") ? $data["net_price"] : 0;
     $total_price = (isset ($data["total_price"]) && $data["total_price"] != "") ? $data["total_price"] : 0;
     $tests = (isset ($data["tests"]) && $data["tests"] != "") ? $data["tests"] : "[]";
+    $gender = (isset ($data["gender"]) && $data["gender"] != "") ? $data["gender"] : "ذكر";
     $patient_data = array(
         "birth" => $birth,
         "age_year" => $age_year,
