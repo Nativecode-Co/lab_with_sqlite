@@ -247,7 +247,9 @@ class Visit extends Factory {
         if (result.isConfirmed) {
           // new promise
           new Promise((resolve, reject) => {
-            changePatient();
+            changePatientTag();
+            // change patient select2 with
+            $("#patient").val(hash).trigger("change");
             resolve();
           })
             .then(() => {
