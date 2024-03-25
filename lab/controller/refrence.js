@@ -5,10 +5,11 @@ const updateNormal = (test, visit_hash) => {
   });
   try {
     const { refrence } = TEST;
-    reference = [refrence];
-    if (reference.length === 0) {
+    if (Array.isArray(refrence) && refrence.length > 0) {
       throw "no refrence";
     }
+    reference = [refrence];
+
     const refrenceTable = THEME.build(
       test,
       reference,
@@ -34,8 +35,7 @@ function updateRefrence(hash) {
   const formContainer = $("#form_container");
   formContainer.empty();
   const refrence = TEST?.refrence;
-  console.log(refrence);
-  const form = THEME.mainForm(refrence.id, hash, refrence);
+  const form = THEME.mainForm(hash, refrence);
   formContainer.append(form);
 }
 

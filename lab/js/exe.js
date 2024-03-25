@@ -134,39 +134,6 @@ function fetchDataOnline(url = "", type = "GET", data = {}) {
   return res;
 }
 
-function run_online(json, token = localStorage.getItem("token")) {
-  localStorage.setItem("last_url", window.location.href);
-  let res = [];
-
-  if (typeof json === "string") {
-    new_json = json;
-  } else {
-    new_json = `${JSON.stringify(json)};`;
-  }
-  $.ajax({
-    url: "http://umc.native-code-iq.com/app/index.php/run",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-    type: "POST",
-    dataType: "JSON",
-    data: { query: new_json, token: token },
-    async: false,
-    success: (result) => {
-      if (result.result === "unauthorize") {
-        // location.href = front_url + "login/login.html";
-      } else {
-        localStorage.setItem("token", result.token);
-        res = result;
-      }
-    },
-    error: () => {
-      console.log("internet connection or missing link");
-    },
-  });
-  return res;
-}
-
 function add_calc_tests(tests, visit_hash, action = "insert") {
   localStorage.setItem("last_url", window.location.href);
   const token = localStorage.getItem("token");

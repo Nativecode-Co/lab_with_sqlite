@@ -559,6 +559,7 @@ class Offline extends CI_Controller
 
     public function run_sync()
     {
+        $this->auth();
         $queries = $this->input->post("queries");
         $lab = $this->input->post("lab");
         $labCols = array(
@@ -585,7 +586,9 @@ class Offline extends CI_Controller
                 if (strpos($query, "UPDATE") !== false) {
                     foreach ($labCols as $table => $col) {
                         if (strpos($query, $table) !== false) {
-                            $query = str_replace("WHERE", "WHERE $col='$lab' and", $query);
+                            if (strpos($query, $col) === false) {
+                                $query = str_replace("WHERE", "WHERE $col='$lab' and", $query);
+                            }
                             break;
                         }
                     }
@@ -603,8 +606,10 @@ class Offline extends CI_Controller
                 } else if (strpos($query, "INSERT") !== false) {
                     foreach ($labCols as $table => $col) {
                         if (strpos($query, $table) !== false) {
-                            $query = str_replace(") VALUES", ",`$col`) VALUES", $query);
-                            $query = str_replace("')", "','$lab')", $query);
+                            if (strpos($query, $col) === false) {
+                                $query = str_replace(") VALUES", ",`$col`) VALUES", $query);
+                                $query = str_replace("')", "','$lab')", $query);
+                            }
                             break;
                         }
                     }

@@ -2342,9 +2342,9 @@ function manageTestType(type, test = {}) {
   } = test;
   let htmlHestory = "";
   if (invoices?.history === "1") {
-    if (history != "" && history && history != "{}") {
+    if (history !== "" && history && history !== "{}") {
       htmlHestory = `<div class="testprice col-12 h5 text-right text-info">
-        ${history} ${history != "" ? unit : ""}
+        ${history} ${history !== "" ? unit : ""}
       </div>`;
     }
   }

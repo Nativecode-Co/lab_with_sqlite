@@ -5,7 +5,7 @@ $(document).ready(() => {
     width: "100%",
   });
   $("#package-form select").select2({
-    width: "100%",
+    width: "100%"
   });
 
   $("#row-packages .form-check-input").on("click", () => {});

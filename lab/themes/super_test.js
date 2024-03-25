@@ -531,7 +531,7 @@ class PackageTestTheme extends TableTheme {
   }
 
   mainForm(hash, refrence) {
-    const { kit, unit, range, result, right_options, options, gender } =
+    const { id, kit, unit, range, result, right_options, options, gender } =
       refrence;
     const ageLow = refrence?.["age low"] ?? 0;
     const ageLowUnit = refrence?.["age unit low"] ?? "عام";

@@ -237,22 +237,19 @@ const saveUpdates = async () => {
     const offLineQueries = [
       ...queries,
       ...updateTests.map((item) => {
-        return `update lab_test set short_name = "${
+        return `UPDATE lab_test set short_name = "${
           new Date().toISOString().split("T")[0]
         }" where hash = "${item.hash}";`;
       }),
     ];
-    const onLineQueries = queries.map((item) => {
-      run_online(
-        `${item} and lab_hash = "${localStorage.getItem("lab_hash")}";`
-      );
-      run_online(
-        `update lab_test set short_name = "${
-          new Date().toISOString().split("T")[0]
-        }" where hash = "${item.hash} and lab_hash = "${localStorage.getItem(
-          "lab_hash"
-        )}"";`
-      );
+    const onLineQueries = updateTests.map((item) => {
+      return `UPDATE lab_test set short_name = "${
+        new Date().toISOString().split("T")[0]
+      }" WHERE hash = "${item.hash}";`;
+    });
+    fetchDataOnline("Offline/run_sync", "POST", {
+      queries: `${queries.join(";")}; ${onLineQueries.join(";")};`,
+      lab: localStorage.getItem("lab_hash"),
     });
 
     updateTests.map((item) => {

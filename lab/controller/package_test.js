@@ -25,6 +25,7 @@ document.addEventListener("DOMContentLoaded", () => {
   noDeviceOption.value = "0";
   noDeviceOption.textContent = "No Device";
   devicesSelect.appendChild(noDeviceOption);
+
   for (const test of packages) {
     const option = document.createElement("option");
     option.value = test.hash;
@@ -102,7 +103,7 @@ function emptyTestForm() {
     input.value = "";
   }
   for (const select of selects) {
-    select.value = "";
+    select.value = "0";
     const event = new Event("change");
     select.dispatchEvent(event);
   }
@@ -230,9 +231,9 @@ function updatePackage(hash) {
   const formSelect = form.querySelector("select");
   const formTextArea = form.querySelector("textarea");
   for (const input of formInputs) {
+    if (!input.name) continue;
     input.value = test[input.name];
   }
-
   $(formSelect).val(test.tests).trigger("change");
 
   formTextArea.value = test.note;
@@ -348,7 +349,7 @@ function updateRefrence(hash, refID) {
   formContainer.empty();
   let refrence = TEST?.refrence;
   refrence = refrence.find((item) => Number(item.id) === Number(refID));
-  const form = THEME.mainForm(refrence.id, hash, refrence);
+  const form = THEME.mainForm(hash, refrence);
   formContainer.append(form);
 }
 
@@ -387,7 +388,12 @@ function saveRefrence(hash, refID) {
     },
   ];
   const element = THEME.getData(refID, result, options, rightOptions);
-  if (refID === "null") {
+  if (
+    refID === "null" ||
+    refID === null ||
+    refID === "undefined" ||
+    refID === undefined
+  ) {
     if (component?.[0]) {
       component[0].reference.push(element);
     } else {

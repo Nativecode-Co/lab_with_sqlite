@@ -33,7 +33,7 @@ class InvoiceModel extends CI_Model
     public function get()
     {
         $setting = $this->get_setting();
-        $invoice = $this->db->select('color, phone_1,show_name,show_logo, footer, invoice_about_en')
+        $invoice = $this->db->select('color,history, phone_1,show_name,show_logo, footer, invoice_about_en')
             ->select(" phone_2 as size, address, facebook, header, center")
             ->select("logo, water_mark, footer_header_show, invoice_about_ar")
             ->select("font_size, zoom, doing_by, name_in_invoice, font_color,setting")
