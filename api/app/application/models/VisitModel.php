@@ -198,11 +198,12 @@ class VisitModel extends CI_Model
                     'lab_package.catigory_id' => '9'
                 )
             )
-            ->join('lab_pakage_tests', 'lab_pakage_tests.package_id=lab_package.hash')
+            ->join('lab_pakage_tests', 'lab_pakage_tests.package_id=lab_package.hash', "left")
             ->join('kits', 'lab_pakage_tests.kit_id=kits.id', "left")
             ->join("devices", "lab_pakage_tests.lab_device_id=devices.id", "left")
             ->join("lab_test_units", "lab_pakage_tests.unit=lab_test_units.hash", "left")
             ->join("lab_test", "lab_test.hash=lab_pakage_tests.test_id", "left")
+            ->group_by('lab_test.test_name')
             ->get('lab_package')->result_array();
         // return all data
         return array(

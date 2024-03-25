@@ -123,6 +123,9 @@ $(() => {
     width: "100%",
     multiple: true,
   });
+  // default select []
+  $(selectedTestsElement).val([]).trigger("change");
+
   $(doctorElement).select2({
     dropdownParent: $(doctorElement).parent(),
     width: "100%",

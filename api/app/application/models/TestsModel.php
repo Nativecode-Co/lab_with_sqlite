@@ -32,17 +32,18 @@ class TestsModel extends CI_Model
             ->where('lab_package.hash', $hash)
             ->get($this->table)
             ->row();
-        if (isset($data)) {
+        if (isset ($data)) {
             $data->tests = $this->get_package_tests($hash);
             return $data;
         } else {
-            return null;
+            return array(
+                "error" => "can't find the package"
+            );
         }
     }
 
     public function insert($data, $tests = [])
     {
-        // for every tests in the package we need [test_id, kit_id, lab_device_id, unit, hash] addition to the package_id 
         $hash = create_hash();
         $data['hash'] = $hash;
         $this->db->insert($this->table, $data);
@@ -60,7 +61,7 @@ class TestsModel extends CI_Model
                 'test_id' => $test['test_id'],
                 'kit_id' => $test['kit_id'],
                 'lab_device_id' => $test['lab_device_id'],
-                'unit' => $test['unit'],
+                'unit' => isset ($test['unit']) ? $test['unit'] : null,
                 'hash' => create_hash()
             ];
         }, $tests);
@@ -91,7 +92,7 @@ class TestsModel extends CI_Model
                 ->where('test_id', $test['test_id'])
                 ->get('lab_pakage_tests')
                 ->row();
-            if (isset($test_exit)) {
+            if (isset ($test_exit)) {
                 $this->db
                     ->where('package_id', $package_id)
                     ->where('test_id', $test['test_id'])
@@ -238,7 +239,7 @@ class TestsModel extends CI_Model
             ->get('lab_pakage_tests')
             ->row();
         return array(
-            "isExist" => isset($data),
+            "isExist" => isset ($data),
             "data" => $data
         );
     }
@@ -268,7 +269,7 @@ class TestsModel extends CI_Model
     {
         $test_hash = $this->TestAliasModel->get_test_hash_by_alias($alias);
         $visit = $this->VisitModel->get_visit_by_patient_and_date($patient, $date);
-        if (isset($visit) && isset($test_hash)) {
+        if (isset ($visit) && isset ($test_hash)) {
             // test name from lab_test
             $test_name = $this->db
                 ->select('test_name as name')

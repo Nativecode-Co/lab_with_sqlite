@@ -369,13 +369,14 @@ class Offline extends CI_Controller
             $isExit = array_search($hash, array_column($updates, 'hash'));
             if ($isExit === false) {
                 if ($query->name) {
-                    $query->query = "update lab_test set isdeleted=1 where hash='$hash'";
+                    // $query->query = "update lab_test set isdeleted=1 where hash='$hash'";
                 }
                 array_push($updates, $query);
             } else {
                 // add isExit.query to $query.query
                 $updates[$isExit]->query .= ";" . $query->query;
             }
+            $updates[$isExit]->query .= ";" . $query->query;
         }, $updatQueries);
         echo json_encode(
             array(
@@ -588,7 +589,10 @@ class Offline extends CI_Controller
                             break;
                         }
                     }
+                    // start transaction
+                    $this->db->trans_start();
                     $re = $this->db->query($query);
+                    $this->db->trans_complete();
                     array_push(
                         $result,
                         array(
@@ -604,7 +608,9 @@ class Offline extends CI_Controller
                             break;
                         }
                     }
+                    $this->db->trans_start();
                     $re = $this->db->query($query);
+                    $this->db->trans_complete();
                     array_push(
                         $result,
                         array(

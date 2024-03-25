@@ -227,24 +227,14 @@ function updatePackage(hash) {
   const form = document.getElementById("package-form");
   const test = lab_test.getItem(hash);
   const formInputs = form.querySelectorAll("input");
-  const formSelects = form.querySelectorAll("select");
+  const formSelect = form.querySelector("select");
   const formTextArea = form.querySelector("textarea");
   for (const input of formInputs) {
     input.value = test[input.name];
   }
-  for (const select of formSelects) {
-    // multiple select
-    select.value = "";
-    if (select.multiple) {
-      for (let i = 0; i < select.options.length; i++) {
-        if (test[select.name].includes(select.options[i].value)) {
-          select.options[i].selected = true;
-        }
-      }
-      const event = new Event("change");
-      select.dispatchEvent(event);
-    }
-  }
+
+  $(formSelect).val(test.tests).trigger("change");
+
   formTextArea.value = test.note;
 
   $(".buttons .btn-action").removeClass("active");

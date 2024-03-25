@@ -71,6 +71,16 @@ class Package_model extends CI_Model
         return $query->result_array();
     }
 
+    public function updateNameWithTestHsh($name, $hash)
+    {
+        $query = $this->db->query("SELECT package_id FROM lab_pakage_tests  WHERE test_id = '$hash'");
+        $hash = $query->result_array();
+        $hash = $hash[0]['package_id'];
+        $this->db->set('name', $name);
+        $this->db->where('hash', $hash);
+        $this->db->update('lab_package');
+    }
+
     function getOffersForLAb($labID, $start, $length, $search)
     {
         // like
