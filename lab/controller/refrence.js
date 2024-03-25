@@ -5,7 +5,7 @@ const updateNormal = (test, visit_hash) => {
   });
   try {
     const { refrence } = TEST;
-    if (Array.isArray(refrence) && refrence.length > 0) {
+    if (Array.isArray(refrence) && refrence.length === 0) {
       throw "no refrence";
     }
     reference = [refrence];
