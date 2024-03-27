@@ -35,8 +35,8 @@ function run(json) {
         // Do something with the result here
       }
     },
-    error: () => {
-      console.log("internet connection or missing link");
+    error: (e) => {
+      console.log(e.responseText);
     },
   });
   return res;
@@ -57,8 +57,8 @@ function fetchData(url = "", type = "GET", data = {}) {
     success: (result) => {
       res = result;
     },
-    error: () => {
-      console.log("internet connection or missing link");
+    error: (e) => {
+      console.log(e.responseText)
     },
   });
   return res;
@@ -79,8 +79,8 @@ function fetchSync(url = "", type = "GET", data = {}) {
     success: (result) => {
       res = result;
     },
-    error: () => {
-      console.log("internet connection or missing link");
+    error: (e) => {
+      console.log(e.responseText)
     },
   });
   return res;
@@ -101,8 +101,8 @@ function fetchApi(url = "", type = "GET", data = {}) {
     success: (result) => {
       res = result;
     },
-    error: () => {
-      console.log("internet connection or missing link");
+    error: (e) => {
+      console.log(e.responseText)
     },
   });
   return res;
@@ -127,8 +127,8 @@ function fetchDataOnline(url = "", type = "GET", data = {}) {
     success: (result) => {
       res = result;
     },
-    error: () => {
-      console.log("internet connection or missing link");
+    error: (e) => {
+      console.log(e.responseText)
     },
   });
   return res;
@@ -154,8 +154,8 @@ function add_calc_tests(tests, visit_hash, action = "insert") {
     success: (result) => {
       console.log(result);
     },
-    error: () => {
-      console.log("internet connection or missing link");
+    error: (e) => {
+      console.log(e.responseText)
     },
   });
 }

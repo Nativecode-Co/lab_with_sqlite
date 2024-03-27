@@ -1807,7 +1807,7 @@ function showResult(data) {
   const results = {};
   let height = 0;
   let normalTests = manageHead("flag");
-  const defaultHeight = (invoice.center ?? 1200) - 250;
+  const defaultHeight = (invoice.center ?? 1200) - 300;
   tests.forEach((test, index) => {
     const reference = test.option_test;
 
@@ -1997,7 +1997,9 @@ function showResult(data) {
       }
       invoices[idName] = invoiceBody;
     } else {
+      
       if (height + reference.height >= defaultHeight) {
+        console.log(test.name,height +reference.height,defaultHeight,height + reference.height >= defaultHeight);
         invoices.normalTests += createInvoice(normalTests, invoiceItems);
         normalTests = manageHead("flag");
         if (category !== test.category) {

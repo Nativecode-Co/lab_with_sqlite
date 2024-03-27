@@ -247,18 +247,14 @@ class Visit extends Factory {
         if (result.isConfirmed) {
           // new promise
           new Promise((resolve, reject) => {
+            document.querySelector("input[name='new_patient']").checked = false
             changePatientTag();
-            // change patient select2 with
-            $("#patient").val(hash).trigger("change");
             resolve();
           })
             .then(() => {
               $("#patient").val(hash).trigger("change");
               this.saveNewItem();
             })
-            .then(() => {
-              changePatient();
-            });
         } else if (result.isDenied) {
           this.saveNewItem();
         } else {
