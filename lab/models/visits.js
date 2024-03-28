@@ -92,6 +92,7 @@ class Visit extends Factory {
     // changePatientTag();
     // change visits_date with today
     document.getElementById("visit_date").value = TODAY;
+    document.querySelector("select[name='gender']").value = "ذكر";
 
     const testsElement = document.getElementsByName("tests[]");
     $(".itemsActive").removeClass("itemsActive");

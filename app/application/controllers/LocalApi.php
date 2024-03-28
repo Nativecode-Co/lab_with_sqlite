@@ -98,12 +98,11 @@ class LocalApi extends CI_Controller
         // set sql mode 1
         $this->db->query("SET SQL_SAFE_UPDATES = 0;");
         $queries = json_decode($queries);
-        // run all queries
-        set_time_limit(500);
         foreach ($queries as $query) {
             if (isset($query)) {
                 $this->db->query($query);
             }
+            die();
         }
         if (!isset($trancate)) {
             $this->db->query("TRUNCATE offline_sync;");
