@@ -1007,9 +1007,9 @@ const InvoiceHeader = ({ invoice }) => {
       <div
         className={`row ${
           workers.length > 0
-            ? "justify-content-between"
-            : "justify-content-center"
-        } uk-sortable`}
+            ? "justify-content-between align-items-center"
+            : "justify-content-center align-items-center"
+        } uk-sortable h-100`}
         id="sortable"
         data-uk-sortable
         style={{

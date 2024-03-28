@@ -1287,7 +1287,7 @@ function showInvoice(hash) {
                     <div class="page">
                         <!-- صفحة يمكنك تكرارها ----------------------------------------------------------------------------------------------------------------------->
                         <div class="header money">
-                            <div class="row justify-content-between">
+                            <div class="row justify-content-between align-items-center h-100">
                                 
 
                                 <div class="left">
@@ -1563,7 +1563,7 @@ function invoiceHeader(invoice) {
   }
   return `
     <div class="header">
-        <div class="row justify-content-between">
+        <div class="row justify-content-between align-items-center h-100">
             ${html}
         </div>
     </div>
