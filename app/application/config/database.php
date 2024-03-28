@@ -1,2 +1,122 @@
 <?php
-if(!function_exists('sg_load')){$__v=phpversion();$__x=explode('.',$__v);$__v2=$__x[0].'.'.(int)$__x[1];$__u=strtolower(substr(php_uname(),0,3));$__ts=(@constant('PHP_ZTS') || @constant('ZEND_THREAD_SAFE')?'ts':'');$__f=$__f0='ixed.'.$__v2.$__ts.'.'.$__u;$__ff=$__ff0='ixed.'.$__v2.'.'.(int)$__x[2].$__ts.'.'.$__u;$__ed=@ini_get('extension_dir');$__e=$__e0=@realpath($__ed);$__dl=function_exists('dl') && function_exists('file_exists') && @ini_get('enable_dl') && !@ini_get('safe_mode');if($__dl && $__e && version_compare($__v,'5.2.5','<') && function_exists('getcwd') && function_exists('dirname')){$__d=$__d0=getcwd();if(@$__d[1]==':') {$__d=str_replace('\\','/',substr($__d,2));$__e=str_replace('\\','/',substr($__e,2));}$__e.=($__h=str_repeat('/..',substr_count($__e,'/')));$__f='/ixed/'.$__f0;$__ff='/ixed/'.$__ff0;while(!file_exists($__e.$__d.$__ff) && !file_exists($__e.$__d.$__f) && strlen($__d)>1){$__d=dirname($__d);}if(file_exists($__e.$__d.$__ff)) dl($__h.$__d.$__ff); else if(file_exists($__e.$__d.$__f)) dl($__h.$__d.$__f);}if(!function_exists('sg_load') && $__dl && $__e0){if(file_exists($__e0.'/'.$__ff0)) dl($__ff0); else if(file_exists($__e0.'/'.$__f0)) dl($__f0);}if(!function_exists('sg_load')){$__ixedurl='https://www.sourceguardian.com/loaders/download.php?php_v='.urlencode($__v).'&php_ts='.($__ts?'1':'0').'&php_is='.@constant('PHP_INT_SIZE').'&os_s='.urlencode(php_uname('s')).'&os_r='.urlencode(php_uname('r')).'&os_m='.urlencode(php_uname('m'));$__sapi=php_sapi_name();if(!$__e0) $__e0=$__ed;if(function_exists('php_ini_loaded_file')) $__ini=php_ini_loaded_file(); else $__ini='php.ini';if((substr($__sapi,0,3)=='cgi')||($__sapi=='cli')||($__sapi=='embed')){$__msg="\nPHP script '".__FILE__."' is protected by SourceGuardian and requires a SourceGuardian loader '".$__f0."' to be installed.\n\n1) Download the required loader '".$__f0."' from the SourceGuardian site: ".$__ixedurl."\n2) Install the loader to ";if(isset($__d0)){$__msg.=$__d0.DIRECTORY_SEPARATOR.'ixed';}else{$__msg.=$__e0;if(!$__dl){$__msg.="\n3) Edit ".$__ini." and add 'extension=".$__f0."' directive";}}$__msg.="\n\n";}else{$__msg="<html><body>PHP script '".__FILE__."' is protected by <a href=\"https://www.sourceguardian.com/\">SourceGuardian</a> and requires a SourceGuardian loader '".$__f0."' to be installed.<br><br>1) <a href=\"".$__ixedurl."\" target=\"_blank\">Click here</a> to download the required '".$__f0."' loader from the SourceGuardian site<br>2) Install the loader to ";if(isset($__d0)){$__msg.=$__d0.DIRECTORY_SEPARATOR.'ixed';}else{$__msg.=$__e0;if(!$__dl){$__msg.="<br>3) Edit ".$__ini." and add 'extension=".$__f0."' directive<br>4) Restart the web server";}}$__msg.="</body></html>";}die($__msg);exit();}}return sg_load('08FBE912C7C4FD5DAAQAAAAhAAAABMAAAACABAAAAAAAAAD/W6KE9mVzITrEbHAm+RAJeusiePm/hoS6QB5zJV2k/6K8TTUj2MVoUUXd+Ysfu/8r2bwvQg7yVexZvW7T3rcb0T44xTmjLED/ZhLMkf8C5vOzGWrVxAbJb1OzlU4p1ylMdEFVzwiZiRsbfH1nh9DszRDyOJwRhf+jLYarFZzuVwbynq6TffTMyKAmBuEfT4N+tjVi3dthq47ziOKuUl/ftxHguAcUbJsSibqQ1zPx5dVJmmvQ3PjEpevAM53rtjOhBwAAAKAEAAAG+/+Uqhn0fDCamFIrhgZuZYAX3BMtoP6+zcZjoZa4uwScqQmRm6l9kY40+VXBzjWc7ByRASEjaWizqOwKsCPaG5d0g5e6Vjgw3PijLubbr5/rm1fVbpstV+jL8dEIqPyi29KotGvoH5X4yx0TEHVcot+NAXo44C6xs+WBLceTuX8CiaR479KjGJAMLf15AgyDOR7DLpYY87WSp4/z/fG8pqh4+dSJfegQySMbKKE7ygDvi/nkTQzBXQDFrtjyhFN1kVKjPC1ggb+PabS/RnE3ooLbn2FsnkhLnGEEvVe1ND0VjClCuZXD5KA8wxbsEuZDKkZCcUYWmKipnorON1BOcj4b3piJ1XsauT3zDOyqpRlSiZvez00y6iOqbVtkHFW1dCVdZUBCqtVcwcchmb1CsBm5STlgjDl2SmuYudzBq7psMSVTfxWlrjmgFzMjTbh1J2DfMBkTsO2D8tSqKg8gUYDqnZ6shdojpZ7o8D2SiWCxmhQKCsc/GdeCaOnQwyKFOvqgPbsN4LFFaAKH60GSqCkNMVTIoQlHswxf0++E33KUL4aIjXDDu89BSDbB+rDZXExBAhuO6Lbx4NQ0kH7aY71DGasg3WNRhauNJySF0ilLSo75uBVz8MjzeQmWGcCzBXpbeOvvN3k0AHcv1B8AW1xSzBg16BY4cykwuT1Y4+T0Sjnk4cp0IQKV75at0ma/4Vpa1vTrzTmFISHbUu7TznmfByb2R+8YHrBHJ8coFV2yN8i5uOoKhZKAQmWdbUkweM5mDXpy9bRadpRa49bLxKypjwVlGvwu9LR/jH/XoiUIeJ27XLhFU5z5O2DKMYJ+WZSKYja0dYPCHG4Vm46Ry1n2nC7O4/QhLyMA60EVrWvvGLmHsN7nPJNMu7uPtNQ7oOrAsGnd1QnoAcifkdHwByuc9nNC5lh5ZxeMayDGvA5MxLoptd0b1fVgh08l/+NRuDfJsVnHc37uB8VZQ4wsGw/D+Kw0PiveB3LQU9tvWxmSZ/onjr9ZHIdWpCA/fwbv6oFrqsGjmMIggXlx6kaId65DUHF91srqpV+vGtddQmcA1V8sMhVlC+2t9sJZ6obRRIvTVxWykDwRIxIgV3MgTnwj1sonIyBX9FnOFR2RO1GE2hU8rrLAFEbwbNw9lW0PkvYquTz0pCBauP+xPWoBD413CI3qdbm9JRwhYqzGc9i7xDbN0uAw9fkUeQuSX5Uzx7hdKHnPgZdlairz1sSFWBRtOzwZI88E5s3VrDKDiplBjhVb3E3qBt0EbPPcEgW1qcI3q4W9kpANkAOrmg3+ROqwLIIyCEkpNcJiDcNM3D+kkgsWLFT0u7rJCWk6H6wGgI3qkPcl43GyXdaln5iOBjcXbfChgUA3Kg+cAe613//YFpY1TAUnV9e91JF2meiwz5jHem34iDHsIjJCzBlnTfR5KCj4do9qCWzFN/cRIP1oHeniVIwOtu0mVhsZllNzPuhDATBH38EGO//92ASa32ywycHyFK9NmsN6BP0wQYsRKJn3nHqmb5I1kJcWvWmG+vlPF1eFhovT2sw7fO5yJULBtA64Mz+Ss4QRZiJQ9wAAAAA=');
+//defined('BASEPATH') OR exit('No direct script access allowed');
+
+/*
+| -------------------------------------------------------------------
+| DATABASE CONNECTIVITY SETTINGS
+| -------------------------------------------------------------------
+| This file will contain the settings needed to access your database.
+|
+| For complete instructions please consult the 'Database Connection'
+| page of the User Guide.
+|
+| -------------------------------------------------------------------
+| EXPLANATION OF VARIABLES
+| -------------------------------------------------------------------
+|
+|	['dsn']      The full DSN string describe a connection to the database.
+|	['hostname'] The hostname of your database server.
+|	['username'] The username used to connect to the database
+|	['password'] The password used to connect to the database
+|	['database'] The name of the database you want to connect to
+|	['dbdriver'] The database driver. e.g.: mysqli.
+|			Currently supported:
+|				 cubrid, ibase, mssql, mysql, mysqli, oci8,
+|				 odbc, pdo, postgre, sqlite, sqlite3, sqlsrv
+|	['dbprefix'] You can add an optional prefix, which will be added
+|				 to the table name when using the  Query Builder class
+|	['pconnect'] TRUE/FALSE - Whether to use a persistent connection
+|	['db_debug'] TRUE/FALSE - Whether database errors should be displayed.
+|	['cache_on'] TRUE/FALSE - Enables/disables query caching
+|	['cachedir'] The path to the folder where cache files should be stored
+|	['char_set'] The character set used in communicating with the database
+|	['dbcollat'] The character collation used in communicating with the database
+|				 NOTE: For MySQL and MySQLi databases, this setting is only used
+| 				 as a backup if your server is running PHP < 5.2.3 or MySQL < 5.0.7
+|				 (and in table creation queries made with DB Forge).
+| 				 There is an incompatibility in PHP with mysql_real_escape_string() which
+| 				 can make your site vulnerable to SQL injection if you are using a
+| 				 multi-byte character set and are running versions lower than these.
+| 				 Sites using Latin-1 or UTF-8 database character set and collation are unaffected.
+|	['swap_pre'] A default table prefix that should be swapped with the dbprefix
+|	['encrypt']  Whether or not to use an encrypted connection.
+|
+|			'mysql' (deprecated), 'sqlsrv' and 'pdo/sqlsrv' drivers accept TRUE/FALSE
+|			'mysqli' and 'pdo/mysql' drivers accept an array with the following options:
+|
+|				'ssl_key'    - Path to the private key file
+|				'ssl_cert'   - Path to the public key certificate file
+|				'ssl_ca'     - Path to the certificate authority file
+|				'ssl_capath' - Path to a directory containing trusted CA certificates in PEM format
+|				'ssl_cipher' - List of *allowed* ciphers to be used for the encryption, separated by colons (':')
+|				'ssl_verify' - TRUE/FALSE; Whether verify the server certificate or not ('mysqli' only)
+|
+|	['compress'] Whether or not to use client compression (MySQL only)
+|	['stricton'] TRUE/FALSE - forces 'Strict Mode' connections
+|							- good for ensuring strict SQL while developing
+|	['ssl_options']	Used to set various SSL options that can be used when making SSL connections.
+|	['failover'] array - A array with 0 or more data for connections if the main should fail.
+|	['save_queries'] TRUE/FALSE - Whether to "save" all executed queries.
+| 				NOTE: Disabling this will also effectively disable both
+| 				$this->db->last_query() and profiling of DB queries.
+| 				When you run a query, with this setting set to TRUE (default),
+| 				CodeIgniter will store the SQL statement for debugging purposes.
+| 				However, this may cause high memory usage, especially if you run
+| 				a lot of SQL queries ... disable this to avoid that problem.
+|
+| The $active_group variable lets you choose which connection group to
+| make active.  By default there is only one group (the 'default' group).
+|
+| The $query_builder variables lets you determine whether or not to load
+| the query builder class.
+*/
+$active_group = 'default';
+$query_builder = TRUE;
+
+$db['default'] = array(
+	'dsn'	=> '',
+	'hostname' => 'localhost',
+	'port'     => '3306',
+	'username' => 'redha',
+	'password' => 'redhaRedha@1redha',
+	'database' => 'unimedica_db',
+	'dbdriver' => 'mysqli',
+	'dbprefix' => '',
+	'pconnect' => TRUE,
+	'db_debug' => (ENVIRONMENT !== 'production'),
+	//'db_debug' => FALSE,
+	'cache_on' => FALSE,
+	'cachedir' => '',
+	'char_set' => 'utf8',
+	'dbcollat' => 'utf8_general_ci',
+	'swap_pre' => '',
+	'encrypt' => FALSE,
+	'compress' => FALSE,
+	'stricton' => FALSE,
+	'failover' => array(),
+	'save_queries' => TRUE
+);
+
+$db['unimedica'] = array(
+	'dsn'      => '',
+	'hostname' => 'localhost',
+	'port'     => '3306',
+	'username' => 'redha',
+	'password' => 'redhaRedha@1redha',
+	'database' => 'unimedica_db',
+
+	'dbdriver' => 'mysqli',
+	'dbprefix' => '',
+	'pconnect' => TRUE,
+	'db_debug' => (ENVIRONMENT !== 'production'),
+	'cache_on' => FALSE,
+	'cachedir' => '',
+	'char_set' => 'utf8',
+	'dbcollat' => 'utf8_general_ci',
+	'swap_pre' => '',
+	'encrypt'  => FALSE,
+	'compress' => FALSE,
+	'stricton' => FALSE,
+	'failover' => array(),
+	'save_queries' => TRUE
+);

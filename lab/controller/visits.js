@@ -23,7 +23,6 @@ document.addEventListener("DOMContentLoaded", () => {
 const changePatientTag = () => {
   const visitsPatientIdForm = document.getElementById("patient-form");
   const newPatientElement = document.querySelector(`input[name="new_patient"]`);
-
   visitsPatientIdForm.innerHTML = "";
   if (!newPatientElement.checked) {
     visitsPatientIdForm.innerHTML = `
@@ -53,7 +52,10 @@ const changePatientTag = () => {
 // change the patient addEventListener
 document
   .querySelector("input[name='new_patient']")
-  .addEventListener("change", changePatientTag);
+  .addEventListener("change", ()=>{
+    changePatientTag();
+    lab_visits.resetForm();
+  });
 
 function toggleHeaderAndFooter() {
   const invoiceShow = $(".book-result .header .row:visible").length;
@@ -110,12 +112,12 @@ const getAge = (birth) => {
 const getOldPatient = (hash) => {
   if (hash !== 0) {
     const patient = fetchApi(`/patient/get_patient?hash=${hash}`);
-    $("#age_year").val(patient.age_year);
-    $("#age_month").val(patient.age_month);
-    $("#age_day").val(patient.age_day);
-    $("#gender").val(patient.gender).trigger("change");
-    $("#phone").val(patient.phone);
-    $("#address").val(patient.address);
+    $("#age_year").val(patient?.age_year);
+    $("#age_month").val(patient?.age_month);
+    $("#age_day").val(patient?.age_day);
+    $("#gender").val(patient?.gender).trigger("change");
+    $("#phone").val(patient?.phone);
+    $("#address").val(patient?.address);
   }
 };
 
@@ -485,12 +487,12 @@ function manageRange(reference) {
   return "لا يوجد مرجع";
 }
 
-function addNormalResult(test, result_test, visit_hash) {
-  __VISIT_TESTS__.push({ hash: test.hash, options: test.reference });
-  return generateFieldForTest(test, result_test, visit_hash);
-}
+// function addNormalResult(test, result_test, visit_hash) {
+//   __VISIT_TESTS__.push({ hash: test.hash, options: test.reference });
+//   return generateFieldForTest(test, result_test, visit_hash);
+// }
 
-function generateFieldForTest(test, resultList, visit_hash) {
+function addNormalResult(test, resultList, visit_hash) {
   const { type: testType, ...reference } = test.option_test;
   const checked = resultList?.[test.name]?.checked === "false" ? false : true;
   return `
@@ -893,7 +895,6 @@ function addCultureResult(test, result_test) {
   const { component } = test.option_test;
   const baseId = test.name.replace(/\s/g, "").replace(/[^a-zA-Z0-9]/g, "");
   const testId = `test-${baseId}`;
-
   let type = "";
 
   const componentMarkup = component
@@ -1050,7 +1051,6 @@ function addResult(data) {
     const reference = test.option_test;
     if (reference.type === "calc") {
       let result = test.result[test.name];
-
       let evaluatedResult = 0;
       try {
         evaluatedResult = eval(
@@ -1074,7 +1074,8 @@ function addResult(data) {
       finalResult = {};
       finalResult[test.name] = result;
       finalResult.checked = test.result.checked;
-      resultForm.push(addNormalResult(test, finalResult, visit.hash));
+      result_tests[test.name] = finalResult;
+      resultForm.push(addNormalResult(test, result_tests, visit.hash));
     } else if (reference.type === "type") {
       resultForm.push(addStrcResult(test, result_tests[test.name]));
     } else if (reference.type === "culture") {

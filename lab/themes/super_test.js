@@ -490,6 +490,7 @@ class TableTheme extends Theme {
               }
             })
             .join("")}
+          
         </tbody>
       </table>
 
@@ -616,6 +617,13 @@ class PackageTestTheme extends TableTheme {
               return this.createRow(hash, refrence);
             })
             .join("")}
+            <tr>
+              <td colspan="4" class="text-center">
+                <a class="text-info" onclick="addRefrence('${hash}','${selectedUnit}','${selectedKit}');">
+                  <i class="far fa-plus-circle fa-lg mx-2"></i>
+                </a>
+              </td>
+            </tr>
         </tbody>
       </table>
 
@@ -827,11 +835,14 @@ function createRefrenceForm(hash, refrence, id) {
   return THEME.build(hash, null, null);
 }
 
-function addRefrence(hash, unit) {
+function addRefrence(hash,unit,kit) {
   const form = createRefrenceForm(hash, {}, null);
   $("#refrence_editor .modal-body").html(form);
   $("#refrence_editor").modal("show");
   if (unit) {
     $("#refrence_editor .modal-body #unit").val(`${unit}`);
+  }
+  if(kit){
+    $("#refrence_editor .modal-body #kit").val(`${kit}`);
   }
 }

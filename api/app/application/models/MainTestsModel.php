@@ -115,7 +115,6 @@ class MainTestsModel extends CI_Model
             // where lab_test.hash = hash and visit_hash = visit_hash
             // or lab_test.id = hash and visit_hash = visit_hash
             ->where(array("lab_test.hash" => $hash, "visit_id" => $visit_hash))
-            ->or_where(array("lab_test.id" => $hash, "visit_id" => $visit_hash))
 
             ->get()->row_array();
         //die last query

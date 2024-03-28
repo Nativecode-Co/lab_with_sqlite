@@ -88,8 +88,8 @@ class Visit extends Factory {
       `input[name="new_patient"]`
     );
     // change new patient checked
-    newPatientElement.checked = true;
-    changePatientTag();
+    // newPatientElement.checked = true;
+    // changePatientTag();
     // change visits_date with today
     document.getElementById("visit_date").value = TODAY;
 
@@ -270,10 +270,16 @@ class Visit extends Factory {
     const data = this.validate();
     if (!data) return;
     const visit = fetchApi("/visit/create_visit", "POST", data);
+    patients.push({
+      hash: visit.patient_hash,
+      name: data.name,
+    });
     this.dataTable.ajax.reload();
     this.resetForm();
     visitDetail(visit.hash);
     showAddResult(visit.hash);
+    newPatientElement.checked = true;
+    changePatientTag();
   }
 
   saveUpdateItem(hash) {
@@ -296,6 +302,8 @@ class Visit extends Factory {
     );
     visitDetail(hash);
     showAddResult(hash);
+    newPatientElement.checked = true;
+    changePatientTag();
   }
 
   createModal() {
