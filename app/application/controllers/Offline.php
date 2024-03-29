@@ -8,6 +8,7 @@ use Firebase\JWT\Key;
 
 class Offline extends CI_Controller
 {
+    private $number_of_queries = 1000;
 
     function __construct()
     {
@@ -32,7 +33,6 @@ class Offline extends CI_Controller
 
     public function jwt_dec($token, $type = "normal")
     {
-        //die("aaaa");
         try {
             $key = "@@redhaalasd2020@@";
             $decoded = JWT::decode($token, new Key($key, 'HS256'));
@@ -45,6 +45,7 @@ class Offline extends CI_Controller
             else
                 return 0;
         } catch (Exception $e) {
+            die($e->getMessage());
             return 0;
         }
     }
@@ -60,7 +61,8 @@ class Offline extends CI_Controller
                     "status" => false,
                     "message" => "Invalid token",
                     "isAuth" => false,
-                    "data" => null
+                    "data" => null,
+                    "token" => $decoded_array
                 ),
                 JSON_UNESCAPED_UNICODE
             );
@@ -103,7 +105,7 @@ class Offline extends CI_Controller
             );
         } else {
             $lab_id = $user->lab_id;
-            $queries = "";
+            $queries = array();
             switch ($type) {
                 case 'doctors':
                     $doctors = $this->db->query("select * from lab_doctor where lab_id='$lab_id'")->result();
@@ -113,7 +115,7 @@ class Offline extends CI_Controller
                             return "('" . implode("','", array_values((array) $doctor)) . "')";
                         }, $doctors);
                         $doctors_query .= implode(",", $doctors_values);
-                        $queries .= $doctors_query;
+                        $queries[] = $doctors_query;
                     } else {
                         $doctors_query = '';
                     }
@@ -125,8 +127,11 @@ class Offline extends CI_Controller
                         $patients_values = array_map(function ($patient) {
                             return "('" . implode("','", array_values((array) $patient)) . "')";
                         }, $patients);
-                        $patients_query .= implode(",", $patients_values);
-                        $queries .= $patients_query;
+                        $patients_values = array_chunk($patients_values, $this->number_of_queries);
+                        foreach ($patients_values as $values) {
+                            $query = $patients_query . implode(",", $values) . ";";
+                            $queries[] = $query;
+                        }
                     } else {
                         $patients_query = '';
                     }
@@ -139,7 +144,7 @@ class Offline extends CI_Controller
                             return "('" . implode("','", array_values((array) $package_test)) . "')";
                         }, $package_tests);
                         $package_tests_query .= implode(",", $package_tests_values);
-                        $queries .= $package_tests_query;
+                        $queries[] = $package_tests_query;
                     } else {
                         $package_tests_query = '';
                     }
@@ -152,7 +157,7 @@ class Offline extends CI_Controller
                             return "('" . implode("','", array_values((array) $package)) . "')";
                         }, $packages);
                         $packages_query .= implode(",", $packages_values);
-                        $queries .= $packages_query;
+                        $queries[] = $packages_query;
                     } else {
                         $packages_query = '';
                     }
@@ -164,8 +169,11 @@ class Offline extends CI_Controller
                         $visits_values = array_map(function ($visit) {
                             return "('" . implode("','", array_values((array) $visit)) . "')";
                         }, $visits);
-                        $visits_query .= implode(",", $visits_values);
-                        $queries .= $visits_query;
+                        $visits_values = array_chunk($visits_values, $this->number_of_queries);
+                        foreach ($visits_values as $values) {
+                            $query = $visits_query . implode(",", $values) . ";";
+                            $queries[] = $query;
+                        }
                     } else {
                         $visits_query = '';
                     }
@@ -177,8 +185,11 @@ class Offline extends CI_Controller
                         $visits_packages_values = array_map(function ($visits_package) {
                             return "('" . implode("','", array_values((array) $visits_package)) . "')";
                         }, $visits_packages);
-                        $visits_packages_query .= implode(",", $visits_packages_values);
-                        $queries .= $visits_packages_query;
+                        $visits_packages_values = array_chunk($visits_packages_values, $this->number_of_queries);
+                        foreach ($visits_packages_values as $values) {
+                            $query = $visits_packages_query . implode(",", $values) . ";";
+                            $queries[] = $query;
+                        }
                     } else {
                         $visits_packages_query = '';
                     }
@@ -190,8 +201,12 @@ class Offline extends CI_Controller
                         $visits_tests_values = array_map(function ($visits_test) {
                             return "('" . implode("','", array_values((array) $visits_test)) . "')";
                         }, $visits_tests);
-                        $visits_tests_query .= implode(",", $visits_tests_values);
-                        $queries .= $visits_tests_query;
+                        $visits_tests_values = array_chunk($visits_tests_values, $this->number_of_queries);
+                        foreach ($visits_tests_values as $values) {
+                            $query = $visits_tests_query . implode(",", $values) . ";";
+                            $queries[] = $query;
+                        }
+
                     } else {
                         $visits_tests_query = '';
                     }
@@ -204,7 +219,7 @@ class Offline extends CI_Controller
                             return "('" . implode("','", array_values((array) $worker)) . "')";
                         }, $workers);
                         $workers_query .= implode(",", $workers_values);
-                        $queries .= $workers_query;
+                        $queries[] = $workers_query;
                     } else {
                         $workers_query = '';
                     }
@@ -217,7 +232,7 @@ class Offline extends CI_Controller
                             return "('" . implode("','", array_values((array) $invoice)) . "')";
                         }, $invoice);
                         $invoice_query .= implode(",", $invoice_values);
-                        $queries .= $invoice_query;
+                        $queries[] = $invoice_query;
                     } else {
                         $invoice_query = '';
                     }
@@ -230,7 +245,7 @@ class Offline extends CI_Controller
                             return "('" . implode("','", array_values((array) $lab)) . "')";
                         }, $lab);
                         $lab_query .= implode(",", $lab_values);
-                        $queries .= $lab_query;
+                        $queries[] = $lab_query;
                     } else {
                         $lab_query = '';
                     }
@@ -245,7 +260,7 @@ class Offline extends CI_Controller
                 array(
                     'status' => true,
                     'message' => 'تم تسجيل الدخول بنجاح',
-                    "queries" => array($queries),
+                    "queries" => $queries,
                     'isAuth' => true
                 ),
                 JSON_UNESCAPED_UNICODE
@@ -559,7 +574,7 @@ class Offline extends CI_Controller
 
     public function run_sync()
     {
-        $this->auth();
+        // $this->auth();
         $queries = $this->input->post("queries");
         $lab = $this->input->post("lab");
         $labCols = array(

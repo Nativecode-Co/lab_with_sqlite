@@ -205,10 +205,10 @@ const login = async () => {
     });
     fetchData("localApi/createAfterInsertTrigger");
     addAlert("تم اكمال 80 % من عملية تنزيل البيانات");
-    offlineLogin().then(() => {
-      addAlert("تم اكمال 100 % من عملية تنزيل البيانات");
-      addAlert("جاري تسجيل الدخول");
-    });
+    // offlineLogin().then(() => {
+    //   addAlert("تم اكمال 100 % من عملية تنزيل البيانات");
+    //   addAlert("جاري تسجيل الدخول");
+    // });
   } else {
     await offlineLogin();
   }

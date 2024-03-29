@@ -16,7 +16,7 @@ class MainTestsModel extends CI_Model
         $searchText = $params['search']['value'];
         return $this->db
             ->where('lab_test.isdeleted', 0)
-            ->where('lab_test.test_type <>', 3)
+            // ->where('lab_test.test_type <>', 3)
             ->like("test_name", $searchText)
             ->join('lab_test_catigory', 'lab_test_catigory.hash = lab_test.category_hash', 'left')
             ->count_all_results($this->table);
@@ -37,7 +37,7 @@ class MainTestsModel extends CI_Model
             ->select('lab_test_catigory.name as category_name')
             ->join('lab_test_catigory', 'lab_test_catigory.hash = lab_test.category_hash', 'left')
             ->where('lab_test.isdeleted', 0)
-            ->where('lab_test.test_type <>', 3)
+            // ->where('lab_test.test_type <>', 3)
             ->like("test_name", $searchText)
             // order by id
             ->order_by("lab_test.id", "desc")
@@ -64,7 +64,7 @@ class MainTestsModel extends CI_Model
         $tests = $this->db
             ->select('hash,test_name as text')
             ->where('isdeleted', 0)
-            ->where('test_type <>', 3)
+            // ->where('test_type <>', 3)
             ->order_by('test_name', 'asc')
             ->get($this->table)
             ->result();
@@ -111,7 +111,7 @@ class MainTestsModel extends CI_Model
             ->select("kit_id as kit,unit")
             ->from("lab_visits_tests")
             ->join("lab_test", "lab_test.hash = lab_visits_tests.tests_id")
-            ->join("lab_pakage_tests", "lab_pakage_tests.test_id = lab_visits_tests.tests_id and lab_pakage_tests.package_id = lab_visits_tests.package_id", "left")
+            ->join("lab_pakage_tests", "lab_pakage_tests.test_id = lab_visits_tests.tests_id", "left")
             // where lab_test.hash = hash and visit_hash = visit_hash
             // or lab_test.id = hash and visit_hash = visit_hash
             ->where(array("lab_test.hash" => $hash, "visit_id" => $visit_hash))
@@ -206,7 +206,7 @@ class MainTestsModel extends CI_Model
         $tests = $this->db
             ->select('test_name as text, hash')
             ->where('isdeleted', 0)
-            ->where('test_type <>', 3)
+            // ->where('test_type <>', 3)
             ->get('lab_test')
             ->result();
         $units = $this->db

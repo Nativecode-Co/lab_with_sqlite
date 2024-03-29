@@ -102,7 +102,6 @@ class LocalApi extends CI_Controller
             if (isset($query)) {
                 $this->db->query($query);
             }
-            die();
         }
         if (!isset($trancate)) {
             $this->db->query("TRUNCATE offline_sync;");
@@ -207,7 +206,7 @@ class LocalApi extends CI_Controller
         AFTER INSERT ON lab_visits
         FOR EACH ROW
         BEGIN
-            INSERT INTO offline_sync(table_name,operation,labId,query) VALUES ('lab_visits','insert',new.labId,(SELECT info FROM INFORMATION_SCHEMA.PROCESSLIST WHERE id = CONNECTION_ID()) );
+            INSERT INTO offline_sync(table_name,operation,lab_id,query) VALUES ('lab_visits','insert',new.labId,(SELECT info FROM INFORMATION_SCHEMA.PROCESSLIST WHERE id = CONNECTION_ID()) );
         
         END;"
         );

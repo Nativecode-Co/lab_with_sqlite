@@ -117,7 +117,7 @@ class VisitModel extends CI_Model
             ->select("ifnull(lab_test_catigory.name,'Tests') as category")
             ->select("unit, result_test as result,sort, lab_visits_tests.hash as hash, test_id")
             ->from("lab_visits_tests")
-            ->join("lab_pakage_tests", "lab_pakage_tests.test_id = lab_visits_tests.tests_id and lab_pakage_tests.package_id = lab_visits_tests.package_id", "left")
+            ->join("lab_pakage_tests", "lab_pakage_tests.test_id = lab_visits_tests.tests_id", "left")
             ->join("lab_test", "lab_test.hash = lab_visits_tests.tests_id")
             ->join("lab_test_catigory", "lab_test_catigory.hash = lab_test.category_hash", "left")
             ->where("visit_id", $hash)
@@ -130,12 +130,13 @@ class VisitModel extends CI_Model
             $tests = array_map(function ($test) use ($visit, $font) {
                 $json = new Json($test['option_test']);
                 $filterFeilds = array (
-                    "kit" => $test['kit_id'],
-                    "unit" => $test['unit'],
+                    "kit" => $test['kit_id']?? "",
+                    "unit" => $test['unit'] ?? "",
                     "gender" => $visit['gender'],
                     "age" => $visit['age'],
                 );
                 $test['option_test'] = $json->filter($filterFeilds)->setHeight($font)->row();
+                
                 $test['result'] = json_decode($test['result'], true);
                 if ($test['result'] == null) {
                     $test['result'] = array (
@@ -151,6 +152,7 @@ class VisitModel extends CI_Model
         usort($tests, function ($a, $b) {
             return $a['category'] <=> $b['category'];
         });
+        // die(json_encode($tests));
         $visit["tests"] = $tests;
         return $visit;
     }

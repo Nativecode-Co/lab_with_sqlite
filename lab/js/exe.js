@@ -328,6 +328,16 @@ function syncOnline() {
   if (!navigator.onLine) {
     return false;
   }
-  fetch(`${__domain__}/sync/sync_up.php`);
+  // set token in header
+
+  fetch(`${__domain__}/sync/sync_up.php`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      "Authorization": localStorage.getItem("token"),
+    },
+  }).then((res) => res.json()).then((e)=>{
+    console.log(e)
+  }).catch((e)=>{console.log("error", e)})
   updateExpireDate();
 }

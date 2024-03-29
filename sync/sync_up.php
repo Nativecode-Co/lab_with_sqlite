@@ -1,6 +1,4 @@
 <?php
-
-
 // run the query to get the offline sync queries
 $ch = curl_init('http://localhost:8807/app/index.php/Offline_sync');
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -13,11 +11,16 @@ $result = json_decode($result, true);
 if (isset ($result['queries'])) {
     $queries = $result['queries'];
     $lab_id = $result['lab_id'];
-    // run the queries online as string
+    $token = $result['token'];
+    // set $token to the header
+    $headers = array(
+        'Content-Type: application/x-www-form-urlencoded',
+        'Authorization: Bearer ' . $token
+    );
 // start curl
     $ch = curl_init('http://umc.native-code-iq.com/app/index.php/offline/run_sync');
-    // set the content type to x-www-form-urlencoded
-    curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/x-www-form-urlencoded'));
+    // set headers
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
     // set the request method to POST
     curl_setopt($ch, CURLOPT_POST, 1);
     // set the post data
@@ -27,7 +30,7 @@ if (isset ($result['queries'])) {
         http_build_query(
             array(
                 'queries' => $queries,
-                'lab' => $lab_id
+                'lab' => $lab_id,
             )
         )
     );

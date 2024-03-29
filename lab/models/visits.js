@@ -279,7 +279,10 @@ class Visit extends Factory {
     this.resetForm();
     visitDetail(visit.hash);
     showAddResult(visit.hash);
-    newPatientElement.checked = true;
+
+    document.querySelector(
+      `input[name="new_patient"]`
+    ).checked = true;
     changePatientTag();
   }
 
