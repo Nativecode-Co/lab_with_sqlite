@@ -118,11 +118,15 @@ class VisitModel extends CI_Model
             ->select("unit, result_test as result,sort, lab_visits_tests.hash as hash, test_id")
             ->from("lab_visits_tests")
             ->join("lab_pakage_tests", "lab_pakage_tests.test_id = lab_visits_tests.tests_id", "left")
+            ->join("lab_package", "lab_package.hash = lab_pakage_tests.package_id", "left")
             ->join("lab_test", "lab_test.hash = lab_visits_tests.tests_id")
             ->join("lab_test_catigory", "lab_test_catigory.hash = lab_test.category_hash", "left")
             ->where("visit_id", $hash)
             ->order_by("sort")
+            ->group_by("test_name")
             ->get()->result_array();
+            // $last_query = $this->db->last_query();
+            // die($last_query);
         // packges get name and hash only
         $packages = $this->get_visit_packages($hash);
         $visit['packages'] = $packages;

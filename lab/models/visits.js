@@ -93,6 +93,8 @@ class Visit extends Factory {
     // change visits_date with today
     document.getElementById("visit_date").value = TODAY;
     document.querySelector("select[name='gender']").value = "ذكر";
+    // trigger change event
+    $("#gender").trigger("change");
 
     const testsElement = document.getElementsByName("tests[]");
     $(".itemsActive").removeClass("itemsActive");

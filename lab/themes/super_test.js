@@ -620,7 +620,8 @@ class PackageTestTheme extends TableTheme {
             <tr>
               <td colspan="4" class="text-center">
                 <a class="text-info" onclick="addRefrence('${hash}','${selectedUnit}','${selectedKit}');">
-                  <i class="far fa-plus-circle fa-lg mx-2"></i>
+                اضافة رينج جديد  
+                <i class="far fa-plus-circle fa-lg mx-2"></i>
                 </a>
               </td>
             </tr>

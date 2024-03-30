@@ -16,6 +16,7 @@ class UsersModel extends CI_Model
         $searchText = $params['search']['value'];
         return $this->db
             ->where('is_deleted', 0)
+            ->like("user_type", 111)
             ->like("name", $searchText)
             ->count_all_results($this->table);
     }
@@ -25,6 +26,7 @@ class UsersModel extends CI_Model
         $start = $params['start'];
         $rowsPerPage = $params['length'];
         $page = $start / $rowsPerPage;
+
         $orderBy = $params['order'][0]['column'];
         $orderBy = $params['columns'][$orderBy]['data'];
         $order = $params['order'][0]['dir'];
@@ -76,7 +78,8 @@ class UsersModel extends CI_Model
         $users = $this->db
             ->select('name,hash')
             ->where('is_deleted', 0)
-            ->get('system_users')
+            ->where('user_type', 111)
+            ->get($this->table)
             ->result();
 
         $doctors = $this->db

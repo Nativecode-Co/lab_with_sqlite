@@ -553,9 +553,7 @@ function addNormalResult(test, resultList, visit_hash) {
                       <label for="result" class="w-100 text-center text-dark">النتيجة</label>
                       ${
                         reference?.[0]?.result?.trim() === "result"
-                          ? `<select class="form-control result" id="result_${
-                              test.hash
-                            }" name="${test.name}">
+                          ? `<select class="form-control result" name="${test.name}">
                               ${reference.options
                                 .map((option) => {
                                   return `<option value="${option}" ${
@@ -570,9 +568,7 @@ function addNormalResult(test, resultList, visit_hash) {
                                 })
                                 .join("")}
                             </select>`
-                          : `<input type="text" class="form-control result text-center" id="result_${
-                              test.hash
-                            }" dir="ltr" name="${
+                          : `<input type="text" class="form-control result text-center"  dir="ltr" name="${
                               test.name
                             }" placeholder="ادخل النتيجة" ${
                               testType === "calc" ? "readonly" : ""
@@ -687,7 +683,6 @@ function addStrcResult(test, result_test) {
             class="form-control result text-center h6"
             ${editable} 
             name="${comp.name}"
-            id="result_${test.hash}" 
             ${multi}
           >
             ${htmlOptions}
@@ -698,7 +693,6 @@ function addStrcResult(test, result_test) {
                       type="number" 
                       class="form-control result text-center" 
                       ${editable} 
-                      id="result_${test.hash}" 
                       name="${comp.name}"
                       placeholder="ادخل النتيجة" 
                       value="${result}"
@@ -711,7 +705,6 @@ function addStrcResult(test, result_test) {
                       dir="ltr"
                       ${editable} 
                       value="${result}" 
-                      id="result_${test.hash}" 
                       name="${comp.name}"
                       placeholder="ادخل النتيجة"
                   >`;
@@ -953,7 +946,6 @@ function addCultureResult(test, result_test) {
           input = `<textarea 
                       class="form-control result text-center" 
                       ${editable} 
-                      id="result_${test.hash}" 
                       name="${comp.name}"
                       placeholder="ادخل النتيجة"
                   >${result}</textarea>`;
@@ -1928,9 +1920,11 @@ function showResult(data) {
       buttons[idName] = addInviceButton(idName, name);
       let invoiceBody = "";
       invoiceBody += `
-            <div class="typetest test">
-                <p>${name}</p>
-            </div>
+      <div class="testhead row sections m-0 mt-2 category_category" style="border-bottom: 2px solid rgb(255, 136, 0);">
+          <div class="col-12 pr-0">
+              <p class="text-center">${name}</p>
+          </div>
+      </div>
             `;
       let type = "";
       for (const reference of options.component) {
@@ -2000,7 +1994,6 @@ function showResult(data) {
     } else {
       
       if (height + reference.height >= defaultHeight) {
-        console.log(test.name,height +reference.height,defaultHeight,height + reference.height >= defaultHeight);
         invoices.normalTests += createInvoice(normalTests, invoiceItems);
         normalTests = manageHead("flag");
         if (category !== test.category) {
@@ -2310,8 +2303,6 @@ function manageHead(type) {
     default:
       return `
             <div class="row m-0 mt-2 sections">
-                <!-- تصنيف الجدول او اقسام الجدول --------------------------------------------------------------------------------------->
-
                 <div class="col-1 text-right">
                     <p>#</p>
                 </div>
@@ -2447,7 +2438,7 @@ function manageTestType(type, test = {}) {
         hiddenClass === "true" ? "none" : "flex"
       }" data-flag="result" class="test strc-test row m-0 border-test ${showClass}" >
                     <div class="testname col-6">
-                        <p style="${italic}" class="text-right">${name}</p>
+                        <p class="text-right">${name}</p>
                     </div>
                     <div class="testresult result-field col-6 justify-content-center ">
                         <p style="${italic}" class="w-75 text-right">${result.toString()} </p>

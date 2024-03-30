@@ -162,12 +162,17 @@ class Test extends Factory {
     const data = this.getUpdateData();
     fetchApi("/maintests/update_main_test", "post", { ...data, hash });
     this.dataTable.ajax.reload();
+    // close modal
+    $(`#${this.modalId}`).modal("hide");
+
   }
 
   saveNewItem() {
     const data = this.getUpdateData();
     fetchApi("/maintests/add_main_test", "post", data);
     this.dataTable.ajax.reload();
+    // close modal
+    $(`#${this.modalId}`).modal("hide");
   }
 }
 

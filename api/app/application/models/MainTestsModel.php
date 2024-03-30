@@ -149,9 +149,11 @@ class MainTestsModel extends CI_Model
 
     public function update($hash, $data)
     {
-        $option_test = $data['option_test'];
-        // replace backslashes with empty string to avoid SQL injection
-        $option_test = str_replace('\\', '', $option_test);
+        if(isset($data['option_test'])){
+            $option_test = $data['option_test'];
+            // replace backslashes with empty string to avoid SQL injection
+            $option_test = str_replace('\\', '', $option_test);
+        }
         $this->db
             ->where($this->main_column, $hash)
             ->update($this->table, $data);

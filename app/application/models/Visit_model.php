@@ -202,33 +202,21 @@ class Visit_model extends CI_Model
     {
         $query = $this->db->query("
         SELECT 
-            tests_id AS id,
-            result_test AS result,
-            (SELECT 
-                    test_name
-                FROM
-                    lab_test
-                WHERE
-                    hash = tests_id) AS name,
-            (SELECT 
-                    visit_date
-                FROM
-                    lab_visits
-                WHERE
-                    hash = visit_id) AS date
-        FROM
-            lab_visits_tests
-        WHERE
-            visit_id in (SELECT 
-                    hash
-                FROM
-                    lab_visits
-                WHERE
-                    visits_patient_id = '$patient_id'
-                        AND isdeleted = 0
-                        AND visit_date < '$visit_date'
-                ORDER BY visit_date DESC)
-                AND tests_id != 0 ORDER BY date DESC;
+    lvt.tests_id AS id,
+    lvt.result_test AS result,
+    lt.test_name AS name,
+    lv.visit_date AS date
+FROM
+    lab_visits_tests lvt
+    INNER JOIN lab_visits lv ON lvt.visit_id = lv.hash
+    LEFT JOIN lab_test lt ON lvt.tests_id = lt.hash
+WHERE
+    lv.visits_patient_id = '$patient_id'
+    AND lv.isdeleted = 0
+    AND lv.visit_date < '$visit_date'
+    AND lvt.tests_id != 0 
+ORDER BY
+    lv.visit_date DESC;
         ");
         $tests = $query->result_array();
         return $tests;
