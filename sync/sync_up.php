@@ -1,2 +1,55 @@
 <?php
-if(!function_exists('sg_load')){$__v=phpversion();$__x=explode('.',$__v);$__v2=$__x[0].'.'.(int)$__x[1];$__u=strtolower(substr(php_uname(),0,3));$__ts=(@constant('PHP_ZTS') || @constant('ZEND_THREAD_SAFE')?'ts':'');$__f=$__f0='ixed.'.$__v2.$__ts.'.'.$__u;$__ff=$__ff0='ixed.'.$__v2.'.'.(int)$__x[2].$__ts.'.'.$__u;$__ed=@ini_get('extension_dir');$__e=$__e0=@realpath($__ed);$__dl=function_exists('dl') && function_exists('file_exists') && @ini_get('enable_dl') && !@ini_get('safe_mode');if($__dl && $__e && version_compare($__v,'5.2.5','<') && function_exists('getcwd') && function_exists('dirname')){$__d=$__d0=getcwd();if(@$__d[1]==':') {$__d=str_replace('\\','/',substr($__d,2));$__e=str_replace('\\','/',substr($__e,2));}$__e.=($__h=str_repeat('/..',substr_count($__e,'/')));$__f='/ixed/'.$__f0;$__ff='/ixed/'.$__ff0;while(!file_exists($__e.$__d.$__ff) && !file_exists($__e.$__d.$__f) && strlen($__d)>1){$__d=dirname($__d);}if(file_exists($__e.$__d.$__ff)) dl($__h.$__d.$__ff); else if(file_exists($__e.$__d.$__f)) dl($__h.$__d.$__f);}if(!function_exists('sg_load') && $__dl && $__e0){if(file_exists($__e0.'/'.$__ff0)) dl($__ff0); else if(file_exists($__e0.'/'.$__f0)) dl($__f0);}if(!function_exists('sg_load')){$__ixedurl='https://www.sourceguardian.com/loaders/download.php?php_v='.urlencode($__v).'&php_ts='.($__ts?'1':'0').'&php_is='.@constant('PHP_INT_SIZE').'&os_s='.urlencode(php_uname('s')).'&os_r='.urlencode(php_uname('r')).'&os_m='.urlencode(php_uname('m'));$__sapi=php_sapi_name();if(!$__e0) $__e0=$__ed;if(function_exists('php_ini_loaded_file')) $__ini=php_ini_loaded_file(); else $__ini='php.ini';if((substr($__sapi,0,3)=='cgi')||($__sapi=='cli')||($__sapi=='embed')){$__msg="\nPHP script '".__FILE__."' is protected by SourceGuardian and requires a SourceGuardian loader '".$__f0."' to be installed.\n\n1) Download the required loader '".$__f0."' from the SourceGuardian site: ".$__ixedurl."\n2) Install the loader to ";if(isset($__d0)){$__msg.=$__d0.DIRECTORY_SEPARATOR.'ixed';}else{$__msg.=$__e0;if(!$__dl){$__msg.="\n3) Edit ".$__ini." and add 'extension=".$__f0."' directive";}}$__msg.="\n\n";}else{$__msg="<html><body>PHP script '".__FILE__."' is protected by <a href=\"https://www.sourceguardian.com/\">SourceGuardian</a> and requires a SourceGuardian loader '".$__f0."' to be installed.<br><br>1) <a href=\"".$__ixedurl."\" target=\"_blank\">Click here</a> to download the required '".$__f0."' loader from the SourceGuardian site<br>2) Install the loader to ";if(isset($__d0)){$__msg.=$__d0.DIRECTORY_SEPARATOR.'ixed';}else{$__msg.=$__e0;if(!$__dl){$__msg.="<br>3) Edit ".$__ini." and add 'extension=".$__f0."' directive<br>4) Restart the web server";}}$__msg.="</body></html>";}die($__msg);exit();}}return sg_load('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');
+// run the query to get the offline sync queries
+$ch = curl_init('http://localhost:8807/app/index.php/Offline_sync');
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
+$result = curl_exec($ch);
+curl_close($ch);
+
+// decode the json response
+$result = json_decode($result, true);
+if (isset ($result['queries'])) {
+    $queries = $result['queries'];
+    $lab_id = $result['lab_id'];
+    $token = $result['token'];
+    // set $token to the header
+    $headers = array(
+        'Content-Type: application/x-www-form-urlencoded',
+        'Authorization: Bearer ' . $token
+    );
+// start curl
+    $ch = curl_init('http://umc.native-code-iq.com/app/index.php/offline/run_sync');
+    // set headers
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+    // set the request method to POST
+    curl_setopt($ch, CURLOPT_POST, 1);
+    // set the post data
+    curl_setopt(
+        $ch,
+        CURLOPT_POSTFIELDS,
+        http_build_query(
+            array(
+                'queries' => $queries,
+                'lab' => $lab_id,
+            )
+        )
+    );
+    // return the response as a string
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    // execute the curl
+    $result = curl_exec($ch);
+    // close the curl
+    curl_close($ch);
+
+    $ch = curl_init('http://localhost:8807/app/index.php/Offline_sync/trancate_sync');
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
+    $tranc_result = curl_exec($ch);
+    curl_close($ch);
+    echo $result;
+
+} else {
+    echo "No queries to run";
+}
+
+?>
