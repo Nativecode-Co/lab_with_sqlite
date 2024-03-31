@@ -1803,6 +1803,7 @@ function showResult(visit, visitTests) {
                 `;
       let invoiceBody = "";
       let unit = options?.unit ?? "result";
+      invoiceBody += manageHead("result");
       invoiceBody += `
             <div class="typetest test " data-flag="${unit}">
                 <!-- عنوان التحليل ------------------>
