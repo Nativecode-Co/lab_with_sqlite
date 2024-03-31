@@ -599,6 +599,8 @@ class Offline extends CI_Controller
             if ($query != "") {
                 // check if query update or insert or delete
                 if (strpos($query, "UPDATE") !== false) {
+                    // add ignore to query
+                    $query = str_replace("UPDATE", "UPDATE IGNORE", $query);
                     foreach ($labCols as $table => $col) {
                         if (strpos($query, $table) !== false) {
                             if (strpos($query, $col) === false) {
@@ -619,6 +621,8 @@ class Offline extends CI_Controller
                         )
                     );
                 } else if (strpos($query, "INSERT") !== false) {
+                    // add ignore to query
+                    $query = str_replace("INSERT", "INSERT IGNORE", $query);
                     foreach ($labCols as $table => $col) {
                         if (strpos($query, $table) !== false) {
                             if (strpos($query, $col) === false) {
