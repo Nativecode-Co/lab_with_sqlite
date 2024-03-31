@@ -4,7 +4,7 @@ echo json_encode(
 	array(
 		"error" => array(
 			"heading" => $heading,
-			"message" => $message
+			"message" => $message,
 		)
 	)
 

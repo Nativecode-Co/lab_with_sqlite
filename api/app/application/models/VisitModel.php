@@ -59,7 +59,6 @@ class VisitModel extends CI_Model
         $visit_hash = $visit_data['hash'];
         $tests = $data['tests'];
         $this->db->trans_start();
-        $visit_data = $data['visit_data'];
         $patient_data = $data['patient_data'];
         $tests = $data['tests'];
         $this->update_or_create_patient($patient_data);
