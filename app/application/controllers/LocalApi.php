@@ -203,34 +203,42 @@ class LocalApi extends CI_Controller
 
     public function createAfterInsertTrigger(){
         $this->db->query("CREATE TRIGGER lab_visits_AFTER_INSERT
-        AFTER INSERT ON lab_visits
+        AFTER INSERT ON `lab_visits`
         FOR EACH ROW
         BEGIN
-            INSERT INTO offline_sync(table_name,operation,lab_id,query) VALUES ('lab_visits','insert',new.labId,(SELECT info FROM INFORMATION_SCHEMA.PROCESSLIST WHERE id = CONNECTION_ID()) );
+            Declare last_query TEXT;
+            SET last_query = (SELECT info FROM INFORMATION_SCHEMA.PROCESSLIST WHERE id = CONNECTION_ID());
+            INSERT INTO `offline_sync`(`table_name`,`operation`,`lab_id`,`query`) VALUES ('lab_visits','insert',new.labId,last_query );
         
         END;"
         );
         $this->db->query("CREATE TRIGGER lab_visits_tests_AFTER_INSERT
-        AFTER INSERT ON lab_visits_tests
+        AFTER INSERT ON `lab_visits_tests`
         FOR EACH ROW
         BEGIN
-            INSERT INTO offline_sync(table_name,operation,lab_id,query) VALUES ('lab_visits_tests','insert',new.lab_id,(SELECT info FROM INFORMATION_SCHEMA.PROCESSLIST WHERE id = CONNECTION_ID()) );
+            Declare last_query TEXT;
+            SET last_query = (SELECT info FROM INFORMATION_SCHEMA.PROCESSLIST WHERE id = CONNECTION_ID());
+            INSERT INTO `offline_sync`(`table_name`,`operation`,`lab_id`,`query`) VALUES ('lab_visits_tests','insert',new.lab_id,last_query);
         
         END;"
         );
         $this->db->query("CREATE TRIGGER lab_visits_package_AFTER_INSERT
-        AFTER INSERT ON lab_visits_package
+        AFTER INSERT ON `lab_visits_package`
         FOR EACH ROW
         BEGIN
-            INSERT INTO offline_sync(table_name,operation,lab_id,query) VALUES ('lab_visits_package','insert',new.lab_id,(SELECT info FROM INFORMATION_SCHEMA.PROCESSLIST WHERE id = CONNECTION_ID()) );
+            Declare last_query TEXT;
+            SET last_query = (SELECT info FROM INFORMATION_SCHEMA.PROCESSLIST WHERE id = CONNECTION_ID());
+            INSERT INTO `offline_sync`(`table_name`,`operation`,`lab_id`,`query`) VALUES ('lab_visits_package','insert',new.lab_id,last_query);
         
         END;"
         );
         $this->db->query("CREATE TRIGGER lab_patient_AFTER_INSERT
-        AFTER INSERT ON lab_patient
+        AFTER INSERT ON `lab_patient`
         FOR EACH ROW
         BEGIN
-            INSERT INTO offline_sync(table_name,operation,lab_id,query) VALUES ('lab_patient','insert',new.lab_id,(SELECT info FROM INFORMATION_SCHEMA.PROCESSLIST WHERE id = CONNECTION_ID()) );
+            Declare last_query TEXT;
+            SET last_query = (SELECT info FROM INFORMATION_SCHEMA.PROCESSLIST WHERE id = CONNECTION_ID());
+            INSERT INTO `offline_sync`(`table_name`,`operation`,`lab_id`,`query`) VALUES ('lab_patient','insert',new.lab_id,last_query);
         
         END;"
         );
