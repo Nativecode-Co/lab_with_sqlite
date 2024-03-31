@@ -1,8 +1,11 @@
 <?php
+// Local database credentials
+$local_host = "localhost";
+$local_username = "redha";
+$local_password = "redhaRedha@1redha";
+$local_dbname = "unimedica_db";
 
-// connect to sqlite ./application/databases/db.sqlite
-$local_conn = new PDO('sqlite:./application/databases/db.sqlite');
-$local_conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+$local_conn = mysqli_connect($local_host, $local_username, $local_password, $local_dbname);
 
 
 if (!$local_conn) {
@@ -120,12 +123,30 @@ if ($queries != "") {
     die("Remote connection failed: " . mysqli_connect_error());
   }
 
-  $query = "start transaction; " . $queries . " commit;";
+  // split queries by ;
+  $queries = explode(";", $queries);
+  // if query is insert or INSERT add ingore // map queries
+  $queries = array_map(function ($query) {
+    if (strpos($query, "insert") !== false || strpos($query, "INSERT") !== false) {
+      return str_replace("insert", "insert ignore", $query);
+    }
+    return $query;
+  }, $queries);
+  // remove last empty query
+  array_pop($queries);
+  // run queries
+  foreach ($queries as $query) {
+    if (!mysqli_query($remote_conn, $query)) {
+      echo json_encode(array("status" => mysqli_error($remote_conn)), JSON_UNESCAPED_UNICODE);
+      die();
+    }
+  }
+  
+
 
   if (mysqli_query($remote_conn, $query)) {
     $query = "update offline_sync set sync=1;";
-    $local_conn->query($query)
-      ->fetchAll(PDO::FETCH_OBJ);
+    $local_conn->query($query);
     echo json_encode(array("status" => "is done"), JSON_UNESCAPED_UNICODE);
   } else {
     echo json_encode(array("status" => mysqli_error($remote_conn)), JSON_UNESCAPED_UNICODE);
