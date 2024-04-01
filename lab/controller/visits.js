@@ -484,7 +484,7 @@ function manageRange(reference) {
   if (mapingRange.length > 0) {
     return mapingRange.join("<br>");
   }
-  return "لا يوجد مرجع";
+  return "<span class='text-danger'>لا يوجد مرجع</span>";
 }
 
 // function addNormalResult(test, result_test, visit_hash) {
@@ -843,7 +843,12 @@ function addSusceptibility(funType, id, type, name, dose) {
       options: ["+", "++", "+++", "++++"],
     },
   ];
-  const item = component
+  const item = component.filter(item=>{
+    if(type.toLocaleLowerCase()==="resisteant" && item.name ==="dose"){
+      return false;
+    }
+    return true;
+  })
     .map((item) => {
       const select = selectInput({
         options: item.options,
@@ -852,7 +857,7 @@ function addSusceptibility(funType, id, type, name, dose) {
         name: `${type}.${item.name}`,
       });
       const element = `
-              <div class="col-md-5">
+              <div class="col-md-${type.toLocaleLowerCase()==="resisteant"?"10":"5"}">
                 <label for="result" class="w-100 text-center text-black font-weight-bold h5">
                   ${item.name}
                 </label>
@@ -1957,20 +1962,21 @@ function showResult(data) {
         }
         if (reference.type !== type && reference.type !== "Notes") {
           type = reference.type;
+          const isSusceptibility = reference.type === "Susceptibility";
           invoiceBody += `
-          <div class="test strc-test row m-0 typetest sp">
+          </div><div class="test strc-test row m-0 typetest sp">
               <div class="col-12 px-0">
                   <p style="font-size: 22px;">${reference.type}</p>
               </div>
-          </div>`;
+          </div> <div class="${isSusceptibility ? "row" : ""}">`;
         }
         if (reference.type === "Notes") {
           invoiceBody += `
-          <div class="test strc-test row m-0 typetest sp">
+          </div><div class="test strc-test row m-0 typetest sp">
               <div class="col-12 px-0">
                   <p style="font-size: 22px;">${reference.name}</p>
               </div>
-          </div>`;
+          </div><div>`;
         }
         const testType = manageTestType(
           reference.type === "Notes" ? "notes" : "culture",
@@ -2318,7 +2324,7 @@ function manageHead(type) {
 }
 
 function manageTestType(type, test = {}) {
-  const {
+  let {
     name,
     color,
     result,
@@ -2334,6 +2340,7 @@ function manageTestType(type, test = {}) {
     dependOn,
     allResults,
   } = test;
+  result = (result && result !== "undefined") ? result : "";
   let htmlHestory = "";
   if (invoices?.history === "1") {
     if (history !== "" && history && history !== "{}") {
@@ -2357,7 +2364,7 @@ function manageTestType(type, test = {}) {
                     <p class="text-right w-100">${name}</p>
                 </div>
                 <div class="testresult result-field col-3">
-                    <p class="${color} w-100 text-center">${result ?? ""}</p>
+                    <p class="${color} w-100 text-center">${result}</p>
                 </div>
                 <div class="testresult col-1">
                     ${
@@ -2432,17 +2439,19 @@ function manageTestType(type, test = {}) {
             hiddenClass = d.includes(when) ? "false" : "true";
           })
         : null;
-
+      let isSusceptibility = ["resisteant", "sensitive"].includes(name.toLocaleLowerCase());
       return `
-            <div style="font-size:${font} !important;display:${
-        hiddenClass === "true" ? "none" : "flex"
-      }" data-flag="result" class="test strc-test row m-0 border-test ${showClass}" >
-                    <div class="testname col-6">
-                        <p class="text-right">${name}</p>
-                    </div>
-                    <div class="testresult result-field col-6 justify-content-center ">
-                        <p style="${italic}" class="w-75 text-right">${result.toString()} </p>
-                    </div>
+            <div 
+              style="font-size:${font} !important;display:${hiddenClass === "true" ? "none" : "flex"}"
+              data-flag="result" 
+              class="test strc-test row m-0 border-test ${showClass} ${isSusceptibility? "w-50":""}
+            ">
+              <div class="testname col-6">
+                  <p class="text-right">${name}</p>
+              </div>
+              <div class="testresult result-field col-6 justify-content-center ">
+                  <p style="${italic}" class="w-75 text-right">${result.toString()} </p>
+              </div>
             </div>`;
     default:
       break;
