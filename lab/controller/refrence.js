@@ -22,7 +22,7 @@ const updateNormal = (test, visit_hash) => {
     console.log(error);
     Swal.fire({
       toast: true,
-      position: "bottom-end",
+      position: "center",
       icon: "error",
       title: "لا يوجد رينجات لتعديلها يرجي اضافة رينجات اولا",
       showConfirmButton: true,
@@ -46,7 +46,7 @@ const updateNormal = (test, visit_hash) => {
           cancelButtonText: "اغلاق",
         }).then((result) => {
           if (result.isConfirmed) {
-            window.location.href = `${front_url}package_test.html`
+            window.location.href = `${front_url}package_test.html?name=${TEST?.test_name??""}`;
           }
 
         });

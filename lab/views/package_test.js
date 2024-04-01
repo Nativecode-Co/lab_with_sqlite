@@ -1,5 +1,15 @@
 // dom ready
+// get name from search params
+const urlParams = new URLSearchParams(window.location.search);
+const searchName = urlParams.get("name");
+
 $(document).ready(() => {
+  // change table search value by searchName if exist
+  if(searchName){
+    const searchInput = $("#lab_test-table_wrapper input[type='search']");
+    searchInput.val(searchName);
+    searchInput.trigger("input");
+  }
   // select apllay select2 when parent not have class no-select2
   $("#test-form select").select2({
     width: "100%",

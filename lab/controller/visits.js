@@ -493,13 +493,14 @@ function manageRange(reference) {
 // }
 
 function addNormalResult(test, resultList, visit_hash) {
+  console.log(test);
   const { type: testType, ...reference } = test.option_test;
   const checked = resultList?.[test.name]?.checked === "false" ? false : true;
   return `
   <form class="col-md-11 results test-normalTests mb-15" id="${test.hash}">
       <div class="row align-items-center">
           <div class="col-md-3 h6 text-center">
-              ${testType === "normal" ? `${test.kit_name ?? "NO KIT"}` : ""}
+              ${testType === "normal" || testType === "calc" ? `${test.kit_name ?? "NO KIT"}` : ""}
               <a 
                 class="text-info"
                 onclick="updateNormal(
@@ -511,7 +512,7 @@ function addNormalResult(test, resultList, visit_hash) {
               </a>
               <br>
               ${
-                testType === "normal"
+                testType === "normal" || testType === "calc"
                   ? `(${test.device_name ?? "NO DEVICE"})`
                   : ""
               }

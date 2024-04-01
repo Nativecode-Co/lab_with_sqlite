@@ -1,47 +1,3 @@
-function run(json) {
-  localStorage.setItem("last_url", window.location.href);
-  const token = localStorage.getItem("token");
-  let res = [];
-
-  let new_json;
-  if (typeof json === "string") {
-    new_json = json;
-  } else {
-    new_json = `${JSON.stringify(json)};`;
-  }
-  $.ajax({
-    url: `${base_url}run`,
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-    type: "POST",
-    dataType: "JSON",
-    data: { query: new_json, token: token },
-    async: false,
-    success: (result) => {
-      if (result.result === "unauthorize") {
-        location.href = `${front_url}login/login.html`;
-      } else if (result.result === "expire") {
-        localStorage.setItem("token", result.token);
-        // get current location
-        let current_location = window.location.href;
-        current_location = current_location.split("/");
-        if (!current_location.includes("active.html")) {
-          location.href = `${front_url}active.html`;
-        }
-      } else {
-        localStorage.setItem("token", result.token);
-        res = result;
-        // Do something with the result here
-      }
-    },
-    error: (e) => {
-      console.log(e.responseText);
-    },
-  });
-  return res;
-}
-
 function fetchData(url = "", type = "GET", data = {}) {
   let res = null;
   const token = localStorage.getItem("token");
@@ -61,6 +17,7 @@ function fetchData(url = "", type = "GET", data = {}) {
       console.log(e.responseText)
     },
   });
+  syncOnline();
   return res;
 }
 
@@ -83,6 +40,7 @@ function fetchSync(url = "", type = "GET", data = {}) {
       console.log(e.responseText)
     },
   });
+  syncOnline();
   return res;
 }
 
@@ -336,8 +294,8 @@ function syncOnline() {
       "Content-Type": "application/x-www-form-urlencoded",
       "Authorization": localStorage.getItem("token"),
     },
-  }).then((res) => res.json()).then((e)=>{
-    console.log(e)
+  }).then((res) => res.json()).then((data)=>{
+    
   }).catch((e)=>{console.log("error", e)})
   updateExpireDate();
 }

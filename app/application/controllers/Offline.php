@@ -598,9 +598,10 @@ class Offline extends CI_Controller
         foreach ($queries as $query) {
             if ($query != "") {
                 // check if query update or insert or delete
-                if (strpos($query, "UPDATE") !== false) {
+                if (strpos($query, "UPDATE") !== false || strpos($query, "update") !== false) {
                     // add ignore to query
                     $query = str_replace("UPDATE", "UPDATE IGNORE", $query);
+                    $query = str_replace("update", "update ignore", $query);
                     foreach ($labCols as $table => $col) {
                         if (strpos($query, $table) !== false) {
                             if (strpos($query, $col) === false) {
@@ -620,9 +621,10 @@ class Offline extends CI_Controller
                             "result" => $re
                         )
                     );
-                } else if (strpos($query, "INSERT") !== false) {
+                } else if (strpos($query, "INSERT") !== false || strpos($query, "insert") !== false) {
                     // add ignore to query
                     $query = str_replace("INSERT", "INSERT IGNORE", $query);
+                    $query = str_replace("insert", "insert ignore", $query);
                     foreach ($labCols as $table => $col) {
                         if (strpos($query, $table) !== false) {
                             if (strpos($query, $col) === false) {
@@ -643,7 +645,13 @@ class Offline extends CI_Controller
                         )
                     );
                 } else {
-                    array_push($result, $query);
+                    array_push(
+                        $result,
+                        array(
+                            "query" => $query,
+                            "result" => "not valid"
+                        )
+                    );
                 }
             }
         }

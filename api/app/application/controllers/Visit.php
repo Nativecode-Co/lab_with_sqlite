@@ -7,6 +7,7 @@ class Visit extends CI_Controller
         parent::__construct();
         $this->load->helper('visit');
         $this->load->model('VisitModel');
+        $this->load->library('Session'); 
     }
 
     function index()
@@ -39,6 +40,9 @@ class Visit extends CI_Controller
 
     public function get_visit_form_data()
     {
+        // get session data
+        // $session_data = $this->session->userdata('user');
+        // die(json_encode($session_data));
         $data = $this->VisitModel->get_visit_form_data();
         $this->output
             ->set_status_header(200)

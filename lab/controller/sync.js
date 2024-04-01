@@ -144,6 +144,7 @@ const saveInserts = async () => {
       });
       fetchDataOnline("Offline/run_sync", "POST", {
         queries: `${onLineQueries.join(";")};`,
+        lab: localStorage.getItem("lab_hash"),
       });
       return resolve();
     }).then(() => {
