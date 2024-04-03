@@ -499,7 +499,7 @@ function manageRange(reference) {
 function addNormalResult(test, resultList, visit_hash) {
   console.log(test);
   const { type: testType, ...reference } = test.option_test;
-  const checked = resultList?.[test.name]?.checked === "false" ? false : true;
+  const checked = resultList?.[test.name]?.checked === "false" || resultList?.[test.name]?.checked === false  ? false : true;
   return `
   <form class="col-md-11 results test-normalTests mb-15" id="${test.hash}">
       <div class="row align-items-center">
@@ -2071,7 +2071,7 @@ function showResult(data) {
         result: result,
         hash: test.hash,
         category: category,
-        checked: test.result?.checked === "false" ? "none" : "flex",
+        checked: test.result?.checked === "false" || test.result?.checked === false ? "none" : "flex",
         normal: normalRange,
         flag: flag,
         history: history.find((item) => item.name == test.name)?.result ?? "",
