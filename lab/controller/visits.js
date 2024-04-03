@@ -122,7 +122,11 @@ const getOldPatient = (hash) => {
 };
 
 function showPackagesList(hash) {
-  const package = tests.find((p) => p.hash == hash);
+  const package = tests.find((p) => {
+    console.log(p.hash, hash);
+    return p.hash === hash
+  });
+  console.log(package);
   $(this)
     .popover({
       template: `<div class="popover popover-light" >
@@ -143,12 +147,12 @@ function showPackagesList(hash) {
                 </div>`
                     : `<div class="col-md-12">
                     <p class="text-left">الجهاز: ${
-                      package.device_name ?? "No Device"
+                      package.device ?? "No Device"
                     }</p>
                 </div>
                 <div class="col-md-12">
                     <p class="text-left">الكت: ${
-                      package.kit_name ?? "No Kit"
+                      package.kit ?? "No Kit"
                     }</p>
                 </div>
                 `

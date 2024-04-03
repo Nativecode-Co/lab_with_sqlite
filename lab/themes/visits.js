@@ -32,7 +32,7 @@ const createTest = (test, type) => {
       >
         <label 
           class="new-control items offer new-checkbox new-checkbox-rounded checkbox-outline-success font-weight-bolder mb-0" 
-          onmouseover="showPackagesList.call(this, ${test.hash})" 
+          onmouseover="showPackagesList.call(this, '${test.hash}')" 
           onmouseleave="$(this).popover('hide')"
         >
           <input 
