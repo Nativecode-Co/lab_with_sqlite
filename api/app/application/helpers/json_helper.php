@@ -51,38 +51,77 @@ class Json
       $this->refrences = $this->default_refrence;
       return $this;
     }
-    $refrences = array_filter($refrences, function ($refrence) use ($fields) {
-      $result = true;
-      foreach ($fields as $key => $value) {
-        if (isset($refrence[$key]) || $key == 'age' || $key == 'gender') {
-          if ($key == 'kit' || $key == 'unit') {
-            if ($this->isnull($value))
-              $value = null;
-            if ($this->isnull($refrence[$key]))
-              $refrence[$key] = null;
-          }
-          if ($key == 'age') {
-            $ageRange = $this->getAgeRange($refrence);
-            $age = $value * 365; // convert age to days
-            // if age out of range return false
-            if ($age < $ageRange['low'] || $age > $ageRange['high']) {
-              $result = false;
+    if($this->type == 'calc'){
+      $refrences = array_filter($refrences, function ($refrence) use ($fields) {
+        $result = true;
+        foreach ($fields as $key => $value) {
+          if (isset($refrence[$key]) || $key == 'age' || $key == 'gender') {
+            if ($key == 'kit' || $key == 'unit') {
+              if ($this->isnull($value))
+                $value = null;
+              if ($this->isnull($refrence[$key]))
+                $refrence[$key] = null;
             }
-          } else if ($key == 'gender') {
-            // if key in['انثي','انثى'] and value in ['انثي','انثى'] return true
-            if ($refrence[$key] == 'انثي' && $value == 'انثى') {
+            if ($key == 'age') {
+              $ageRange = $this->getAgeRange($refrence);
+              $age = $value * 365; // convert age to days
+              // if age out of range return false
+              if ($age < $ageRange['low'] || $age > $ageRange['high']) {
+                $result = false;
+              }
+            } else if ($key == 'gender') {
+              // if key in['انثي','انثى'] and value in ['انثي','انثى'] return true
+              if ($refrence[$key] == 'انثي' && $value == 'انثى') {
+                
+              } else if ($refrence[$key] == 'انثى' && $value == 'انثي') {
+              } else if ($refrence[$key] != 'كلاهما' && $refrence[$key] != $value) {
+                $result = false;
+              }
+            }else if ($key == 'unit') {
               
-            } else if ($refrence[$key] == 'انثى' && $value == 'انثي') {
-            } else if ($refrence[$key] != 'كلاهما' && $refrence[$key] != $value) {
+            } else if ($refrence[$key] != $value) {
               $result = false;
             }
-          } else if ($refrence[$key] != $value) {
-            $result = false;
           }
         }
-      }
-      return $result;
-    });
+        return $result;
+      });
+    }else{
+      $refrences = array_filter($refrences, function ($refrence) use ($fields) {
+        $result = true;
+        foreach ($fields as $key => $value) {
+          if (isset($refrence[$key]) || $key == 'age' || $key == 'gender') {
+            if ($key == 'kit' || $key == 'unit') {
+              if ($this->isnull($value))
+                $value = null;
+              if ($this->isnull($refrence[$key]))
+                $refrence[$key] = null;
+            }
+            if ($key == 'age') {
+              $ageRange = $this->getAgeRange($refrence);
+              $age = $value * 365; // convert age to days
+              // if age out of range return false
+              if ($age < $ageRange['low'] || $age > $ageRange['high']) {
+                $result = false;
+              }
+            } else if ($key == 'gender') {
+              // if key in['انثي','انثى'] and value in ['انثي','انثى'] return true
+              if ($refrence[$key] == 'انثي' && $value == 'انثى') {
+                
+              } else if ($refrence[$key] == 'انثى' && $value == 'انثي') {
+              } else if ($refrence[$key] != 'كلاهما' && $refrence[$key] != $value) {
+                $result = false;
+              }
+            } else if ($refrence[$key] != $value) {
+              $result = false;
+            }
+          }
+        }
+        return $result;
+      });
+    }
+    
+    
 
     $refrences = array_map(function ($refrence) {
       $refrence['result_type'] = $refrence["result"] ?? $this->result_type;

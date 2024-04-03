@@ -111,20 +111,18 @@ class VisitModel extends CI_Model
             ->where("lab_visits.hash", $hash)
             ->get()->row_array();
         $tests = $this->db
-            ->select("option_test, test_name as name, kit_id")
+            ->select("option_test, lab_test.test_name as name, kit_id")
             ->select(" (select name from devices where devices.id=lab_device_id limit 1) as device_name")
             ->select("(select name from kits where kits.id =kit_id limit 1) as kit_name")
             ->select("(select name from lab_test_units where hash=lab_pakage_tests.unit limit 1) as unit_name")
             ->select("ifnull(lab_test_catigory.name,'Tests') as category")
-            ->select("unit, result_test as result,sort, lab_visits_tests.hash as hash, test_id")
+            ->select("unit, result_test as result,lab_visits_tests.hash as hash, test_id")
             ->from("lab_visits_tests")
-            ->join("lab_pakage_tests", "lab_pakage_tests.test_id = lab_visits_tests.tests_id", "left")
-            ->join("lab_package", "lab_package.hash = lab_pakage_tests.package_id", "left")
+            ->join("lab_pakage_tests", "lab_pakage_tests.test_id = lab_visits_tests.tests_id and lab_pakage_tests.package_id = lab_visits_tests.package_id", "left")
             ->join("lab_test", "lab_test.hash = lab_visits_tests.tests_id")
             ->join("lab_test_catigory", "lab_test_catigory.hash = lab_test.category_hash", "left")
             ->where("visit_id", $hash)
             ->order_by("sort")
-            ->group_by("test_name")
             ->get()->result_array();
             // $last_query = $this->db->last_query();
             // die($last_query);
