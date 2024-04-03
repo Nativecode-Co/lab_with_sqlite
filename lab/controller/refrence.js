@@ -4,6 +4,7 @@ const updateNormal = (test, visit_hash) => {
     visit_hash,
   });
   try {
+    throw "no refrence";
     const { refrence } = TEST;
     if (Array.isArray(refrence) && refrence.length === 0) {
       throw "no refrence";
@@ -19,12 +20,11 @@ const updateNormal = (test, visit_hash) => {
     $("#refrence_editor .modal-body").html(refrenceTable);
     $("#refrence_editor").modal("show");
   } catch (error) {
-    console.log(error);
     Swal.fire({
       toast: true,
       position: "center",
       icon: "error",
-      title: "لا يوجد رينجات لتعديلها يرجي اضافة رينجات اولا",
+      title: "لتعديل الرينج يرجي زيارة صفحة التحاليل",
       showConfirmButton: true,
       confirmButtonText: "تفاصيل اكثر",
       timer: 3000,
@@ -46,7 +46,9 @@ const updateNormal = (test, visit_hash) => {
           cancelButtonText: "اغلاق",
         }).then((result) => {
           if (result.isConfirmed) {
-            window.location.href = `${front_url}package_test.html?name=${TEST?.test_name??""}`;
+            // delete " " from last of TEST.test_name
+            const name = TEST?.test_name?.replace(/ /g, "");
+            window.location.href = `${front_url}package_test.html?name=${name}`;
           }
 
         });

@@ -95,10 +95,27 @@ const syncInserts = async () => {
     }
   ).data;
   inserts = inserts.filter((item) => !areTestsFounded.includes(item.name));
+  if (inserts.length === 0) {
+    newTestsElement.innerHTML += `
+          <div id="insert_tests" class="row">
+              <div class="col-12">
+                  <h5 class="text-center"> لا يوجد تحاليل جديدة </h5>
+              </div>
+          </div>
+          `;
+    return;
+  }
   newTestsElement.innerHTML += `
           <div id="insert_tests" class="row justify-content-around">
               <div class="col-12">
                   <h5 class="text-center"> أختر التحاليل التي تريد اضافتها </h5>
+              </div>
+              <div class="col-12  border rounded p-2 my-2 d-flex justify-content-center align-items-center" style="cursor: pointer;"
+                      onclick="$('#insert_tests .syncItem').toggleClass('active');"
+                     >
+                          <p class="text-center">
+                              <span class="h4">اختيار الكل</span>
+                          </p>
               </div>
               ${inserts
                 .map((item) => {
@@ -175,6 +192,7 @@ const syncUpdates = async () => {
     if (!date) return false;
     return new Date(item.date_time) > new Date(date);
   });
+  
 
   if (updates.length > 0) {
     // make finish button enabled
@@ -185,6 +203,13 @@ const syncUpdates = async () => {
           <div id="update_tests" class="row justify-content-around">
               <div class="col-12">
                   <h5 class="text-center"> أختر التحاليل التي تريد تحديث القيم البيعية لها </h5>
+              </div>
+              <div class="col-12  border rounded p-2 my-2 d-flex justify-content-center align-items-center" style="cursor: pointer;"
+                      onclick="$('#update_tests .syncItem').toggleClass('active');"
+                     >
+                          <p class="text-center">
+                              <span class="h4">اختيار الكل</span>
+                          </p>
               </div>
               ${updates
                 .map((item) => {

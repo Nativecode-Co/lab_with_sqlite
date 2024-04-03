@@ -15,7 +15,19 @@ class Patient extends Factory {
             return `<span onclick="location.href='patient_history.html?patient=${row.hash}'">${row.name}</span>`;
           },
         },
-        { data: "phone" },
+        { data : "visit_date",
+          className: "center",
+          render: (data, type, row) => {
+            return data ? data : "لم يتم الزيارة";
+          },
+        },
+        { data: "phone",
+          className: "center",
+          render: (data, type, row) => {
+            return data ? data : "لا يوجد رقم هاتف";
+          },
+      
+      },
         {
           data: null,
           className: "center not-print",
@@ -32,7 +44,8 @@ class Patient extends Factory {
           className: "text-success center",
           defaultContent: '<i class="fas fa-plus"></i>',
         },
-      ]
+      ],
+      [[1, "desc"]]
     );
   }
 

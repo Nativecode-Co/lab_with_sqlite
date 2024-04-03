@@ -194,7 +194,7 @@ class VisitModel extends CI_Model
             ->get('lab_package')->result_array();
         // get all tests
         $tests = $this->db
-            ->select('lab_package.hash,lab_package.name,price,"test" as type,"false" as checked')
+            ->select('lab_package.hash,lab_package.name,price')
             ->select('kits.name as kit')
             ->select('devices.name as device')
             ->select('lab_test_units.name as unit')
@@ -210,7 +210,7 @@ class VisitModel extends CI_Model
             ->join("devices", "lab_pakage_tests.lab_device_id=devices.id", "left")
             ->join("lab_test_units", "lab_pakage_tests.unit=lab_test_units.hash", "left")
             ->join("lab_test", "lab_test.hash=lab_pakage_tests.test_id", "left")
-            ->group_by('lab_test.test_name')
+            ->group_by('test_id')
             ->get('lab_package')->result_array();
         // return all data
         return array(

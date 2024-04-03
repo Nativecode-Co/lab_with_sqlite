@@ -30,9 +30,12 @@ class PatientModel extends CI_Model
         $order = $params['order'][0]['dir'];
         $searchText = $params['search']['value'];
         return $this->db
-            ->where('isdeleted', 0)
-            ->like("name", $searchText)
+            ->select('lab_patient.*, visit_date')
+            ->join('lab_visits', 'lab_patient.hash = lab_visits.visits_patient_id', 'left')
+            ->where('lab_patient.isdeleted', 0)
+            ->like("lab_patient.name", $searchText)
             ->order_by($orderBy, $order)
+            ->group_by('lab_patient.hash')
             ->get($this->table, $rowsPerPage, $page * $rowsPerPage)
             ->result();
     }

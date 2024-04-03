@@ -28,8 +28,10 @@ class Patient extends Factory {
           defaultContent: '<i class="fas fa-plus"></i>',
         },
       ],
+      [[2, "desc"]],
       {},
       (json) => {
+        console.log("json", json);
         $("#totalPrice").text(json?.total_price ?? 0);
         $("#totalDiscount").text(json?.dicount ?? 0);
         $("#totalFinalPrice").text(json?.net_price ?? 0);

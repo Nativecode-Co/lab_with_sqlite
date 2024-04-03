@@ -7,6 +7,29 @@ const pk = urlParams.get("pk").split("-")[0];
 const number = urlParams.get("pk").split("-")[1];
 showAddResult(pk);
 
+function getApi(baseLink = "app",url = "", type = "GET", data = {}) {
+  let res = null;
+  const token = localStorage.getItem("token");
+  
+  $.ajax({
+    url: baseLink === "app" ? `http://localhost:8807/app/index.php${url}` : `http://localhost:8807/api/app/index.php${url}`,
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    type,
+    data,
+    dataType: "JSON",
+    async: false,
+    success: (result) => {
+      res = result;
+    },
+    error: (e) => {
+      console.log(e.responseText)
+    },
+  });
+  return res;
+}
+
 function hideHederelments() {
   // get headers elements has class test and typetest not have class sp
   const headersElements = document.querySelectorAll(".test.typetest:not(.sp)");
@@ -24,15 +47,15 @@ function hideHederelments() {
   }
 }
 function showAddResult(hash) {
-  const workSpace = $("#root");
-  const data = fetchApi("/visit/get_visit", "GET", { hash });
-  const { invoice } = showResult(data);
+  const workSpace = document.getElementById("root");
+  const visit = getApi("api","/visit/get_visit", "GET", { hash });
+  const { invoice } = showResult(visit.tests, visit);
   const html = `
     <div class="col-md-12 mt-48">
         ${invoice}
     </div>
         `;
-  workSpace.append(html);
+  workSpace.innerHTML = html;
   hideHederelments();
 }
 
@@ -375,9 +398,8 @@ function normalTestRange(finalResult, refrence) {
   return returnResult;
 }
 
-function showResult(data) {
-  const { tests, ...visit } = data;
-  const { data: history } = fetchData("Visit/history", "POST", {
+function showResult(tests, visit) {
+  const { data: history } = getApi("app","/Visit/history", "POST", {
     date: visit.date,
     patient: visit.patient_hash,
   });
@@ -754,7 +776,7 @@ function createBookResult(invoices, type) {
 }
 
 function createInvoiceItems(visit) {
-  const invoice = fetchApi("/invoice/get");
+  const invoice = getApi("api","/invoice/get");
   const displayHeaderAndFooter = invoice.footer_header_show === "1";
   const random = Math.floor(Math.random() * 1000000);
   const header = invoiceHeader(invoice);

@@ -71,6 +71,7 @@ class Json
           } else if ($key == 'gender') {
             // if key in['انثي','انثى'] and value in ['انثي','انثى'] return true
             if ($refrence[$key] == 'انثي' && $value == 'انثى') {
+              
             } else if ($refrence[$key] == 'انثى' && $value == 'انثي') {
             } else if ($refrence[$key] != 'كلاهما' && $refrence[$key] != $value) {
               $result = false;
@@ -84,7 +85,7 @@ class Json
     });
 
     $refrences = array_map(function ($refrence) {
-      $refrence['result_type'] = $this->result_type;
+      $refrence['result_type'] = $refrence["result"] ?? $this->result_type;
       $refrence['type'] = $this->type;
       return $refrence;
     }, $refrences);
@@ -119,16 +120,13 @@ class Json
           } else if ($key == 'gender') {
             // if key in['انثي','انثى'] and value in ['انثي','انثى'] return true
             if ($refrence[$key] == 'انثي' && $value == 'انثى') {
-              $result = true;
             } else if ($refrence[$key] == 'انثى' && $value == 'انثي') {
-              $result = true;
             } else if ($refrence[$key] != 'كلاهما' && $refrence[$key] != $value) {
               $result = false;
             }
           } else if ($refrence[$key] != $value) {
             $result = false;
           }
-          $result = true;
         }
       }
       return $result;

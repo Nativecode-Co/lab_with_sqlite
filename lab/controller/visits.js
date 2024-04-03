@@ -553,7 +553,7 @@ function addNormalResult(test, resultList, visit_hash) {
                   <div class="col-md-8">
                       <label for="result" class="w-100 text-center text-dark">النتيجة</label>
                       ${
-                        reference?.[0]?.result?.trim() === "result"
+                        reference.result_type.trim() === "result"
                           ? `<select class="form-control result" name="${test.name}">
                               ${reference.options
                                 .map((option) => {
