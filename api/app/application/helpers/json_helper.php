@@ -9,23 +9,23 @@ class Json
     $this->type = $json['type'] ?? 'normal';
     $this->default_refrence = $json;
 
-    if (isset ($json['component'])) {
+    if (isset($json['component'])) {
       $json = $json['component'];
-      if (isset ($json[0]))
+      if (isset($json[0]))
         $json = $json[0];
       else
         $json = array();
-      $this->result_type = isset ($json['result']) ? $json['result'] : 'number';
+      $this->result_type = isset($json['result']) ? $json['result'] : 'number';
     } else {
       $json = array();
     }
-    if (isset ($json['reference'])) {
+    if (isset($json['reference'])) {
       $refrences = $json['reference'];
     }
     $this->json = $json;
     $index = 0;
     $refrences = array_map(function ($refrence) use (&$index) {
-      if (!isset ($refrence['id'])) {
+      if (!isset($refrence['id'])) {
         $id = $index++;
       } else {
         $id = $refrence['id'];
@@ -54,7 +54,7 @@ class Json
     $refrences = array_filter($refrences, function ($refrence) use ($fields) {
       $result = true;
       foreach ($fields as $key => $value) {
-        if (isset ($refrence[$key]) || $key == 'age' || $key == 'gender') {
+        if (isset($refrence[$key]) || $key == 'age' || $key == 'gender') {
           if ($key == 'kit' || $key == 'unit') {
             if ($this->isnull($value))
               $value = null;
@@ -71,9 +71,7 @@ class Json
           } else if ($key == 'gender') {
             // if key in['انثي','انثى'] and value in ['انثي','انثى'] return true
             if ($refrence[$key] == 'انثي' && $value == 'انثى') {
-              $result = true;
             } else if ($refrence[$key] == 'انثى' && $value == 'انثي') {
-              $result = true;
             } else if ($refrence[$key] != 'كلاهما' && $refrence[$key] != $value) {
               $result = false;
             }
@@ -84,7 +82,7 @@ class Json
       }
       return $result;
     });
-    
+
     $refrences = array_map(function ($refrence) {
       $refrence['result_type'] = $this->result_type;
       $refrence['type'] = $this->type;
@@ -104,7 +102,7 @@ class Json
     $refrences = array_filter($refrences, function ($refrence) use ($fields) {
       $result = true;
       foreach ($fields as $key => $value) {
-        if (isset ($refrence[$key]) || $key == 'age' || $key == 'gender') {
+        if (isset($refrence[$key]) || $key == 'age' || $key == 'gender') {
           if ($key == 'kit' || $key == 'unit') {
             if ($this->isnull($value))
               $value = null;
@@ -130,6 +128,7 @@ class Json
           } else if ($refrence[$key] != $value) {
             $result = false;
           }
+          $result = true;
         }
       }
       return $result;
@@ -148,12 +147,12 @@ class Json
       $refrences['range'] = array();
       $refrences['type'] = $this->type;
       $refrences['result_type'] = $this->result_type;
-      $height = isset ($refrences['range']) ? count($refrences['range']) : 1;
+      $height = isset($refrences['range']) ? count($refrences['range']) : 1;
       $height = $height == 0 ? 1 : $height;
       $refrences['height'] = 9 + ($height * 5.5) + (1.15944 * $height * $font);
     } else {
       $refrences = array_map(function ($refrence) use ($font) {
-        $height = isset ($refrence['range']) ? count($refrence['range']) : 1;
+        $height = isset($refrence['range']) ? count($refrence['range']) : 1;
         $height = $height == 0 ? 1 : $height;
         $refrence['height'] = 9.01 + ($height * 5.5) + (1.14 * $height * $font);
         return $refrence;
@@ -171,8 +170,30 @@ class Json
 
   public function row()
   {
-    return $this->refrences[0] ?? $this->refrences;
+    if ($this->type == 'type' || $this->type == 'culture') {
+      return $this->default_refrence;
+    } else {
+      $length = count($this->refrences);
+      if ($length == 0) {
+        return array();
+      } else if ($length == 1) {
+        return $this->refrences[0];
+      } else {
+        $min = $this->refrences[0];
+        foreach ($this->refrences as $refrence) {
+          $ageRange = $this->getAgeRange($refrence);
+          $minAgeRange = $this->getAgeRange($min);
+          $def = $minAgeRange['high'] - $minAgeRange['low'];
+          $new = $ageRange['high'] - $ageRange['low'];
+          if ($new < $def) {
+            $min = $refrence;
+          }
+        }
+        return $min;
+      }
+    }
   }
+
 
   function getAgeRange($refrence)
   {
@@ -206,5 +227,4 @@ class Json
       'high' => $ageHigh
     ];
   }
-
 }

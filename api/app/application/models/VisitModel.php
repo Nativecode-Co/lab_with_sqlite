@@ -112,7 +112,9 @@ class VisitModel extends CI_Model
             ->get()->row_array();
         $tests = $this->db
             ->select("option_test, test_name as name, kit_id")
-            ->select(" (select name from devices where devices.id=lab_device_id limit 1) as device_name, (select name from kits where kits.id =kit_id limit 1) as kit_name, (select name from lab_test_units where hash=lab_pakage_tests.unit limit 1) as unit_name")
+            ->select(" (select name from devices where devices.id=lab_device_id limit 1) as device_name")
+            ->select("(select name from kits where kits.id =kit_id limit 1) as kit_name")
+            ->select("(select name from lab_test_units where hash=lab_pakage_tests.unit limit 1) as unit_name")
             ->select("ifnull(lab_test_catigory.name,'Tests') as category")
             ->select("unit, result_test as result,sort, lab_visits_tests.hash as hash, test_id")
             ->from("lab_visits_tests")
