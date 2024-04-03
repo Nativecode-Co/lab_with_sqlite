@@ -171,24 +171,26 @@ class Json
     if ($this->type == 'type' || $this->type == 'culture') {
       return $this->default_refrence;
     } else {
-      $length = count($this->refrences);
-      if ($length == 0) {
-        return array();
-      } else if ($length == 1) {
-        return $this->refrences[0];
-      } else {
-        $min = $this->refrences[0];
-        foreach ($this->refrences as $refrence) {
-          $ageRange = $this->getAgeRange($refrence);
-          $minAgeRange = $this->getAgeRange($min);
-          $def = $minAgeRange['high'] - $minAgeRange['low'];
-          $new = $ageRange['high'] - $ageRange['low'];
-          if ($new < $def) {
-            $min = $refrence;
+      if(!isset($this->refrences[0])){
+        return $this->refrences;
+      } else {$length = count($this->refrences);
+        if ($length == 0) {
+          return array();
+        } else if ($length == 1) {
+          return $this->refrences[0];
+        } else {
+          $min = $this->refrences[0];
+          foreach ($this->refrences as $refrence) {
+            $ageRange = $this->getAgeRange($refrence);
+            $minAgeRange = $this->getAgeRange($min);
+            $def = $minAgeRange['high'] - $minAgeRange['low'];
+            $new = $ageRange['high'] - $ageRange['low'];
+            if ($new < $def) {
+              $min = $refrence;
+            }
           }
-        }
-        return $min;
-      }
+          return $min;
+        }}
     }
   }
 
