@@ -21,37 +21,24 @@ const updateNormal = (test, visit_hash) => {
     $("#refrence_editor").modal("show");
   } catch (error) {
     Swal.fire({
-      toast: true,
-      position: "center",
-      icon: "error",
-      title: "لتعديل الرينج يرجي زيارة صفحة التحاليل",
-      showConfirmButton: true,
-      confirmButtonText: "تفاصيل اكثر",
-      timer: 3000,
+      title: "لاضافة قيمة طبيعية مناسبة لهذا التحليل يرجي اتباع الخطوات التالية",
+      html: `<ul class="list-group list-group-flush text-left">
+      <li class="list-group-item">1- قم بفتح صفحة التحاليل </li>
+      <li class="list-group-item">2- اختر التحليل المراد اضافة رينج له </li>
+      <li class="list-group-item">3- تاكد من ادخال العمر والجنس والوحدة الخاصة بالتحليل </li>
+      <li class="list-group-item">4- عمر المريض يجب ان يكون بين العمر المحدد في الرينج </li>
+      <li class="list-group-item">5- الجنس يجب ان يتطابق مع الجنس المحدد في الرينج  او يكون كلاهما </li>
+      <li class="list-group-item">6- الوحدة يجب ان تتطابق مع الوحدة المحددة في الرينج </li>
+      </ul>`,
+      icon: "info",
+      confirmButtonText: "زيارة صفحة التحاليل",
+      showCancelButton: true,
+      cancelButtonText: "اغلاق",
     }).then((result) => {
       if (result.isConfirmed) {
-        Swal.fire({
-          title: "لاضافة رينج مناسب لهذا التحليل يرجي اتباع الخطوات التالية",
-          html: `<ul class="list-group list-group-flush text-left">
-          <li class="list-group-item">1- قم بفتح صفحة التحاليل </li>
-          <li class="list-group-item">2- اختر التحليل المراد اضافة رينج له </li>
-          <li class="list-group-item">3- تاكد من ادخال العمر والجنس والوحدة الخاصة بالتحليل </li>
-          <li class="list-group-item">4- عمر المريض يجب ان يكون بين العمر المحدد في الرينج </li>
-          <li class="list-group-item">5- الجنس يجب ان يتطابق مع الجنس المحدد في الرينج  او يكون كلاهما </li>
-          <li class="list-group-item">6- الوحدة يجب ان تتطابق مع الوحدة المحددة في الرينج </li>
-          </ul>`,
-          icon: "info",
-          confirmButtonText: "زيارة صفحة التحاليل",
-          showCancelButton: true,
-          cancelButtonText: "اغلاق",
-        }).then((result) => {
-          if (result.isConfirmed) {
-            // delete " " from last of TEST.test_name
-            const name = TEST?.test_name?.replace(/ /g, "");
-            window.location.href = `${front_url}package_test.html?name=${name}`;
-          }
-
-        });
+        // delete " " from last of TEST.test_name
+        const name = TEST?.test_name?.replace(/ /g, "");
+        window.location.href = `${front_url}package_test.html?name=${name}`;
       }
     });
   }

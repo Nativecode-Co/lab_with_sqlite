@@ -9,13 +9,9 @@ showAddResult(pk);
 
 function getApi(baseLink = "app",url = "", type = "GET", data = {}) {
   let res = null;
-  const token = localStorage.getItem("token");
   
   $.ajax({
     url: baseLink === "app" ? `http://localhost:8807/app/index.php${url}` : `http://localhost:8807/api/app/index.php${url}`,
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
     type,
     data,
     dataType: "JSON",
@@ -48,8 +44,8 @@ function hideHederelments() {
 }
 function showAddResult(hash) {
   const workSpace = document.getElementById("root");
-  const visit = getApi("api","/visit/get_visit", "GET", { hash });
-  const { invoice } = showResult(visit.tests, visit);
+  const invoice = showResult(hash).invoice;
+  console.log(invoice);
   const html = `
     <div class="col-md-12 mt-48">
         ${invoice}
@@ -398,11 +394,16 @@ function normalTestRange(finalResult, refrence) {
   return returnResult;
 }
 
-function showResult(tests, visit) {
-  const { data: history } = getApi("app","/Visit/history", "POST", {
+function showResult(hash) {
+  const visit = getApi("api","/visit/get_visit", "GET", { hash });
+ 
+  const tests = visit.tests;
+  const history  = getApi("app","/Visit/history", "POST", {
     date: visit.date,
     patient: visit.patient_hash,
-  });
+  }).data;
+  
+
   const { invoice, ...invoiceItems } = createInvoiceItems(visit);
   invoiceItems.invoice = invoice;
   const result_tests = tests.reduce((acc, test) => {

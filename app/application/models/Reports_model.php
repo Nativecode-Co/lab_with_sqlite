@@ -77,6 +77,9 @@ class Reports_model extends CI_Model
     {
         // get count of all visits not prices total
         $this->db->select('count(*) as count');
+        $this->db->select('sum(total_price) as total_price');
+        $this->db->select('sum(net_price) as net_price');
+        $this->db->select('sum(dicount) as dicount');
         $this->db->from('lab_visits v');
         $this->db->where('v.isdeleted', 0);
         $this->db->order_by('v.visit_date', 'DESC');
@@ -92,40 +95,8 @@ class Reports_model extends CI_Model
         if ($doctor != '') {
             $this->db->where('doctor_hash', $doctor);
         }
-        $count = $this->db->get()->row_array()['count'];
-        // prices total
-        $this->db->select('*');
-        $this->db->from('lab_visits v');
-        $this->db->where('v.isdeleted', 0);
-        $this->db->order_by('v.visit_date', 'DESC');
-        if ($search != '') {
-            $this->db->like('v.name', $search);
-        }
-        if ($startDate != '') {
-            $this->db->where('visit_date >=', $startDate);
-        }
-        if ($endDate != '') {
-            $this->db->where('visit_date <=', $endDate);
-        }
-        if ($doctor != '') {
-            $this->db->where('doctor_hash', $doctor);
-        }
-        $this->db->limit($rowsPerPage, $page * $rowsPerPage);
-        $data = $this->db->get()->result_array();
-        $total_price = 0;
-        $net_price = 0;
-        $dicount = 0;
-        foreach ($data as $row) {
-            $total_price += $row['total_price'];
-            $net_price += $row['net_price'];
-            $dicount += $row['dicount'];
-        }
-        return array(
-            "count" => $count,
-            "total_price" => $total_price,
-            "net_price" => $net_price,
-            "dicount" => $dicount
-        );
+        $result = $this->db->get()->row_array();
+        return $result;
 
     }
 }

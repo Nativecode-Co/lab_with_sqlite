@@ -157,6 +157,7 @@ class VisitModel extends CI_Model
         });
         // die(json_encode($tests));
         $visit["tests"] = $tests;
+
         return $visit;
     }
 

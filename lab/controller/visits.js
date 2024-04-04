@@ -122,11 +122,7 @@ const getOldPatient = (hash) => {
 };
 
 function showPackagesList(hash) {
-  const package = tests.find((p) => {
-    console.log(p.hash, hash);
-    return p.hash === hash
-  });
-  console.log(package);
+  const package = tests.find((p) => p.hash === hash);
   $(this)
     .popover({
       template: `<div class="popover popover-light" >
@@ -193,7 +189,6 @@ function showVisit(hash) {
   $(".action").removeClass("active");
   $("#show_visit_button").addClass("active");
   const visit = fetchApi(`/visit/get_visit?hash=${hash}`);
-  console.log(visit);
   const workSpace = $("#work-sapce");
   workSpace.html("");
   const visitInfo = `
@@ -491,13 +486,8 @@ function manageRange(reference) {
   return "<span class='text-danger'>لا يوجد مرجع</span>";
 }
 
-// function addNormalResult(test, result_test, visit_hash) {
-//   __VISIT_TESTS__.push({ hash: test.hash, options: test.reference });
-//   return generateFieldForTest(test, result_test, visit_hash);
-// }
-
 function addNormalResult(test, resultList, visit_hash) {
-  console.log(test);
+  __VISIT_TESTS__.push(resultList);
   const { type: testType, ...reference } = test.option_test;
   const checked = resultList?.[test.name]?.checked === "false" || resultList?.[test.name]?.checked === false  ? false : true;
   return `
@@ -1053,25 +1043,31 @@ function addResult(data) {
     const reference = test.option_test;
     if (reference.type === "calc") {
       let result = test.result[test.name];
+      console.log("result_tests",result_tests);
       let evaluatedResult = 0;
       try {
+        console.log("Calc Tests", reference);
+        const eq = reference.value
+        .map((item) => {
+          // check if item is number
+          if (!isNaN(item)) {
+            return item;
+          }
+          if (!calcOperator.includes(item)) {
+            let newValue = result_tests?.[item]?.[item] ?? 0;
+            console.log(item,newValue);
+            newValue = newValue === "" ? 0 : newValue;
+            return newValue;
+          }
+          return item;
+        })
+        .join("")
         evaluatedResult = eval(
-          reference.value
-            .map((item) => {
-              // check if item is number
-              if (!isNaN(item)) {
-                return item;
-              }
-              if (!calcOperator.includes(item)) {
-                let newValue = result_tests?.[item]?.[item] ?? 0;
-                newValue = newValue === "" ? 0 : newValue;
-                return newValue;
-              }
-              return item;
-            })
-            .join("")
+          eq
         );
-      } catch (e) {}
+      } catch (e) {
+        console.log("Calc Tests error", e);
+      }
       result = evaluatedResult.toFixed(1);
       finalResult = {};
       finalResult[test.name] = result;
@@ -1712,7 +1708,8 @@ function getNormalRange(finalResult = "", range = []) {
     normalRange = `${(name ? `${name} : ` : "") + low} <= `;
   }
   try {
-    let numers = finalResult.match(/\d+/g);
+    finalResult = finalResult  ? finalResult : "";
+    let numers = finalResult?.match(/\d+/g) ??0;
     if (numers) {
       finalResult = numers.join(".");
     }
@@ -1810,7 +1807,7 @@ function showResult(data) {
   const results = {};
   let height = 0;
   let normalTests = manageHead("flag");
-  const defaultHeight = (invoice.center ?? 1200) - 300;
+  const defaultHeight = (invoice.center ?? 1200) - 350;
   tests.forEach((test, index) => {
     const reference = test.option_test;
 
@@ -2044,21 +2041,22 @@ function showResult(data) {
       if (reference.type === "calc") {
         let evaluatedResult = 0;
         try {
+          const eq = reference.value
+          .map((item) => {
+            // check if item is number
+            if (!isNaN(item)) {
+              return item;
+            }
+            if (!calcOperator.includes(item)) {
+              let newValue = result_tests?.[item] ?? 0;
+              newValue = newValue === "" ? 0 : newValue;
+              return newValue;
+            }
+            return item;
+          })
+          .join("")
           evaluatedResult = eval(
-            reference.value
-              .map((item) => {
-                // check if item is number
-                if (!isNaN(item)) {
-                  return item;
-                }
-                if (!calcOperator.includes(item)) {
-                  let newValue = result_tests?.[item] ?? 0;
-                  newValue = newValue === "" ? 0 : newValue;
-                  return newValue;
-                }
-                return item;
-              })
-              .join("")
+            eq
           );
         } catch (e) {}
         result = evaluatedResult.toFixed(1);

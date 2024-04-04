@@ -8,7 +8,13 @@ class Json
     $refrences = [];
     $this->type = $json['type'] ?? 'normal';
     $this->default_refrence = $json;
-
+    if($this->type == 'calc'){
+      if(isset($json['value'])){
+        $this->value = $json['value'];
+      }
+    }else{
+      $this->value = null;
+    }
     if (isset($json['component'])) {
       $json = $json['component'];
       if (isset($json[0]))
@@ -126,6 +132,7 @@ class Json
     $refrences = array_map(function ($refrence) {
       $refrence['result_type'] = $refrence["result"] ?? $this->result_type;
       $refrence['type'] = $this->type;
+      $refrence['value'] = $this->value;
       return $refrence;
     }, $refrences);
 

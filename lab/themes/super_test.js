@@ -412,7 +412,7 @@ class TableTheme extends Theme {
   }
 
   createRow(hash, refrence) {
-    const { id, kit, unit, range, gender } = refrence;
+    const { id, kit, unit, range, gender ,right_options} = refrence;
     const ageLow = refrence?.["age low"] ?? 0;
     const ageLowUnit = refrence?.["age unit low"] ?? "عام";
     const ageHigh = refrence?.["age high"] ?? 0;
@@ -430,6 +430,11 @@ class TableTheme extends Theme {
         unitName = u.text;
       }
     });
+    const rangeName = right_options ? right_options.join(", ") : range ? range?.map((r) => {
+      return `${r?.name ? `${r?.name} : ` : ""}  <span>${
+        r?.high ?? ""
+      }</span>-<span>${r?.low ?? ""}</span>`;
+    }) : "No Range";
     return `
       <tr>
         <td>${kitName}</td>
@@ -437,13 +442,7 @@ class TableTheme extends Theme {
         <td>${ageLow} ${ageLowUnit} - ${ageHigh} ${ageHighUnit}</td>
         <td
           style="overflow: hidden;"
-        >${
-          range?.map((r) => {
-            return `${r?.name ? `${r?.name} : ` : ""}  <span>${
-              r?.high ?? ""
-            }</span>-<span>${r?.low ?? ""}</span>`;
-          }) ?? "No Range"
-        }</td>
+        >${rangeName}</td>
         <td>${unitName}</td>
         <td>
           <i class="fas fa-edit text-success" onclick="updateRefrence('${hash}', '${id}')"></i>
