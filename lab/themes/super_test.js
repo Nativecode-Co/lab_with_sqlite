@@ -430,10 +430,17 @@ class TableTheme extends Theme {
         unitName = u.text;
       }
     });
-    const rangeName = right_options ? right_options.join(", ") : range ? range?.map((r) => {
-      return `${r?.name ? `${r?.name} : ` : ""}  <span>${
-        r?.high ?? ""
-      }</span>-<span>${r?.low ?? ""}</span>`;
+    const rangeName = right_options && right_options?.length>0 ? right_options.join(", ") : range ? range?.map((r) => {
+      const name = r.name ? `${ r.name} :` : "";
+      const high = r.high ? r.high : "";
+      const low = r.low ? r.low : "";
+      if(high && low){
+        return `${name}  <span>${high}</span>-<span>${low}</span>`;
+      }else if(high){
+        return `${name} اقل من  <span>${high}</span>`;
+      }
+      return `${name}  اكبر من  <span>${low}</span>`;
+
     }) : "No Range";
     return `
       <tr>
@@ -569,25 +576,30 @@ class PackageTestTheme extends TableTheme {
   }
 
   createRow(hash, refrence) {
-    const { id, range, gender, unit } = refrence;
+    const { id, range, gender, unit,right_options } = refrence;
     const ageLow = refrence?.["age low"] ?? 0;
     const ageLowUnit = refrence?.["age unit low"] ?? "عام";
     const ageHigh = refrence?.["age high"] ?? 0;
     const ageHighUnit = refrence?.["age unit high"] ?? "عام";
+    const rangeName = right_options && right_options?.length>0 ? right_options.join(", ") : range ? range?.map((r) => {
+      const name = r.name ? `${ r.name} :` : "";
+      const high = r.high ? r.high : "";
+      const low = r.low ? r.low : "";
+      if(high && low){
+        return `${name}  <span>${high}</span>-<span>${low}</span>`;
+      }else if(high){
+        return `${name} اقل من  <span>${high}</span>`;
+      }
+      return `${name}  اكبر من  <span>${low}</span>`;
 
+    }) : "No Range";
     return `
       <tr>
         <td>${gender}</td>
         <td>${ageLow} ${ageLowUnit} - ${ageHigh} ${ageHighUnit}</td>
         <td
           style="overflow: hidden;"
-        >${
-          range?.map((r) => {
-            return `${r?.name ? `${r?.name} : ` : ""}  <span>${
-              r?.high ?? ""
-            }</span>-<span>${r?.low ?? ""}</span>`;
-          }) ?? "No Range"
-        }</td>
+        >${rangeName}</td>
         <td>
           <i class="fas fa-edit text-success" onclick="updateRefrence('${hash}', '${id}')"></i>
         </td>

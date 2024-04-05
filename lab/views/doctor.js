@@ -5,7 +5,7 @@ class Doctor extends Factory {
     this.createModal();
     this.dataTable = setServerTable(
       "lab_doctor-table",
-      "http://localhost:8807/api/app/index.php/doctors/get_doctors",
+      `${api_url}/doctors/get_doctors`,
       () => {
         return { lab_id: localStorage.getItem("lab_hash") };
       },

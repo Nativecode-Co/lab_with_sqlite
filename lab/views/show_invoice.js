@@ -11,7 +11,7 @@ function getApi(baseLink = "app",url = "", type = "GET", data = {}) {
   let res = null;
   
   $.ajax({
-    url: baseLink === "app" ? `http://localhost:8807/app/index.php${url}` : `http://localhost:8807/api/app/index.php${url}`,
+    url: baseLink === "app" ? `http://localhost:8807/app/index.php${url}` : `${api_url}${url}`,
     type,
     data,
     dataType: "JSON",

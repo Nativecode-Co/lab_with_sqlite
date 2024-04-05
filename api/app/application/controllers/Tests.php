@@ -153,6 +153,50 @@ class Tests extends CI_Controller
 
     public function set_result_by_alias()
     {
+        $data = $this->input->post();
+        $this->form_validation
+        ->set_data($data)
+        ->set_rules(
+            'alias',
+            'alias',
+            'required',
+            array(
+                'required' => 'هذا الحقل مطلوب',
+            )
+        )
+        ->set_rules(
+            'result',
+            'result',
+            'required',
+            array(
+                'required' => 'هذا الحقل مطلوب',
+            )
+        )
+        ->set_rules(
+            'date',
+            'date',
+            'required',
+            array(
+                'required' => 'هذا الحقل مطلوب',
+            )
+        )
+        ->set_rules(
+            'patient',
+            'patient',
+            'required',
+            array(
+                'required' => 'هذا الحقل مطلوب',
+            )
+        );
+        $valid = $this->form_validation->run();
+        if (!$valid) {
+            $errors = $this->form_validation->error_array();
+            $this->output
+                ->set_status_header(400)
+                ->set_content_type('application/json')
+                ->set_output(json_encode($errors));
+            return;
+        }
         $alias = $this->input->post("alias");
         $result = $this->input->post("result");
         $date = $this->input->post("date");

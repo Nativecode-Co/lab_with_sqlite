@@ -19,23 +19,38 @@ class Patient extends Factory {
         { data: "name" },
         { data: "doctor" },
         { data: "visit_date" },
-        { data: "net_price" },
-        { data: "dicount" },
-        { data: "total_price" },
         {
-          data: null,
-          className: "text-success center",
-          defaultContent: '<i class="fas fa-plus"></i>',
+          data: "net_price",
+          render: (data) => {
+            return Number(data).toLocaleString();
+          },
+        },
+        {
+          data: "dicount",
+          render: (data) => {
+            return Number(data).toLocaleString();
+          },
+        },
+        {
+          data: "total_price",
+          render: (data) => {
+            return Number(data).toLocaleString();
+          },
         },
       ],
       [[2, "desc"]],
-      {},
+      {
+        pageLength: 800,
+        columnDefs: [],
+      },
       (json) => {
         console.log("json", json);
-        $("#totalPrice").text(json?.total_price ?? 0);
-        $("#totalDiscount").text(json?.dicount ?? 0);
-        $("#totalFinalPrice").text(json?.net_price ?? 0);
-        $("#total").text(json?.recordsTotal ?? 0);
+        $(".totalPrice").text(Number(json?.total_price).toLocaleString());
+        $(".totalDiscount").text(Number(json?.dicount).toLocaleString());
+        $(".totalFinalPrice").text(Number(json?.net_price).toLocaleString());
+        $(".total").text(
+          Number(json?.total_price - json?.dicount).toLocaleString()
+        );
       }
     );
   }

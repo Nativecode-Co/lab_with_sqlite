@@ -21,14 +21,10 @@ const updateNormal = (test, visit_hash) => {
     $("#refrence_editor").modal("show");
   } catch (error) {
     Swal.fire({
-      title: "لاضافة قيمة طبيعية مناسبة لهذا التحليل يرجي اتباع الخطوات التالية",
+      title: "لاختيار قيمة طبيعية مناسبة لهذا التحليل يرجى اتباع الخطوات التالية:",
       html: `<ul class="list-group list-group-flush text-left">
       <li class="list-group-item">1- قم بفتح صفحة التحاليل </li>
-      <li class="list-group-item">2- اختر التحليل المراد اضافة رينج له </li>
-      <li class="list-group-item">3- تاكد من ادخال العمر والجنس والوحدة الخاصة بالتحليل </li>
-      <li class="list-group-item">4- عمر المريض يجب ان يكون بين العمر المحدد في الرينج </li>
-      <li class="list-group-item">5- الجنس يجب ان يتطابق مع الجنس المحدد في الرينج  او يكون كلاهما </li>
-      <li class="list-group-item">6- الوحدة يجب ان تتطابق مع الوحدة المحددة في الرينج </li>
+      <li class="list-group-item">3- تاكد من ادخال الكت والجهاز والعمر والجنس والوحدة الخاصة بالتحليل </li>
       </ul>`,
       icon: "info",
       confirmButtonText: "زيارة صفحة التحاليل",

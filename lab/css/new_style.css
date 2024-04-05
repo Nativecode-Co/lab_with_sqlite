@@ -316,18 +316,18 @@ table.style1 thead th {
 }
 
 /* first th */
-table.style1 thead th:first-child {
+table.style1 thead tr:first-child th:first-child {
     border-top-right-radius: var(--tableBorderRadius);
     text-align: right;
 }
 
 /* last th */
-table.style1 thead th:last-child {
+table.style1 thead tr:first-child th:last-child {
     border-top-left-radius: var(--tableBorderRadius);
 }
 
 /* before last */
-table.style1 thead th:nth-last-child(2) {
+table.style1 thead tr:first-child th:nth-last-child(2) {
     border-top-left-radius: var(--tableBorderRadius);
 }
 
@@ -340,8 +340,10 @@ table.style1 tbody td:first-child {
     text-align: right;
 }
 
-
-table.style1 tfoot {
+/* footer and 2nd tr in thead */
+table.style1 tfoot,
+table.style1 thead tr:nth-child(2)
+{
     width: 100% !important;
     background-color: var(--mainColor);
     color: var(--white);

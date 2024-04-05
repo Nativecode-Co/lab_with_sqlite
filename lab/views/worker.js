@@ -3,7 +3,7 @@ class Worker extends Factory {
     this.createModal();
     this.dataTable = setServerTable(
       "lab_invoice_worker-table",
-      "http://localhost:8807/api/app/index.php/workers/get_workers",
+      `${api_url}/workers/get_workers`,
       () => {
         return { lab_id: localStorage.getItem("lab_hash") };
       },

@@ -240,8 +240,37 @@ class LocalApi extends CI_Controller
             SET last_query = (SELECT info FROM INFORMATION_SCHEMA.PROCESSLIST WHERE id = CONNECTION_ID());
             INSERT INTO `offline_sync`(`table_name`,`operation`,`lab_id`,`query`) VALUES ('lab_patient','insert',new.lab_id,last_query);
         
-        END;"
-        );
+        END;");
+        // add trigger for lab_test AFTER INSERT
+        $this->db->query("CREATE TRIGGER lab_test_AFTER_INSERT
+        AFTER INSERT ON `lab_test`
+        FOR EACH ROW
+        BEGIN
+            Declare last_query TEXT;
+            SET last_query = (SELECT info FROM INFORMATION_SCHEMA.PROCESSLIST WHERE id = CONNECTION_ID());
+            INSERT INTO `offline_sync`(`table_name`,`operation`,`lab_id`,`query`) VALUES ('lab_test','insert','0',last_query);
+        
+        END;");
+        // add trigger for lab_test AFTER UPDATE
+        $this->db->query("CREATE TRIGGER lab_test_AFTER_UPDATE
+        AFTER UPDATE ON `lab_test`
+        FOR EACH ROW
+        BEGIN
+            Declare last_query TEXT;
+            SET last_query = (SELECT info FROM INFORMATION_SCHEMA.PROCESSLIST WHERE id = CONNECTION_ID());
+            INSERT INTO `offline_sync`(`table_name`,`operation`,`lab_id`,`query`) VALUES ('lab_test','update','0',last_query);
+        
+        END;");
+        // add trigger for lab_test AFTER DELETE
+        $this->db->query("CREATE TRIGGER lab_test_AFTER_DELETE
+        AFTER DELETE ON `lab_test`
+        FOR EACH ROW
+        BEGIN
+            Declare last_query TEXT;
+            SET last_query = (SELECT info FROM INFORMATION_SCHEMA.PROCESSLIST WHERE id = CONNECTION_ID());
+            INSERT INTO `offline_sync`(`table_name`,`operation`,`lab_id`,`query`) VALUES ('lab_test','delete','0',last_query);
+        
+        END;");
         echo json_encode(
             array(
                 'status' => true,

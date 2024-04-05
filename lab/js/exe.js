@@ -48,7 +48,7 @@ function fetchApi(url = "", type = "GET", data = {}) {
   let res = null;
   const token = localStorage.getItem("token");
   $.ajax({
-    url: `http://localhost:8807/api/app/index.php${url}`,
+    url: `${api_url}${url}`,
     headers: {
       Authorization: `Bearer ${token}`,
     },

@@ -183,4 +183,84 @@ $config = array(
             )
         ),
     ),
+
+    "visit" =>array(
+        // name ,visit_date, gender ,dicount total_price, net_price, tests[]
+        array(
+            'field' => 'name',
+            'rules' => 'required',
+            'errors' => array(
+                'required' => 'هذا الحقل مطلوب',
+            )
+        ),
+        array(
+            'field' => 'visit_date',
+            'rules' => 'required',
+            'errors' => array(
+                'required' => 'هذا الحقل مطلوب',
+            )
+        ),
+        array(
+            'field' => 'gender',
+            'rules' => 'required',
+            'errors' => array(
+                'required' => 'هذا الحقل مطلوب ويجب ان يكون ذكر او انثى',
+            ),
+        ),
+        array(
+            'field' => 'dicount',
+            'rules' => 'required|numeric',
+            'errors' => array(
+                'required' => 'هذا الحقل مطلوب',
+                'numeric' => 'يجب ادخال قيمة رقمية'
+            )
+        ),
+        array(
+            'field' => 'total_price',
+            'rules' => 'required|numeric',
+            'errors' => array(
+                'required' => 'هذا الحقل مطلوب',
+                'numeric' => 'يجب ادخال قيمة رقمية'
+            )
+        ),
+        array(
+            'field' => 'net_price',
+            'rules' => 'required|numeric',
+            'errors' => array(
+                'required' => 'هذا الحقل مطلوب',
+                'numeric' => 'يجب ادخال قيمة رقمية'
+            )
+        ),
+        array(
+            'field' => 'tests[]',
+            'rules' => 'required',
+            'errors' => array(
+                'required' => 'يجب اختيار تحليل واحد على الاقل',
+            )
+        ),
+        array(
+            'field' => 'age_year',
+            'rules' => 'required|numeric',
+            'errors' => array(
+                'required' => 'هذا الحقل مطلوب',
+                'numeric' => 'يجب ادخال قيمة رقمية'
+            )
+        ),
+        array(
+            'field' => 'age_month',
+            'rules' => 'required|numeric',
+            'errors' => array(
+                'required' => 'هذا الحقل مطلوب',
+                'numeric' => 'يجب ادخال قيمة رقمية'
+            )
+        ),
+        array(
+            'field' => 'age_month',
+            'rules' => 'required|numeric',
+            'errors' => array(
+                'required' => 'هذا الحقل مطلوب',
+                'numeric' => 'يجب ادخال قيمة رقمية'
+            )
+        ),
+    ),
 );

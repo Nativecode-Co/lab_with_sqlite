@@ -8,6 +8,7 @@ class Visit extends CI_Controller
         $this->load->helper('visit');
         $this->load->model('VisitModel');
         $this->load->library('Session'); 
+        $this->load->library('form_validation');
     }
 
     function index()
@@ -17,6 +18,33 @@ class Visit extends CI_Controller
             ->set_status_header(200)
             ->set_content_type('application/json')
             ->set_output(json_encode($data));
+    }
+
+    function checkAgeAndTests($data)
+    {
+        $error = array();
+        // check visit date is date
+        $date = $data['visit_date'];
+        $newDate = date("Y-m-d", strtotime($date));
+        if ($newDate != $date) {
+            $error['visit_date'] = "التاريخ غير صحيح";
+        }
+        $age_year = $data['age_year'];
+        $age_month = $data['age_month'];
+        $age_day = $data['age_day'];
+        $age = get_age($age_year, $age_month, $age_day);
+        if($age <= 0)
+        {
+            $error['age'] = "العمر يجب ان يكون اكبر من صفر";
+        }
+        // $data['tests'] is string
+        if(!is_array($data['tests'])){
+            $data['tests'] = json_decode($data['tests'], true);
+        }
+        if(count($data['tests']) == 0){
+            $error['tests'] = "يجب اختيار تحليل واحد على الاقل";
+        }
+        return $error;
     }
 
     function get_visits()
@@ -37,6 +65,7 @@ class Visit extends CI_Controller
                 )
             );
     }
+    
 
     public function get_visit_form_data()
     {
@@ -60,7 +89,23 @@ class Visit extends CI_Controller
     }
     function create_visit()
     {
-        $data = split_data($this->input->post());
+        $req = $this->input->post();
+        $valid = $this->form_validation->
+            set_data($req)->
+            run('visit');
+        $error = $this->checkAgeAndTests($req);
+        if (!$valid|| count($error) > 0) {
+            $errors = $this->form_validation->error_array();
+            // merge errors
+            $errors = array_merge($errors, $error);
+            $this->output
+                ->set_status_header(400)
+                ->set_content_type('application/json')
+                ->set_output(json_encode($errors));
+            return;
+        }
+        
+        $data = split_data($req);
         $visit_hash = $this->VisitModel->create_visit($data);
         $this->output
             ->set_status_header(200)
@@ -70,7 +115,39 @@ class Visit extends CI_Controller
 
     function update_visit()
     {
-        $data = split_data($this->input->post());
+        $req = $this->input->post();
+        $valid = $this->form_validation
+        ->set_data($req)
+        ->set_rules(
+                'patient',
+                'patient',
+                'required|numeric',
+                array(
+                    'required' => 'هذا الحقل مطلوب',
+                    'numeric' => 'يجب ادخال قيمة رقمية'
+                )
+            )->
+            set_rules(
+                'hash',
+                'hash',
+                'required|numeric',
+                array(
+                    'required' => 'هذا الحقل مطلوب',
+                    'numeric' => 'يجب ادخال قيمة رقمية'
+                )
+            )->
+            run('visit');
+            $error = $this->checkAgeAndTests($req);
+        if (!$valid || count($error) > 0){
+            $errors = $this->form_validation->error_array();
+            $errors = array_merge($errors, $error);
+            $this->output
+                ->set_status_header(400)
+                ->set_content_type('application/json')
+                ->set_output(json_encode($errors));
+            return;
+        }
+        $data = split_data($req);
         $this->VisitModel->update_visit($data);
         $this->output
             ->set_status_header(200)
@@ -81,6 +158,26 @@ class Visit extends CI_Controller
     function get_visit()
     {
         $hash = $this->input->get("hash");
+        $valid = $this->form_validation
+        ->set_data(array('hash' => $hash))
+        ->set_rules('hash',
+                    'hash',
+                    'required|numeric',
+                    array(
+                        'required' => 'هذا الحقل مطلوب',
+                        'numeric' => 'يجب ادخال قيمة رقمية'
+                    )
+        )
+        ->run();
+        if (!$valid) {
+            $errors = $this->form_validation->error_array();
+            $this->output
+                ->set_status_header(400)
+                ->set_content_type('application/json')
+                ->set_output(json_encode($errors));
+            return;
+        }
+                
         $data = $this->VisitModel->get_visit($hash);
         $this->output
             ->set_status_header(200)

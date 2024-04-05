@@ -96,7 +96,7 @@ class Test extends Factory {
     this.createModal();
     this.dataTable = setServerTable(
       "lab_test-table",
-      "http://localhost:8807/api/app/index.php/maintests/get_main_tests",
+      `${api_url}/maintests/get_main_tests`,
       () => {
         return { lab_id: localStorage.getItem("lab_hash") };
       },

@@ -3,7 +3,7 @@ class User extends Factory {
     this.createModal();
     this.dataTable = setServerTable(
       "system_users-table",
-      "http://localhost:8807/api/app/index.php/users/get_users",
+      `${api_url}/users/get_users`,
       () => {
         return { lab_id: localStorage.getItem("lab_hash") };
       },

@@ -14,7 +14,7 @@ class Visit extends Factory {
     const userType = localStorage.getItem("user_type");
     this.dataTable = setServerTable(
       "lab_visits-table",
-      "http://localhost:8807/api/app/index.php/visit/get_visits",
+      `${api_url}/visit/get_visits`,
       () => {
         const checkInput = $("#currentDay");
         let check = 1;
@@ -52,6 +52,9 @@ class Visit extends Factory {
           className: "not-print",
           render: (data, type, row) => {
             return `
+            <a class="btn-action add" title"تحميل النتائج" onclick="dwonloadInvoice('${row.hash}')">
+            <i class="fas fa-file-pdf"></i>
+            </a>
                             <a class="btn-action add" title="عرض الزيارة"  onclick="visitDetail('${
                               row.hash
                             }');fireSwalWithoutConfirm(showAddResult, '${

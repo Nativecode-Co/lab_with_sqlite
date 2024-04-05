@@ -3,7 +3,7 @@ class Patient extends Factory {
     this.createModal();
     this.dataTable = setServerTable(
       "lab_patient-table",
-      "http://localhost:8807/api/app/index.php/patient/get_patients",
+      `${api_url}/patient/get_patients`,
       () => {
         return {};
       },

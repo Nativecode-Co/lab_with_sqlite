@@ -6,7 +6,7 @@ class PackageTest extends Factory {
     this.createModal();
     this.dataTable = setServerTable(
       "lab_test-table",
-      "http://localhost:8807/api/app/index.php/tests/get_tests",
+      `${api_url}/tests/get_tests`,
       () => {
         return { catigory: "9" };
       },
@@ -80,7 +80,7 @@ class Package extends PackageTest {
     this.createModal();
     this.dataTable = setServerTable(
       "lab_package-table",
-      "http://localhost:8807/api/app/index.php/tests/get_tests",
+      `${api_url}/tests/get_tests`,
       () => {
         return { catigory: "8" };
       },
@@ -159,44 +159,3 @@ class PackageTests extends Factory {
 const lab_test = new PackageTest("lab_test", " مجموعة", []);
 const lab_package = new Package("lab_package", " مجموعة", []);
 
-$(document).ready(() => {
-  $("div.addCustomItem").html(`
-    <button onclick="fireSwal(uploadTestsSync)" class="btn-main-add ml-4"><i class="far fa-users-md mr-2"></i> حفظ القيم الطبيعية</button>
-    <button onclick="dwonLoadTestsSync()" class="btn-main-add ml-4"><i class="far fa-users-md mr-2"></i> استرجاع القيم الطبيعية</button>
-    `);
-});
-
-const uploadTestsSync = async () => {
-  fetchData("LocalApi/getTestsQueries", "POST", {
-    lab_id: localStorage.getItem("lab_hash"),
-  });
-  niceSwal("success", "bottom-end", "تم الرفع بنجاح");
-};
-
-const dwonLoadTestsSync = () => {
-  swal
-    .fire({
-      title: "هل انت متأكد من السحب",
-      text: "سيتم استرجاع القيم الطبيعية السابقة",
-      icon: "warning",
-      showDenyButton: false,
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "نعم",
-      cancelButtonText: "كلا",
-    })
-    .then((res) => {
-      if (res.isConfirmed) {
-        fireSwal(fetchTests);
-      }
-    });
-};
-
-const fetchTests = async () => {
-  const data = fetchData("LocalApi/installTests", "POST", {
-    lab_id: localStorage.getItem("lab_hash"),
-  });
-  if (data.status) niceSwal("success", "top-right", data.message);
-  else niceSwal("error", "top-right", data.message);
-};
