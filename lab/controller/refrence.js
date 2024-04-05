@@ -24,7 +24,7 @@ const updateNormal = (test, visit_hash) => {
       title: "لاختيار قيمة طبيعية مناسبة لهذا التحليل يرجى اتباع الخطوات التالية:",
       html: `<ul class="list-group list-group-flush text-left">
       <li class="list-group-item">1- قم بفتح صفحة التحاليل </li>
-      <li class="list-group-item">3- تاكد من ادخال الكت والجهاز والعمر والجنس والوحدة الخاصة بالتحليل </li>
+      <li class="list-group-item">2- تاكد من ادخال الكت والجهاز والعمر والجنس والوحدة الخاصة بالتحليل </li>
       </ul>`,
       icon: "info",
       confirmButtonText: "زيارة صفحة التحاليل",
