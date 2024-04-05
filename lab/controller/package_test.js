@@ -421,3 +421,30 @@ function deleteRange(e, id) {
     e.parents(".range").remove();
   }
 }
+
+function deleteRefrence(hash, refID) {
+  const { refrence, name } = fetchApi("/maintests/get_main_test", "post", {
+    hash,
+  });
+  refrence.splice(refID, 1);
+  const component = [
+    {
+      name: name,
+      reference: refrence,
+    },
+  ];
+  fetchApi("/maintests/update_main_test", "post", {
+    hash,
+    option_test: JSON.stringify({ component }),
+  });
+  lab_test.dataTable.ajax.reload();
+  $("#refrence_editor").modal("hide");
+  Swal.fire({
+    toast: true,
+    position: "bottom-end",
+    icon: "success",
+    title: "قد تحتاج الى التعديل في صفحة التحاليل لتطبيق التغييرات  ",
+    showConfirmButton: false,
+    timer: 3000,
+  });
+}

@@ -603,6 +603,7 @@ class PackageTestTheme extends TableTheme {
         >${rangeName}</td>
         <td>
           <i class="fas fa-edit text-success" onclick="updateRefrence('${hash}', '${id}')"></i>
+          <i class="fas fa-trash text-danger" onclick="fireSwalForDelete(deleteRefrence, '${hash}','${id}')"></i>
         </td>
       </tr>
     `;

@@ -286,6 +286,9 @@ class LocalApi extends CI_Controller
         $this->db->query("DROP TRIGGER IF EXISTS `lab_visits_AFTER_INSERT`;");
         $this->db->query("DROP TRIGGER IF EXISTS `lab_visits_package_AFTER_INSERT`;");
         $this->db->query("DROP TRIGGER IF EXISTS `lab_patient_AFTER_INSERT`;");
+        $this->db->query("DROP TRIGGER IF EXISTS `lab_test_AFTER_INSERT`;");
+        $this->db->query("DROP TRIGGER IF EXISTS `lab_test_AFTER_UPDATE`;");
+        $this->db->query("DROP TRIGGER IF EXISTS `lab_test_AFTER_DELETE`;");
         return true;
     }
 
