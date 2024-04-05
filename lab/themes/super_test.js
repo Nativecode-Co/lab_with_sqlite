@@ -577,12 +577,12 @@ class PackageTestTheme extends TableTheme {
   }
 
   createRow(hash, refrence) {
-    const { id, range, gender, unit,right_options } = refrence;
+    const { id, range, gender, unit,right_options,options } = refrence;
     const ageLow = refrence?.["age low"] ?? 0;
     const ageLowUnit = refrence?.["age unit low"] ?? "عام";
     const ageHigh = refrence?.["age high"] ?? 0;
     const ageHighUnit = refrence?.["age unit high"] ?? "عام";
-    const rangeName = right_options && right_options?.length>0 ? right_options.join(",") : range ? range?.map((r) => {
+    const rangeName = options && options?.length> 0 ? (right_options?.length> 0 ? right_options.join(","):"لا اختيار صحيح") : range ? range?.map((r) => {
       const name = r.name ? `${ r.name} :` : "";
       const high = r.high ? r.high : "";
       const low = r.low ? r.low : "";

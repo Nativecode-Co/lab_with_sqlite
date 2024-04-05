@@ -209,7 +209,7 @@ class VisitModel extends CI_Model
             ->join("devices", "lab_pakage_tests.lab_device_id=devices.id", "left")
             ->join("lab_test_units", "lab_pakage_tests.unit=lab_test_units.hash", "left")
             ->join("lab_test", "lab_test.hash=lab_pakage_tests.test_id", "left")
-            ->group_by('test_id')
+            ->group_by('test_id,kit_id,unit,lab_pakage_tests.package_id')
             ->get('lab_package')->result_array();
         // return all data
         return array(
