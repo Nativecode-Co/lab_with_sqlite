@@ -18,12 +18,18 @@ $(startDateElement).val(new Date().toISOString().slice(0, 10));
 $(endDateElement).val(new Date().toISOString().slice(0, 10));
 
 const selectAllTest = () => {
-  $(selectedTestsElement)
+ //  toggle all tests
+  const allTests = $(selectedTestsElement).val();
+  if (allTests.length === 0) {
+    $(selectedTestsElement)
     .select2("destroy")
     .find("option")
     .prop("selected", "selected")
     .end()
     .select2();
+  } else {
+    $(selectedTestsElement).val([]).trigger("change");
+  }
 };
 
 class Tests extends Factory {

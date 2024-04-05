@@ -441,14 +441,15 @@ class TableTheme extends Theme {
       }
       return `${name}  اكبر من  <span>${low}</span>`;
 
-    }) : "No Range";
+    }).join("<br>") : "No Range";
     return `
       <tr>
         <td>${kitName}</td>
         <td>${gender}</td>
         <td>${ageLow} ${ageLowUnit} - ${ageHigh} ${ageHighUnit}</td>
         <td
-          style="overflow: hidden;"
+            style="overflow: hidden;direction : initial;"
+            class="text-right"
         >${rangeName}</td>
         <td>${unitName}</td>
         <td>
@@ -481,7 +482,7 @@ class TableTheme extends Theme {
             <th>Kit</th>
             <th>الجنس </th>
             <th>العمر</th>
-            <th>Range</th>
+            <th class="text-right">Range</th>
             <th>وحدة القياس</th>
             <th>الاجراء</th>
           </tr>
@@ -581,24 +582,24 @@ class PackageTestTheme extends TableTheme {
     const ageLowUnit = refrence?.["age unit low"] ?? "عام";
     const ageHigh = refrence?.["age high"] ?? 0;
     const ageHighUnit = refrence?.["age unit high"] ?? "عام";
-    const rangeName = right_options && right_options?.length>0 ? right_options.join(", ") : range ? range?.map((r) => {
+    const rangeName = right_options && right_options?.length>0 ? right_options.join(",") : range ? range?.map((r) => {
       const name = r.name ? `${ r.name} :` : "";
       const high = r.high ? r.high : "";
       const low = r.low ? r.low : "";
       if(high && low){
-        return `${name}  <span>${high}</span>-<span>${low}</span>`;
+        return `${name}  <span>${high}</span>-<span>${low}</span> `;
       }else if(high){
         return `${name} اقل من  <span>${high}</span>`;
       }
       return `${name}  اكبر من  <span>${low}</span>`;
-
-    }) : "No Range";
+    }).join("<br>") : "No Range";
     return `
       <tr>
         <td>${gender}</td>
         <td>${ageLow} ${ageLowUnit} - ${ageHigh} ${ageHighUnit}</td>
         <td
-          style="overflow: hidden;"
+          style="overflow: hidden;direction : initial;"
+          class="text-right"
         >${rangeName}</td>
         <td>
           <i class="fas fa-edit text-success" onclick="updateRefrence('${hash}', '${id}')"></i>
@@ -608,17 +609,18 @@ class PackageTestTheme extends TableTheme {
   }
 
   build(hash, refrences, selectedKit, selectedUnit) {
+    console.log("4", hash);
     this.resizeModal();
     let form = "";
     let table = "";
-    if (refrences && refrences.length > 0) {
+    if (refrences) {
       table = `
       <table class="table table-striped table-bordered table-hover" style="table-layout: fixed;">
         <thead>
           <tr>
             <th>الجنس </th>
             <th>العمر</th>
-            <th>Range</th>
+            <th class="text-right">Range</th>
             <th>الاجراء</th>
           </tr>
         </thead>

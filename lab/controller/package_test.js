@@ -324,10 +324,6 @@ const updateNormal = (test,kit,unit) => {
   TEST = fetchApi("/maintests/get_main_test", "post", { hash: test,kit,unit });
   try {
     const { refrence: reference } = TEST;
-
-    if (reference.length === 0) {
-      throw "no refrence";
-    }
     const refrenceTable = THEME.build(test, reference, kit,unit);
     $("#refrence_editor .modal-body").html(refrenceTable);
     $("#refrence_editor").modal("show");
