@@ -20,32 +20,32 @@ class Login extends CI_Controller
     
     function login_pre()
     {
-        // // get headers
-        // $headers = $this->input->request_headers();
-        // // Extract the token
-        // $token = $headers['Authorization'];
-        // // get token
-        // $token = str_replace("Bearer ", "", $token);
-        // try {
-        //     // Validate the token
-        //     $decoded = JWT::decode($token, new Key('@@redhaalasd2020@@', 'HS256'));
-        //     // Check if the token is valid
-        //     if ($decoded === false) {
-        //         // Token is invalid
-        //         $this->output
-        //             ->set_status_header(401)
-        //             ->set_content_type('application/json')
-        //             ->set_output(json_encode(array('message' => 'Unauthorized')));
-        //         exit;
-        //     } else {
+        // get headers
+        $headers = $this->input->request_headers();
+        // Extract the token
+        $token = $headers['Authorization'];
+        // get token
+        $token = str_replace("Bearer ", "", $token);
+        try {
+            // Validate the token
+            $decoded = JWT::decode($token, new Key('@@redhaalasd2020@@', 'HS256'));
+            // Check if the token is valid
+            if ($decoded === false) {
+                // Token is invalid
+                $this->output
+                    ->set_status_header(401)
+                    ->set_content_type('application/json')
+                    ->set_output(json_encode(array('message' => 'Unauthorized')));
+                exit;
+            } else {
                 
-        //     }
-        // } catch (Exception $e) {
-        //     $this->output
-        //         ->set_status_header(401)
-        //         ->set_content_type('application/json')
-        //         ->set_output(json_encode(array('message' => 'Unauthorized')));
-        //     exit;
-        // }
+            }
+        } catch (Exception $e) {
+            $this->output
+                ->set_status_header(401)
+                ->set_content_type('application/json')
+                ->set_output(json_encode(array('message' => 'Unauthorized')));
+            exit;
+        }
     }
 }

@@ -20,7 +20,7 @@ class Visit extends CI_Controller
             ->set_output(json_encode($data));
     }
 
-    function checkAgeAndTests($data)
+    function validData($data)
     {
         $error = array();
         // check visit date is date
@@ -28,6 +28,9 @@ class Visit extends CI_Controller
         $newDate = date("Y-m-d", strtotime($date));
         if ($newDate != $date) {
             $error['visit_date'] = "التاريخ غير صحيح";
+        }
+        if(!isset($data["name"]) && !isset($data["patient"])){
+            $error['name'] = "يجب ادخال اسم المريض او اختيار مريض";
         }
         $age_year = $data['age_year'];
         $age_month = $data['age_month'];
@@ -93,7 +96,7 @@ class Visit extends CI_Controller
         $valid = $this->form_validation->
             set_data($req)->
             run('visit');
-        $error = $this->checkAgeAndTests($req);
+        $error = $this->validData($req);
         if (!$valid|| count($error) > 0) {
             $errors = $this->form_validation->error_array();
             // merge errors
@@ -137,7 +140,7 @@ class Visit extends CI_Controller
                 )
             )->
             run('visit');
-            $error = $this->checkAgeAndTests($req);
+            $error = $this->validData($req);
         if (!$valid || count($error) > 0){
             $errors = $this->form_validation->error_array();
             $errors = array_merge($errors, $error);

@@ -42,10 +42,17 @@ function hideHederelments() {
     }
   }
 }
+
+function createBarCode(code) {
+  JsBarcode(`#visit-code`, `${code}`, {
+    width:2,
+    height:20,
+    displayValue: false
+  });
+}
 function showAddResult(hash) {
   const workSpace = document.getElementById("root");
   const invoice = showResult(hash).invoice;
-  console.log(invoice);
   const html = `
     <div class="col-md-12 mt-48">
         ${invoice}
@@ -53,6 +60,7 @@ function showAddResult(hash) {
         `;
   workSpace.innerHTML = html;
   hideHederelments();
+  createBarCode(hash);
 }
 
 // Create a function for setting a variable value
@@ -803,15 +811,8 @@ function createInvoiceItems(visit) {
       <p class="">Barcode</p>
     </div>
     <div class="paidgo d-flex justify-content-center align-items-center">
-      <svg id="visit-${random}-code"></svg>
+      <svg id="visit-code"></svg>
     </div>
-    <script>
-        JsBarcode("#visit-${random}-code", '${visit.hash}', {
-            width:2,
-            height:20,
-            displayValue: false
-        });
-    </script>
     <div class="agesex">
       <p class="">Sex / Age</p>
     </div>

@@ -185,14 +185,7 @@ $config = array(
     ),
 
     "visit" =>array(
-        // name ,visit_date, gender ,dicount total_price, net_price, tests[]
-        array(
-            'field' => 'name',
-            'rules' => 'required',
-            'errors' => array(
-                'required' => 'هذا الحقل مطلوب',
-            )
-        ),
+        // visit_date, gender ,dicount total_price, net_price, tests[]
         array(
             'field' => 'visit_date',
             'rules' => 'required',

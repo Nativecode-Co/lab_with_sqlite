@@ -32,8 +32,8 @@ const updateNormal = (test, visit_hash) => {
       cancelButtonText: "اغلاق",
     }).then((result) => {
       if (result.isConfirmed) {
-        // delete " " from last of TEST.test_name
-        const name = TEST?.test_name?.replace(/ /g, "");
+        // if TEST.test_name has space in last or first remove it
+        const name = TEST?.test_name.replace(/(^\s+|\s+$)/g, "");
         window.location.href = `${front_url}package_test.html?name=${name}`;
       }
     });

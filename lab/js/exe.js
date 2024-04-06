@@ -1,3 +1,4 @@
+let SYNCTIMEOUT = null;
 function fetchData(url = "", type = "GET", data = {}) {
   let res = null;
   const token = localStorage.getItem("token");
@@ -282,20 +283,22 @@ async function updateExpireDate() {
 }
 
 function syncOnline() {
-  // check internet connection`
+  // clear time out
+  clearTimeout(SYNCTIMEOUT);
   if (!navigator.onLine) {
     return false;
   }
   // set token in header
-
-  fetch(`${__domain__}/sync/sync_up.php`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      "Authorization": localStorage.getItem("token"),
-    },
-  }).then((res) => res.json()).then((data)=>{
-    
-  }).catch((e)=>{console.log("error", e)})
-  updateExpireDate();
+  SYNCTIMEOUT = setTimeout(() => {
+    fetch(`${__domain__}/sync/sync_up.php`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Authorization": localStorage.getItem("token"),
+      },
+    }).then((res) => res.json()).then((data)=>{
+      
+    }).catch((e)=>{console.log("error", e)})
+    updateExpireDate();
+  }, 500);
 }
