@@ -180,7 +180,7 @@
                     <div class="col-sm-12 col-md-12 col-lg-12 mx-auto modal-body page" style="display: none"
                         id="network">
                         <div class="row">
-                            <div class="col-6">
+                            <div class="col-4">
                                 <h2 class="text-center mb-4">شاشة العرض</h2>
                                 <div class="row mt-4 justify-content-center text-center">
                                     <div class="col-auto network-wired">
@@ -197,7 +197,19 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-6">
+                            <div class="col-4">
+                                <h2 class="text-center mb-4">تسجيل الدخول الي التطبيق</h2>
+                                <div class="row mt-4 justify-content-center text-center">
+                                    <div class="col-auto network-wired">
+                                        <h4>امسح QR لتسجيل الدخول للتطبيق</h4>
+                                        <h5 class="mt-4">
+                                            يرجي مراعاة ربط الجهاز الاخر بنفس الشبكة (نفس الراوتر)
+                                        </h5>
+                                        <div id="app_img" class="d-flex justify-content-center mt-5"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-4">
                                 <h2 class="text-center mb-4">الربط الشبكي</h2>
                                 <div class="row mt-4 justify-content-center text-center">
                                     <div class="col-auto network-wired">
@@ -497,6 +509,15 @@
                     });
                     var qrcode = new QRCode("screen_img", {
                         text: res.url + '/lab/screen.html',
+                        width: 300,
+                        height: 300,
+                        colorDark: "#000000",
+                        colorLight: "#ffffff",
+                        correctLevel: QRCode.CorrectLevel.H,
+                    });
+
+                    var qrcode = new QRCode("app_img", {
+                        text: `${res.url},Bearer ${localStorage.getItem("token")}`,
                         width: 300,
                         height: 300,
                         colorDark: "#000000",
