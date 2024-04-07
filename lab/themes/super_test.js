@@ -621,7 +621,7 @@ class PackageTestTheme extends TableTheme {
           <tr>
             <th>الجنس </th>
             <th>العمر</th>
-            <th class="text-right">Range</th>
+            <th class="text-right">القيم الطبيعية</th>
             <th>الاجراء</th>
           </tr>
         </thead>

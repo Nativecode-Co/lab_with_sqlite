@@ -151,6 +151,16 @@ class Tests extends CI_Controller
             ->set_output(json_encode($data));
     }
 
+    public function insert_sync_packages()
+    {
+        $hashes = $this->input->post("hashes");
+        $data = $this->TestsModel->insert_sync_packages($hashes);
+        $this->output
+            ->set_status_header(201)
+            ->set_content_type('application/json')
+            ->set_output(json_encode($data));
+    }
+
     public function set_result_by_alias()
     {
         $data = $this->input->post();

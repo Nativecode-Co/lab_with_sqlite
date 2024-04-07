@@ -265,6 +265,57 @@ class TestsModel extends CI_Model
         );
     }
 
+    public function insert_sync_packages($hashes)
+    {
+        if ($hashes) {
+            // check if hashes is array
+            if (!is_array($hashes)) {
+                $hashes = json_decode($hashes, true);
+            }
+            $data = $this->db
+                ->select('option_test,test_name as name,hash')
+                ->where_in('hash', $hashes)
+                ->get("lab_test")
+                ->result_array();
+                die(json_encode($data));
+
+            foreach ($data as $key => $value) {
+                $json = new Json($value['option_test']);
+                $references = $json->filterToArray(array("kit" => "",));
+                foreach ($references as $reference) {
+                    $test_is_exist = $this->db
+                        ->where('test_id', $value['hash'])
+                        ->where('kit_id', $reference['kit'])
+                        ->where('unit', $reference['unit'])
+                        ->get('lab_pakage_tests')
+                        ->row_array();
+                    if (!$test_is_exist) {
+                        $hash = create_hash();
+                        // create package
+                        $package = array(
+                            'hash' => $hash,
+                            'name' => $value['name'],
+                            'price' => 0,
+                            'cost' => 0,
+                            'catigory_id' => 9
+                        );
+                        $this->insert($package,array(
+                            array(
+                                'test_id' => $value['hash'],
+                                'kit_id' => $reference['kit'],
+                                'lab_device_id' => "",
+                                'unit' => $reference['unit'],
+                            )
+                        ));
+                    }
+                }
+            }
+            return true;
+        } else {
+            return null;
+        }
+    }
+
     public function set_result_by_alias($alias, $date, $patient, $result)
     {
         $test_hash = $this->TestAliasModel->get_test_hash_by_alias($alias);

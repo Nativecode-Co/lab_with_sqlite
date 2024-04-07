@@ -192,8 +192,6 @@ const syncUpdates = async () => {
     if (!date) return false;
     return new Date(item.date_time) > new Date(date);
   });
-  
-
   if (updates.length > 0) {
     // make finish button enabled
     finishButton.classList.remove("isDisabled");
@@ -284,15 +282,20 @@ const saveUpdates = async () => {
         hash: item.hash,
       });
     });
+    
 
     new Promise((resolve) => {
       fetchData("LocalApi/run_queries", "POST", {
         queries: JSON.stringify(offLineQueries),
       });
+      fetchApi("/tests/insert_sync_packages", "POST", {
+        hashes: JSON.stringify(updateTestsHash),
+      });
       return resolve();
     }).then(() => {
       niceSwal("success", "bottom-end", "تم تحديث البيانات بنجاح");
     });
+    return;
   }
   niceSwal("success", "bottom-end", "لم يتم اختيار اي تحليل");
 };
