@@ -456,8 +456,12 @@ class VisitModel extends CI_Model
             ->from('lab_visits')
             ->join('lab_patient', 'lab_patient.hash = lab_visits.visits_patient_id')
             ->where(array('lab_patient.name' => $patient_name, 'visit_date' => $date))
-            ->get()->row()->hash;
-        return $result;
+            ->get()->row();
+        if(isset($result)){
+            return $result->hash;
+        }else{
+            return null;
+        }
     }
 
 

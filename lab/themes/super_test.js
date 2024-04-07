@@ -589,9 +589,9 @@ class PackageTestTheme extends TableTheme {
       if(high && low){
         return `${name}  <span>${high}</span>-<span>${low}</span> `;
       }else if(high){
-        return `${name} اقل من  <span>${high}</span>`;
+        return `${name} less then <span>${high}</span>`;
       }
-      return `${name}  اكبر من  <span>${low}</span>`;
+      return `${name}  more then  <span>${low}</span>`;
     }).join("<br>") : "No Range";
     return `
       <tr>

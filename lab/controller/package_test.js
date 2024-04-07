@@ -107,6 +107,8 @@ function emptyTestForm() {
     const event = new Event("change");
     select.dispatchEvent(event);
   }
+  $("#addTest #test_id").trigger("change");
+
 }
 
 function updateTest(hash) {
@@ -146,6 +148,7 @@ function updateTest(hash) {
   const saveButton = document.getElementById("save-button");
   saveButton.setAttribute("onclick", `fireSwal(saveUpdateTest, '${hash}')`);
   saveButton.textContent = "تعديل";
+  $("#addTest #test_id").trigger("change");
 }
 
 function saveUpdateTest(hash) {

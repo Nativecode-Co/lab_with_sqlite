@@ -81,12 +81,18 @@ class TestAliasModel extends CI_Model
 
     public function get_test_hash_by_alias($alias)
     {
-        return $this->db
+        $test = $this->db
             ->select('test_hash')
             ->where('isdeleted', 0)
             ->where('alias', $alias)
             ->get($this->table)
-            ->row()->test_hash;
+            ->row();
+        if ($test) {
+            return $test->test_hash;
+        } else {
+            return null;
+        }
+        
     }
 
     public function get_tests()

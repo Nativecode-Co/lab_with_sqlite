@@ -636,7 +636,7 @@ table.information-2 tr:last-child td {
 
 
 
-#test-form .title,#package-form .title{
+#test-form .title,#package-form .title,.refrence .title{
     font-family: var(--fontFamily);
     font-style: normal;
     font-weight: 500;
@@ -780,4 +780,10 @@ input:checked + .items
     cursor: not-allowed;
     opacity: 0.5;
     text-decoration: none;
+  }
+
+  .bg-default {
+    background-color: var(--secondaryColor);
+    border-color: var(--secondaryColor);
+    color: var(--whiteColor);
   }

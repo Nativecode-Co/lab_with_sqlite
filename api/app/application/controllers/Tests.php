@@ -205,7 +205,10 @@ class Tests extends CI_Controller
         $this->output
             ->set_status_header(200)
             ->set_content_type('application/json')
-            ->set_output(json_encode($data));
+            ->set_output(json_encode(array(
+                "message" => $data ? "تم تحديث النتيجة بنجاح" : "لم يتم تحديث النتيجة",
+                "data" => $data
+            )));
     }
 
 }
