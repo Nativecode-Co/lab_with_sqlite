@@ -280,7 +280,7 @@ class TestsModel extends CI_Model
 
             foreach ($data as $key => $value) {
                 $json = new Json($value['option_test']);
-                $references = $json->filterToArray(array("kit" => "",));
+                $references = $json->filterToArray(array());
                 foreach ($references as $reference) {
                     $test_is_exist = $this->db
                         ->where('test_id', $value['hash'])
