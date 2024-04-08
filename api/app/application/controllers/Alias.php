@@ -135,4 +135,41 @@ class Alias extends CI_Controller
             ->set_output(json_encode($data));
     }
 
+    public function insert_all()
+    {
+        $data = $this->input->post("data");
+        if(!$data) {
+            $this->output
+                ->set_status_header(400)
+                ->set_content_type('application/json')
+                ->set_output(json_encode(array("message" => "data is required")));
+            return;
+        }
+        if(!is_array($data)) {
+            try {
+                $data = json_decode($data, true);
+            } catch (Exception $e) {
+                $this->output
+                    ->set_status_header(400)
+                    ->set_content_type('application/json')
+                    ->set_output(json_encode(array("message" => "data must be an array")));
+                return;
+            }
+        }
+        $this->TestAliasModel->insert_all($data);
+        $this->output
+            ->set_status_header(201)
+            ->set_content_type('application/json')
+            ->set_output(json_encode($data));
+    }
+
+    public function get_all_alias()
+    {
+        $data = $this->TestAliasModel->get_all_alias();
+        $this->output
+            ->set_status_header(200)
+            ->set_content_type('application/json')
+            ->set_output(json_encode($data));
+    }
+
 }

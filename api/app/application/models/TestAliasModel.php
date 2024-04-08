@@ -48,6 +48,14 @@ class TestAliasModel extends CI_Model
             ->result();
     }
 
+    public function get_all_alias()
+    {
+        return $this->db
+            ->where('isdeleted', 0)
+            ->get($this->table)
+            ->result();
+    }
+
     public function get($hash)
     {
         return $this->db
@@ -64,12 +72,25 @@ class TestAliasModel extends CI_Model
         return $this->get($id);
     }
 
+    public function insert_all($data)
+    {
+        $this->truncate();
+        $this->db->insert_batch($this->table, $data);
+    }
+    
+
     public function update($hash, $data)
     {
         $this->db
             ->where($this->main_column, $hash)
             ->update($this->table, $data);
         return $this->get($hash);
+    }
+
+    // trancate table 
+    public function truncate()
+    {
+        $this->db->truncate($this->table);
     }
 
     public function delete($hash)

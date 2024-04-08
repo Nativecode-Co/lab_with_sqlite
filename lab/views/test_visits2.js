@@ -60,7 +60,12 @@ class Tests extends Factory {
             return Number(data).toLocaleString();
           },
         },
-        { data: "price" },
+        { data: "price",
+          render: (data, type, row) => {
+            return Number(data).toLocaleString();
+          },
+      
+        },
         {
           data: "null",
           render: (data, type, row) => {

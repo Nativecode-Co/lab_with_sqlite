@@ -1575,7 +1575,7 @@ function createBookResult(invoices, type) {
 }
 
 function createInvoiceItems(visit) {
-  const { invoice } = fetchData("Visit/getInvoice", "GET", {});
+  const  invoice  = fetchApi("/invoice/get", "GET", {});
   const random = Math.floor(Math.random() * 1000000);
   const header = invoiceHeader(invoice);
   const nav = `
@@ -1787,11 +1787,16 @@ function addInviceButton(id, name) {
 
 function showResult(data) {
   const { tests, ...visit } = data;
-  const { data: history } = fetchData("Visit/history", "POST", {
-    date: visit.date,
-    patient: visit.patient_hash,
-  });
   const { invoice, ...invoiceItems } = createInvoiceItems(visit);
+  console.log("invoiceItems", invoice);
+  let history = [];
+  if(Number(invoice?.history) === 1){
+    const { data } = fetchData("Visit/history", "POST", {
+      date: visit.date,
+      patient: visit.patient_hash,
+    });
+    history = data;
+  }
   invoiceItems.invoice = invoice;
   const result_tests = tests.reduce((acc, test) => {
     if (test.option_test.type === "type") {

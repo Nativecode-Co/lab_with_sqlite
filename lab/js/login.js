@@ -204,6 +204,7 @@ const login = async () => {
       body: labIdForm,
     });
     fetchData("localApi/createAfterInsertTrigger");
+    await installAlias();
     addAlert("تم اكمال 80 % من عملية تنزيل البيانات");
     offlineLogin().then(() => {
       addAlert("تم اكمال 100 % من عملية تنزيل البيانات");
@@ -219,6 +220,11 @@ const installTests = async (lab_id) => {
     lab_id,
   });
 };
+
+const installAlias = async ()=>{
+  const alias = fetchDataOnline("alias/get_all_alias");
+  fetchApi("/alias/insert_all","post",{data:JSON.stringify(alias)})
+}
 
 function addAlert(message) {
   let alertScreenBody = document
