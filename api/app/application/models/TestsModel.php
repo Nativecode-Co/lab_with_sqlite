@@ -277,7 +277,6 @@ class TestsModel extends CI_Model
                 ->where_in('hash', $hashes)
                 ->get("lab_test")
                 ->result_array();
-                die(json_encode($data));
 
             foreach ($data as $key => $value) {
                 $json = new Json($value['option_test']);
