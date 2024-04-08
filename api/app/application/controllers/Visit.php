@@ -242,4 +242,38 @@ class Visit extends CI_Controller
             ->set_content_type('application/json')
             ->set_output(json_encode($data));
     }
+
+    public function get_visits_mobile()
+    {
+        $req = $this->input->get();
+        // validate data
+        $valid = $this->form_validation
+        ->set_data($req)
+        ->set_rules(
+            'page',
+            'page',
+            'required|numeric',
+            array(
+                'required' => 'هذا الحقل مطلوب',
+                'numeric' => 'يجب ادخال قيمة رقمية'
+            )
+        )
+        ->run();
+        
+        if (!$valid) {
+            $errors = $this->form_validation->error_array();
+            $this->output
+                ->set_status_header(400)
+                ->set_content_type('application/json')
+                ->set_output(json_encode($errors));
+            return;
+        }
+        $page = $req['page'];
+        $search = isset($req['search']) ? $req['search'] : "";
+        $data = $this->VisitModel->get_visits_mobile($page, $search);
+        $this->output
+            ->set_status_header(200)
+            ->set_content_type('application/json')
+            ->set_output(json_encode($data));
+    }
 }

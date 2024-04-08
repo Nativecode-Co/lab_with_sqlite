@@ -464,5 +464,19 @@ class VisitModel extends CI_Model
         }
     }
 
+    public function get_visits_mobile($page, $search){
+        $data = $this->db
+            ->select('lab_visits.hash as hash ,visits_patient_id as patient_hash,ispayed')
+            ->select("lab_patient.name as name,visit_date")
+            ->select("(select name from lab_visit_status where hash=visits_status_id) as visit_type")
+            ->join('lab_patient', 'lab_patient.hash = lab_visits.visits_patient_id')
+            ->like(array('lab_patient.name' => isset($search) ? $search : ''))
+            ->where(array('lab_visits.isdeleted' => '0'))
+            ->order_by('lab_visits.visit_date', 'DESC')
+            ->get($this->table, 10, $page * 10)
+            ->result_array();
+        return $data;
+    }
+
 
 }
