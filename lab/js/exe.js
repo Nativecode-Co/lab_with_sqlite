@@ -253,7 +253,7 @@ async function updateSystem() {
 
 async function updateExpireDate() {
   let date;
-  if (!navigator.onLine || window.location.href.includes("login.html")) {
+  if (!navigator.onLine || window.location.href.includes("login.html") || window.location.href.includes("show_invoice.html")) {
     const {data} = fetchData("LastDate/get", "POST", { lab: localStorage.getItem("lab_hash") });
     date = data;
   }else{
