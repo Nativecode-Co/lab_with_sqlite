@@ -1043,14 +1043,16 @@ const InvoiceHeader = ({ invoice }) => {
                     flex: `0 0 ${invoice.phone_2}%`,
                     "max-width": `${invoice.phone_2}%`,
                   }}
-                  className={`logo text-center  justify-content-center align-content-center ${
+                  className={`right ${
                     invoice.show_name == "1" ? "d-flex" : "d-none"
                   }`}
                   id="name"
                 >
-                  <h1 className="navbar-brand-name text-center">
-                    {invoice.name_in_invoice}
-                  </h1>
+                  <div className="size1">
+                    <p className="title">{invoice.name_in_invoice}</p>
+                    <p className="namet">{invoice.invoice_about_ar }</p>
+                    <p className="certificate">{invoice.invoice_about_en}</p>
+                  </div>
                 </div>
               );
             }

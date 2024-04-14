@@ -1517,16 +1517,28 @@ function invoiceHeader(invoice) {
         }
         if (worker.hash == "name") {
           return `
-          <div style="
+          <div class="right" style="
           flex: 0 0 ${size}%;
           max-width: ${size}%;
-        " class="logo text-center  justify-content-center align-content-center ${
-          show_name == "1" ? "d-flex" : "d-none"
-        }">
-              <h1 class="navbar-brand-name text-center">${
-                name_in_invoice ?? localStorage.lab_name ?? ""
-              }</h1>
-          </div>
+        ">
+            <!-- عنوان جانب الايمن -->
+            <div class="size1">
+                <p class="title">${
+                  invoices?.name_in_invoice ??
+                  localStorage?.lab_name ??
+                  "اسم التحليل"
+                }</p>
+                <p class="namet">${
+                  localStorage?.invoice_about_ar ??
+                  "للتحليلات المرضية المتقدمة"
+                }</p>
+                <p class="certificate">${
+                  localStorage?.invoice_about_en ??
+                  "Medical Lab for Pathological Analyses"
+                }</p>
+            </div>
+        </div>
+          
         `;
         }
         return `
@@ -1545,16 +1557,27 @@ function invoiceHeader(invoice) {
       .join("");
   } else {
     html = `
-        <div class="logo col-4 p-2 ${show_logo == "1" ? "d-flex" : "d-none"}">
+        <div class="logo col-6 p-2 ${show_logo == "1" ? "d-flex" : "d-none"}">
             <img src="${logo ?? ""}"
             alt="${logo ?? "upload Logo"}">
         </div>
-        <div class="logo border p-2 text-center  justify-content-center align-content-center ${
-          show_name == "1" ? "d-flex" : "d-none"
-        }">
-            <h1 class="navbar-brand-name text-center">${
-              name_in_invoice ?? localStorage.lab_name ?? ""
-            }</h1>
+        <div class="right col-6" >
+            <!-- عنوان جانب الايمن -->
+            <div class="size1">
+                <p class="title">${
+                  invoices?.name_in_invoice ??
+                  localStorage?.lab_name ??
+                  "اسم التحليل"
+                }</p>
+                <p class="namet">${
+                  localStorage?.invoice_about_ar ??
+                  "للتحليلات المرضية المتقدمة"
+                }</p>
+                <p class="certificate">${
+                  localStorage?.invoice_about_en ??
+                  "Medical Lab for Pathological Analyses"
+                }</p>
+            </div>
         </div>`;
   }
   return `
