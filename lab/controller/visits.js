@@ -1824,7 +1824,7 @@ function showResult(data) {
       const idName = test.name.replace(/\s/g, "").replace(/[^a-zA-Z0-9]/g, "");
       buttons[idName] = addInviceButton(idName, test.name);
       let invoiceBody = "";
-      let unit = options?.unit ?? "result";
+      const unit = options?.unit ?? "result";
       invoiceBody += `
             <div class="typetest test " data-flag="${unit}">
                 <p>${test.name}</p>
