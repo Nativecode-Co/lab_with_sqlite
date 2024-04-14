@@ -40,7 +40,8 @@ class pull extends CI_Controller
 
         // $output = shell_exec('cd /var/www/html/ &&  git reset --hard 2>&1 && git stash --include-untracked 2>&1 && git pull https://nativecode2020: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@github.com/nativecode2020/lab.git 2>&1');
         // check if update is success or not or need to merge 
-        if (strpos($output, 'Already up to date.') !== false) {
+        // No local changes to save 
+        if (strpos($output, 'Already up to date.') !== false || strpos($output, 'No local changes to save') !== false) {
             $version = $this->getVersion();
             // update version
             $this->db->query("UPDATE `lab_version` SET `version` = '$version' WHERE `lab_version`.`isdeleted` = 0;");
