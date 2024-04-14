@@ -340,18 +340,17 @@
             });
         </script>
         <script>
-            const needUpdate = () => {
+            const needUpdateFun = () => {
                 // check internet connection
                 if (!navigator.onLine) {
                     return;
                 }
-                fetchData("pull/needUpdate", "GET", {}).then((res) => {
-                    if (res) {
-                        $(".version").removeClass("d-none");
-                    }
-                });
+                const res = fetchData("pull/needUpdate", "GET", {})
+                if (res) {
+                    $(".version").removeClass("d-none");
+                }
             };
-            needUpdate();
+            needUpdateFun();
             let formDate = new FormData();
             formDate.append("lab", localStorage.getItem("lab_hash"));
             fetch(`${base_url}LastDate/get`, {
