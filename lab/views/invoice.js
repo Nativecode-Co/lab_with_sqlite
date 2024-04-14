@@ -456,7 +456,7 @@ const Setting = ({ dispatch, state, invoice, setInvoice }) => {
           >
             <form id="invoice_form" className="row justify-content-center my-4">
               <div className="form-group col-md-6">
-                <label htmlFor="name_in_invoice">اسم الفاتورة</label>
+                <label htmlFor="name_in_invoice">اسم المختبر</label>
                 <input
                   type="text"
                   className="form-control"
@@ -503,6 +503,42 @@ const Setting = ({ dispatch, state, invoice, setInvoice }) => {
                     });
                   }}
                   value={invoice.font_size}
+                />
+              </div>
+              <div className="form-group col-md-6">
+                <label htmlFor="invoice_about_ar">
+                  تخصص المختبر(بالغة العربية)
+                </label>
+                <input
+                  type="text"
+                  className="form-control"
+                  id="invoice_about_ar"
+                  name="invoice_about_ar"
+                  onChange={(e) => {
+                    setInvoice({
+                      ...invoice,
+                      invoice_about_ar: e.target.value,
+                    });
+                  }}
+                  value={invoice.invoice_about_ar}
+                />
+              </div>
+              <div className="form-group col-md-6">
+                <label htmlFor="invoice_about_en">
+                  تخصص المختبر(بالغة الانجليزية)
+                </label>
+                <input
+                  type="text"
+                  className="form-control"
+                  id="invoice_about_en"
+                  name="invoice_about_en"
+                  onChange={(e) => {
+                    setInvoice({
+                      ...invoice,
+                      invoice_about_en: e.target.value,
+                    });
+                  }}
+                  value={invoice.invoice_about_en}
                 />
               </div>
               <div className="form-group col-md-6">
@@ -761,42 +797,7 @@ const Setting = ({ dispatch, state, invoice, setInvoice }) => {
                   <span className="slider round"></span>
                 </label>
               </div>
-              <div className="form-group col-md-6">
-                <label htmlFor="invoice_about_ar">
-                  عنوان فاتورة الدفع(بالغة العربية)
-                </label>
-                <input
-                  type="text"
-                  className="form-control"
-                  id="invoice_about_ar"
-                  name="invoice_about_ar"
-                  onChange={(e) => {
-                    setInvoice({
-                      ...invoice,
-                      invoice_about_ar: e.target.value,
-                    });
-                  }}
-                  value={invoice.invoice_about_ar}
-                />
-              </div>
-              <div className="form-group col-md-6">
-                <label htmlFor="invoice_about_en">
-                  عنوان فاتورة الدفع(بالغة الانجليزية)
-                </label>
-                <input
-                  type="text"
-                  className="form-control"
-                  id="invoice_about_en"
-                  name="invoice_about_en"
-                  onChange={(e) => {
-                    setInvoice({
-                      ...invoice,
-                      invoice_about_en: e.target.value,
-                    });
-                  }}
-                  value={invoice.invoice_about_en}
-                />
-              </div>
+              
               <div className="form-group col-md-12">
                 <label htmlFor="logo">شعار الفاتورة</label>
                 <input
