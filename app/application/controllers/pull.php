@@ -116,8 +116,6 @@ class pull extends CI_Controller
 
     public function needUpdate()
     {
-        // check internet 
-
         $currentVersion = $this->getVersion();
         $offlineVersion = $this->db->query("select version from lab_version where isdeleted=0 order by id desc limit 1")->row();
         $offlineVersion = $offlineVersion->version;

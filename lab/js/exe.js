@@ -1,4 +1,6 @@
 let SYNCTIMEOUT = null;
+updateExpireDate();
+
 function fetchData(url = "", type = "GET", data = {}) {
   let res = null;
   const token = localStorage.getItem("token");
@@ -250,36 +252,27 @@ async function updateSystem() {
 }
 
 async function updateExpireDate() {
-  const formDate = new FormData();
-  formDate.append("lab", localStorage.getItem("lab_hash"));
-  await fetch("http://umc.native-code-iq.com/app/index.php/LastDate/get", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
-    },
-    body: formDate,
-  })
-    .then((res) => res.json())
-    .then(async (res) => {
-      const date = res.data;
-      if (!date) {
-        return false;
-      }
-      const newFormDate = new FormData();
-      newFormDate.append("lab", localStorage.getItem("lab_hash"));
-      newFormDate.append("date", date);
-      await fetch(`${base_url}LocalApi/update_expire`, {
-        method: "POST",
-        body: newFormDate,
-      })
-        .then((res) => res.json())
-        .then((res) => {
-          console.log(res);
-        });
-    })
-    .catch((err) => {
-      console.log(err);
-    });
+  let date;
+  if (!navigator.onLine) {
+    const {data} = fetchData("LastDate/get", "POST", { lab: localStorage.getItem("lab_hash") });
+    date = data;
+  }else{
+    const {data} = fetchDataOnline("LastDate/get", "POST", { lab: localStorage.getItem("lab_hash") });
+    date = data;
+    if(!date) return false ;
+    fetchData("LocalApi/update_expire", "POST", { lab: localStorage.getItem("lab_hash"), date });
+  }
+  // check if date is expired
+  const now = new Date();
+  const expire = new Date(date);
+  if (now > expire) {
+    console.log("expired");
+    let current_location = window.location.href;
+    current_location = current_location.split("/");
+    if (!current_location.includes("active.html")) {
+      location.href = `${front_url}active.html`;
+    }
+  }
 }
 
 function syncOnline() {
@@ -299,6 +292,5 @@ function syncOnline() {
     }).then((res) => res.json()).then((data)=>{
       
     }).catch((e)=>{console.log("error", e)})
-    updateExpireDate();
   }, 500);
 }

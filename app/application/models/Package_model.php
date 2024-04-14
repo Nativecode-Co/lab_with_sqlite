@@ -215,7 +215,7 @@ class Package_model extends CI_Model
         $defaultPackage = $this->db->select('CONCAT(\'{"cost":"\', lab_package.cost,  \'","price":"\', lab_package.price,,  \'","name":"\', lab_package.name,  \'", "tests": [\', GROUP_CONCAT(JSON_OBJECT(\'unit\', lab_pakage_tests.unit,\'test_id\',lab_pakage_tests.test_id,\'kit_id\',lab_pakage_tests.kit_id,\'lab_device_id\',lab_pakage_tests.lab_device_id)), \']}\' ) AS data')
             ->from('lab_package')
             ->join('lab_pakage_tests', 'lab_package.hash = lab_pakage_tests.package_id')
-            ->where('lab_package.lab_id', '7189')
+            ->where('lab_package.lab_id', '0')
             ->where('lab_package.catigory_id', '8')
             ->group_by('lab_package.hash')
             ->get()

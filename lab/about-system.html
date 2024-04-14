@@ -188,11 +188,11 @@
                                         <h5 class="mt-4">
                                             يرجي مراعاة ربط الجهاز الاخر بنفس الشبكة (نفس الراوتر)
                                         </h5>
-                                        <h3 class="mt-4">
+                                        <h6 class="mt-4">
                                             <i class="far fa-copy ml-2 border p-2 rounded-lg"
                                                 onclick="copyText($('.screen_link'))"></i>
                                             <span class="screen_link text-success"></span>
-                                        </h3>
+                                        </h6>
                                         <div id="screen_img" class="d-flex justify-content-center mt-5"></div>
                                     </div>
                                 </div>
@@ -217,11 +217,11 @@
                                         <h5 class="mt-4">
                                             يرجي مراعاة ربط الجهاز الاخر بنفس الشبكة (نفس الراوتر)
                                         </h5>
-                                        <h3 class="mt-4">
+                                        <h6 class="mt-4">
                                             <i class="far fa-copy ml-2 border p-2 rounded-lg"
                                                 onclick="copyText($('.netWork_link'))"></i>
                                             <span class="netWork_link text-success"></span>
-                                        </h3>
+                                        </h6>
                                         <div id="netWork_img" class="d-flex justify-content-center mt-5"></div>
                                     </div>
                                 </div>
@@ -340,11 +340,18 @@
             });
         </script>
         <script>
-            updateExpireDate();
-            let Update = fetchData("pull/needUpdate", "GET", {});
-            if (Update) {
-                $(".version").removeClass("d-none");
-            }
+            const needUpdate = () => {
+                // check internet connection
+                if (!navigator.onLine) {
+                    return;
+                }
+                fetchData("pull/needUpdate", "GET", {}).then((res) => {
+                    if (res) {
+                        $(".version").removeClass("d-none");
+                    }
+                });
+            };
+            needUpdate();
             let formDate = new FormData();
             formDate.append("lab", localStorage.getItem("lab_hash"));
             fetch(`${base_url}LastDate/get`, {

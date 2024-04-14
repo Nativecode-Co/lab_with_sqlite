@@ -551,9 +551,10 @@ function addNormalResult(test, resultList, visit_hash) {
                           ? `<select class="form-control result" name="${test.name}">
                               ${reference.options
                                 .map((option) => {
+                                  const result = resultList?.[test.name]?.[test.name];
                                   return `<option value="${option}" ${
-                                    resultList?.[test.name]
-                                      ? resultList?.[test.name] === option
+                                    result
+                                      ? result === option
                                         ? "selected"
                                         : ""
                                       : reference.right_options.includes(option)
@@ -567,7 +568,7 @@ function addNormalResult(test, resultList, visit_hash) {
                               test.name
                             }" placeholder="ادخل النتيجة" ${
                               testType === "calc" ? "readonly" : ""
-                            } value="${resultList?.[test.name]?.[test.name]}">`
+                            } value="${resultList?.[test.name]?.[test.name] ??""}">`
                       }
                       
                   </div>
@@ -1739,12 +1740,12 @@ function normalTestRange(finalResult = "", refrence) {
   let { result_type: result, right_options, range } = refrence;
   switch (result) {
     case "result":
-      finalResult = finalResult == "" ? right_options[0] : finalResult;
+      finalResult = finalResult === "" ? right_options[0] : finalResult;
       if (right_options) {
         returnResult.color = right_options.includes(finalResult)
           ? "text-dark"
           : "text-danger p-1 border border-dark";
-        returnResult.flag = right_options.includes(finalResult) ? "" : "H";
+        returnResult.flag = right_options.includes(finalResult) ? "" : "";
         returnResult.normalRange = right_options.join(" , ");
       }
       break;
