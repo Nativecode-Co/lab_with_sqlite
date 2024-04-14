@@ -253,7 +253,7 @@ async function updateSystem() {
 
 async function updateExpireDate() {
   let date;
-  if (!navigator.onLine) {
+  if (!navigator.onLine || window.location.href.includes("login.html")) {
     const {data} = fetchData("LastDate/get", "POST", { lab: localStorage.getItem("lab_hash") });
     date = data;
   }else{
@@ -261,27 +261,22 @@ async function updateExpireDate() {
     date = data;
     if(!date){
       let current_location = window.location.href;
-        if(current_location.includes("active.html") || current_location.includes("login.html")){
-        current_location = current_location.split("/");
-        if (!current_location.includes("active.html")) {
-          location.href = `${front_url}active.html`;
-        }
+      current_location = current_location.split("/");
+      if (!current_location.includes("active.html") ) {
+        location.href = `${front_url}active.html`;
       }
       return false;
     }
     fetchData("LocalApi/update_expire", "POST", { lab: localStorage.getItem("lab_hash"), date });
-  }
-  // check if date is expired
-  const now = new Date();
-  const expire = new Date(date);
-  if (now > expire) {
-    let current_location = window.location.href;
-        if(current_location.includes("active.html") || current_location.includes("login.html")){
-        current_location = current_location.split("/");
-        if (!current_location.includes("active.html")) {
-          location.href = `${front_url}active.html`;
-        }
+    const now = new Date();
+    const expire = new Date(date);
+    if (now > expire) {
+      let current_location = window.location.href;
+      current_location = current_location.split("/");
+      if (!current_location.includes("active.html") ) {
+        location.href = `${front_url}active.html`;
       }
+    }
   }
 }
 
