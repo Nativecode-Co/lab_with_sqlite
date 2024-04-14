@@ -259,14 +259,19 @@ async function updateExpireDate() {
   }else{
     const {data} = fetchDataOnline("LastDate/get", "POST", { lab: localStorage.getItem("lab_hash") });
     date = data;
-    if(!date) return false ;
+    if(!date){
+      let current_location = window.location.href;
+      current_location = current_location.split("/");
+      if (!current_location.includes("active.html")) {
+        location.href = `${front_url}active.html`;
+      }
+    }
     fetchData("LocalApi/update_expire", "POST", { lab: localStorage.getItem("lab_hash"), date });
   }
   // check if date is expired
   const now = new Date();
   const expire = new Date(date);
   if (now > expire) {
-    console.log("expired");
     let current_location = window.location.href;
     current_location = current_location.split("/");
     if (!current_location.includes("active.html")) {
