@@ -261,9 +261,11 @@ async function updateExpireDate() {
     date = data;
     if(!date){
       let current_location = window.location.href;
-      current_location = current_location.split("/");
-      if (!current_location.includes("active.html")) {
-        location.href = `${front_url}active.html`;
+        if(current_location.includes("active.html") || current_location.includes("login.html")){
+        current_location = current_location.split("/");
+        if (!current_location.includes("active.html")) {
+          location.href = `${front_url}active.html`;
+        }
       }
       return false;
     }
@@ -274,10 +276,12 @@ async function updateExpireDate() {
   const expire = new Date(date);
   if (now > expire) {
     let current_location = window.location.href;
-    current_location = current_location.split("/");
-    if (!current_location.includes("active.html")) {
-      location.href = `${front_url}active.html`;
-    }
+        if(current_location.includes("active.html") || current_location.includes("login.html")){
+        current_location = current_location.split("/");
+        if (!current_location.includes("active.html")) {
+          location.href = `${front_url}active.html`;
+        }
+      }
   }
 }
 
