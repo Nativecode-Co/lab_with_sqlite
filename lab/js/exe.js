@@ -265,6 +265,7 @@ async function updateExpireDate() {
       if (!current_location.includes("active.html")) {
         location.href = `${front_url}active.html`;
       }
+      return false;
     }
     fetchData("LocalApi/update_expire", "POST", { lab: localStorage.getItem("lab_hash"), date });
   }
