@@ -1044,10 +1044,8 @@ function addResult(data) {
     const reference = test.option_test;
     if (reference.type === "calc") {
       let result = test.result[test.name];
-      console.log("result_tests",result_tests);
       let evaluatedResult = 0;
       try {
-        console.log("Calc Tests", reference);
         const eq = reference.value
         .map((item) => {
           // check if item is number
@@ -1056,7 +1054,6 @@ function addResult(data) {
           }
           if (!calcOperator.includes(item)) {
             let newValue = result_tests?.[item]?.[item] ?? 0;
-            console.log(item,newValue);
             newValue = newValue === "" ? 0 : newValue;
             return newValue;
           }
@@ -1789,7 +1786,6 @@ function addInviceButton(id, name) {
 function showResult(data) {
   const { tests, ...visit } = data;
   const { invoice, ...invoiceItems } = createInvoiceItems(visit);
-  console.log("invoiceItems", invoice);
   let history = [];
   if(Number(invoice?.history) === 1){
     const { data } = fetchData("Visit/history", "POST", {
