@@ -9,40 +9,30 @@ $config = array(
                 'required' => 'هذا الحقل مطلوب',
             )
         ),
-        array(
-            'field' => 'catigory_id',
-            'rules' => 'required|numeric',
-            'errors' => array(
-                'required' => 'هذا الحقل مطلوب',
-                'numeric' => 'يجب ادخال قيمة رقمية'
-            )
-        ),
-        array(
-            'field' => 'cost',
-            'rules' => 'required|numeric',
-            'errors' => array(
-                'required' => 'هذا الحقل مطلوب',
-                'numeric' => 'يجب ادخال قيمة رقمية'
-            )
-        ),
-        array(
-            'field' => 'price',
-            'rules' => 'required|numeric',
-            'errors' => array(
-                'required' => 'هذا الحقل مطلوب',
-                'numeric' => 'يجب ادخال قيمة رقمية'
-            )
-        ),
-        array(
-            'field' => 'tests[]',
-            // IS ARRAY AND HAS AT LEAST ONE ITEM
-            'rules' => 'required|is_array|min_length[1]',
-            'errors' => array(
-                'required' => 'هذا الحقل مطلوب',
-                'is_array' => 'يجب ان يكون مصفوفة',
-                'min_length' => 'يجب ادخال عنصر واحد على الاقل'
-            )
-        )
+        // array(
+        //     'field' => 'catigory_id',
+        //     'rules' => 'required|numeric',
+        //     'errors' => array(
+        //         'required' => 'هذا الحقل مطلوب',
+        //         'numeric' => 'يجب ادخال قيمة رقمية'
+        //     )
+        // ),
+        // array(
+        //     'field' => 'cost',
+        //     'rules' => 'required|numeric',
+        //     'errors' => array(
+        //         'required' => 'هذا الحقل مطلوب',
+        //         'numeric' => 'يجب ادخال قيمة رقمية'
+        //     )
+        // ),
+        // array(
+        //     'field' => 'price',
+        //     'rules' => 'required|numeric',
+        //     'errors' => array(
+        //         'required' => 'هذا الحقل مطلوب',
+        //         'numeric' => 'يجب ادخال قيمة رقمية'
+        //     )
+        // )
     ),
     // name, jop, jop_en
     "workers" => array(
@@ -53,20 +43,20 @@ $config = array(
                 'required' => 'هذا الحقل مطلوب',
             )
         ),
-        array(
-            'field' => 'jop',
-            'rules' => 'required',
-            'errors' => array(
-                'required' => 'هذا الحقل مطلوب',
-            )
-        ),
-        array(
-            'field' => 'jop_en',
-            'rules' => 'required',
-            'errors' => array(
-                'required' => 'هذا الحقل مطلوب',
-            )
-        ),
+        // array(
+        //     'field' => 'jop',
+        //     'rules' => 'required',
+        //     'errors' => array(
+        //         'required' => 'هذا الحقل مطلوب',
+        //     )
+        // ),
+        // array(
+        //     'field' => 'jop_en',
+        //     'rules' => 'required',
+        //     'errors' => array(
+        //         'required' => 'هذا الحقل مطلوب',
+        //     )
+        // ),
     ),
     //name, jop, phone, commission, partmen_hash
     "doctors" => array(
@@ -77,48 +67,48 @@ $config = array(
                 'required' => 'هذا الحقل مطلوب',
             )
         ),
-        array(
-            'field' => 'jop',
-            'rules' => 'required',
-            'errors' => array(
-                'required' => 'هذا الحقل مطلوب',
-            )
-        ),
-        array(
-            'field' => 'phone',
-            'rules' => 'required|numeric',
-            'errors' => array(
-                'required' => 'هذا الحقل مطلوب',
-                'numeric' => 'يجب ادخال قيمة رقمية'
-            )
-        ),
-        array(
-            'field' => 'commission',
-            'rules' => 'required|numeric',
-            'errors' => array(
-                'required' => 'هذا الحقل مطلوب',
-                'numeric' => 'يجب ادخال قيمة رقمية'
-            )
-        ),
-        array(
-            'field' => 'partmen_hash',
-            'rules' => 'required|numeric',
-            'errors' => array(
-                'required' => 'هذا الحقل مطلوب',
-                'numeric' => 'يجب ادخال قيمة رقمية'
-            )
-        ),
+        // array(
+        //     'field' => 'jop',
+        //     'rules' => 'required',
+        //     'errors' => array(
+        //         'required' => 'هذا الحقل مطلوب',
+        //     )
+        // ),
+        // array(
+        //     'field' => 'phone',
+        //     'rules' => 'required|numeric',
+        //     'errors' => array(
+        //         'required' => 'هذا الحقل مطلوب',
+        //         'numeric' => 'يجب ادخال قيمة رقمية'
+        //     )
+        // ),
+        // array(
+        //     'field' => 'commission',
+        //     'rules' => 'required|numeric',
+        //     'errors' => array(
+        //         'required' => 'هذا الحقل مطلوب',
+        //         'numeric' => 'يجب ادخال قيمة رقمية'
+        //     )
+        // ),
+        // array(
+        //     'field' => 'partmen_hash',
+        //     'rules' => 'required|numeric',
+        //     'errors' => array(
+        //         'required' => 'هذا الحقل مطلوب',
+        //         'numeric' => 'يجب ادخال قيمة رقمية'
+        //     )
+        // ),
     ),
 
     // name, username, password
     "users" => array(
-        array(
-            'field' => 'name',
-            'rules' => 'required',
-            'errors' => array(
-                'required' => 'هذا الحقل مطلوب',
-            )
-        ),
+        // array(
+        //     'field' => 'name',
+        //     'rules' => 'required',
+        //     'errors' => array(
+        //         'required' => 'هذا الحقل مطلوب',
+        //     )
+        // ),
         array(
             'field' => 'username',
             'rules' => 'required',
@@ -126,8 +116,67 @@ $config = array(
                 'required' => 'هذا الحقل مطلوب',
             )
         ),
+        // array(
+        //     'field' => 'password',
+        //     'rules' => 'required',
+        //     'errors' => array(
+        //         'required' => 'هذا الحقل مطلوب',
+        //     )
+        // ),
+    ),
+
+    //main_tests => test_name, test_type, option_test, category_hash
+    "main_tests" => array(
+        // array(
+        //     'field' => 'test_name',
+        //     'rules' => 'required',
+        //     'errors' => array(
+        //         'required' => 'هذا الحقل مطلوب',
+        //     )
+        // ),
+        // array(
+        //     'field' => 'test_type',
+        //     'rules' => 'required',
+        //     'errors' => array(
+        //         'required' => 'هذا الحقل مطلوب',
+        //     )
+        // ),
+        // array(
+        //     'field' => 'option_test',
+        //     'rules' => 'required',
+        //     'errors' => array(
+        //         'required' => 'هذا الحقل مطلوب',
+        //     )
+        // ),
+        // array(
+        //     'field' => 'category_hash',
+        //     'rules' => 'required|numeric',
+        //     'errors' => array(
+        //         'required' => 'هذا الحقل مطلوب',
+        //         'numeric' => 'يجب ادخال قيمة رقمية'
+        //     )
+        // ),
+    ),
+
+    // aliases => test_hash, alias, type
+    "aliases" => array(
         array(
-            'field' => 'password',
+            'field' => 'test_hash',
+            'rules' => 'required|numeric',
+            'errors' => array(
+                'required' => 'هذا الحقل مطلوب',
+                'numeric' => 'يجب ادخال قيمة رقمية'
+            )
+        ),
+        array(
+            'field' => 'alias',
+            'rules' => 'required',
+            'errors' => array(
+                'required' => 'هذا الحقل مطلوب',
+            )
+        ),
+        array(
+            'field' => 'type',
             'rules' => 'required',
             'errors' => array(
                 'required' => 'هذا الحقل مطلوب',
@@ -135,31 +184,71 @@ $config = array(
         ),
     ),
 
-    //main_tests => test_name, test_type, option_test, category_hash
-    "main_tests" => array(
+    "visit" =>array(
+        // visit_date, gender ,dicount total_price, net_price, tests[]
         array(
-            'field' => 'test_name',
+            'field' => 'visit_date',
             'rules' => 'required',
             'errors' => array(
                 'required' => 'هذا الحقل مطلوب',
             )
         ),
         array(
-            'field' => 'test_type',
+            'field' => 'gender',
             'rules' => 'required',
             'errors' => array(
+                'required' => 'هذا الحقل مطلوب ويجب ان يكون ذكر او انثى',
+            ),
+        ),
+        array(
+            'field' => 'dicount',
+            'rules' => 'required|numeric',
+            'errors' => array(
                 'required' => 'هذا الحقل مطلوب',
+                'numeric' => 'يجب ادخال قيمة رقمية'
             )
         ),
         array(
-            'field' => 'option_test',
-            'rules' => 'required',
+            'field' => 'total_price',
+            'rules' => 'required|numeric',
             'errors' => array(
                 'required' => 'هذا الحقل مطلوب',
+                'numeric' => 'يجب ادخال قيمة رقمية'
             )
         ),
         array(
-            'field' => 'category_hash',
+            'field' => 'net_price',
+            'rules' => 'required|numeric',
+            'errors' => array(
+                'required' => 'هذا الحقل مطلوب',
+                'numeric' => 'يجب ادخال قيمة رقمية'
+            )
+        ),
+        array(
+            'field' => 'tests[]',
+            'rules' => 'required',
+            'errors' => array(
+                'required' => 'يجب اختيار تحليل واحد على الاقل',
+            )
+        ),
+        array(
+            'field' => 'age_year',
+            'rules' => 'required|numeric',
+            'errors' => array(
+                'required' => 'هذا الحقل مطلوب',
+                'numeric' => 'يجب ادخال قيمة رقمية'
+            )
+        ),
+        array(
+            'field' => 'age_month',
+            'rules' => 'required|numeric',
+            'errors' => array(
+                'required' => 'هذا الحقل مطلوب',
+                'numeric' => 'يجب ادخال قيمة رقمية'
+            )
+        ),
+        array(
+            'field' => 'age_month',
             'rules' => 'required|numeric',
             'errors' => array(
                 'required' => 'هذا الحقل مطلوب',

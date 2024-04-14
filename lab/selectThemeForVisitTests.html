@@ -147,32 +147,15 @@
                 });
         };
         const updateInvoice = async (theme, value) => {
-            let formData = new FormData();
-            for (let key in INVOICE) {
-                if (key == "setting") {
-                    SETTING[theme] = value;
-                    formData.append(key, JSON.stringify(SETTING));
-                    break;
-                }
-                formData.append(key, INVOICE[key]);
-            }
-            await fetch(`${base_url}Invoice/update`, {
-                method: "POST",
-                body: formData,
-            })
-                .then((e) => e.json())
-                .then((res) => {
-                    niceSwal("success", "bottom-end", "تم تحديث الاعدادات بنجاح");
-                })
-                .catch((e) => console.log(e));
+            const data = {}
+            data[theme] = value
+            fetchApi("/invoice/set_setting", "POST", data);
+            niceSwal("success", "bottom-end", "تم تحديث الاعدادات بنجاح");
         };
 
         // on ready function
         $(document).ready(async function () {
-            await fetchInvoice();
-            let visitTestsTheme = SETTING?.visitTestsTheme ?? "two";
-            let SuperTestTheme = SETTING?.SuperTestTheme ?? "form";
-
+            const { visitTestsTheme, SuperTestTheme } = fetchApi("/invoice/get_setting");
             if (visitTestsTheme == "one") {
                 $(".theme[data-selectedTheme='two']").removeClass("border-info");
                 $(".theme[data-selectedTheme='one']").addClass("border-info");
@@ -219,24 +202,6 @@
     </script>
     <script src="plugins/file-upload/file-upload-with-preview.min.js"></script>
     <script src="js/const.js"></script>
-    <script>
-        // genrate random text like "1.2.3"
-        function randomText() {
-            let text = "";
-            for (let i = 0; i < 3; i++) {
-                text += Math.floor(Math.random() * 10) + ".";
-            }
-            return text.slice(0, -1);
-        }
-        var random_text = randomText();
-        // get script that src contain const.js
-        const CONSTELEMENT = document.querySelector('script[src*="const.js"]');
-        let src = CONSTELEMENT.src;
-        // add random text to the end of src
-        src = src + "?v=" + random_text;
-        // change src of const.js
-        CONSTELEMENT.src = src;
-    </script>
     <script src="js/exe.js"></script>
     <script src="js/login.js"></script>
     <script src="js/factory3.js"></script>

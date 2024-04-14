@@ -98,8 +98,6 @@ class LocalApi extends CI_Controller
         // set sql mode 1
         $this->db->query("SET SQL_SAFE_UPDATES = 0;");
         $queries = json_decode($queries);
-        // run all queries
-        set_time_limit(500);
         foreach ($queries as $query) {
             if (isset($query)) {
                 $this->db->query($query);
@@ -125,6 +123,7 @@ class LocalApi extends CI_Controller
         );
         die();
     }
+    
 
     public function getTestsQueries()
     {
@@ -199,6 +198,98 @@ class LocalApi extends CI_Controller
 
         }
 
+    }
+    
+
+    public function createAfterInsertTrigger(){
+        $this->db->query("CREATE TRIGGER lab_visits_AFTER_INSERT
+        AFTER INSERT ON `lab_visits`
+        FOR EACH ROW
+        BEGIN
+            Declare last_query TEXT;
+            SET last_query = (SELECT info FROM INFORMATION_SCHEMA.PROCESSLIST WHERE id = CONNECTION_ID());
+            INSERT INTO `offline_sync`(`table_name`,`operation`,`lab_id`,`query`) VALUES ('lab_visits','insert',new.labId,last_query );
+        
+        END;"
+        );
+        $this->db->query("CREATE TRIGGER lab_visits_tests_AFTER_INSERT
+        AFTER INSERT ON `lab_visits_tests`
+        FOR EACH ROW
+        BEGIN
+            Declare last_query TEXT;
+            SET last_query = (SELECT info FROM INFORMATION_SCHEMA.PROCESSLIST WHERE id = CONNECTION_ID());
+            INSERT INTO `offline_sync`(`table_name`,`operation`,`lab_id`,`query`) VALUES ('lab_visits_tests','insert',new.lab_id,last_query);
+        
+        END;"
+        );
+        $this->db->query("CREATE TRIGGER lab_visits_package_AFTER_INSERT
+        AFTER INSERT ON `lab_visits_package`
+        FOR EACH ROW
+        BEGIN
+            Declare last_query TEXT;
+            SET last_query = (SELECT info FROM INFORMATION_SCHEMA.PROCESSLIST WHERE id = CONNECTION_ID());
+            INSERT INTO `offline_sync`(`table_name`,`operation`,`lab_id`,`query`) VALUES ('lab_visits_package','insert',new.lab_id,last_query);
+        
+        END;"
+        );
+        $this->db->query("CREATE TRIGGER lab_patient_AFTER_INSERT
+        AFTER INSERT ON `lab_patient`
+        FOR EACH ROW
+        BEGIN
+            Declare last_query TEXT;
+            SET last_query = (SELECT info FROM INFORMATION_SCHEMA.PROCESSLIST WHERE id = CONNECTION_ID());
+            INSERT INTO `offline_sync`(`table_name`,`operation`,`lab_id`,`query`) VALUES ('lab_patient','insert',new.lab_id,last_query);
+        
+        END;");
+        // add trigger for lab_test AFTER INSERT
+        $this->db->query("CREATE TRIGGER lab_test_AFTER_INSERT
+        AFTER INSERT ON `lab_test`
+        FOR EACH ROW
+        BEGIN
+            Declare last_query TEXT;
+            SET last_query = (SELECT info FROM INFORMATION_SCHEMA.PROCESSLIST WHERE id = CONNECTION_ID());
+            INSERT INTO `offline_sync`(`table_name`,`operation`,`lab_id`,`query`) VALUES ('lab_test','insert','0',last_query);
+        
+        END;");
+        // add trigger for lab_test AFTER UPDATE
+        $this->db->query("CREATE TRIGGER lab_test_AFTER_UPDATE
+        AFTER UPDATE ON `lab_test`
+        FOR EACH ROW
+        BEGIN
+            Declare last_query TEXT;
+            SET last_query = (SELECT info FROM INFORMATION_SCHEMA.PROCESSLIST WHERE id = CONNECTION_ID());
+            INSERT INTO `offline_sync`(`table_name`,`operation`,`lab_id`,`query`) VALUES ('lab_test','update','0',last_query);
+        
+        END;");
+        // add trigger for lab_test AFTER DELETE
+        $this->db->query("CREATE TRIGGER lab_test_AFTER_DELETE
+        AFTER DELETE ON `lab_test`
+        FOR EACH ROW
+        BEGIN
+            Declare last_query TEXT;
+            SET last_query = (SELECT info FROM INFORMATION_SCHEMA.PROCESSLIST WHERE id = CONNECTION_ID());
+            INSERT INTO `offline_sync`(`table_name`,`operation`,`lab_id`,`query`) VALUES ('lab_test','delete','0',last_query);
+        
+        END;");
+        echo json_encode(
+            array(
+                'status' => true,
+                'message' => 'تم إنشاء الـtrigger',
+                'isAuth' => true
+            ),
+            JSON_UNESCAPED_UNICODE
+        );
+    }
+
+    public function deleteAfterInsertTrigger(){
+        $this->db->query("DROP TRIGGER IF EXISTS `lab_visits_tests_AFTER_INSERT`;");
+        $this->db->query("DROP TRIGGER IF EXISTS `lab_visits_AFTER_INSERT`;");
+        $this->db->query("DROP TRIGGER IF EXISTS `lab_visits_package_AFTER_INSERT`;");
+        $this->db->query("DROP TRIGGER IF EXISTS `lab_patient_AFTER_INSERT`;");
+        $this->db->query("DROP TRIGGER IF EXISTS `lab_test_AFTER_INSERT`;");
+        $this->db->query("DROP TRIGGER IF EXISTS `lab_test_AFTER_UPDATE`;");
+        $this->db->query("DROP TRIGGER IF EXISTS `lab_test_AFTER_DELETE`;");
+        return true;
     }
 
     public function installTests()
@@ -360,6 +451,7 @@ class LocalApi extends CI_Controller
     public function clean()
     {
         $this->db->query("call lab_clean()");
+        $this->deleteAfterInsertTrigger();
         // DELETE FROM lab_doctor;
         // DELETE FROM lab_patient;
         // DELETE FROM lab_visits;

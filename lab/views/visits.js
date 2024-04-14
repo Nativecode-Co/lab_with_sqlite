@@ -1,6 +1,5 @@
 const urlParams = new URLSearchParams(window.location.search);
 const barcode = urlParams.get("barcode");
-let lastSearch = "";
 
 if (barcode) {
   visitDetail(`${barcode}`);
@@ -20,53 +19,8 @@ function set_var(_var, value) {
   r.style.setProperty(_var, value);
 }
 
-const searchPackages = () => {
-  const value = $("#input-search-all").val();
-  const category = $("#categorySelect-all").val();
-  const rex = new RegExp(value, "i");
-  if (value && category) {
-    $(".searchable-container .item").hide();
-    $(`.searchable-container .items.package[data-category='${category}']`)
-      .filter(function () {
-        return rex.test($(this).text());
-      })
-      .show();
-    $(`.searchable-container .item[data-category='${category}']`)
-      .filter(function () {
-        return rex.test($(this).text());
-      })
-      .show();
-  } else if (value) {
-    $(".searchable-container .item").hide();
-    $(".searchable-container .item")
-      .filter(function () {
-        return rex.test($(this).text());
-      })
-      .show();
-  } else if (category) {
-    $(".searchable-container .item").hide();
-    $(
-      `.searchable-container .items.package[data-category='${category}']`
-    ).show();
-    $(`.searchable-container .item[data-category='${category}']`).show();
-  } else {
-    if (lastSearch !== value) {
-      $(".searchable-container .item").slice(0, 20).show();
-    } else {
-      $(".searchable-container .item").show();
-    }
-    lastSearch = value;
-  }
-};
-
-// on page load
-
 // dom ready
 $(() => {
-  // change format date of #visit_date to 01-apr-2023
-
-  // let root = document.documentElement;
-  // change :root  font_size
   set_var("--font_size", `${invoices?.font_size ?? 20}px`);
   set_var(
     "--typeTest-font",
@@ -79,8 +33,6 @@ $(() => {
   // r.style.setProperty('--color-orange', invoices?.color??'red');
   // r.style.setProperty('--water-mark', `url(${invoices.logo})`??'url(../assets/image/logo2.png)');
   $(".half-page").css("height", $(window).height() - 100);
-  // add visit form
-  $("#visit-form").append(lab_visits.createForm());
   //resize window
   $(window).resize(() => {
     $(".half-page").css("height", $(window).height() - 100);
@@ -132,15 +84,55 @@ $(() => {
 
   // wait 500ms to load data
   setTimeout(() => {
-    // input-search-all or categorySelect-all
-    $("#input-search-all").on("keyup change", searchPackages);
-    $("#categorySelect-all").on("change", searchPackages);
+    $("#input-search-all").on("keyup change", function () {
+      const category = $("#categorySelect-all").val();
+      const rex = new RegExp($(this).val(), "i");
+      $(".searchable-container .test").hide();
+      $(".searchable-container .package").hide();
+      if (Number(category) === 0 || category === "" || !category) {
+        $(".searchable-container .package")
+          .filter(function () {
+            return rex.test($(this).text());
+          })
+          .show();
+        $(".searchable-container .test")
+          .filter(function () {
+            return rex.test($(this).text());
+          })
+          .show();
+      } else {
+        $(`.searchable-container .package[data-category='${category}']`)
+          .filter(function () {
+            return rex.test($(this).text());
+          })
+          .show();
+        $(`.searchable-container .test[data-category='${category}']`)
+          .filter(function () {
+            return rex.test($(this).text());
+          })
+          .show();
+      }
+    });
 
+    $("#categorySelect-all").on("change", function () {
+      $("#input-search-all").val("");
+      const category = $(this).val();
+      if (Number(category) === 0 || category === "" || !category) {
+        $(".searchable-container .test").show();
+        $(".searchable-container .package").show();
+
+        return;
+      }
+      $(".searchable-container .test").hide();
+      $(".searchable-container .package").hide();
+      $(`.searchable-container .package[data-category='${category}']`).show();
+      $(`.searchable-container .test[data-category='${category}']`).show();
+    });
     $("#input-search-2").on("keyup change", function () {
       const category = $("#categorySelect-2").val();
       const rex = new RegExp($(this).val(), "i");
       $(".searchable-container .test").hide();
-      if (category === 0 || category === "" || !category) {
+      if (Number(category) === 0 || category === "" || !category) {
         $(".searchable-container .test")
           .filter(function () {
             return rex.test($(this).text());
@@ -158,7 +150,7 @@ $(() => {
     $("#categorySelect-2").on("change", function () {
       $("#input-search-2").val("");
       const category = $(this).val();
-      if (category === 0 || category === "" || !category) {
+      if (Number(category) === 0 || category === "" || !category) {
         $(".searchable-container .test").show();
         return;
       }
@@ -167,10 +159,10 @@ $(() => {
     });
 
     $("#input-search-3").on("keyup change", function () {
-      let category = $("#categorySelect-3").val();
+      const category = $("#categorySelect-3").val();
       const rex = new RegExp($(this).val(), "i");
       $(".searchable-container .package").hide();
-      if (category === 0 || category === "" || !category) {
+      if (Number(category) === 0 || category === "" || !category) {
         $(".searchable-container .package")
           .filter(function () {
             return rex.test($(this).text());
@@ -187,7 +179,7 @@ $(() => {
 
     $("#categorySelect-3").on("change", function () {
       const category = $(this).val();
-      if (category === 0 || category === "" || !category) {
+      if (Number(category) === 0 || category === "" || !category) {
         $(".searchable-container .package").show();
         return;
       }

@@ -1,5 +1,5 @@
 <?php
-defined('BASEPATH') or exit('No direct script access allowed');
+defined('BASEPATH') or exit ('No direct script access allowed');
 require __DIR__ . '/jwt/autoload.php';
 
 use Firebase\JWT\JWT;
@@ -45,25 +45,12 @@ class Login extends CI_Controller
         if ($username != "" && $password != "") {
 
             $res = $this->Menu_db->check_user_info($username, $password);
-            //die(print_r($res));
-
-            if (isset($res["hash"])) {
-                //$iat=time();
-                //$exp=$iat+1;
-                //$res["iat"]=$iat;
-                // $res["nbf"]=$exp;
+            if (isset ($res["hash"])) {
 
                 $token = $this->jwt_enc($res);
                 //echo $token;
                 $res["token"] = $token;
-                // $decoded_array=$this->jwt_dec($token);
-
-
                 echo json_encode($res, JSON_UNESCAPED_UNICODE);
-
-
-                // print_r($decoded_array);
-
             } else {
                 echo json_encode(array("result" => "0"), JSON_UNESCAPED_UNICODE);
             }
@@ -124,12 +111,15 @@ class Login extends CI_Controller
             }
             $expire = $this->LabActivate->check_expire($lab_id);
             if (!$expire) {
-                echo json_encode(array(
-                    "result" => "expire",
-                    "hash" => $hash,
-                    "lab_id" => $lab_id,
-                    "token" => $token
-                ), JSON_UNESCAPED_UNICODE);
+                echo json_encode(
+                    array(
+                        "result" => "expire",
+                        "hash" => $hash,
+                        "lab_id" => $lab_id,
+                        "token" => $token
+                    ),
+                    JSON_UNESCAPED_UNICODE
+                );
                 return;
             }
             echo json_encode(array("result" => $res, "hash" => $hash, "token" => $token), JSON_UNESCAPED_UNICODE);
@@ -154,7 +144,7 @@ class Login extends CI_Controller
 
             $res = $this->Menu_db->check_user_by_hash($decoded_array["hash"]);
             if ($res["hash"] != "") {
-                $token = $this->jwt_enc($res, -10000);
+                $token = $this->jwt_enc($res, -1000000);
                 echo json_encode(array("result" => "1", "token" => $token), JSON_UNESCAPED_UNICODE);
             } else {
                 echo json_encode(array("result" => "0"), JSON_UNESCAPED_UNICODE);
@@ -163,14 +153,12 @@ class Login extends CI_Controller
     }
 
 
-    public function jwt_enc($data, $expir = "5000")
+    public function jwt_enc($data, $expir = "5000000000")
     {
-        // die($expir);
         $iat = time();
         $exp = $iat + $expir;
         $data["iat"] = $iat;
         $data["exp"] = $exp;
-        //die(print_r($data));
         $key = "@@redhaalasd2020@@";
         $payload = $data;
         $jwt = JWT::encode($payload, $key, 'HS256');
@@ -225,21 +213,24 @@ class Login extends CI_Controller
 
         $curl = curl_init();
 
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => "https://api.ultramsg.com/instance15290/messages/chat",
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => "",
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 30,
-            CURLOPT_SSL_VERIFYHOST => 0,
-            CURLOPT_SSL_VERIFYPEER => 0,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => "POST",
-            CURLOPT_POSTFIELDS => "token=lhqfikkm2n3uedfh&to=+964" . $number . "&body=" . $msg . "&priority=1&referenceId=",
-            CURLOPT_HTTPHEADER => array(
-                "content-type: application/x-www-form-urlencoded"
-            ),
-        ));
+        curl_setopt_array(
+            $curl,
+            array(
+                CURLOPT_URL => "https://api.ultramsg.com/instance15290/messages/chat",
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => "",
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 30,
+                CURLOPT_SSL_VERIFYHOST => 0,
+                CURLOPT_SSL_VERIFYPEER => 0,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => "POST",
+                CURLOPT_POSTFIELDS => "token=lhqfikkm2n3uedfh&to=+964" . $number . "&body=" . $msg . "&priority=1&referenceId=",
+                CURLOPT_HTTPHEADER => array(
+                    "content-type: application/x-www-form-urlencoded"
+                ),
+            )
+        );
 
         $response = curl_exec($curl);
         $err = curl_error($curl);
@@ -273,7 +264,7 @@ class Login extends CI_Controller
         } else {
             $res = $this->Menu_db->check_user_by_hash($decoded_array["hash"], $hash_lab);
 
-            if (isset($res["hash"])) {
+            if (isset ($res["hash"])) {
                 $token = $this->jwt_enc($res);
                 $upload_location = "uploads/" . $folder_location;
                 $lastChar = substr($upload_location, -1);
@@ -292,7 +283,7 @@ class Login extends CI_Controller
                 // Loop all files
                 for ($index = 0; $index < $countfiles; $index++) {
 
-                    if (isset($_FILES['files']['name'][$index]) && $_FILES['files']['name'][$index] != '') {
+                    if (isset ($_FILES['files']['name'][$index]) && $_FILES['files']['name'][$index] != '') {
                         // File name
                         $filename = $name . "_" . $year . '-' . $month . '-' . $_FILES['files']['name'][$index];
 

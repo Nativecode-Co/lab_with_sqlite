@@ -247,11 +247,6 @@ class Tests_model extends CI_Model
         } else {
             $doctor = "and lab_doctor.hash = '$doctor'";
         }
-        if ($lab == '') {
-            $lab = '';
-        } else {
-            $lab = "and lab_visits_tests.lab_id = '$lab'";
-        }
 
         if ($start_date == '') {
             $start_date = '';
@@ -275,7 +270,7 @@ class Tests_model extends CI_Model
         left join lab_patient on lab_patient.hash = lab_visits.visits_patient_id
         left join lab_package on lab_package.hash = lab_visits_tests.package_id
 
-        where tests_id in ($tests) $lab
+        where tests_id in ($tests) 
         $start_date $end_date $doctor
         and lab_visits.isdeleted = 0
         group by tests_id

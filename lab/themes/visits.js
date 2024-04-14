@@ -1,8 +1,64 @@
+
+const createTest = (test, type) => {
+  switch (type) {
+    case "1":
+      return `
+      <div 
+        class="n-chk package text-left mb-3 ml-3"
+      >
+        <label 
+          class="new-control items offer new-checkbox new-checkbox-rounded checkbox-outline-success font-weight-bolder mb-0"
+        >
+          <input 
+            type="checkbox" 
+            name="tests[]" onclick="changeTotalPrice('${test.hash}')" 
+            class="new-control-input testSelect" 
+            data-name="${test.name}" 
+            data-price="${test.price}" 
+            value="${test.hash}" 
+            id="package_${test.hash}" 
+          >
+          <p class=""> ${parseInt(test.price)?.toLocaleString()} </p>
+          <span class="new-control-indicator m-3 d-none"></span>
+          <span dir="ltr" class="ml-2 overflow-text-hidden">${test.name}</span>
+        </label>
+      </div>
+      `;
+    case "2":
+      return `
+      <div 
+        class="n-chk test text-left mb-3 ml-3" 
+        data-category="${test.catigory}"
+      >
+        <label 
+          class="new-control items offer new-checkbox new-checkbox-rounded checkbox-outline-success font-weight-bolder mb-0" 
+          onmouseover="showPackagesList.call(this, '${test.hash}')" 
+          onmouseleave="$(this).popover('hide')"
+        >
+          <input 
+            type="checkbox" 
+            name="tests[]" onclick="changeTotalPrice('${test.hash}')" 
+            class="new-control-input testSelect" 
+            data-name="${test.name}" 
+            data-price="${test.price}" 
+            value="${test.hash}" 
+            id="package_${test.hash}" 
+          >
+          <p class=""> ${parseInt(test.price)?.toLocaleString()} </p>
+          <span class="new-control-indicator m-3 d-none"></span>
+          <span dir="ltr" class="ml-2 overflow-text-hidden">${test.name}</span>
+        </label>
+      </div>
+      `;
+  }
+};
+
 class TestsTheme {
-  constructor(table, testsAndPackages, categories) {
+  constructor(table, packages, tests, categories) {
     this.name = "select Theme";
     this.table = table;
-    this.testsAndPackages = testsAndPackages;
+    this.Packages = packages;
+    this.Tests = tests;
     this.categories = categories;
   }
 
@@ -54,8 +110,8 @@ class TestsTheme {
 }
 
 class TestsThemeOne extends TestsTheme {
-  constructor(table, testsAndPackages, categories) {
-    super(table, testsAndPackages, categories);
+  constructor(table, packages, tests, categories) {
+    super(table, packages, tests, categories);
     this.name = "TestsThemeOne";
   }
 
@@ -74,38 +130,7 @@ class TestsThemeOne extends TestsTheme {
                         <div class="searchable-container m-0 packages-search" style="max-width: 100%;">
                             <div class="my-3 border-0 row" id="offers">
                             ${tests
-                              .filter((item) => item.type == "9")
-                              .map((item) => {
-                                return `
-                            <div class="n-chk item test text-left mb-3 col-2" data-category="${
-                              item.category_hash
-                            }">
-                            <label class="new-control items offer new-checkbox new-checkbox-rounded checkbox-outline-success font-weight-bolder mb-0" onmouseover="showPackagesList.call(this, ${
-                              item.hash
-                            })"  onmouseleave="$(this).popover('hide')">
-                                <!--
-                            (<span class="text-danger w-100">${
-                              item.kit_name
-                            }</span>)
-
-                                -->
-                                <input type="checkbox" onclick="changeTotalPrice('${
-                                  item.hash
-                                }')" class="new-control-input testSelect" data-name="${
-                                  item.name
-                                }" data-price="${item.price}" value="${
-                                  item.hash
-                                }" id="package_${item.hash}" >
-                                <p class="m-0"> ${parseInt(
-                                  item.price
-                                )?.toLocaleString()} </p>
-                                <span  class="new-control-indicator m-3  d-none"></span><span dir="ltr" class="ml-2 overflow-text-hidden">${
-                                  item.name
-                                }</span>
-                            </label>
-                        </div>
-                            `;
-                              })
+                              .map((item) => createTest(item, "2"))
                               .join("")}
                             </div>
                         </div>
@@ -130,29 +155,7 @@ class TestsThemeOne extends TestsTheme {
                         <div class="searchable-container m-0 packages-search" style="max-width: 100%;">
                             <div class="my-3 border-0 row" id="offers">
                               ${packages
-                                .map(
-                                  (item) => `
-                                  
-                                      <div class="n-chk item package text-left mb-3 col-2" data-category="${
-                                        item.category_hash
-                                      }">
-                                          <label class="new-control items offer new-checkbox new-checkbox-rounded font-weight-bolder checkbox-outline-success mb-0" >
-                                              <input type="checkbox" onclick="changeTotalPrice('${
-                                                item.hash
-                                              }')" class="new-control-input testSelect" data-name="${
-                                    item.name
-                                  }" data-price="${item.price}" value="${
-                                    item.hash
-                                  }" id="package_${item.hash}" >
-                                              <p class="m-0"> ${parseInt(
-                                                item.price
-                                              )?.toLocaleString()} </p>
-                                  <span class="new-control-indicator m-3 d-none"></span><span class="ml-2 overflow-text-hidden" dir="ltr"
-                                  >${item.name}</span>
-                                          </label>
-                                      </div>
-                              `
-                                )
+                                .map((item) => createTest(item, "1"))
                                 .join("")}
                             </div>
                         </div>
@@ -175,7 +178,7 @@ class TestsThemeOne extends TestsTheme {
   }
 
   saveButton(table) {
-    return `<button type="button" class="btn btn-main-add w-100" onclick="fireSwal.call(${table},${table}.saveNewItem)" id="${table}-save">حفظ</button>`;
+    return `<button type="button" class="btn btn-main-add w-100" onclick="fireSwal.call(${table},${table}.savenewItemaAfterCheckName)" id="${table}-save">حفظ</button>`;
   }
 
   priceInputs(table) {
@@ -185,7 +188,7 @@ class TestsThemeOne extends TestsTheme {
             <!-- السعر -->
             <div class="form-group">
                 <label for="total_price">السعر</label>
-                <input type="text" class="form-control" id="total_price" value="0"
+                <input type="text" class="form-control" name="total_price" id="total_price" value="0"
                     placeholder="السعر" disabled onchange="netPriceChange()"
                     onkeyup="netPriceChange()">
             </div>
@@ -195,7 +198,7 @@ class TestsThemeOne extends TestsTheme {
             <!-- الخصم -->
             <div class="form-group">
                 <label for="dicount">الخصم</label>
-                <input type="number" class="form-control" id="dicount" value="0"
+                <input type="number" class="form-control" name="dicount" id="dicount" value="0"
                     placeholder="الخصم" onchange="netPriceChange()"
                     onkeyup="netPriceChange()">
             </div>
@@ -204,7 +207,7 @@ class TestsThemeOne extends TestsTheme {
             <!-- الاجمالي -->
             <div class="form-group">
                 <label for="net_price">الاجمالي</label>
-                <input type="text" class="form-control" id="net_price" value="0"
+                <input type="text" class="form-control" name="net_price" id="net_price" value="0"
                     placeholder="الاجمالي" disabled>
             </div>
         </div>
@@ -218,12 +221,6 @@ class TestsThemeOne extends TestsTheme {
   }
 
   build() {
-    let tests = this.testsAndPackages.filter((item) => item.type == "9");
-    let packages = this.testsAndPackages.filter((item) => item.type != "9");
-    packages = packages.filter(
-      (value, index, self) =>
-        index === self.findIndex((t) => t.name === value.name)
-    );
     return `
     <div class="statbox widget box box-shadow bg-white main-visit-tests mt-4 h-100">
         <div class="widget-content widget-content-area m-auto h-100">
@@ -252,13 +249,13 @@ class TestsThemeOne extends TestsTheme {
                 <div class="tab-pane fade show active" id="all-tests" role="tabpanel"
                     aria-labelledby="all-tests-tab">
                     <div id="all-tests-content">
-                        ${this.createTests(tests)}
+                        ${this.createTests(this.Tests)}
                     </div>
                 </div>
                 <div class="tab-pane fade" id="all-packages" role="tabpanel"
                     aria-labelledby="all-packages-tab">
                     <div id="all-packages-content">
-                        ${this.createPackages(packages)}
+                        ${this.createPackages(this.Packages)}
                     </div>
                 </div>
                 ${this.createSselectedTestsAndPackages()}
@@ -272,8 +269,8 @@ class TestsThemeOne extends TestsTheme {
 }
 
 class TestsThemeTwo extends TestsTheme {
-  constructor(table, testsAndPackages, categories) {
-    super(table, testsAndPackages, categories);
+  constructor(table, packages, tests, categories) {
+    super(table, packages, tests, categories);
     this.name = "TestsThemeTwo";
   }
 
@@ -287,36 +284,7 @@ class TestsThemeTwo extends TestsTheme {
           <div class="col-md-12">
               <div class="searchable-container packages-search">
                   <div class="searchable-items my-3 border-0" id="offers">
-                      ${tests
-                        .map((item) => {
-                          return `
-                      <div class="n-chk item text-left mb-3" data-category="${
-                        item.category_hash
-                      }">
-                      <label class="new-control items offer new-checkbox new-checkbox-rounded checkbox-outline-success font-weight-bolder mb-0" onmouseover="showPackagesList.call(this, ${
-                        item.hash
-                      })" onmouseleave="$(this).popover('hide')">
-                          <!--
-                      (<span class="text-danger w-100">${item.kit_name}</span>)
-                          -->
-                          <input type="checkbox" onclick="changeTotalPrice('${
-                            item.hash
-                          }')" class="new-control-input testSelect" data-name="${
-                            item.name
-                          }" data-price="${item.price}" value="${
-                            item.hash
-                          }" id="package_${item.hash}" >
-                          <p class=""> ${parseInt(
-                            item.price
-                          )?.toLocaleString()} </p>
-                          <span class="new-control-indicator m-3 d-none"></span><span dir="ltr" class="ml-2 overflow-text-hidden">${
-                            item.name
-                          }</span>
-                      </label>
-                  </div>
-                      `;
-                        })
-                        .join("")}
+                      ${tests.map((item) => createTest(item, "2")).join("")}
                   </div>
               </div>
           </div>
@@ -335,32 +303,7 @@ class TestsThemeTwo extends TestsTheme {
           <div class="col-md-12">
               <div class="searchable-container packages-search">
                   <div class="searchable-items my-3 border-0" id="offers">
-                      ${packages
-                        .map(
-                          (item) => `
-                          
-                              <div class="n-chk item text-left mb-3" data-category="${
-                                item.category_hash
-                              }">
-                                  <label class="new-control items offer new-checkbox new-checkbox-rounded font-weight-bolder checkbox-outline-success mb-0" >
-                                      <input type="checkbox" onclick="changeTotalPrice('${
-                                        item.hash
-                                      }')" class="new-control-input testSelect" data-name="${
-                            item.name
-                          }" data-price="${item.price}" value="${
-                            item.hash
-                          }" id="package_${item.hash}" >
-                                      <p class=""> ${parseInt(
-                                        item.price
-                                      )?.toLocaleString()} </p>
-                          <span  class="new-control-indicator m-3 d-none"></span><span dir="ltr" class="ml-2 overflow-text-hidden">${
-                            item.name
-                          }</span>
-                                  </label>
-                              </div>
-                      `
-                        )
-                        .join("")}
+                      ${packages.map((item) => createTest(item, "1")).join("")}
                   </div>
               </div>
           </div>
@@ -392,7 +335,7 @@ class TestsThemeTwo extends TestsTheme {
           <!-- السعر -->
           <div class="form-group">
               <label for="total_price">السعر</label>
-              <input type="text" class="form-control" id="total_price" value="0"
+              <input type="text" class="form-control" name="total_price" id="total_price" value="0"
                   placeholder="السعر" disabled onchange="netPriceChange()"
                   onkeyup="netPriceChange()">
           </div>
@@ -401,7 +344,7 @@ class TestsThemeTwo extends TestsTheme {
           <!-- الخصم -->
           <div class="form-group">
               <label for="dicount">الخصم</label>
-              <input type="number" class="form-control" id="dicount" value="0"
+              <input type="number" class="form-control" name="dicount" id="dicount" value="0"
                   placeholder="الخصم" onchange="netPriceChange()"
                   onkeyup="netPriceChange()">
           </div>
@@ -410,7 +353,7 @@ class TestsThemeTwo extends TestsTheme {
           <!-- الاجمالي -->
           <div class="form-group">
               <label for="net_price">الاجمالي</label>
-              <input type="text" class="form-control" id="net_price" value="0"
+              <input type="text" class="form-control" name="net_price" id="net_price" value="0"
                   placeholder="الاجمالي" disabled>
           </div>
       </div>
@@ -419,17 +362,11 @@ class TestsThemeTwo extends TestsTheme {
 
   saveButton(table) {
     return `
-    <button type="button" class="btn btn-main-add" onclick="fireSwal.call(${table},${table}.saveNewItem)" id="${table}-save">حفظ</button>
+    <button type="button" class="btn btn-main-add" onclick="fireSwal.call(${table},${table}.savenewItemaAfterCheckName)" id="${table}-save">حفظ</button>
     `;
   }
 
   build() {
-    let tests = this.testsAndPackages.filter((item) => item.type == "9");
-    let packages = this.testsAndPackages.filter((item) => item.type != "9");
-    packages = packages.filter(
-      (value, index, self) =>
-        index === self.findIndex((t) => t.name === value.name)
-    );
     return `
     <div class="row" style="height: 550px;">
       <div class="col-7">
@@ -445,8 +382,8 @@ class TestsThemeTwo extends TestsTheme {
                     <div class="col-6 mt-3">
                         ${this.categorySelect(this.categories)}
                     </div>
-                    ${this.createTests(tests)}
-                    ${this.createPackages(packages)}
+                    ${this.createTests(this.Tests)}
+                    ${this.createPackages(this.Packages)}
                 </div>
                 
             </div>

@@ -14,7 +14,6 @@ class Reports_model extends CI_Model
     {
         $this->db->select('count(*) as count');
         $this->db->from('lab_patient');
-        $this->db->where('lab_id', $this->input->post('lab_id'));
         $this->db->where('isdeleted', 0);
         $this->db->like('name', $search);
         $query = $this->db->get();
@@ -22,19 +21,21 @@ class Reports_model extends CI_Model
         return $result[0]['count'];
     }
 
-    function getVisits($labID)
+    function getVisits()
     {
-        $start = $this->input->post('start');
-        $length = $this->input->post('length');
-        $search = $this->input->post('search')['value'];
-        $startDate = $this->input->post('startDate') ?? Date('Y-m-d');
-        $endDate = $this->input->post('endDate') ?? Date('Y-m-d');
-        $doctor = $this->input->post('doctor');
-        $user = $this->input->post('user');
-        $count = $this->getVisitsCount($labID, $search, $startDate, $endDate, $doctor, $user);
+        $params = $this->input->post();
+        $start = $params['start'];
+        $rowsPerPage = $params['length'];
+        $page = $start / $rowsPerPage;
+        $searchText = $params['search']['value'];
+        $startDate = $params['startDate'] ?? Date('Y-m-d');
+        $endDate = $params['endDate'] ?? Date('Y-m-d');
+        $doctor = $params['doctor'];
+        $user = $params['user'];
+        $count = $this->getVisitsCount($searchText, $startDate, $endDate, $doctor, $page, $rowsPerPage);
         $this->db->select("
-                v.name,
-                d.name AS doctor,
+                p.name,
+               ifnull(d.name,'لا يوجد طبيب') as doctor,
                 visit_date,
                 net_price,
                 dicount,
@@ -42,12 +43,12 @@ class Reports_model extends CI_Model
         ");
         $this->db->from('lab_visits v');
         $this->db->join('lab_doctor d', 'd.hash = v.doctor_hash', 'left');
-        $this->db->where('labId', $labID);
+        $this->db->join('lab_patient p', 'p.hash = v.visits_patient_id', 'left');
         $this->db->where('v.isdeleted', 0);
         $this->db->order_by('v.visit_date', 'DESC');
         $this->db->order_by('v.id', 'DESC');
-        if ($search != '') {
-            $this->db->like('v.name', $search);
+        if ($searchText != '') {
+            $this->db->like('v.name', $searchText);
         }
         if ($startDate != '') {
             $this->db->where('visit_date >=', $startDate);
@@ -58,7 +59,7 @@ class Reports_model extends CI_Model
         if ($doctor != '') {
             $this->db->where('doctor_hash', $doctor);
         }
-        $this->db->limit($length, $start);
+        $this->db->limit($rowsPerPage, $page * $rowsPerPage);
         $query = $this->db->get();
         return array(
             "data" => $query->result_array(),
@@ -72,15 +73,18 @@ class Reports_model extends CI_Model
         );
     }
 
-    public function getVisitsCount($labId, $search, $startDate, $endDate, $doctor, $user)
+    public function getVisitsCount($search, $startDate, $endDate, $doctor = '', $page = 0, $rowsPerPage = 10)
     {
-        $this->db->select('count(*) as count,sum(total_price) as total_price');
-        $this->db->select('sum(net_price) as net_price,sum(dicount) as dicount');
-        $this->db->from('lab_visits');
-        $this->db->where('labId', $labId);
-        $this->db->where('isdeleted', 0);
+        // get count of all visits not prices total
+        $this->db->select('count(*) as count');
+        $this->db->select('sum(total_price) as total_price');
+        $this->db->select('sum(net_price) as net_price');
+        $this->db->select('sum(dicount) as dicount');
+        $this->db->from('lab_visits v');
+        $this->db->where('v.isdeleted', 0);
+        $this->db->order_by('v.visit_date', 'DESC');
         if ($search != '') {
-            $this->db->like('name', $search);
+            $this->db->like('v.name', $search);
         }
         if ($startDate != '') {
             $this->db->where('visit_date >=', $startDate);
@@ -91,8 +95,8 @@ class Reports_model extends CI_Model
         if ($doctor != '') {
             $this->db->where('doctor_hash', $doctor);
         }
-        $query = $this->db->get();
-        $result = $query->result_array();
-        return $result[0];
+        $result = $this->db->get()->row_array();
+        return $result;
+
     }
 }

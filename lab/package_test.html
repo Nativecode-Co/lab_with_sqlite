@@ -78,7 +78,7 @@
                 <div class="page-header">
                 </div>
 
-                <div class="row layout-spacing">
+                <div class="row layout-spacing justify-content-center">
                     <div class="row justify-content-center buttons m-auto">
                         <button class="btn btn-action action w-230 col-auto mr-30 mb-30 active" data-id="allTests">
                             <i class="far fa-microscope"></i> التحاليل
@@ -92,9 +92,6 @@
                         <button class="btn btn-action action w-230 col-auto mr-30 mb-30" data-id="addPackage">
                             <i class="fas fa-folder-plus"></i> اضافة عرض جديد
                         </button>
-                        <!-- <button class="btn btn-action w-230 col-auto mr-30 mb-30" onclick="refreshData()">
-                            <i class="fas fa-sync-alt"></i> تنزيل التحاليل
-                        </button> -->
                     </div>
                     <div class="col-lg-12 page" id="allTests">
                         <div class="statbox widget box box-shadow bg-white">
@@ -119,46 +116,47 @@
                         </div>
                     </div>
 
-                    <div class="col-lg-12 page" id="addTest" style="display: none;">
+                    <div class="col-lg-8 page" id="addTest" style="display: none;">
                         <div class="statbox widget box box-shadow bg-white">
                             <div class="widget-content widget-content-area m-auto" style="width: 95%;">
                                 <div class="row">
-                                    <div class="col-md-6" id="test-form">
+                                    <form class="col-md-9 border-right" id="test-form">
                                         <h2 class="title mt-30">اضافة تحليل جديد</h2>
                                         <div class="row">
                                             <div class="col-lg-12 mb-30">
                                                 <div class="form-group">
-                                                    <label for="name">اسم التحليل</label>
-                                                    <input type="text" class="form-control" id="name"
-                                                        placeholder="اسم التحليل" disabled>
+                                                    <label for="name">التحليل</label>
+                                                    <select type="text" id="test_id" name="test_id">
+                                                        <option value="">اختر التحليل</option>
+                                                    </select>
                                                 </div>
                                             </div>
                                             <div class="col-lg-6 mb-30">
                                                 <div class="form-group">
                                                     <label for="cost">التكلفة </label>
-                                                    <input type="number" class="form-control" id="cost"
+                                                    <input type="number" class="form-control" id="cost" name="cost"
                                                         placeholder="التكلفة" value="0">
                                                 </div>
                                             </div>
                                             <div class="col-lg-6 mb-30">
                                                 <div class="form-group">
                                                     <label for="price">السعر </label>
-                                                    <input type="number" class="form-control" id="price"
+                                                    <input type="number" class="form-control" id="price" name="price"
                                                         placeholder="السعر" value="0">
                                                 </div>
                                             </div>
                                             <div class="col-lg-12 mb-30">
                                                 <div class="form-group">
                                                     <label for="kit_id">الكت</label>
-                                                    <select class="form-control" id="kit_id"
-                                                        onchange="addUnitsByKit($(this));">
+                                                    <select class="form-control" id="kit_id" name="kit_id">
                                                     </select>
                                                 </div>
                                             </div>
                                             <div class="col-lg-12 mb-30">
                                                 <div class="form-group">
                                                     <label for="lab_device_id">الجهاز</label>
-                                                    <select class="form-control" id="lab_device_id">
+                                                    <select class="form-control" id="lab_device_id"
+                                                        name="lab_device_id">
                                                         <option value="">اختر الجهاز</option>
                                                     </select>
                                                 </div>
@@ -166,7 +164,7 @@
                                             <div class="col-lg-12 mb-30">
                                                 <div class="form-group">
                                                     <label for="unit">الوحدة</label>
-                                                    <select class="form-control" id="unit">
+                                                    <select class="form-control" id="unit" name="unit">
                                                     </select>
                                                 </div>
                                             </div>
@@ -175,21 +173,23 @@
                                                     class="btn btn-main-add">اضافة</button>
                                             </div>
                                         </div>
-                                    </div>
-                                    <div class="col-md-6 mt-30" id="tests">
-                                        <!-- search -->
-                                        <div class="form-group mr-30" id="search_test">
-                                            <input type="text" class="form-control" id="testSearch" placeholder="بحث">
+                                    </form>
+                                    <div class="col-md-3 refrence">
+                                        <h2 class="title text-center mt-30">القيم الطبيعية</h2>
+                                        <div id="references">
+                                            <ul class="list-group list-group-flush border rounded mt-5">
+                                                <li class="list-group-item bg-default text-center">لا توجد قيم طبيعية لهذا التحليل مع وحدة القياس المختارة و الكت المختار</li>
+                                            </ul>
                                         </div>
-                                        <div class="row flex-row-reverse" id="row-tests">
+                                    </div>
 
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
 
+
+                        </div>
+
+                    </div>
                     <div class="col-lg-12 page" id="allPackage" style="display: none;">
                         <div class="statbox widget box box-shadow bg-white">
                             <div class="widget-content widget-content-area m-auto" style="width: 95%;">
@@ -209,39 +209,47 @@
                         </div>
                     </div>
 
-                    <div class="col-lg-12 page" id="addPackage" style="display: none;">
+                    <div class="col-lg-8 page" id="addPackage" style="display: none;">
                         <div class="statbox widget box box-shadow bg-white">
                             <div class="widget-content widget-content-area m-auto" style="width: 95%;">
                                 <div class="row">
-                                    <div class="col-md-6" id="test-form">
+                                    <form class="col-md-12" id="package-form">
                                         <h2 class="title mt-30">اضافة عرض جديد</h2>
                                         <div class="row">
                                             <div class="col-lg-12 mb-30">
                                                 <div class="form-group">
                                                     <label for="name">اسم العرض</label>
-                                                    <input type="text" class="form-control" id="name"
-                                                        placeholder="اسم التحليل">
+                                                    <input type="text" class="form-control" name="name"
+                                                        placeholder="اسم العرض">
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-12 mb-30">
+                                                <div class="form-group">
+                                                    <label for="name">التحاليل</label>
+                                                    <select name="tests" multiple style="height: 100px;">
+
+                                                    </select>
                                                 </div>
                                             </div>
                                             <div class="col-lg-6 mb-30">
                                                 <div class="form-group">
                                                     <label for="cost">التكلفة </label>
-                                                    <input type="number" class="form-control" id="cost"
+                                                    <input type="number" class="form-control" name="cost"
                                                         placeholder="التكلفة" value="0">
                                                 </div>
                                             </div>
                                             <div class="col-lg-6 mb-30">
                                                 <div class="form-group">
                                                     <label for="price">السعر </label>
-                                                    <input type="number" class="form-control" id="price"
+                                                    <input type="number" class="form-control" name="price"
                                                         placeholder="السعر" value="0">
                                                 </div>
                                             </div>
                                             <!-- notes -->
                                             <div class="col-lg-12 mb-30">
                                                 <div class="form-group">
-                                                    <label for="notes">الملاحظات</label>
-                                                    <textarea class="form-control" id="notes" rows="3"></textarea>
+                                                    <label for="note">الملاحظات</label>
+                                                    <textarea class="form-control" name="note" rows="3"></textarea>
                                                 </div>
                                             </div>
                                             <div class="col-lg-12 mb-30">
@@ -252,8 +260,8 @@
                                         </div>
                                         <div id="selected-tests" class="row">
                                         </div>
-                                    </div>
-                                    <div class="col-md-6 mt-30" id="tests">
+                                    </form>
+                                    <div class="col-md-6 mt-30 d-none" id="tests">
                                         <!-- search -->
                                         <div class="form-group mr-30" id="search_package">
                                             <input type="text" class="form-control" id="testSearch" placeholder="بحث">
@@ -267,80 +275,77 @@
                         </div>
                     </div>
                 </div>
+                <!--  END CONTENT AREA  -->
 
             </div>
-        </div>
-        <!--  END CONTENT AREA  -->
 
-    </div>
+            <div class="modal fade" id="refrence_editor" tabindex="-1" role="dialog"
+                aria-testelledby="myLargeModaltestel" aria-hidden="true">
+                <div class="modal-dialog modal-xl" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="myLargeModaltestel">ادخل البيانت</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-testel="Close">
+                                <i class="fal fa-window-close text-danger"></i>
+                            </button>
+                        </div>
+                        <div class="modal-body">
 
-    <div class="modal fade" id="refrence_editor" tabindex="-1" role="dialog" aria-testelledby="myLargeModaltestel"
-        aria-hidden="true">
-        <div class="modal-dialog modal-xl" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="myLargeModaltestel">ادخل البيانت</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-testel="Close">
-                        <i class="fal fa-window-close text-danger"></i>
-                    </button>
-                </div>
-                <div class="modal-body">
-
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
-    <!-- END MAIN CONTAINER -->
-    <!-- BEGIN GLOBAL MANDATORY SCRIPTS -->
-    <script src="assets/js/libs/jquery-3.1.1.min.js"></script>
-    <script src="bootstrap/js/popper.min.js"></script>
-    <script src="bootstrap/js/bootstrap.min.js"></script>
-    <script src="plugins/perfect-scrollbar/perfect-scrollbar.min.js"></script>
-    <script src="assets/js/custom.js"></script>
-    <!-- END GLOBAL MANDATORY SCRIPTS -->
-    <script src="plugins/table/datatable/datatables.js"></script>
-    <script src="plugins/table/datatable/respon.js"></script>
-    <script src="plugins/table/datatable/button-ext/dataTables.buttons.min.js"></script>
-    <script src="plugins/table/datatable/button-ext/jszip.min.js"></script>
-    <script src="plugins/table/datatable/button-ext/buttons.html5.min.js"></script>
-    <script src="plugins/table/datatable/button-ext/buttons.print.min.js"></script>
-    <script src="js/jquery.validate.min.js"></script>
-    <script src="plugins/sweetalerts/sweetalert2.min.js"></script>
-    <script src="plugins/select2/select2.min.js"></script>
-    <script src="assets/js/scrollspyNav.js"></script>
-    <script src="assets/js/app.js"></script>
-    <script>
-        $(document).ready(function () {
-            App.init();
-        });
-    </script>
-    <script src="js/const.js"></script>
-    <script>
-        // genrate random text like "1.2.3"
-        function randomText() {
-            let text = "";
-            for (let i = 0; i < 3; i++) {
-                text += Math.floor(Math.random() * 10) + ".";
-            }
-            return text.slice(0, -1);
-        }
-        var random_text = randomText();
-        // get script that src contain const.js
-        const CONSTELEMENT = document.querySelector('script[src*="const.js"]');
-        let src = CONSTELEMENT.src;
-        // add random text to the end of src
-        src = src + "?v=" + random_text;
-        // change src of const.js
-        CONSTELEMENT.src = src;
-    </script>
-    <script src="js/login.js"></script>
-    <script src="js/exe.js"></script>
+            <!-- END MAIN CONTAINER -->
+            <!-- BEGIN GLOBAL MANDATORY SCRIPTS -->
+            <script src="assets/js/libs/jquery-3.1.1.min.js"></script>
+            <script src="bootstrap/js/popper.min.js"></script>
+            <script src="bootstrap/js/bootstrap.min.js"></script>
+            <script src="plugins/perfect-scrollbar/perfect-scrollbar.min.js"></script>
+            <script src="assets/js/custom.js"></script>
+            <!-- END GLOBAL MANDATORY SCRIPTS -->
+            <script src="plugins/table/datatable/datatables.js"></script>
+            <script src="plugins/table/datatable/respon.js"></script>
+            <script src="plugins/table/datatable/button-ext/dataTables.buttons.min.js"></script>
+            <script src="plugins/table/datatable/button-ext/jszip.min.js"></script>
+            <script src="plugins/table/datatable/button-ext/buttons.html5.min.js"></script>
+            <script src="plugins/table/datatable/button-ext/buttons.print.min.js"></script>
+            <script src="js/jquery.validate.min.js"></script>
+            <script src="plugins/sweetalerts/sweetalert2.min.js"></script>
+            <script src="plugins/select2/select2.min.js"></script>
+            <script src="assets/js/scrollspyNav.js"></script>
+            <script src="assets/js/app.js"></script>
+            <script>
+                $(document).ready(function () {
+                    App.init();
+                });
+            </script>
+            <script src="js/const.js"></script>
+            <script>
+                // genrate random text like "1.2.3"
+                function randomText() {
+                    let text = "";
+                    for (let i = 0; i < 3; i++) {
+                        text += Math.floor(Math.random() * 10) + ".";
+                    }
+                    return text.slice(0, -1);
+                }
+                var random_text = randomText();
+                // get script that src contain const.js
+                const CONSTELEMENT = document.querySelector('script[src*="const.js"]');
+                let src = CONSTELEMENT.src;
+                // add random text to the end of src
+                src = src + "?v=" + random_text;
+                // change src of const.js
+                CONSTELEMENT.src = src;
+            </script>
+            <script src="js/login.js"></script>
+            <script src="js/exe.js"></script>
 
-    <script src="js/factory3.js"></script>
-    <script src="themes/super_test.js"></script>
-    <script src="models/package_test.js"></script>
-    <script src="controller/package_test.js"></script>
-    <script src="views/package_test.js"></script>
+            <script src="js/factory3.js"></script>
+            <script src="themes/super_test.js"></script>
+            <script src="models/package_test.js"></script>
+            <script src="controller/package_test.js"></script>
+            <script src="views/package_test.js"></script>
 
 
 </body>

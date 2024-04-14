@@ -915,10 +915,9 @@ const InvoiceSetting = () => {
 
   const [invoice, setInvoice] = React.useState({});
   const [tests, setTests] = React.useState([]);
-  const [employees, setEmployees] = React.useState([]);
 
   const fetchTests = () => {
-    let data = [
+    const data = [
       {
         category: null,
         device_name: null,
@@ -935,13 +934,6 @@ const InvoiceSetting = () => {
     setTests(data);
   };
 
-  const fetchEmployees = () => {
-    let data = run(
-      `SELECT * from lab_invoice_worker where lab_hash='${labHash}' and is_available=1 and isdeleted=0 limit 5;`
-    ).result[0].query0;
-    setEmployees(data);
-  };
-
   const fetchInvoice = async () => {
     let data = await fetch(`${base_url}Invoice/get_or_create?hash=${labHash}`)
       .then((e) => e.json())
@@ -956,7 +948,6 @@ const InvoiceSetting = () => {
 
   React.useEffect(() => {
     fetchInvoice();
-    fetchEmployees();
     fetchTests();
   }, []);
   return (
@@ -988,9 +979,9 @@ const InvoiceHeader = ({ invoice }) => {
   const [workers, setWorkers] = React.useState([]);
 
   React.useEffect(() => {
-    $(function () {
-      UIkit.util.on("#sortable", "moved", function (item) {
-        let newOrder = item.detail[0].items.map((el) => el.id);
+    $(() => {
+      UIkit.util.on("#sortable", "moved", (item) => {
+        const newOrder = item.detail[0].items.map((el) => el.id);
         setOrder(newOrder);
         fetchData("Visit/setOrderOfHeader", "POST", {
           orderOfHeader: newOrder,
@@ -1001,36 +992,38 @@ const InvoiceHeader = ({ invoice }) => {
   }, []);
 
   React.useEffect(() => {
-    let data = fetchData("Visit/getInvoiceHeader", "GET", {}).invoice;
-    setWorkers(data.workers);
-    setOrder(data.orderOfHeader);
+    const { workers, orderOfHeader, ...data } = fetchApi("/invoice/get");
+    setWorkers(workers);
+    setOrder(orderOfHeader);
   }, []);
 
   return (
     <div
       className="header"
       style={{
-        height: invoice.header + "px",
+        height: `${invoice.header}px`,
       }}
     >
       <div
         className={`row ${
           workers.length > 0
-            ? "justify-content-between"
-            : "justify-content-center"
-        } uk-sortable`}
+            ? "justify-content-between align-items-center"
+            : "justify-content-center align-items-center"
+        } uk-sortable h-100`}
         id="sortable"
         data-uk-sortable
-        style={{ display: invoice.footer_header_show == "1" ? "" : "none" }}
+        style={{
+          display: Number(invoice.footer_header_show) === 1 ? "" : "none",
+        }}
       >
         {workers.length > 0 ? (
           workers.map((employee, index) => {
             if (!employee) return;
-            if (employee.hash == "logo") {
+            if (employee.hash === "logo") {
               return (
                 <div
                   className={`logo ${
-                    invoice.show_logo == "1" ? "d-flex" : "d-none"
+                    Number(invoice.show_logo) === 1 ? "d-flex" : "d-none"
                   }`}
                   id="logo"
                   key={index}

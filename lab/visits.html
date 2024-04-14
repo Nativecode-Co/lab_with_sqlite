@@ -92,9 +92,119 @@
 
                             </div>
                         </div>
+
+                        <div class="statbox widget box box-shadow bg-white main-visit-form">
+                            <div class="widget-content widget-content-area m-auto">
+                                <div class="modal-header d-flex justify-content-center">
+                                    <h5 class="modal-title" id="modal-lab_visits">اضافة مريض</h5>
+                                </div>
+                                <div class="modal-body">
+                                    <form class="row">
+                                        <div class="col-md-12  my-4">
+                                            <label class="h5 d-inline mr-4">مريض جديد</label>
+                                            <label
+                                                class="d-inline switch s-icons s-outline s-outline-invoice-slider mr-2">
+                                                <input type="checkbox" name="new_patient" checked="">
+                                                <span class="invoice-slider slider"></span>
+                                            </label>
+                                        </div>
+                                    </form>
+
+                                    <form id="form-lab_visits">
+                                        <div class="row justify-content-sm-between">
+                                            <div class="col-3">
+                                                <!-- اسم المريض -->
+                                                <div class="form-group" id="patient-form">
+                                                    <label for="name">اسم المريض</label>
+                                                    <input type="text" class="form-control" id="name"
+                                                        placeholder="اسم المريض" name="name">
+                                                </div>
+                                            </div>
+                                            <div class="col-3">
+                                                <!-- تاريخ الزيارة -->
+                                                <div class="form-group">
+                                                    <label for="visit_date">تاريخ الزيارة</label>
+                                                    <input type="date" class="form-control" id="visit_date"
+                                                        name="visit_date" placeholder="تاريخ الزيارة">
+                                                </div>
+                                            </div>
+                                            <div class="col-2">
+                                                <!-- العمر بالسنين -->
+                                                <div class="form-group">
+                                                    <label for="age_year">العمر بالسنين</label>
+                                                    <input type="number" class="form-control" id="age_year"
+                                                        name="age_year" placeholder="العمر بالسنين" value="0">
+                                                </div>
+                                            </div>
+                                            <div class="col-2">
+                                                <!-- العمر بالشهور -->
+                                                <div class="form-group">
+                                                    <label for="age_month">العمر بالشهور</label>
+                                                    <input type="number" class="form-control" id="age_month"
+                                                        name="age_month" placeholder="العمر بالشهور" value="0">
+                                                </div>
+                                            </div>
+                                            <div class="col-2">
+                                                <!-- العمر بالايام -->
+                                                <div class="form-group">
+                                                    <label for="age_day">العمر بالايام</label>
+                                                    <input type="number" class="form-control" id="age_day"
+                                                        name="age_day" placeholder="العمر بالايام" value="0">
+                                                </div>
+                                            </div>
+                                            <div class="col-3">
+                                                <!-- العنوان -->
+                                                <div class="form-group">
+                                                    <label for="address">العنوان</label>
+                                                    <input type="text" class="form-control" id="address" name="address"
+                                                        placeholder="العنوان">
+                                                </div>
+                                            </div>
+                                            <div class="col-3">
+                                                <!-- رقم الهاتف -->
+                                                <div class="form-group">
+                                                    <label for="phone">رقم الهاتف</label>
+                                                    <input type="number" class="form-control" id="phone" name="phone"
+                                                        placeholder="رقم الهاتف">
+                                                </div>
+                                            </div>
+                                            <div class="col-3">
+                                                <!-- الجنس -->
+                                                <div class="form-group">
+                                                    <label for="gender">الجنس</label>
+                                                    <select class="form-control " id="gender" name="gender">
+                                                        <option value="ذكر">ذكر</option>
+                                                        <option value="انثى">انثى</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-3">
+                                                <!-- الطبيب المعالج -->
+                                                <div class="form-group" id="doctor_hash-form">
+                                                    <label for="note">الطبيب</label>
+                                                    <select class="form-control" id="doctor_hash" name="doctor_hash">
+
+
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-12">
+                                                <!-- ملاحظات -->
+                                                <div class="form-group">
+                                                    <label for="note">ملاحظات</label>
+                                                    <textarea class="form-control" id="note" style="font-size:14px"
+                                                        name="note" rows="3"></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div class="col-lg-5">
-                        <div class="statbox widget box box-shadow bg-white main-visit-list">
+                        <div class="statbox widget box box-shadow bg-white main-visit-list" style="min-height: 100%;">
                             <div class="widget-content widget-content-area m-auto visits-tabble h-100"
                                 style="overflow-y: scroll;">
                                 <div class="modal-header d-flex justify-content-center">
@@ -244,6 +354,7 @@
     <script src="themes/visits.js"></script>
     <script src="models/visits.js"></script>
     <script src="controller/visits.js"></script>
+    <script src="controller/refrence.js"></script>
     <script src="views/visits.js"></script>
 
 </body>

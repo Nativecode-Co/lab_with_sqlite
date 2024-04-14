@@ -1,46 +1,5 @@
-function run(json) {
-  localStorage.setItem("last_url", window.location.href);
-  const token = localStorage.getItem("token");
-  let res = [];
-
-  let new_json;
-  if (typeof json === "string") {
-    new_json = json;
-  } else {
-    new_json = `${JSON.stringify(json)};`;
-  }
-  $.ajax({
-    url: `${base_url}run`,
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-    type: "POST",
-    dataType: "JSON",
-    data: { query: new_json, token: token },
-    async: false,
-    success: (result) => {
-      if (result.result === "unauthorize") {
-        location.href = `${front_url}login/login.html`;
-      } else if (result.result === "expire") {
-        localStorage.setItem("token", result.token);
-        // get current location
-        let current_location = window.location.href;
-        current_location = current_location.split("/");
-        if (!current_location.includes("active.html")) {
-          location.href = `${front_url}active.html`;
-        }
-      } else {
-        localStorage.setItem("token", result.token);
-        res = result;
-        // Do something with the result here
-      }
-    },
-    error: () => {
-      console.log("internet connection or missing link");
-    },
-  });
-  return res;
-}
+let SYNCTIMEOUT = null;
+updateExpireDate();
 
 function fetchData(url = "", type = "GET", data = {}) {
   let res = null;
@@ -57,14 +16,63 @@ function fetchData(url = "", type = "GET", data = {}) {
     success: (result) => {
       res = result;
     },
-    error: () => {
-      console.log("internet connection or missing link");
+    error: (e) => {
+      console.log(e.responseText)
+    },
+  });
+  syncOnline();
+  return res;
+}
+
+function fetchSync(url = "", type = "GET", data = {}) {
+  let res = null;
+  const token = localStorage.getItem("token");
+  $.ajax({
+    url: base_url + url,
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    type,
+    data,
+    dataType: "JSON",
+    async: true,
+    success: (result) => {
+      res = result;
+    },
+    error: (e) => {
+      console.log(e.responseText)
+    },
+  });
+  syncOnline();
+  return res;
+}
+
+function fetchApi(url = "", type = "GET", data = {}) {
+  let res = null;
+  const token = localStorage.getItem("token");
+  $.ajax({
+    url: `${api_url}${url}`,
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    type,
+    data,
+    dataType: "JSON",
+    async: false,
+    success: (result) => {
+      res = result;
+    },
+    error: (e) => {
+      console.log(e.responseText)
     },
   });
   return res;
 }
 
 function fetchDataOnline(url = "", type = "GET", data = {}) {
+  if (!navigator.onLine) {
+    return false;
+  }
   let res = null;
   const token = localStorage.getItem("token");
   $.ajax({
@@ -80,48 +88,10 @@ function fetchDataOnline(url = "", type = "GET", data = {}) {
     success: (result) => {
       res = result;
     },
-    error: () => {
-      console.log("internet connection or missing link");
+    error: (e) => {
+      console.log(e.responseText)
     },
   });
-  return res;
-}
-
-function run_online(json, token = localStorage.getItem("token")) {
-  localStorage.setItem("last_url", window.location.href);
-  let res = [];
-
-  if (typeof json === "string") {
-    new_json = json;
-  } else {
-    new_json = `${JSON.stringify(json)};`;
-  }
-  $.ajax({
-    url: "http://umc.native-code-iq.com/app/index.php/run",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-    type: "POST",
-    dataType: "JSON",
-    data: { query: new_json, token: token },
-    async: false,
-    success: (result) => {
-      if (result.result === "unauthorize") {
-        // location.href = front_url + "login/login.html";
-      } else {
-        localStorage.setItem("token", result.token);
-        res = result;
-      }
-    },
-    error: () => {
-      console.log("internet connection or missing link");
-    },
-  });
-  return res;
-}
-
-function run_both(json) {
-  const res = run(json);
   return res;
 }
 
@@ -145,8 +115,8 @@ function add_calc_tests(tests, visit_hash, action = "insert") {
     success: (result) => {
       console.log(result);
     },
-    error: () => {
-      console.log("internet connection or missing link");
+    error: (e) => {
+      console.log(e.responseText)
     },
   });
 }
@@ -282,45 +252,45 @@ async function updateSystem() {
 }
 
 async function updateExpireDate() {
-  const formDate = new FormData();
-  formDate.append("lab", localStorage.getItem("lab_hash"));
-  await fetch("http://umc.native-code-iq.com/app/index.php/LastDate/get", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
-    },
-    body: formDate,
-  })
-    .then((res) => res.json())
-    .then(async (res) => {
-      const date = res.data;
-      if (!date) {
-        return false;
-      }
-      const newFormDate = new FormData();
-      newFormDate.append("lab", localStorage.getItem("lab_hash"));
-      newFormDate.append("date", date);
-      await fetch(`${base_url}LocalApi/update_expire`, {
-        method: "POST",
-        body: newFormDate,
-      })
-        .then((res) => res.json())
-        .then((res) => {
-          console.log(res);
-        });
-    })
-    .catch((err) => {
-      console.log(err);
-    });
+  let date;
+  if (!navigator.onLine) {
+    const {data} = fetchData("LastDate/get", "POST", { lab: localStorage.getItem("lab_hash") });
+    date = data;
+  }else{
+    const {data} = fetchDataOnline("LastDate/get", "POST", { lab: localStorage.getItem("lab_hash") });
+    date = data;
+    if(!date) return false ;
+    fetchData("LocalApi/update_expire", "POST", { lab: localStorage.getItem("lab_hash"), date });
+  }
+  // check if date is expired
+  const now = new Date();
+  const expire = new Date(date);
+  if (now > expire) {
+    console.log("expired");
+    let current_location = window.location.href;
+    current_location = current_location.split("/");
+    if (!current_location.includes("active.html")) {
+      location.href = `${front_url}active.html`;
+    }
+  }
 }
 
 function syncOnline() {
-  // check internet connection`
+  // clear time out
+  clearTimeout(SYNCTIMEOUT);
   if (!navigator.onLine) {
     return false;
   }
-  fetch(`${__domain__}/sync/sync_up.php`).then((res) => {
-    fetchData("Offline_sync/Offline_sync");
-  });
-  updateExpireDate();
+  // set token in header
+  SYNCTIMEOUT = setTimeout(() => {
+    fetch(`${__domain__}/sync/sync_up.php`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Authorization": localStorage.getItem("token"),
+      },
+    }).then((res) => res.json()).then((data)=>{
+      
+    }).catch((e)=>{console.log("error", e)})
+  }, 500);
 }

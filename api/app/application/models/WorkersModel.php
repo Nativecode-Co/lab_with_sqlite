@@ -13,29 +13,47 @@ class WorkersModel extends CI_Model
 
     public function count_all($params)
     {
-        $order = $params['order'];
-        $orderBy = $params['orderBy'];
-        $searchText = $params['searchText'];
+        $searchText = $params['search']['value'];
         return $this->db
             ->where('isdeleted', 0)
             ->like("name", $searchText)
-            ->order_by($orderBy, $order)
             ->count_all_results($this->table);
     }
 
     public function get_all($params)
     {
-        $page = $params['page'];
-        $rowsPerPage = $params['rowsPerPage'];
-        $order = $params['order'];
-        $orderBy = $params['orderBy'];
-        $searchText = $params['searchText'];
+        $start = $params['start'];
+        $rowsPerPage = $params['length'];
+        $page = $start / $rowsPerPage;
+        $orderBy = $params['order'][0]['column'];
+        $orderBy = $params['columns'][$orderBy]['data'];
+        $order = $params['order'][0]['dir'];
+        $searchText = $params['search']['value'];
         return $this->db
             ->where('isdeleted', 0)
             ->like("name", $searchText)
             ->order_by($orderBy, $order)
             ->get($this->table, $rowsPerPage, $page * $rowsPerPage)
             ->result();
+    }
+
+    public function getVisibleWorkers()
+    {
+        $defaultworkers = array(
+            array(
+                "hash" => "logo"
+            ),
+            array(
+                "hash" => "name"
+            ),
+        );
+        $workers = $this->db->select('name, jop, jop_en,hash')
+            ->from('lab_invoice_worker')
+            ->where('isdeleted', '0')
+            ->where('is_available', '1')
+            ->get()
+            ->result_array();
+        return array_merge($defaultworkers, $workers);
     }
 
     public function get($hash)

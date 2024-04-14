@@ -60,6 +60,53 @@ class Visit_model extends CI_Model
         }
     }
 
+    public function get($hash, $fields)
+    {
+        $this->load->helper('json');
+        $font = $this->db->select('font_size')->from('lab_invoice')->get()->row();
+        $font = $font->font_size;
+        $visit = $this->db
+            ->select("age,gender,phone,lab_patient.name,DATE(visit_date) as date")
+            ->select("TIME(visit_date) as time,visits_patient_id as patient,lab_visits.hash")
+            ->select("(select name from lab_doctor where hash=lab_visits.doctor_hash) as doctor")
+            ->select("lab_patient.hash as patient_hash, gender,age")
+            ->from("lab_visits")
+            ->join("lab_patient", "lab_patient.hash=lab_visits.visits_patient_id")
+            ->where("lab_visits.hash", $hash)
+            ->get()->row();
+        $tests = $this->db
+            ->select("option_test, test_name as name, kit_id")
+            ->select(" (select name from devices where devices.id=lab_device_id limit 1) as device_name, (select name from kits where kits.id =kit_id limit 1) as kit_name, (select name from lab_test_units where hash=lab_pakage_tests.unit limit 1) as unit_name, (select name from lab_test_catigory where hash=lab_test.category_hash limit 1) as category, unit, result_test as result,sort, lab_visits_tests.hash as hash, test_id")
+            ->from("lab_visits_tests")
+            ->join("lab_pakage_tests", "lab_pakage_tests.test_id = lab_visits_tests.tests_id and lab_pakage_tests.package_id = lab_visits_tests.package_id", "left")
+            ->join("lab_test", "lab_test.hash = lab_visits_tests.tests_id")
+            ->where("visit_id", $hash)
+            ->order_by("sort")
+            ->get()->result_array();
+        if (isset($visit) && isset($tests)) {
+            $tests = array_map(function ($test) use ($visit, $font) {
+                $json = new Json($test['option_test']);
+                $filterFeilds = array_merge((array) $test, (array) $visit);
+                $test['option_test'] = $json->filter($filterFeilds)->setHeight($font)->row();
+                $test['result'] = json_decode($test['result'], true);
+                if ($test['result'] == null) {
+                    $test['result'] = array (
+                        "checked" => true,
+                        $test['name'] => ""
+                    );
+                }
+
+                return $test;
+            }, $tests);
+        }
+        // sort array by category 
+        usort($tests, function ($a, $b) {
+            return $a['category'] <=> $b['category'];
+        });
+        $visit->tests = $tests;
+        return $visit;
+    }
+
     public function record_count($search, $current = 0)
     {
         /// delete duplicate visits has same hash only one of them is not deleted but id is different
@@ -78,29 +125,7 @@ class Visit_model extends CI_Model
         return $count;
     }
 
-    public function deleteDuplicateVisitsAndPatientsAndLabPackageTestsAndLabVisitsTestsAndLabPakageAndLabVisitsPackage()
-    {
-        $this->db->query("DELETE FROM lab_patient WHERE id NOT IN (SELECT id FROM (SELECT MIN(id) as id FROM lab_patient GROUP BY hash) as t)");
-        $this->db->query("DELETE FROM lab_visits WHERE id NOT IN (SELECT id FROM (SELECT MIN(id) as id FROM lab_visits GROUP BY hash) as t)");
-        // delete duplicate lab_package and lab_pakage_tests expect first one when lab_package hash is same and lab_pakage_tests have same unit and kit_id and test_id and lab_device_id
-        $packageIds = $this->db->query("SELECT t.id FROM 
-        (SELECT MIN(lab_package.id) as id FROM lab_package 
-        inner join lab_pakage_tests on lab_pakage_tests.package_id=lab_package.hash 
-        group by 
-        lab_pakage_tests.unit,
-        lab_pakage_tests.kit_id,
-        lab_pakage_tests.test_id,
-        lab_pakage_tests.lab_device_id) as t")->result_array();
-        if (!isset($packageIds[0])) {
-            return;
-        }
-        $packageIds = array_column($packageIds, 'id');
-        $this->db->query("DELETE FROM lab_package WHERE id NOT IN (" . implode(",", $packageIds) . ")");
-        $packageHashes = $this->db->query("SELECT hash FROM lab_package")->result_array();
-        $packageHashes = array_column($packageHashes, 'hash');
-        $this->db->query("DELETE FROM lab_pakage_tests WHERE package_id NOT IN ('" . implode("','", $packageHashes) . "')");
 
-    }
 
     function getVisits($lab_id, $start, $length, $search, $current = 0)
     {
@@ -177,33 +202,21 @@ class Visit_model extends CI_Model
     {
         $query = $this->db->query("
         SELECT 
-            tests_id AS id,
-            result_test AS result,
-            (SELECT 
-                    test_name
-                FROM
-                    lab_test
-                WHERE
-                    hash = tests_id) AS name,
-            (SELECT 
-                    visit_date
-                FROM
-                    lab_visits
-                WHERE
-                    hash = visit_id) AS date
-        FROM
-            lab_visits_tests
-        WHERE
-            visit_id in (SELECT 
-                    hash
-                FROM
-                    lab_visits
-                WHERE
-                    visits_patient_id = '$patient_id'
-                        AND isdeleted = 0
-                        AND visit_date < '$visit_date'
-                ORDER BY visit_date DESC)
-                AND tests_id != 0 ORDER BY date DESC;
+    lvt.tests_id AS id,
+    lvt.result_test AS result,
+    lt.test_name AS name,
+    lv.visit_date AS date
+FROM
+    lab_visits_tests lvt
+    INNER JOIN lab_visits lv ON lvt.visit_id = lv.hash
+    LEFT JOIN lab_test lt ON lvt.tests_id = lt.hash
+WHERE
+    lv.visits_patient_id = '$patient_id'
+    AND lv.isdeleted = 0
+    AND lv.visit_date < '$visit_date'
+    AND lvt.tests_id != 0 
+ORDER BY
+    lv.visit_date DESC;
         ");
         $tests = $query->result_array();
         return $tests;
@@ -401,7 +414,9 @@ class Visit_model extends CI_Model
                     );
                 } else {
                     $orderOfHeader = $setting['orderOfHeader'];
-                    $orderOfHeader = json_decode($orderOfHeader, true);
+                    if (is_string($orderOfHeader)) {
+                        $orderOfHeader = json_decode($orderOfHeader, true);
+                    }
                     $isFounded = in_array("name", $orderOfHeader);
                     if (!$isFounded) {
                         $orderOfHeader[] = "name";

@@ -13,24 +13,25 @@ class DoctorsModel extends CI_Model
 
     public function count_all($params)
     {
-        $order = $params['order'];
-        $orderBy = $params['orderBy'];
-        $searchText = $params['searchText'];
+        $searchText = $params['search']['value'];
         return $this->db
             ->where('isdeleted', 0)
             ->like("name", $searchText)
-            ->order_by($orderBy, $order)
             ->count_all_results($this->table);
     }
 
     public function get_all($params)
     {
-        $page = $params['page'];
-        $rowsPerPage = $params['rowsPerPage'];
-        $order = $params['order'];
-        $orderBy = $params['orderBy'];
-        $searchText = $params['searchText'];
+        $start = $params['start'];
+        $rowsPerPage = $params['length'];
+        $page = $start / $rowsPerPage;
+        $orderBy = $params['order'][0]['column'];
+        $orderBy = $params['columns'][$orderBy]['data'];
+        $order = $params['order'][0]['dir'];
+        $searchText = $params['search']['value'];
         return $this->db
+            ->select('*')
+            ->select('(SELECT name FROM lab_doctor_partment WHERE hash = lab_doctor.partmen_hash limit 1) as partment_name')
             ->where('isdeleted', 0)
             ->like("name", $searchText)
             ->order_by($orderBy, $order)
@@ -67,6 +68,15 @@ class DoctorsModel extends CI_Model
         $this->db
             ->where($this->main_column, $hash)
             ->update($this->table, ['isdeleted' => 1]);
+    }
+
+    public function get_partments()
+    {
+        return $this->db
+            ->select('hash, name as text')
+            ->where('isdeleted', 0)
+            ->get('lab_doctor_partment')
+            ->result();
     }
 
 }

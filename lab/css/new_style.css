@@ -316,18 +316,18 @@ table.style1 thead th {
 }
 
 /* first th */
-table.style1 thead th:first-child {
+table.style1 thead tr:first-child th:first-child {
     border-top-right-radius: var(--tableBorderRadius);
     text-align: right;
 }
 
 /* last th */
-table.style1 thead th:last-child {
+table.style1 thead tr:first-child th:last-child {
     border-top-left-radius: var(--tableBorderRadius);
 }
 
 /* before last */
-table.style1 thead th:nth-last-child(2) {
+table.style1 thead tr:first-child th:nth-last-child(2) {
     border-top-left-radius: var(--tableBorderRadius);
 }
 
@@ -340,8 +340,10 @@ table.style1 tbody td:first-child {
     text-align: right;
 }
 
-
-table.style1 tfoot {
+/* footer and 2nd tr in thead */
+table.style1 tfoot,
+table.style1 thead tr:nth-child(2)
+{
     width: 100% !important;
     background-color: var(--mainColor);
     color: var(--white);
@@ -632,11 +634,9 @@ table.information-2 tr:last-child td {
     Test Page
 */
 
-#test-form {
-    border-left: 0.5px solid rgba(0, 0, 0, 0.2);
-}
 
-#test-form .title {
+
+#test-form .title,#package-form .title,.refrence .title{
     font-family: var(--fontFamily);
     font-style: normal;
     font-weight: 500;
@@ -646,7 +646,7 @@ table.information-2 tr:last-child td {
     margin: 30px 0 43px;
 }
 
-#test-form label {
+#test-form label, #package-form label {
     font-family: var(--fontFamily);
     font-style: normal;
     font-weight: 300;
@@ -655,13 +655,13 @@ table.information-2 tr:last-child td {
     color: var(--blackColor);
 }
 
-#test-form label sub {
+#test-form label sub, #package-form label sub {
     color: var(--secondaryColor);
     font-size: 14px;
 }
 
-#test-form input,
-#test-form select {
+#test-form input , #package-form input,
+#test-form select, #package-form select {
     font-family: var(--fontFamily);
     font-style: normal;
     font-weight: 300;
@@ -780,4 +780,10 @@ input:checked + .items
     cursor: not-allowed;
     opacity: 0.5;
     text-decoration: none;
+  }
+
+  .bg-default {
+    background-color: var(--secondaryColor);
+    border-color: var(--secondaryColor);
+    color: var(--whiteColor);
   }

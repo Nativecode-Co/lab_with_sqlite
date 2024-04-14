@@ -13,27 +13,29 @@ class PatientModel extends CI_Model
 
     public function count_all($params)
     {
-        $order = $params['order'];
-        $orderBy = $params['orderBy'];
-        $searchText = $params['searchText'];
+        $searchText = $params['search']['value'];
         return $this->db
             ->where('isdeleted', 0)
             ->like("name", $searchText)
-            ->order_by($orderBy, $order)
             ->count_all_results($this->table);
     }
 
     public function get_all($params)
     {
-        $page = $params['page'];
-        $rowsPerPage = $params['rowsPerPage'];
-        $order = $params['order'];
-        $orderBy = $params['orderBy'];
-        $searchText = $params['searchText'];
+        $start = $params['start'];
+        $rowsPerPage = $params['length'];
+        $page = $start / $rowsPerPage;
+        $orderBy = $params['order'][0]['column'];
+        $orderBy = $params['columns'][$orderBy]['data'];
+        $order = $params['order'][0]['dir'];
+        $searchText = $params['search']['value'];
         return $this->db
-            ->where('isdeleted', 0)
-            ->like("name", $searchText)
+            ->select('lab_patient.*, visit_date')
+            ->join('lab_visits', 'lab_patient.hash = lab_visits.visits_patient_id', 'left')
+            ->where('lab_patient.isdeleted', 0)
+            ->like("lab_patient.name", $searchText)
             ->order_by($orderBy, $order)
+            ->group_by('lab_patient.hash')
             ->get($this->table, $rowsPerPage, $page * $rowsPerPage)
             ->result();
     }
@@ -66,6 +68,34 @@ class PatientModel extends CI_Model
         $this->db
             ->where($this->main_column, $hash)
             ->update($this->table, ['isdeleted' => 1]);
+    }
+
+    public function patientIsExist($data)
+    {
+        $patient = $this->db
+            ->select('name,hash')
+            ->where('isdeleted', 0)
+            ->where($data)
+            ->get($this->table)
+            ->row();
+        return array(
+            "isExist" => $patient != null,
+            "hash" => $patient != null ? $patient->hash : null
+        );
+    }
+
+    public function get_patient_visits($hash)
+    {
+        return $this->db
+            ->select('
+                (select name from lab_doctor where hash=lab_visits.doctor_hash) as doctor_name,
+                net_price, visit_date, dicount,hash
+            ')
+            ->where('visits_patient_id', $hash)
+            ->where('isdeleted', 0)
+            ->order_by('visit_date', 'desc')
+            ->get('lab_visits')
+            ->result();
     }
 
 }

@@ -109,6 +109,7 @@
 .page .header:not(.money) {
     height: var(--logo-height);
     overflow: hidden;
+    padding: 0 15px;
 }
 
 .header.money,
@@ -254,14 +255,11 @@
     align-items: center;
     flex-direction: row;
     flex-wrap: wrap;
-    /* margin-top: 3px; */
-    margin-bottom: 3px;
     padding: 2px;
     border-bottom: 2px solid var(--color-orange);
     border-radius: 0px;
     resize: vertical;
     font-weight: bold;
-    margin-top: 10px;
     /* display: flex;
     align-items: center;
     flex-direction: row;
@@ -278,9 +276,9 @@
 }
 
 /* get .tester first chilt with class typetest */
-.tester > .typetest ~ .typetest  {
+/* .tester > .typetest ~ .typetest  {
     margin-top: 40px;
-}
+} */
 
 .typetest p {
     display: block;
@@ -355,10 +353,11 @@
     margin-block-end: 8px;
     margin-inline-end: 10px;
     font-family: 'play';
-    font-size: var(--font_size);
+    font-size: 18px;
     font-weight: bold;
     color: var(--invoice-color);
 }
+
 
 .testname,
 .testresult,
@@ -367,8 +366,8 @@
     align-items: center;
     flex-direction: row;
     flex-wrap: wrap;
-    margin: 1px 0;
-    padding: 2px;
+    /* margin: 1px 0; */
+    padding: 0;
     resize: vertical;
 }
 
@@ -419,20 +418,19 @@
 .center2 .testresult p,
 .center2 .testnormal p {
     display: block;
-    margin-block-start: 2px;
+    /* margin-block-start: 2px;
     margin-block-end: 3px;
-    margin-inline-start: 5px;
+    margin-inline-start: 5px; */
     /* margin-inline-end: 10px; */
     font-family: 'play';
     font-size: var(--font_size);
     font-weight: bold;
+    margin: 4px 0;
     color: #000;
 }
 
-.center2 .testname p.border,
-.center2 .testresult p.border,
-.center2 .testnormal p.border {
-    background-color: #e1e1e1 !important;
+.bg-dark-75 {
+    background-color: #e1e1e1;
 }
 
 .page {
@@ -456,11 +454,12 @@
     height: 335mm;
     margin-left: 45px;
     margin-right: 45px;
-    margin-bottom: 30px;
-    padding-bottom: 5px;
-    padding-top: 5px;
-    border-top: 5px solid #2e3f4c;
+    border-top:5px solid #2e3f4c;
     position: relative;
+}
+
+.invoice-height{
+    height: 1500px;
 }
 
 .center2-background {
@@ -484,6 +483,7 @@
     height: 80px;
     margin-left: 45px;
     margin-right: 45px;
+    border-top: 5px solid #2e3f4c;
 }
 
 .footer2 {

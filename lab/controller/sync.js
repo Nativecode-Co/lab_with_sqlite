@@ -95,10 +95,27 @@ const syncInserts = async () => {
     }
   ).data;
   inserts = inserts.filter((item) => !areTestsFounded.includes(item.name));
+  if (inserts.length === 0) {
+    newTestsElement.innerHTML += `
+          <div id="insert_tests" class="row">
+              <div class="col-12">
+                  <h5 class="text-center"> لا يوجد تحاليل جديدة </h5>
+              </div>
+          </div>
+          `;
+    return;
+  }
   newTestsElement.innerHTML += `
           <div id="insert_tests" class="row justify-content-around">
               <div class="col-12">
                   <h5 class="text-center"> أختر التحاليل التي تريد اضافتها </h5>
+              </div>
+              <div class="col-12  border rounded p-2 my-2 d-flex justify-content-center align-items-center" style="cursor: pointer;"
+                      onclick="$('#insert_tests .syncItem').toggleClass('active');"
+                     >
+                          <p class="text-center">
+                              <span class="h4">اختيار الكل</span>
+                          </p>
               </div>
               ${inserts
                 .map((item) => {
@@ -144,6 +161,7 @@ const saveInserts = async () => {
       });
       fetchDataOnline("Offline/run_sync", "POST", {
         queries: `${onLineQueries.join(";")};`,
+        lab: localStorage.getItem("lab_hash"),
       });
       return resolve();
     }).then(() => {
@@ -174,7 +192,6 @@ const syncUpdates = async () => {
     if (!date) return false;
     return new Date(item.date_time) > new Date(date);
   });
-
   if (updates.length > 0) {
     // make finish button enabled
     finishButton.classList.remove("isDisabled");
@@ -184,6 +201,13 @@ const syncUpdates = async () => {
           <div id="update_tests" class="row justify-content-around">
               <div class="col-12">
                   <h5 class="text-center"> أختر التحاليل التي تريد تحديث القيم البيعية لها </h5>
+              </div>
+              <div class="col-12  border rounded p-2 my-2 d-flex justify-content-center align-items-center" style="cursor: pointer;"
+                      onclick="$('#update_tests .syncItem').toggleClass('active');"
+                     >
+                          <p class="text-center">
+                              <span class="h4">اختيار الكل</span>
+                          </p>
               </div>
               ${updates
                 .map((item) => {
@@ -237,22 +261,19 @@ const saveUpdates = async () => {
     const offLineQueries = [
       ...queries,
       ...updateTests.map((item) => {
-        return `update lab_test set short_name = "${
+        return `UPDATE lab_test set short_name = "${
           new Date().toISOString().split("T")[0]
         }" where hash = "${item.hash}";`;
       }),
     ];
-    const onLineQueries = queries.map((item) => {
-      run_online(
-        `${item} and lab_hash = "${localStorage.getItem("lab_hash")}";`
-      );
-      run_online(
-        `update lab_test set short_name = "${
-          new Date().toISOString().split("T")[0]
-        }" where hash = "${item.hash} and lab_hash = "${localStorage.getItem(
-          "lab_hash"
-        )}"";`
-      );
+    const onLineQueries = updateTests.map((item) => {
+      return `UPDATE lab_test set short_name = "${
+        new Date().toISOString().split("T")[0]
+      }" WHERE hash = "${item.hash}";`;
+    });
+    fetchDataOnline("Offline/run_sync", "POST", {
+      queries: `${queries.join(";")}; ${onLineQueries.join(";")};`,
+      lab: localStorage.getItem("lab_hash"),
     });
 
     updateTests.map((item) => {
@@ -261,15 +282,20 @@ const saveUpdates = async () => {
         hash: item.hash,
       });
     });
+    
 
     new Promise((resolve) => {
       fetchData("LocalApi/run_queries", "POST", {
         queries: JSON.stringify(offLineQueries),
       });
+      fetchApi("/tests/insert_sync_packages", "POST", {
+        hashes: JSON.stringify(updateTestsHash),
+      });
       return resolve();
     }).then(() => {
       niceSwal("success", "bottom-end", "تم تحديث البيانات بنجاح");
     });
+    return;
   }
   niceSwal("success", "bottom-end", "لم يتم اختيار اي تحليل");
 };

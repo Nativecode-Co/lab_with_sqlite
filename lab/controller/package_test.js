@@ -1,88 +1,62 @@
-"use strict";
-
 const THEME = new PackageTestTheme();
 let TEST = null;
 
-const _allData = run_both(`
-    select name,id from kits;
-    select device_id,kit_id,id from device_kit;
-    select kit,unit,id from lab_kit_unit;
-    select name,hash from lab_test_units;
-    select hash,test_name as name from lab_test;
-`);
+// when document is ready with pure js
+document.addEventListener("DOMContentLoaded", () => {
+  const { kits, units, devices } = fetchApi("/tests/get_tests_data");
+  const tests = fetchApi("/maintests/get_tests_options");
+  const kitsSelect = document.getElementById("kit_id");
+  const unitsSelect = document.getElementById("unit");
+  const devicesSelect = document.getElementById("lab_device_id");
+  const testsSelect = document.getElementById("test_id");
+  const packagesSelect = document.querySelector("select[name='tests']");
+  // add no kit option
+  const noKitOption = document.createElement("option");
+  noKitOption.value = "0";
+  noKitOption.textContent = "No Kit";
+  kitsSelect.appendChild(noKitOption);
+  // add no unit option
+  const noUnitOption = document.createElement("option");
+  noUnitOption.value = "0";
+  noUnitOption.textContent = "No Unit";
+  unitsSelect.appendChild(noUnitOption);
+  // add no device option
+  const noDeviceOption = document.createElement("option");
+  noDeviceOption.value = "0";
+  noDeviceOption.textContent = "No Device";
+  devicesSelect.appendChild(noDeviceOption);
 
-let kits = _allData.result[0].query0;
-let devices_kits = _allData.result[1].query1;
-let kit_units = _allData.result[2].query2;
-let _units = _allData.result[3].query3;
-_tests = _allData.result[4].query4;
-
-async function getKitsUnitsByTestName(testName, testHash) {
-  let formData = new FormData();
-  formData.append("name", testName);
-  formData.append("hash", testHash);
-  return await fetch(
-    `${__domain__}/app/index.php/Packages/getKitsAndUnitsByTestName`,
-    {
-      method: "POST",
-      headers: {
-        Authorization: "Bearer " + localStorage.getItem("token"),
-      },
-      body: formData,
-    }
-  );
-}
-
-async function refreshData() {
-  Swal.fire({
-    title: "الرجاء الانتظار",
-    text: "قد تستغرق العملية بعض الوقت",
-    showDenyButton: false,
-    showCancelButton: false,
-    showConfirmButton: false,
-    willOpen: () => {
-      Swal.showLoading();
-    },
-  });
-
-  let tests = await fetch(`${__domain__}app/index.php/Tests/getTests`, {
-    method: "GET",
-    headers: {
-      Authorization: "Bearer " + localStorage.getItem("token"),
-    },
-  })
-    .then((res) => res.json())
-    .catch((err) => {
-      localStorage.removeItem("token");
-      window.location.href = `${__domain__}/lab/login/login.html`;
-    });
-  if (tests.status === true) {
-    localStorage.setItem("token", tests.token);
-    // query to delete data from table
-    run_both(`delete from lab_test;`);
-    let total = tests.data.length / 50;
-    let i = 1;
-    // query to insert data
-    while (i <= total) {
-      let query = `INSERT INTO 
-        lab_test(category_hash, hash,insert_record_date, isdeleted, option_test, sample_type, short_name, test_name, test_type)
-        VALUES 
-        `;
-      for (let test of tests.data.slice((i - 1) * 50, i * 50)) {
-        query += `('${test.category_hash}', '${test.hash}','${test.insert_record_date}', '${test.isdeleted}', '${test.option_test}', '${test.sample_type}', '${test.short_name}', '${test.test_name}', '${test.test_type}'),`;
-      }
-      run_both(query.slice(0, -1) + ";");
-      i += 1;
-    }
-  } else {
-    localStorage.removeItem("token");
-    window.location.href = `${__domain__}/lab/login/login.html`;
+  for (const test of packages) {
+    const option = document.createElement("option");
+    option.value = test.hash;
+    option.textContent = test.name;
+    packagesSelect.appendChild(option);
   }
-  // refresh page
-  // window.location.reload();
-}
-// id, package_id, test_id, kit_id, lab_device_id, unit, hash, insert_record_date, isdeleted
-// functions for Tests
+  for (const test of tests) {
+    const option = document.createElement("option");
+    option.value = test.hash;
+    option.textContent = test.text;
+    testsSelect.appendChild(option);
+  }
+  for (const kit of kits) {
+    const option = document.createElement("option");
+    option.value = kit.hash;
+    option.textContent = kit.text;
+    kitsSelect.appendChild(option);
+  }
+  for (const unit of units) {
+    const option = document.createElement("option");
+    option.value = unit.hash;
+    option.textContent = unit.text;
+    unitsSelect.appendChild(option);
+  }
+  for (const device of devices) {
+    const option = document.createElement("option");
+    option.value = device.hash;
+    option.textContent = device.text;
+    devicesSelect.appendChild(option);
+  }
+});
 
 function changeCost(hash) {
   const element = document.querySelector(
@@ -94,20 +68,19 @@ function changeCost(hash) {
   searchPackageElement.value = "";
   searchPackageElement.dispatchEvent(new Event("keyup"));
   searchPackageElement.dispatchEvent(new Event("focus"));
-  let cost = Number(document.querySelector("#addPackage #cost").value);
-  let currentCost = Number(element.dataset.cost);
+  const cost = Number(document.querySelector("#addPackage #cost").value);
+  const currentCost = Number(element.dataset.cost);
   if (
     document.querySelectorAll(`input[type=checkbox][value="${hash}"]`).length <=
     1
   ) {
-    console.log("here");
     document.querySelector("#addPackage #cost").value = cost + currentCost;
     if (
       !document.querySelector(
         `#selected-tests input[type=checkbox][value="${hash}"]`
       )
     ) {
-      let el = element.parentElement.parentElement.cloneNode(true);
+      const el = element.parentElement.parentElement.cloneNode(true);
       document.querySelector("#selected-tests").appendChild(el);
       element.checked = true;
     }
@@ -121,316 +94,153 @@ function changeCost(hash) {
   }
 }
 
-async function changeKitsAndUnits(name, hash) {
-  let __data = await getKitsUnitsByTestName(name, hash).then((res) =>
-    res.json()
-  );
-  let testKitsByName = __data.data.kits;
-  // delete duplicate kits with same name
-  testKitsByName = testKitsByName.filter(
-    (thing, index, self) =>
-      index === self.findIndex((t) => t.name === thing.name)
-  );
-  let testUnitsByName = __data.data.units;
-  // delete duplicate units with same name
-  testUnitsByName = testUnitsByName.filter(
-    (thing, index, self) =>
-      index === self.findIndex((t) => t.name === thing.name)
-  );
-  let testDevicesByKit = [];
-  if (testKitsByName.length > 0) {
-    let kitsIdList = testKitsByName
-      .filter((item) => item.kit_id)
-      .map((item) => {
-        if (item.kit_id) {
-          return item.kit_id;
-        }
-        return false;
-      })
-      .join(",");
-    if (kitsIdList.length != 0) {
-      testDevicesByKit = run_both(`
-      select 
-      DISTINCT name, id
-      from 
-      devices;
-        `).result[0].query0;
-      // push {name: 'name', id: 'id'} to testDevicesByKit at first
-    }
-    testDevicesByKit.unshift({ name: "No Device", id: "0" });
-  }
-  $("#lab_device_id").empty();
-  $("#kit_id").empty();
-  $("#unit").empty();
-  $("#unit").append(
-    testUnitsByName.map(
-      (item, index) => `<option value="${item.unit_id}">${item.name}</option>`
-    )
-  );
-  $("#lab_device_id").append(
-    testDevicesByKit.map(
-      (item, index) => `<option value="${item.id}">${item.name}</option>`
-    )
-  );
-  $("#kit_id").append(`<option value="">No kit</option>`);
-  $("#kit_id").append(
-    testKitsByName.map(
-      (item, index) => `<option value="${item.kit_id}">${item.name}</option>`
-    )
-  );
-  return testDevicesByKit;
-}
-
-async function setNameAndHash(ele) {
-  $("search_test #testSearch").val("");
-  const struc = ["stool", "urine", "semen"];
-  let name = $(ele).data("name");
-  let hash = $(ele).data("hash");
-  if (struc.includes(name.toLowerCase().trim())) {
-    $("#addTest #lab_device_id").parent().parent().hide();
-    $("#addTest #kit_id").parent().parent().hide();
-    $("#addTest #unit").parent().parent().hide();
-  } else {
-    $("#addTest #lab_device_id").parent().parent().show();
-    $("#addTest #kit_id").parent().parent().show();
-    $("#addTest #unit").parent().parent().show();
-  }
-  $("#addTest #name").val(name);
-  $("#addTest #name").data("hash", hash);
-  $("#addTest #lab_device_id").val("").trigger("change");
-  let testDevicesByKit = await changeKitsAndUnits(name, hash);
-  // store devices in local storage
-  localStorage.setItem("testDevicesByKit", JSON.stringify(testDevicesByKit));
-}
-
-function addKitsByDevice(ele) {
-  let device_id = $(ele).val();
-  let deviceKits = devices_kits
-    .filter((item) => item.device_id == device_id)
-    .map((item) => item.kit_id);
-  let kitsResult = kits.filter((item) => {
-    return deviceKits.find((x) => x == item.id);
-  });
-  let kitElement = $("#kit_id");
-  kitElement.empty();
-  if (kitsResult.length == 0) {
-    kitElement.append(`<option value="">No Kits</option>`);
-    return false;
-  }
-  kitElement.append(
-    kitsResult
-      .map((item) => `<option value="${item.id}">${item.name}</option>`)
-      .join("")
-  );
-  $("#kit_id").val($("#kit_id option:first").val()).trigger("change");
-}
-
-function addUnitsByKit(ele) {
-  if (1) return false;
-  let kit = $(ele).val();
-  let kitUnits = kit_units
-    .filter((item) => item.kit == kit)
-    .map((item) => item.unit);
-  let unitsResult = _units.filter((item) => {
-    return kitUnits.find((x) => x == item.hash);
-  });
-  let unitElement = $("#unit");
-  unitElement.empty();
-  if (unitsResult.length == 0) {
-    unitElement.append(`<option value="">No Units</option>`);
-    return false;
-  }
-  unitElement.append(
-    unitsResult
-      .map((item) => `<option value="${item.hash}">${item.name}</option>`)
-      .join("")
-  );
-  let device_id = getDeviceByKit(kit);
-  $("#lab_device_id").val(device_id).trigger("change");
-}
-
-function getDeviceByKit(id) {
-  let devices_id = devices_kits
-    .filter((item) => item.kit_id == id)
-    .map((item) => item.device_id);
-  // get devicesbykit from local storage
-  let testDevicesByKit = JSON.parse(localStorage?.getItem("testDevicesByKit"));
-  let device = testDevicesByKit.filter((item) =>
-    devices_id.find((x) => x == item.id)
-  );
-  return device[0]?.id;
-}
-
 // empty form
 function emptyTestForm() {
-  $("#addTest #name").val("");
-  $("#addTest #price").val(0);
-  $("#addTest #cost").val(0);
-  $("#addTest #lab_device_id").val("").trigger("change");
-  $("#addTest #kit_id").val("").trigger("change");
-  $("#addTest #unit").val("").trigger("change");
+  const from = document.getElementById("test-form");
+  const inputs = from.querySelectorAll("input");
+  const selects = from.querySelectorAll("select");
+  for (const input of inputs) {
+    input.value = "";
+  }
+  for (const select of selects) {
+    select.value = "0";
+    const event = new Event("change");
+    select.dispatchEvent(event);
+  }
+  $("#addTest #test_id").trigger("change");
+
 }
 
-async function updateTest(hash) {
-  let test = lab_test.getItem(hash);
-  allTests.addRow(allTests.getItem(test.test_id));
+function updateTest(hash) {
+  const form = document.getElementById("test-form");
+  const test = lab_test.getItem(hash);
+  const formInputs = form.querySelectorAll("input");
+  const formSelects = form.querySelectorAll("select");
 
-  let testDevicesByKit = await changeKitsAndUnits(test.name, test.test_id);
-  // store devices in local storage
-  localStorage.setItem("testDevicesByKit", JSON.stringify(testDevicesByKit));
-  $("#addTest #name").val(test.name);
-  $("#addTest #price").val(test.price);
-  $("#addTest #cost").val(test.cost);
-  $("#addTest #lab_device_id")
-    .val(test.lab_device_id ?? "0")
-    .trigger("change");
-  $("#addTest #kit_id").val(test.kit_id).trigger("change");
-  $("#addTest #unit")
-    .val(test.unit ?? "0")
-    .trigger("change");
-  $(".buttons .btn-action").removeClass("active");
-  $('.buttons .btn-action[data-id="addTest"]').addClass("active");
-  $(".page").hide();
-  $("#addTest").show();
-  // change save button
-  $("#addTest #save-button").attr(
-    "onclick",
-    `fireSwal(saveUpdateTest, '${hash}')`
+  for (const input of formInputs) {
+    input.value = test[input.name];
+  }
+
+  for (const select of formSelects) {
+    select.value = test[select.name];
+    const event = new Event("change");
+    select.dispatchEvent(event);
+  }
+
+  const buttons = document.querySelectorAll(".buttons .btn-action");
+  for (const button of buttons) {
+    button.classList.remove("active");
+  }
+
+  const addTestButton = document.querySelector(
+    '.buttons .btn-action[data-id="addTest"]'
   );
-  // change title
-  $("#addTest #save-button").text("تعديل");
+  addTestButton.classList.add("active");
+
+  const pages = document.querySelectorAll(".page");
+  for (const page of pages) {
+    page.style.display = "none";
+  }
+
+  const addTestPage = document.getElementById("addTest");
+  addTestPage.style.display = "block";
+
+  const saveButton = document.getElementById("save-button");
+  saveButton.setAttribute("onclick", `fireSwal(saveUpdateTest, '${hash}')`);
+  saveButton.textContent = "تعديل";
+  $("#addTest #test_id").trigger("change");
 }
 
 function saveUpdateTest(hash) {
-  let price = $("#addTest #price").val();
-  let cost = $("#addTest #cost").val();
-  let lab_device_id = $("#addTest #lab_device_id").val();
-  let kit_id = $("#addTest #kit_id").val();
-  let unit = $("#addTest #unit").val();
-  let oldTest = run(
-    `select lab_device_id,kit_id,unit,test_id from lab_pakage_tests where package_id='${hash}';`
-  ).result[0].query0[0];
-  // update lab_package
-  run_both(`update lab_package set price='${price}',cost='${cost}' where hash='${hash}';
-        update lab_pakage_tests 
-        set 
-            lab_device_id='${lab_device_id}',
-            kit_id='${kit_id}',
-            unit='${unit}' 
-        where 
-            lab_device_id='${oldTest.lab_device_id}' 
-            and kit_id='${oldTest.kit_id}' 
-            and unit='${oldTest.unit}' 
-            and test_id='${oldTest.test_id}'
-        ;`);
-  lab_test.dataTable.draw();
+  const form = document.getElementById("test-form");
+  let formData = new FormData(form);
+  formData = Object.fromEntries(formData.entries());
+  const testElement = document.querySelector("select[name='test_id']");
+  const name = testElement.options[testElement.selectedIndex].text;
+  const tests = [
+    {
+      test_id: formData.test_id,
+      lab_device_id: formData.lab_device_id,
+      kit_id: formData.kit_id,
+      unit: formData.unit,
+    },
+  ];
+  formData = {
+    cost: formData.cost,
+    price: formData.price,
+    hash,
+    name,
+    catigory_id: 9,
+    tests: JSON.stringify(tests),
+  };
+  fetchApi("/tests/update_test", "post", formData);
+  lab_test.dataTable.ajax.reload();
+  niceSwal("success", "bottom-end", "تم الحفظ بنجاح");
 }
 
-async function saveNewTest() {
-  let name = $("#addTest #name").val();
-  let price = $("#addTest #price").val();
-  let cost = $("#addTest #cost").val();
-  let lab_device_id = $("#addTest #lab_device_id")?.val() ?? "No Device";
-  let kit_id = $("#addTest #kit_id").val();
-  let unit = $("#addTest #unit").val();
-  let hash = $("#addTest #name").data("hash");
-  let lab_id = localStorage.getItem("lab_hash");
-  // validate form
-  if (name.length == 0 || price.length == 0) {
-    niceSwal("error", "bottom-end", "يجب ملئ جميع الحقول");
-    return false;
-  }
-  const result = fetchData(`/Packages/createNewTest`, "post", {
+function saveNewTest() {
+  const form = document.getElementById("test-form");
+  let formData = new FormData(form);
+  formData = Object.fromEntries(formData.entries());
+  const testElement = document.querySelector("select[name='test_id']");
+  const name = testElement.options[testElement.selectedIndex].text;
+  const tests = [
+    {
+      test_id: formData.test_id,
+      lab_device_id: formData.lab_device_id,
+      kit_id: formData.kit_id,
+      unit: formData.unit,
+    },
+  ];
+  formData = {
+    cost: formData.cost,
+    price: formData.price,
     name,
-    price,
-    cost,
-    lab_device_id,
-    kit_id,
-    unit,
-    lab_id,
-    test_id: hash,
-  });
-  const { status, message, data } = result;
-  if (status === false) {
-    niceSwal("error", "bottom-end", message);
-    return false;
-  }
-
-  let newPackage = run_both(allPAckages.getQuery(allPAckages.itemQuery(data)))
-    .result[0].query0[0];
-  allPAckages.addRow(newPackage);
-  // empty form
+    catigory_id: 9,
+    tests: JSON.stringify(tests),
+  };
+  fetchApi("/tests/create_test", "post", formData);
   emptyTestForm();
   niceSwal("success", "bottom-end", "تم الحفظ بنجاح");
-  let newObject = lab_test.getItem(data);
-  lab_test.addRow(newObject);
+  lab_test.dataTable.ajax.reload();
 }
 
 function deleteTest(hash) {
-  const result = run_both(`
-            SELECT 
-        name, visit_date
-        FROM
-            lab_visits_package
-        left join lab_visits on lab_visits.hash = lab_visits_package.visit_id
-        WHERE
-            package_id = '${hash}' and
-            lab_visits.isdeleted = 0
-    ;`).result[0].query0;
-
-  if (result.length != 0) {
-    niceSwal(
-      "error",
-      "bottom-end",
-      `لا يمكن حذف هذا الاختبار لانه مرتبط بعدد ${
-        result.length
-      } زيارة هما {${result
-        .map((item, index) => {
-          return item.name;
-        })
-        .join(" و ")}}`
-    );
-    return false;
-  }
-  // delete lab_package and lab_pakage_tests
-  run_both(`delete from lab_package where hash='${hash}';
-        delete from lab_pakage_tests where package_id='${hash}';`);
-  $(".package-botton").click();
-  $(".test-botton").click();
-  lab_test.dataTable.draw();
+  fetchApi("/tests/delete_test", "post", { hash });
   niceSwal("success", "bottom-end", "تم الحذف بنجاح");
+  lab_test.dataTable.ajax.reload();
 }
 // empty package tests
 function emptyPackageTests() {
-  $("#row-packages input[type=checkbox]:checked").each(function () {
-    $(this).prop("checked", false);
-  });
-  $("#addPackage #name").val("");
-  $("#addPackage #price").val(0);
-  $("#addPackage #cost").val(0);
-  $("#addPackage #notes").val("");
-  $("#selected-tests").empty();
+  const from = document.getElementById("addPackage");
+  const inputs = from.querySelectorAll("input");
+  const selects = from.querySelectorAll("select");
+  const textArea = from.querySelector("textarea");
+  for (const input of inputs) {
+    input.value = "";
+  }
+  for (const select of selects) {
+    select.value = "";
+    const event = new Event("change");
+    select.dispatchEvent(event);
+  }
+  textArea.value = "";
 }
 
 function updatePackage(hash) {
-  $("#selected-tests").empty();
-  let data =
-    run_both(`select name,price,cost,note from lab_package where hash='${hash}';
-                    select test_id,lab_device_id from lab_pakage_tests where package_id='${hash}';`);
-  let packageItem = data.result[0].query0[0];
-  let tests = data.result[1].query1;
-  $("#addPackage #name").val(packageItem.name);
-  $("#addPackage #price").val(packageItem.price);
-  $("#addPackage #cost").val(packageItem.cost);
-  $("#addPackage #notes").val(packageItem.note);
-  tests.forEach((item) => {
-    $(
-      `#row-packages input[type=checkbox][data-test="${item.test_id}"][data-device="${item.lab_device_id}"]`
-    ).click();
-  });
-  $("#selected-tests input[type=checkbox]").each(function () {
-    $(this).prop("checked", true);
-  });
+  const form = document.getElementById("package-form");
+  const test = lab_test.getItem(hash);
+  const formInputs = form.querySelectorAll("input");
+  const formSelect = form.querySelector("select");
+  const formTextArea = form.querySelector("textarea");
+  for (const input of formInputs) {
+    if (!input.name) continue;
+    input.value = test[input.name];
+  }
+  $(formSelect).val(test.tests).trigger("change");
+
+  formTextArea.value = test.note;
+
   $(".buttons .btn-action").removeClass("active");
   $('.buttons .btn-action[data-id="addPackage"]').addClass("active");
   $(".page").hide();
@@ -445,109 +255,83 @@ function updatePackage(hash) {
 }
 
 function saveNewPackage() {
-  let name = $("#addPackage #name").val();
-  let price = $("#addPackage #price").val();
-  let cost = $("#addPackage #cost").val();
-  let notes = $("#addPackage #notes").val();
-  // vailide form
-  if (name.length == 0 || price.length == 0) {
-    niceSwal("error", "bottom-end", "يجب ملئ جميع الحقول");
-    return;
-  } else if ($("#row-packages input[type=checkbox]:checked").length == 0) {
-    niceSwal("error", "bottom-end", "يجب اختيار على الاقل تحليل واحد");
-    return;
-  }
-  let packageHash = run_both({
-    action: "insert",
-    table: "lab_package",
-    column: {
-      name: name,
-      price: price,
-      cost: cost,
-      lab_id: localStorage.getItem("lab_hash"),
-      catigory_id: 8,
-      note: notes,
-    },
-  }).result[0].query0;
-  let query = "";
-  $("#row-packages input[type=checkbox]:checked").each(function () {
-    let kit_id = $(this).data("kit");
-    let lab_device_id = $(this).data("device");
-    let unit = $(this).data("unit");
-    let test_id = $(this).data("test");
-    query += `insert into lab_pakage_tests(test_id,lab_device_id,kit_id,unit, package_id,lab_id) values('${test_id}','${lab_device_id}','${kit_id}','${unit}', '${packageHash}','${localStorage.lab_hash}');`;
-  });
-  run_both(query);
+  const form = document.getElementById("package-form");
+  let formData = new FormData(form);
+  formData = Object.fromEntries(formData.entries());
+  const tests = $("select[name='tests']")
+    .val()
+    .map((t) => {
+      let test = packages.find((item) => item.hash === t);
+      test = {
+        test_id: test.test_id,
+        lab_device_id: test.lab_device_id,
+        kit_id: test.kit_id,
+        unit: test.unit,
+      };
+      return test;
+    });
+
+  formData = {
+    name: formData.name,
+    price: formData.price,
+    cost: formData.cost,
+    note: formData.note,
+    catigory_id: 8,
+    tests: JSON.stringify(tests),
+  };
+  fetchApi("/tests/create_test", "post", formData);
+  lab_package.dataTable.ajax.reload();
   emptyPackageTests();
-  let insertObject = lab_package.getItem(packageHash);
-  lab_package.addRow(insertObject);
   syncOnline();
   niceSwal("success", "bottom-end", "تم الحفظ بنجاح");
 }
 
 function saveUpdatePackage(hash) {
-  let name = $("#addPackage #name").val();
-  let price = $("#addPackage #price").val();
-  let cost = $("#addPackage #cost").val();
-  let notes = $("#addPackage #notes").val();
-  run_both(`update lab_package set name='${name}',price='${price}',cost='${cost}',note='${notes}' where hash='${hash}';
-        delete from lab_pakage_tests where package_id='${hash}';`);
-  let query = "";
-  $("#row-packages input[type=checkbox]:checked").each(function () {
-    let kit_id = $(this).data("kit");
-    let lab_device_id = $(this).data("device");
-    let unit = $(this).data("unit");
-    let test_id = $(this).data("test");
-    query += `insert into lab_pakage_tests(test_id,lab_device_id,kit_id,unit, package_id,lab_id) values('${test_id}','${lab_device_id}','${kit_id}','${unit}', '${hash}','${localStorage.lab_hash}');`;
-  });
-  run_both(query);
-  emptyPackageTests();
-  lab_package.dataTable.draw();
+  const form = document.getElementById("package-form");
+  let formData = new FormData(form);
+  formData = Object.fromEntries(formData.entries());
+  const tests = $("select[name='tests']")
+    .val()
+    .map((t) => {
+      let test = packages.find((item) => item.hash === t);
+      test = {
+        test_id: test.test_id,
+        lab_device_id: test.lab_device_id,
+        kit_id: test.kit_id,
+      };
+      return test;
+    });
+
+  formData = {
+    name: formData.name,
+    price: formData.price,
+    cost: formData.cost,
+    note: formData.note,
+    tests: JSON.stringify(tests),
+    hash,
+  };
+  fetchApi("/tests/update_test", "post", formData);
+  lab_package.dataTable.ajax.reload();
+  syncOnline();
   niceSwal("success", "bottom-end", "تم الحفظ بنجاح");
 }
 
 function deletePackage(hash) {
-  const count = run_both(
-    `select Count(*) as count from lab_visits_package where package_id='${hash}';`
-  ).result[0].query0[0].count;
-  if (count != 0) {
-    niceSwal(
-      "error",
-      "bottom-end",
-      "لا يمكن حذف هذا الاختبار لانه مرتبط ببعض الفواتير"
-    );
-    return false;
-  }
-  // delete lab_package and lab_pakage_tests
-  run_both(`delete from lab_package where hash='${hash}';
-        delete from lab_pakage_tests where package_id='${hash}';`);
-  $(".package-botton").click();
-  $(".test-botton").click();
-  lab_package.dataTable.draw();
+  fetchApi("/tests/delete_test", "post", { hash });
+  lab_package.dataTable.ajax.reload();
+  syncOnline();
   niceSwal("success", "bottom-end", "تم الحذف بنجاح");
 }
 
-const updateNormal = (test, kit, unit) => {
-  TEST = run(`select option_test from lab_test where hash='${test}';`).result[0]
-    .query0[0].option_test;
+const updateNormal = (test,kit,unit) => {
+  TEST = fetchApi("/maintests/get_main_test", "post", { hash: test,kit,unit });
   try {
-    TEST = TEST.replace(/\\/g, "");
-    TEST = JSON.parse(TEST);
-    let { component } = TEST;
-    let { reference } = component[0];
-    reference = reference.filter((item) => {
-      return (
-        (kit == item.kit || (isNull(kit) && isNull(item.kit))) &&
-        (unit == item.unit || (isNull(unit) && isNull(item.unit)))
-      );
-    });
-    if (reference.length == 0) {
-      throw "no refrence";
-    }
-    let refrenceTable = THEME.build(test, reference, kit, unit);
+    const { refrence: reference } = TEST;
+    const refrenceTable = THEME.build(test, reference, kit,unit);
     $("#refrence_editor .modal-body").html(refrenceTable);
     $("#refrence_editor").modal("show");
   } catch (error) {
+    console.log(error);
     Swal.fire({
       toast: true,
       position: "bottom-end",
@@ -559,38 +343,28 @@ const updateNormal = (test, kit, unit) => {
   }
 };
 
-function updateRefrence(hash, refID, selectedUnit) {
+function updateRefrence(hash, refID) {
   const formContainer = $("#form_container");
-  // empty from container
   formContainer.empty();
-  const { component } = TEST;
-  let refrences = component[0].reference;
-  refrences = refrences.filter((refrence, id) => {
-    const refUnit = refrence?.unit ?? "";
-    if (refUnit === selectedUnit) {
-      return true;
-    }
-    return false;
-  });
-  const refrence = refrences.find((item, index, self) => index == refID);
-  const form = THEME.mainForm(refID, hash, refrence);
+  let refrence = TEST?.refrence;
+  refrence = refrence.find((item) => Number(item.id) === Number(refID));
+  const form = THEME.mainForm(hash, refrence);
   formContainer.append(form);
 }
 
 function saveRefrence(hash, refID) {
-  if (refreshValidation() == false) {
+  if (refreshValidation() === false) {
     return false;
   }
-  let result = $(`#refrence_form_${refID} input[name="type"]:checked`).val();
-  let rightOptions = [];
-  let options = [];
+  const result = $(`#refrence_form_${refID} input[name="type"]:checked`).val();
+  const rightOptions = [];
+  const options = [];
   if (
-    $(`#refrence_form_${refID} input[name="type"]:checked`).val() == "result"
+    $(`#refrence_form_${refID} input[name="type"]:checked`).val() === "result"
   ) {
     $(`#refrence_form_${refID} input[name='select-result-value']`).each(
       function () {
         options.push($(this).val());
-        // get right options
         if (
           $(this)
             .parent()
@@ -603,15 +377,22 @@ function saveRefrence(hash, refID) {
       }
     );
   }
-  if (!TEST) {
-    TEST = run(`select option_test from lab_test where hash='${hash}';`)
-      .result[0].query0[0].option_test;
-    TEST = TEST.replace(/\\/g, "");
-    TEST = JSON.parse(TEST);
-  }
-  let { component } = TEST;
-  let element = THEME.getData(refID, result, options, rightOptions);
-  if (refID === "null") {
+  const { refrence, name } = fetchApi("/maintests/get_main_test", "post", {
+    hash,
+  });
+  let component = [
+    {
+      name: name,
+      reference: refrence,
+    },
+  ];
+  const element = THEME.getData(refID, result, options, rightOptions);
+  if (
+    refID === "null" ||
+    refID === null ||
+    refID === "undefined" ||
+    refID === undefined
+  ) {
     if (component?.[0]) {
       component[0].reference.push(element);
     } else {
@@ -621,26 +402,52 @@ function saveRefrence(hash, refID) {
           reference: [element],
         },
       ];
+      document.getElementById(`test-${hash}`).innerHTML = "";
     }
-    let newRefrence = component[0].reference.filter((item, index, self) => {
+    const newRefrence = component[0].reference.filter((item, index, self) => {
       return self.findIndex((t) => t?.kit === item?.kit) === index;
     });
   } else {
     component[0].reference[refID] = element;
   }
-  let test_options = { component: component };
-  let kitUnit = run(`update lab_test set option_test='${JSON.stringify(
-    test_options
-  )}' where hash=${hash};
-                    select kit from lab_kit_unit where kit='${
-                      element.kit
-                    }' and unit='${element.unit}';`).result[1].query1[0];
-  if (!kitUnit) {
-    run(
-      `insert into lab_kit_unit(kit,unit) values('${element.kit}','${element.unit}');`
-    );
-  }
-
-  $("#refrence_editor").modal("toggle");
+  fetchApi("/maintests/update_main_test", "post", {
+    hash,
+    option_test: JSON.stringify({ component }),
+  });
+  $("#refrence_editor").modal("hide");
   TEST = null;
+}
+
+function deleteRange(e, id) {
+  const num = $(`#${id} .range`).length;
+  if (num > 1) {
+    e.parents(".range").remove();
+  }
+}
+
+function deleteRefrence(hash, refID) {
+  const { refrence, name } = fetchApi("/maintests/get_main_test", "post", {
+    hash,
+  });
+  refrence.splice(refID, 1);
+  const component = [
+    {
+      name: name,
+      reference: refrence,
+    },
+  ];
+  fetchApi("/maintests/update_main_test", "post", {
+    hash,
+    option_test: JSON.stringify({ component }),
+  });
+  lab_test.dataTable.ajax.reload();
+  $("#refrence_editor").modal("hide");
+  Swal.fire({
+    toast: true,
+    position: "bottom-end",
+    icon: "success",
+    title: "قد تحتاج الى التعديل في صفحة التحاليل لتطبيق التغييرات  ",
+    showConfirmButton: false,
+    timer: 3000,
+  });
 }

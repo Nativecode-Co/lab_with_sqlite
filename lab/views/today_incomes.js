@@ -1,5 +1,3 @@
-"use strict";
-
 $("#startDate").val(new Date().toISOString().slice(0, 10));
 $("#endDate").val(new Date().toISOString().slice(0, 10));
 // override Factory class
@@ -21,21 +19,38 @@ class Patient extends Factory {
         { data: "name" },
         { data: "doctor" },
         { data: "visit_date" },
-        { data: "net_price" },
-        { data: "dicount" },
-        { data: "total_price" },
         {
-          data: null,
-          className: "text-success center",
-          defaultContent: '<i class="fas fa-plus"></i>',
+          data: "net_price",
+          render: (data) => {
+            return Number(data).toLocaleString();
+          },
+        },
+        {
+          data: "dicount",
+          render: (data) => {
+            return Number(data).toLocaleString();
+          },
+        },
+        {
+          data: "total_price",
+          render: (data) => {
+            return Number(data).toLocaleString();
+          },
         },
       ],
-      {},
+      [[2, "desc"]],
+      {
+        pageLength: 800,
+        columnDefs: [],
+      },
       (json) => {
-        $("#totalPrice").text(json?.total_price ?? 0);
-        $("#totalDiscount").text(json?.dicount ?? 0);
-        $("#totalFinalPrice").text(json?.net_price ?? 0);
-        $("#total").text(json?.recordsTotal ?? 0);
+        console.log("json", json);
+        $(".totalPrice").text(Number(json?.total_price).toLocaleString());
+        $(".totalDiscount").text(Number(json?.dicount).toLocaleString());
+        $(".totalFinalPrice").text(Number(json?.net_price).toLocaleString());
+        $(".total").text(
+          Number(json?.total_price - json?.dicount).toLocaleString()
+        );
       }
     );
   }
@@ -47,31 +62,24 @@ class Patient extends Factory {
 
 // init incomes class
 
-let incomes = new Patient("incomes", "Reports", []);
+const incomes = new Patient("incomes", "Reports", []);
 
 // document ready function
-$(function () {
-  let data = run(`
-        SELECT name,hash FROM system_users where lab_id = ${localStorage.getItem(
-          "lab_hash"
-        )} and is_deleted =0;
-        SELECT name,hash FROM lab_doctor where lab_id = ${localStorage.getItem(
-          "lab_hash"
-        )} and isdeleted =0;
-    `).result;
-
-  let users = data[0].query0;
-  let doctors = data[1].query1;
+$(() => {
+  const { users, doctors } = fetchApi("/users/get_today_incomes_data");
   $("#user").append(`<option value="">كل المستخدمين</option>`);
   $("#doctor").append(`<option value="">كل الاطباء</option>`);
-  users.forEach((user) => {
+
+  for (const user of users) {
     $("#user").append(`<option value="${user.hash}">${user.name}</option>`);
-  });
-  doctors.forEach((doctor) => {
+  }
+
+  for (const doctor of doctors) {
     $("#doctor").append(
       `<option value="${doctor.hash}">${doctor.name}</option>`
     );
-  });
+  }
+
   $("#doctor").select2({
     dropdownParent: $("#doctor").parent(),
     width: "100%",

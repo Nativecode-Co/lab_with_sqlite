@@ -24,15 +24,18 @@ class Doctors extends CI_Controller
 
     function get_doctors()
     {
-        $req = $this->input->get();
-        $doctors = $this->DoctorsModel->get_all($req);
+        $req = $this->input->post();
+        $data = $this->DoctorsModel->get_all($req);
+        $total = $this->DoctorsModel->count_all($req);
         $this->output
             ->set_status_header(200)
             ->set_content_type('application/json')
             ->set_output(
                 json_encode(
                     array(
-                        "doctors" => $doctors,
+                        "recordsTotal" => $total,
+                        "recordsFiltered" => $total,
+                        "data" => $data
                     )
                 )
             );
@@ -50,7 +53,7 @@ class Doctors extends CI_Controller
 
     function create_doctor()
     {
-        $req = json_decode(trim(file_get_contents('php://input')), true);
+        $req = $this->input->post();
         $valid = $this->form_validation->
             set_data($req)->
             run('doctors');
@@ -72,7 +75,7 @@ class Doctors extends CI_Controller
 
     function update_doctor()
     {
-        $req = json_decode(trim(file_get_contents('php://input')), true);
+        $req = $this->input->post();
         $this->form_validation->set_data($req);
 
         $valid = $this->form_validation->
@@ -112,6 +115,15 @@ class Doctors extends CI_Controller
             ->set_status_header(200)
             ->set_content_type('application/json')
             ->set_output(json_encode(array("hash" => $hash)));
+    }
+
+    public function get_partments()
+    {
+        $data = $this->DoctorsModel->get_partments();
+        $this->output
+            ->set_status_header(200)
+            ->set_content_type('application/json')
+            ->set_output(json_encode($data));
     }
 
 }

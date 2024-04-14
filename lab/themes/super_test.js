@@ -66,8 +66,8 @@ class Theme {
       .map(
         (item) =>
           `<option value="${item.hash}" ${
-            item.hash == selectedUnit ? "selected" : ""
-          }>${item.name}</option>`
+            item.hash === selectedUnit ? "selected" : ""
+          }>${item.text}</option>`
       )
       .join(" ");
 
@@ -205,12 +205,12 @@ class Theme {
     `;
   }
 
-  mainForm(id, hash, refrence) {
-    return ``;
+  mainForm(hash, refrence) {
+    return "";
   }
 
   build() {
-    return ``;
+    return "";
   }
 }
 
@@ -267,10 +267,10 @@ class FormTheme extends Theme {
     `;
   }
 
-  mainForm(id, hash, refrence) {
-    const { kit, unit, range, result, right_options, options, gender } =
+  mainForm(hash, refrence) {
+    console.log("1", hash);
+    const { id, kit, unit, range, result, right_options, options, gender } =
       refrence;
-
     const ageLow = refrence?.["age low"] ?? 0;
     const ageLowUnit = refrence?.["age unit low"] ?? "عام";
     const ageHigh = refrence?.["age high"] ?? 0;
@@ -318,13 +318,13 @@ class FormTheme extends Theme {
   build(hash, refrences, selectedKit) {
     let form = "";
     if (refrences) {
-      refrences.map((refrence, id) => {
+      refrences.map((refrence) => {
         if (refrence?.kit == selectedKit) {
-          form += this.mainForm(id, hash, refrence);
+          form += this.mainForm(hash, refrence);
         }
       });
     } else {
-      form = this.mainForm(null, hash, deafultRefrence);
+      form = this.mainForm(hash, deafultRefrence);
     }
     return form;
   }
@@ -366,8 +366,9 @@ class TableTheme extends Theme {
     `;
   }
 
-  mainForm(id, hash, refrence) {
-    const { kit, unit, range, result, right_options, options, gender } =
+  mainForm(hash, refrence) {
+    console.log("2", hash);
+    const { id, kit, unit, range, result, right_options, options, gender } =
       refrence;
     const ageLow = refrence?.["age low"] ?? 0;
     const ageLowUnit = refrence?.["age unit low"] ?? "عام";
@@ -410,9 +411,8 @@ class TableTheme extends Theme {
     `;
   }
 
-  createRow(id, hash, refrence) {
-    const { kit, unit, range, result, right_options, options, gender } =
-      refrence;
+  createRow(hash, refrence) {
+    const { id, kit, unit, range, gender ,right_options} = refrence;
     const ageLow = refrence?.["age low"] ?? 0;
     const ageLowUnit = refrence?.["age unit low"] ?? "عام";
     const ageHigh = refrence?.["age high"] ?? 0;
@@ -420,33 +420,40 @@ class TableTheme extends Theme {
 
     let kitName = "No Kit";
     this.kits.map((k) => {
-      if (k.id == kit) {
+      if (k.id === kit) {
         kitName = k.name;
       }
     });
     let unitName = "No Unit";
     this.units.map((u) => {
-      if (u.hash == unit) {
-        unitName = u.name;
+      if (u.hash === unit) {
+        unitName = u.text;
       }
     });
+    const rangeName = right_options && right_options?.length>0 ? right_options.join(", ") : range ? range?.map((r) => {
+      const name = r.name ? `${ r.name} :` : "";
+      const high = r.high ? r.high : "";
+      const low = r.low ? r.low : "";
+      if(high && low){
+        return `${name}  <span>${high}</span>-<span>${low}</span>`;
+      }else if(high){
+        return `${name} اقل من  <span>${high}</span>`;
+      }
+      return `${name}  اكبر من  <span>${low}</span>`;
+
+    }).join("<br>") : "No Range";
     return `
       <tr>
         <td>${kitName}</td>
         <td>${gender}</td>
         <td>${ageLow} ${ageLowUnit} - ${ageHigh} ${ageHighUnit}</td>
         <td
-          style="overflow: hidden;"
-        >${
-          range?.map((r) => {
-            return `${r?.name ? `${r?.name} : ` : ""}  <span>${
-              r?.high ?? ""
-            }</span>-<span>${r?.low ?? ""}</span>`;
-          }) ?? "No Range"
-        }</td>
+            style="overflow: hidden;direction : initial;"
+            class="text-right"
+        >${rangeName}</td>
         <td>${unitName}</td>
         <td>
-          <i class="fas fa-edit text-success" onclick="updateRefrence('${hash}', '${id}','${unit}')"></i>
+          <i class="fas fa-edit text-success" onclick="updateRefrence('${hash}', '${id}')"></i>
           <i class="fas fa-trash text-danger" onclick="fireSwalForDelete(deleteRefrence, '${hash}','${id}')"></i>
         </td>
       </tr>
@@ -475,7 +482,7 @@ class TableTheme extends Theme {
             <th>Kit</th>
             <th>الجنس </th>
             <th>العمر</th>
-            <th>Range</th>
+            <th class="text-right">Range</th>
             <th>وحدة القياس</th>
             <th>الاجراء</th>
           </tr>
@@ -486,16 +493,17 @@ class TableTheme extends Theme {
               const kit = refrence?.kit ?? "";
               // check if kit in this kits
               if (kit == selectedKit) {
-                return this.createRow(id, hash, refrence);
+                return this.createRow(hash, refrence);
               }
             })
             .join("")}
+          
         </tbody>
       </table>
 
       `;
     } else {
-      form = this.mainForm(null, hash, deafultRefrence);
+      form = this.mainForm(hash, deafultRefrence);
     }
     return `
       <div id="form_container">
@@ -530,8 +538,8 @@ class PackageTestTheme extends TableTheme {
     };
   }
 
-  mainForm(id, hash, refrence) {
-    const { kit, unit, range, result, right_options, options, gender } =
+  mainForm(hash, refrence) {
+    const { id, kit, unit, range, result, right_options, options, gender } =
       refrence;
     const ageLow = refrence?.["age low"] ?? 0;
     const ageLowUnit = refrence?.["age unit low"] ?? "عام";
@@ -568,67 +576,75 @@ class PackageTestTheme extends TableTheme {
     `;
   }
 
-  createRow(id, hash, refrence) {
-    const { range, gender, unit } = refrence;
+  createRow(hash, refrence) {
+    const { id, range, gender, unit,right_options,options } = refrence;
     const ageLow = refrence?.["age low"] ?? 0;
     const ageLowUnit = refrence?.["age unit low"] ?? "عام";
     const ageHigh = refrence?.["age high"] ?? 0;
     const ageHighUnit = refrence?.["age unit high"] ?? "عام";
-
+    const rangeName = options && options?.length> 0 ? (right_options?.length> 0 ? right_options.join(","):"لا اختيار صحيح") : range ? range?.map((r) => {
+      const name = r.name ? `${ r.name} :` : "";
+      const high = r.high ? r.high : "";
+      const low = r.low ? r.low : "";
+      if(high && low){
+        return `${name}  <span>${high}</span>-<span>${low}</span> `;
+      }else if(high){
+        return `${name} less then <span>${high}</span>`;
+      }
+      return `${name}  more then  <span>${low}</span>`;
+    }).join("<br>") : "No Range";
     return `
       <tr>
         <td>${gender}</td>
         <td>${ageLow} ${ageLowUnit} - ${ageHigh} ${ageHighUnit}</td>
         <td
-          style="overflow: hidden;"
-        >${
-          range?.map((r) => {
-            return `${r?.name ? `${r?.name} : ` : ""}  <span>${
-              r?.high ?? ""
-            }</span>-<span>${r?.low ?? ""}</span>`;
-          }) ?? "No Range"
-        }</td>
+          style="overflow: hidden;direction : initial;"
+          class="text-right"
+        >${rangeName}</td>
         <td>
-          <i class="fas fa-edit text-success" onclick="updateRefrence('${hash}', '${id}','${unit}')"></i>
+          <i class="fas fa-edit text-success" onclick="updateRefrence('${hash}', '${id}')"></i>
+          <i class="fas fa-trash text-danger" onclick="fireSwalForDelete(deleteRefrence, '${hash}','${id}')"></i>
         </td>
       </tr>
     `;
   }
 
   build(hash, refrences, selectedKit, selectedUnit) {
+    console.log("4", hash);
     this.resizeModal();
     let form = "";
     let table = "";
-    if (refrences && refrences.length > 0) {
+    if (refrences) {
       table = `
       <table class="table table-striped table-bordered table-hover" style="table-layout: fixed;">
         <thead>
           <tr>
             <th>الجنس </th>
             <th>العمر</th>
-            <th>Range</th>
+            <th class="text-right">القيم الطبيعية</th>
             <th>الاجراء</th>
           </tr>
         </thead>
         <tbody>
           ${refrences
             .map((refrence, id) => {
-              const kit = refrence?.kit;
-              const unit = refrence?.unit;
-              if (
-                (kit == selectedKit || (isNull(kit) && isNull(selectedKit))) &&
-                (unit == selectedUnit || (isNull(unit) && isNull(selectedUnit)))
-              ) {
-                return this.createRow(id, hash, refrence);
-              }
+              return this.createRow(hash, refrence);
             })
             .join("")}
+            <tr>
+              <td colspan="4" class="text-center">
+                <a class="text-info" onclick="addRefrence('${hash}','${selectedUnit}','${selectedKit}');">
+                اضافة رينج جديد  
+                <i class="far fa-plus-circle fa-lg mx-2"></i>
+                </a>
+              </td>
+            </tr>
         </tbody>
       </table>
 
       `;
     } else {
-      form = this.mainForm(null, hash, deafultRefrence);
+      form = this.mainForm(hash, deafultRefrence);
     }
     return `
       <div id="form_container">
@@ -827,18 +843,21 @@ function resultTypeChange(id) {
 }
 
 function createRefrenceForm(hash, refrence, id) {
+  const { kits } = fetchApi("/tests/get_tests_data");
   $("#refrence_editor .modal-title").text(
-    `${kits.find((x) => x.id == refrence.kit)?.name ?? "No Kit"}`
+    `${kits.find((x) => x.id == refrence.kit)?.name ?? "ادخل البيانات"}`
   );
   return THEME.build(hash, null, null);
 }
 
-function addRefrence(hash, unit) {
-  let form = createRefrenceForm(hash, {}, null);
+function addRefrence(hash,unit,kit) {
+  const form = createRefrenceForm(hash, {}, null);
   $("#refrence_editor .modal-body").html(form);
   $("#refrence_editor").modal("show");
   if (unit) {
     $("#refrence_editor .modal-body #unit").val(`${unit}`);
   }
-  // $('#submit-refrence').attr('onclick', `fireSwal(saveRefrence, '${hash}', null)`)
+  if(kit){
+    $("#refrence_editor .modal-body #kit").val(`${kit}`);
+  }
 }
