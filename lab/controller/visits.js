@@ -2102,10 +2102,6 @@ function showResult(data) {
       });
     }
   });
-  // delete normalTests if it is empty from invoices
-  if (invoices.normalTests === "") {
-    delete invoices.normalTests;
-  }
   return {
     buttons: `<div class="row justify-content-center mb-30" id="invoice-tests-buttons">
                     ${Object.values(buttons).join("")}

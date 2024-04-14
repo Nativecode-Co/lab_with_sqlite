@@ -695,9 +695,6 @@ function showResult(hash) {
       });
     }
   });
-  if (invoices.normalTests === "") {
-    delete invoices.normalTests;
-  }
   return {
     buttons: `<div class="row justify-content-center mb-30" id="invoice-tests-buttons">
                     ${Object.values(buttons).join("")}
@@ -705,6 +702,7 @@ function showResult(hash) {
     invoice: `${Object.entries(invoices)
       .map(([key, value]) => {
         if (key === "normalTests") {
+          if(normalTests === manageHead("flag")) return "";
           const form = value + createInvoice(normalTests, invoiceItems);
           return createBookResult(form, key);
         }
