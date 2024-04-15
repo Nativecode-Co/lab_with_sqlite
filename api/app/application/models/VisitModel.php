@@ -47,7 +47,7 @@ class VisitModel extends CI_Model
             ->join('lab_patient', 'lab_patient.hash = lab_visits.visits_patient_id')
             ->like(array('lab_patient.name' => $searchText))
             ->where(array('lab_visits.isdeleted' => '0', 'visit_date ' . $opration => date('Y-m-d')))
-            ->order_by($orderBy, $order)
+            ->order_by("lab_visits.id", "DESC")
             ->get($this->table, $rowsPerPage, $page * $rowsPerPage)
             ->result_array();
         return $data;
