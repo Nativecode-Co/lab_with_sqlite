@@ -2575,10 +2575,9 @@ function printAfterSelect(hash) {
   // loop over all invoices
   __invoces.each((index, invoice) => {
     // invice clone
-    // if (invoice.querySelector(".tester").childElementCount <= 1) {
-    //   console.log("no tests");
-    //   return;
-    // }
+    if (invoice.querySelector(".tester").childElementCount <= 1 && invoice.id ==="invoice-normalTests") {
+      return;
+    }
     const clone = $(invoice).clone();
     const id = clone.attr("id");
     clone.removeAttr("id");
