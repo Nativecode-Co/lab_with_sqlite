@@ -68,6 +68,25 @@ class Visit extends CI_Controller
                 )
             );
     }
+
+    function get_visits_report()
+    {
+        $req = $this->input->post();
+        $data = $this->VisitModel->get_visits_report($req);
+        $total = $this->VisitModel->visit_count_report($req);
+        $this->output
+            ->set_status_header(200)
+            ->set_content_type('application/json')
+            ->set_output(
+                json_encode(
+                    array(
+                        "recordsTotal" => $total,
+                        "recordsFiltered" => $total,
+                        "data" => $data
+                    )
+                )
+            );
+    }
     
 
     public function get_visit_form_data()

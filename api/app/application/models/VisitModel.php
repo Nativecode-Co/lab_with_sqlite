@@ -53,6 +53,41 @@ class VisitModel extends CI_Model
         return $data;
     }
 
+    public function get_visits_report($params){
+         // get data table params
+         $start = $params['start'];
+         $rowsPerPage = $params['length'];
+         $page = $start / $rowsPerPage;
+         $orderBy = $params['order'][0]['column'];
+         $orderBy = $params['columns'][$orderBy]['data'];
+         $order = $params['order'][0]['dir'];
+         $searchText = $params['search']['value'];
+         $startDate = $params['startDate'] ?? date('Y-m-d', strtotime('-1 month'));
+        $endDate = $params['endDate'] ?? date('Y-m-d');
+         $data = $this->db
+             ->select('lab_visits.hash as hash ,visits_patient_id as patient_hash,ispayed')
+             ->select("lab_patient.name as name,visit_date")
+             ->select("(select name from lab_visit_status where hash=visits_status_id) as visit_type")
+             ->join('lab_patient', 'lab_patient.hash = lab_visits.visits_patient_id')
+             ->like(array('lab_patient.name' => $searchText))
+             ->where(array('lab_visits.isdeleted' => '0' , 'visit_date >=' => $startDate, 'visit_date <=' => $endDate))
+             ->order_by($orderBy, $order)
+             ->get($this->table, $rowsPerPage, $page * $rowsPerPage)
+             ->result_array();
+         return $data;
+    }
+
+    public function visit_count_report($params){
+        $searchText = $params['search']['value'];
+        $startDate = $params['startDate'] ?? date('Y-m-d', strtotime('-1 month'));
+        $endDate = $params['endDate'] ?? date('Y-m-d');
+        return $this->db
+            ->join('lab_patient', 'lab_patient.hash = lab_visits.visits_patient_id')
+            ->where(array('lab_patient.isdeleted' => 0, 'visit_date >=' => $startDate, 'visit_date <=' => $endDate))
+            ->like("lab_patient.name", $searchText)
+            ->count_all_results($this->table);
+    }
+
     public function create_visit($data)
     {
         $visit_data = $data['visit_data'];

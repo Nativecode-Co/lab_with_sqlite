@@ -1,14 +1,20 @@
-// override Factory class
+$("#startDate").val(new Date().toISOString().slice(0, 10));
+$("#endDate").val(new Date().toISOString().slice(0, 10));
+
+const search = () => {
+  lab_visits.dataTable.ajax.reload();
+};
 class Visit extends Factory {
   init() {
     this.createModal();
     const userType = localStorage.getItem("user_type");
     this.dataTable = setServerTable(
       "lab_visits-table",
-      `${api_url}/visit/get_visits`,
+      `${api_url}/visit/get_visits_report`,
       () => {
         return {
-          today: 0,
+          startDate: $("#startDate").val(),
+          endDate: $("#endDate").val(),
         };
       },
       [
