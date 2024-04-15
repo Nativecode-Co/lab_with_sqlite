@@ -742,9 +742,11 @@ function selectInput({ options, result, multi, name }) {
   if (Boolean(multi) === true) {
     // any result not in options will be added to options
     if (result) {
-      for (const r of result) {
-        if (!options.includes(r)) {
-          options.push(r);
+      if (Array.isArray(result)) {
+        for (const r of result) {
+          if (!options.includes(r)) {
+            options.push(r);
+          }
         }
       }
     }
@@ -1989,7 +1991,7 @@ function showResult(data) {
               for (const obj of result) {
                 for (const [key, value] of Object.entries(obj)) {
                   if(key === "dose"){
-                    finalResult += `<span class="mr-5 text-success">${value}</span>`;
+                    finalResult += `<span class="mr-5 text-danger-red">${value}</span>`;
                   }else{
                     finalResult += value
                   }

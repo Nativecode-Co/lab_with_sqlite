@@ -787,3 +787,7 @@ input:checked + .items
     border-color: var(--secondaryColor);
     color: var(--whiteColor);
   }
+
+  .text-danger-red{
+    color: #e7515a !important
+  }
