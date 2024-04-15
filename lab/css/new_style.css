@@ -25,6 +25,8 @@
     --grayColor: rgba(0, 0, 0, 0.4);
     --errorColor: #F41717;
     --fontFamily: 'Noto Kufi Arabic';
+    --widthPrint: 25mm;
+    --heightPrint: 25mm;
 }
 
 ::-webkit-scrollbar {

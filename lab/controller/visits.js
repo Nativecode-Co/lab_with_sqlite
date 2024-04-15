@@ -379,8 +379,27 @@ function showAddResult(hash, animate = true) {
                     <div class="col-md-6 mt-48 invoice-height global-border" style="overflow-y:scroll;">
                         ${invoice}
                     </div>
+                    <div class="d-none d-print-block" id="visit-barcode">
+                      <style>
+                        @media  print {
+                          @page  {
+                              margin: 0 !important;
+                              padding: 0 !important;
+                              box-sizing: border-box;
+                              size: ${invoices?.barcode_width??25}mm ${invoices?.barcode_height??25}mm;
+                          }
+                      }
+                      </style>
+                      <svg id="visit-barcode-svg"></svg>
+                    </div>
+
                     <div class="col-lg-12 mt-48">
                         <div class="row mt-15 justify-content-around">
+                            <div class="col-md-2 col-6">
+                                <button type="button" class="btn btn-outline-print w-100" onclick="printBarcode('${hash}', '${data.name}')">
+                                    <i class="mr-2 fal fa-print"></i>طباعة الباركود
+                                </button>
+                            </div>
                             <div class="col-md-2 col-6">
                                 <button type="button" id="saveResultButton" class="btn btn-add w-100" onclick="fireSwal(saveResult,'${hash}')">حفظ النتائج</button>
                             </div>
@@ -2550,7 +2569,7 @@ function downloadPdf() {
     afterPrint: () => {
       $("iframe").remove();
       svgs.each((i, svg) => {
-        let id = $(svg).attr("data-id");
+        const id = $(svg).attr("data-id");
         $(`#${id}`).css("display", "none");
       });
       $(`#${oldId}`).css("display", "block");
@@ -2558,9 +2577,9 @@ function downloadPdf() {
   });
 
   // get onclick attr from saveResultButton
-  let onclick = $("#saveResultButton").attr("onclick");
+  const onclick = $("#saveResultButton").attr("onclick");
   //get hash from onclick attr
-  let hash = onclick.split("'")[1];
+  const hash = onclick.split("'")[1];
 
   lab_visits.dataTable.ajax.reload();
 }
@@ -2640,3 +2659,17 @@ const updatePatientName = async (hash, ele) => {
       }
     });
 };
+
+const printBarcode = (hash, name) => {
+  // draw barcode
+    JsBarcode("#visit-barcode-svg", hash, {
+      format: "CODE39",
+      width: 1,
+      height: 18,
+  });
+  // print barcode
+  $("#visit-barcode").printThis({
+    importCSS: false,
+    printDelay: 1000,
+  });
+}

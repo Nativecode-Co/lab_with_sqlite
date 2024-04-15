@@ -542,6 +542,42 @@ const Setting = ({ dispatch, state, invoice, setInvoice }) => {
                 />
               </div>
               <div className="form-group col-md-6">
+                <label htmlFor="barcode_width">
+                  عرض الباركود
+                </label>
+                <input
+                  type="text"
+                  className="form-control"
+                  id="barcode_width"
+                  name="barcode_width"
+                  onChange={(e) => {
+                    setInvoice({
+                      ...invoice,
+                      barcode_width: e.target.value,
+                    });
+                  }}
+                  value={invoice.barcode_width}
+                />
+              </div>
+              <div className="form-group col-md-6">
+                <label htmlFor="barcode_height">
+                  طول الباركود
+                </label>
+                <input
+                  type="text"
+                  className="form-control"
+                  id="barcode_height"
+                  name="barcode_height"
+                  onChange={(e) => {
+                    setInvoice({
+                      ...invoice,
+                      barcode_height: e.target.value,
+                    });
+                  }}
+                  value={invoice.barcode_height}
+                />
+              </div>
+              <div className="form-group col-md-6">
                 <label htmlFor="color">لون الفاتورة</label>
                 <input
                   type="color"
