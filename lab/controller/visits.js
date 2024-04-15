@@ -739,6 +739,16 @@ function addStrcResult(test, result_test) {
 function selectInput({ options, result, multi, name }) {
   let htmlOptions = "";
   const multiple = Boolean(multi) === true ? "multiple" : "";
+  if (Boolean(multi) === true) {
+    // any result not in options will be added to options
+    if (result) {
+      for (const r of result) {
+        if (!options.includes(r)) {
+          options.push(r);
+        }
+      }
+    }
+  }
   htmlOptions = options
     .map((option, index) => {
       let selected = "";
@@ -752,7 +762,6 @@ function selectInput({ options, result, multi, name }) {
           selected = result === option ? "selected" : "";
         }
       }
-
       return `<option value="${option}" ${selected}>${option}</option>`;
     })
     .join("");
@@ -1969,10 +1978,21 @@ function showResult(data) {
           case "multi":
             // if result is Array
             if (Array.isArray(result)) {
+              // sort by dose 
+              result.sort((a, b) => {
+                if(a.dose){
+                  return b.dose.length - a.dose.length;
+                }
+                return 0;
+              });
               finalResult = "";
               for (const obj of result) {
                 for (const [key, value] of Object.entries(obj)) {
-                  finalResult += ` ${value} `;
+                  if(key === "dose"){
+                    finalResult += `<span class="mr-5 text-success">${value}</span>`;
+                  }else{
+                    finalResult += value
+                  }
                 }
                 finalResult += "<br>";
               }
@@ -2451,7 +2471,7 @@ function manageTestType(type, test = {}) {
                 </div>
             </div>
             `;
-    case "culture":
+    case "culture": {
       const showClass = `flex-dependon-show-${name.split(" ").join("-")}`;
       const italic = color === "italic" ? "font-style: italic;" : "";
       let hiddenClass = hidden;
@@ -2462,20 +2482,21 @@ function manageTestType(type, test = {}) {
             hiddenClass = d.includes(when) ? "false" : "true";
           })
         : null;
-      let isSusceptibility = ["resisteant", "sensitive"].includes(name.toLocaleLowerCase());
+      const isSusceptibility = ["resisteant", "sensitive"].includes(name.toLocaleLowerCase());
       return `
             <div 
               style="font-size:${font} !important;display:${hiddenClass === "true" ? "none" : "flex"}"
               data-flag="result" 
               class="test strc-test row m-0 border-test ${showClass} ${isSusceptibility? "w-50":""}
             ">
-              <div class="testname col-6">
+              <div class="testname ${isSusceptibility? "col-12 mx-3":"col-6"}">
                   <p class="text-right">${name}</p>
               </div>
               <div class="testresult result-field col-6 justify-content-center ">
                   <p style="${italic}" class="w-75 text-right">${result.toString()} </p>
               </div>
             </div>`;
+    }
     default:
       break;
   }
@@ -2544,26 +2565,27 @@ function downloadPdf() {
 
 function printAfterSelect(hash) {
   fetchApi("/visit/update_visit_status", "POST", { hash: hash, status: 3 });
-  let __invoces = $("#work-sapce .book-result");
+  const __invoces = $("#work-sapce .book-result");
   // modal body
-  let body = $("#print-dialog .modal-body");
+  const body = $("#print-dialog .modal-body");
   // empty body
   body.empty();
   // loop over all invoices
-  __invoces.each(function (index, invoice) {
+  __invoces.each((index, invoice) => {
     // invice clone
-    if (invoice.querySelector(".tester").childElementCount <= 1) {
-      return;
-    }
-    let clone = $(invoice).clone();
-    let id = clone.attr("id");
+    // if (invoice.querySelector(".tester").childElementCount <= 1) {
+    //   console.log("no tests");
+    //   return;
+    // }
+    const clone = $(invoice).clone();
+    const id = clone.attr("id");
     clone.removeAttr("id");
     // add style to clone zoom 25%
     clone.css("zoom", "33.33%");
     // remove display none from clone
     clone.css("display", "block");
     // PUT INVOCES IN SVG
-    let svg = `
+    const svg = `
         <div class="col-md-4">
             <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="500px" style="direction:ltr" data-id="${id}" onclick="hoverInvoice(this)">
                 <foreignObject width="100%" height="100%">
