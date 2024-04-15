@@ -14,9 +14,14 @@ class PatientModel extends CI_Model
     public function count_all($params)
     {
         $searchText = $params['search']['value'];
+        $startDate = $params['startDate'] ?? date('Y-m-d', strtotime('-1 month'));
+        $endDate = $params['endDate'] ?? date('Y-m-d');
         return $this->db
-            ->where('isdeleted', 0)
-            ->like("name", $searchText)
+            ->join('lab_visits', 'lab_patient.hash = lab_visits.visits_patient_id', 'left')
+            ->where('lab_patient.isdeleted', 0)
+            ->where('visit_date >=', $startDate)
+            ->where('visit_date <=', $endDate)
+            ->like("lab_patient.name", $searchText)
             ->count_all_results($this->table);
     }
 
@@ -29,11 +34,17 @@ class PatientModel extends CI_Model
         $orderBy = $params['columns'][$orderBy]['data'];
         $order = $params['order'][0]['dir'];
         $searchText = $params['search']['value'];
+        $startDate = $params['startDate'] ?? date('Y-m-d', strtotime('-1 month'));
+        $endDate = $params['endDate'] ?? date('Y-m-d');
         return $this->db
             ->select('lab_patient.*, visit_date')
             ->join('lab_visits', 'lab_patient.hash = lab_visits.visits_patient_id', 'left')
             ->where('lab_patient.isdeleted', 0)
+            // filter with start date and end date
+            ->where('visit_date >=', $startDate)
+            ->where('visit_date <=', $endDate)
             ->like("lab_patient.name", $searchText)
+
             ->order_by($orderBy, $order)
             ->group_by('lab_patient.hash')
             ->get($this->table, $rowsPerPage, $page * $rowsPerPage)

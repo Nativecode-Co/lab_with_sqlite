@@ -687,7 +687,7 @@ function showResult(hash) {
         result: result,
         hash: test.hash,
         category: category,
-        checked: test.result?.checked ?? true ? "flex" : "none",
+        checked: test.result?.checked === "false" || test.result?.checked === false ? "none" : "flex",
         normal: normalRange,
         flag: flag,
         history: history.find((item) => item.name == test.name)?.result ?? "",
@@ -715,7 +715,7 @@ function showResult(hash) {
 function invoiceHeader(invoice) {
   const displayHeaderAndFooter = invoice.footer_header_show === "1";
   let html = "";
-  const { size, workers, logo, name_in_invoice, show_name, show_logo } =
+  const { size, workers, logo, name_in_invoice, show_name, show_logo,invoice_about_ar,invoice_about_en } =
     invoice;
   if (workers.length > 0) {
     html = workers
@@ -732,16 +732,16 @@ function invoiceHeader(invoice) {
         }
         if (worker.hash == "name") {
           return `
-          <div style="
-          flex: 0 0 ${size}%;
-          max-width: ${size}%;
-        " class="logo text-center  justify-content-center align-content-center ${
-          show_name == "1" ? "d-flex" : "d-none"
-        }">
-              <h1 class="navbar-brand-name text-center">${
-                name_in_invoice ?? localStorage.lab_name ?? ""
-              }</h1>
-          </div>
+          <div class="right ${show_name == "1" ? "d-flex" : "d-none"}"
+          style="flex: 0 0 ${size}%;max-width: ${size}%;"
+          >
+            <!-- عنوان جانب الايمن -->
+            <div class="size1">
+                <p class="title">${name_in_invoice}</p>
+                <p class="namet">${invoice_about_ar}</p>
+                <p class="certificate">${invoice_about_en }</p>
+            </div>
+        </div>
         `;
         }
         return `

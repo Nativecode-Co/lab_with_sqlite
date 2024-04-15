@@ -1,3 +1,10 @@
+$("#startDate").val(new Date().toISOString().slice(0, 10));
+$("#endDate").val(new Date().toISOString().slice(0, 10));
+
+const search = () => {
+  lab_patient.dataTable.ajax.reload();
+};
+
 class Patient extends Factory {
   init() {
     this.createModal();
@@ -5,7 +12,10 @@ class Patient extends Factory {
       "lab_patient-table",
       `${api_url}/patient/get_patients`,
       () => {
-        return {};
+        return {
+          startDate: $("#startDate").val(),
+          endDate: $("#endDate").val(),
+        };
       },
       [
         {
@@ -114,6 +124,8 @@ const lab_patient = new Patient("lab_patient", " مريض", [
 $(() => {
   $(".dt-buttons").addClass("btn-group");
   $("div.addCustomItem").html(
-    `<span class="table-title">قائمة المرضى</span><button onclick="lab_patient.newItem()" class="btn-main-add ml-4"><i class="far fa-user-injured mr-2"></i> أضافة مريض</button>`
+    `
+    <span class="table-title">قائمة المرضى</span><button onclick="lab_patient.newItem()" class="btn-main-add ml-4"><i class="far fa-user-injured mr-2"></i> أضافة مريض</button>
+    `
   );
 });

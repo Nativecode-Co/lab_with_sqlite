@@ -380,18 +380,13 @@ function showAddResult(hash, animate = true) {
                         ${invoice}
                     </div>
                     <div class="col-lg-12 mt-48">
-                        <div class="row mt-15 justify-content-center">
+                        <div class="row mt-15 justify-content-around">
                             <div class="col-md-2 col-6">
                                 <button type="button" id="saveResultButton" class="btn btn-add w-100" onclick="fireSwal(saveResult,'${hash}')">حفظ النتائج</button>
                             </div>
                             <div class="col-md-2 col-6">
                                 <button type="button" class="btn btn-outline-print w-100" onclick="printAfterSelect('${hash}')">
                                     <i class="mr-2 fal fa-print"></i>طباعة النتائج
-                                </button>
-                            </div>
-                            <div class="col-md-2 col-6">
-                                <button type="button" class="btn btn-outline-print w-100" onclick="printAllInvoices('${hash}')">
-                                    <i class="mr-2 fal fa-print"></i>طباعة الكل
                                 </button>
                             </div>
                             <div class="col-md-2 col-6">
