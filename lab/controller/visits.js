@@ -380,16 +380,7 @@ function showAddResult(hash, animate = true) {
                         ${invoice}
                     </div>
                     <div class="d-none d-print-block" id="visit-barcode">
-                      <style>
-                        @media  print {
-                          @page  {
-                              margin: 0 !important;
-                              padding: 0 !important;
-                              box-sizing: border-box;
-                              size: ${invoices?.barcode_width??25}mm ${invoices?.barcode_height??25}mm;
-                          }
-                      }
-                      </style>
+                     
                       <svg id="visit-barcode-svg"></svg>
                     </div>
 
