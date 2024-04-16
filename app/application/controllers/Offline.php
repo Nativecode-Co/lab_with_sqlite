@@ -569,21 +569,24 @@ class Offline extends CI_Controller
             return "('" . implode("','", array_values((array) $test)) . "')";
         }, $tests);
         $online_values = array_map(function ($test) use ($lab_hash) {
-            $option_test = $test->option_test;
-            $option_test = str_replace('"', '\"', $option_test);
+            $test->lab_hash = $lab_hash;
+            $option_test = str_replace('\\', '', $test->option_test);
             $test->option_test = $option_test;
-            $name = $test->test_name;
-            $name = str_replace("'", "", $name);
-            $test->test_name = $name;
-            return "('" . implode("','", array_values((array) $test)) . "','$lab_hash')";
+            return $test;
         }, $tests);
         $tests_query .= implode(",", $tests_values);
-        $online_query .= implode(",", $online_values);
-        // if ($tests_count == 0) {
-        //     $this->db->query($online_query);
-        // } 
         $queries .= $tests_query;
+        // $this->run_tests($online_values);
         echo $queries;
+    }
+
+    public function run_tests($data)
+    {
+        $this->db->query("SET SQL_SAFE_UPDATES = 0;");
+        $this->db->trans_start();
+        $this->db->insert_batch('lab_test', $data);
+        $this->db->trans_complete();
+        $this->db->query("SET SQL_SAFE_UPDATES = 1;");
     }
 
     public function run_sync()

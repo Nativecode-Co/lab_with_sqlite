@@ -1112,10 +1112,12 @@ function saveResult(hash) {
   const finalResults = [];
   const forms = document.querySelectorAll("form.results");
   for (const form of forms) {
+    // check if form hash class test-normalTests
+    const isNormalTest = form.classList.contains("test-normalTests");
     const data = {};
     const formData = new FormData(form);
     for (const [key, value] of formData) {
-      if (key.includes(".")) {
+      if (key.includes(".") && !isNormalTest) {
         const [type, name] = key.split(".");
         if (!data[type]) {
           data[type] = [];
@@ -2100,6 +2102,7 @@ function showResult(data) {
         }
       }
       let result = test.result[test.name];
+      console.log(test.result);
       if (reference.type === "calc") {
         let evaluatedResult = 0;
         try {
