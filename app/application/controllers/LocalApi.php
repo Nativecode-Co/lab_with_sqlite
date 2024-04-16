@@ -202,6 +202,7 @@ class LocalApi extends CI_Controller
     
 
     public function createAfterInsertTrigger(){
+        // create trigger for lab_visits AFTER INSERT if not exists
         $this->db->query("CREATE TRIGGER lab_visits_AFTER_INSERT
         AFTER INSERT ON `lab_visits`
         FOR EACH ROW

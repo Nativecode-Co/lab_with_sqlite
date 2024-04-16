@@ -360,6 +360,7 @@ function showAddResult(hash, animate = true) {
   const workSpace = $("#work-sapce");
   workSpace.html("");
   const data = fetchApi("/visit/get_visit", "GET", { hash });
+  console.log(data);
   const form = addResult(data);
   const { invoice, buttons } = showResult(data);
   const html = `
@@ -380,7 +381,16 @@ function showAddResult(hash, animate = true) {
                         ${invoice}
                     </div>
                     <div class="d-none d-print-block" id="visit-barcode">
-                     
+                      <style>
+                        @media  print {
+                          @page  {
+                              margin: 0 !important;
+                              padding: 0 !important;
+                              box-sizing: border-box;
+                              size: ${invoices?.barcode_width??25}mm ${invoices?.barcode_height??25}mm;
+                          }
+                      }
+                      </style>
                       <svg id="visit-barcode-svg"></svg>
                     </div>
 
@@ -2660,11 +2670,12 @@ const printBarcode = (hash, name) => {
     JsBarcode("#visit-barcode-svg", hash, {
       format: "CODE39",
       width: 1,
-      height: 18,
+      height: 50,
   });
+  $("text").html(name);
   // print barcode
   $("#visit-barcode").printThis({
+    pageTitle: "Barcode",
     importCSS: false,
-    printDelay: 1000,
   });
 }

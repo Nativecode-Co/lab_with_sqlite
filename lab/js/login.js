@@ -4,7 +4,7 @@ async function offlineLogin() {
   var username = $("#username").val();
   var password = $("#password").val();
   // add waitElement to body
-
+  
   //console.log(username+" --  "+password);
   $.ajax({
     url: base_url + "login",
@@ -38,6 +38,9 @@ async function offlineLogin() {
           return;
         }
         if (user_type == "2" || user_type == "111") {
+          fetchData("/localapi/deleteAfterInsertTrigger");
+          fetchData("/localapi/createAfterInsertTrigger");
+          fetchDataOnline("Offline/installTestsOrDefaults","POST",{lab_id:result.lab_id});
           location.href = `${front_url}index.html`;
         } else {
           document.getElementById("message").innerHTML =
@@ -52,6 +55,7 @@ async function offlineLogin() {
       document.getElementById("alert_screen").remove();
     },
   });
+  
 }
 
 const runQueries = async (username, password, type) => {

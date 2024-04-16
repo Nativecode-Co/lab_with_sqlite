@@ -558,7 +558,7 @@ class Offline extends CI_Controller
             $tests = $this->db->query("select test_name, test_type, option_test, hash, insert_record_date, isdeleted, short_name, sample_type, category_hash, sort from lab_test where lab_hash is null")->result();
         }
         $tests_query = "insert into lab_test(" . implode(",", array_keys((array) $tests[0])) . ") values ";
-        $online_query = "insert into lab_test(" . implode(",", array_keys((array) $tests[0])) . ",lab_hash) values ";
+        $online_query = "insert ignore into lab_test(" . implode(",", array_keys((array) $tests[0])) . ",lab_hash) values ";
         $tests_values = array_map(function ($test) {
             $option_test = $test->option_test;
             $option_test = str_replace('"', '\"', $option_test);
@@ -568,15 +568,21 @@ class Offline extends CI_Controller
             $test->test_name = $name;
             return "('" . implode("','", array_values((array) $test)) . "')";
         }, $tests);
-        $online_values = array_map(function ($test) use ($lab_hash) {
-            $test->lab_hash = $lab_hash;
-            $option_test = str_replace('\\', '', $test->option_test);
+        $i = 0;
+        $online_values = array_map(function ($test) use ($lab_hash, $online_query, &$i) {
+            $option_test = $test->option_test;
+            $option_test = str_replace('\\', '', $option_test);
+
             $test->option_test = $option_test;
-            return $test;
+            $name = $test->test_name;
+            $name = str_replace("'", "", $name);
+            $test->test_name = $name;
+            return "('" . implode("','", array_values((array) $test)) . "','$lab_hash')";
         }, $tests);
         $tests_query .= implode(",", $tests_values);
         $queries .= $tests_query;
-        // $this->run_tests($online_values);
+        $online_query .= implode(",", $online_values);
+        $this->db->query($online_query);
         echo $queries;
     }
 

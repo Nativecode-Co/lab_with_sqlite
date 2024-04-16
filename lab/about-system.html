@@ -503,7 +503,7 @@
             fetch(`${base_url}Network`)
                 .then((res) => res.json())
                 .then((res) => {
-                    networkLink.innerHTML = res.url;
+                    networkLink.innerHTML = res.url+"/lab/login/login.html";
                     screnLink.innerHTML = res.url + '/lab/screen.html';
                     var qrcode = new QRCode("netWork_img", {
                         text: res.url,
