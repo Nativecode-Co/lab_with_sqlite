@@ -632,6 +632,7 @@ const Setting = ({ dispatch, state, invoice, setInvoice }) => {
                   }}
                   value={Math.round(100 / invoice.phone_2)}
                 >
+                  <option value="1">1</option>
                   <option value="2">2</option>
                   <option value="3">3</option>
                   <option value="4">4</option>
