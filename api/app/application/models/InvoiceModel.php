@@ -30,11 +30,11 @@ class InvoiceModel extends CI_Model
         }
         // barcode_width
         if (!$this->db->field_exists('barcode_width', 'lab_invoice')) {
-            $this->db->query("ALTER TABLE `lab_invoice` ADD COLUMN `barcode_width` INTEGER NOT NULL DEFAULT 1 ;");
+            $this->db->query("ALTER TABLE `lab_invoice` ADD COLUMN `barcode_width` INTEGER NOT NULL DEFAULT 80 ;");
         }
         // barcode_height
         if (!$this->db->field_exists('barcode_height', 'lab_invoice')) {
-            $this->db->query("ALTER TABLE `lab_invoice` ADD COLUMN `barcode_height` INTEGER NOT NULL DEFAULT 1 ;");
+            $this->db->query("ALTER TABLE `lab_invoice` ADD COLUMN `barcode_height` INTEGER NOT NULL DEFAULT 20 ;");
         }
     }
 
