@@ -1857,7 +1857,7 @@ function showResult(data) {
   const results = {};
   let height = 0;
   let normalTests = manageHead("flag");
-  const defaultHeight = (invoice.center ?? 1200) - 300;
+  const defaultHeight = (invoice.center ?? 1200) - 270;
   tests.forEach((test, index) => {
     const reference = test.option_test;
 
@@ -2078,6 +2078,7 @@ function showResult(data) {
           }
           height = 102;
         }
+        height += Number(reference.height);
       } else {
         height += Number(reference.height);
       }
