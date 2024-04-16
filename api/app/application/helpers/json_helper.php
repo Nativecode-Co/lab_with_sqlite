@@ -196,8 +196,21 @@ class Json
       $refrences['height'] = 9 + ($height * 5.5) + (1.15944 * $height * $font);
     } else {
       $refrences = array_map(function ($refrence) use ($font) {
-        $height = isset($refrence['range']) ? count($refrence['range']) : 1;
-        $height = $height == 0 ? 1 : $height;
+        $height = 0;
+        if(isset($refrence['range'])){
+          // use range to calculate height
+          foreach ($refrence['range'] as $range ) {
+            $name = isset($range['name']) ? $range['name'] : '';
+            $low = isset($range['low']) ? $range['low'] : '';
+            $high = isset($range['high']) ? $range['high'] : '';
+            $length = strlen($name) + strlen($low) + strlen($high) +6;
+            $length = ($font * $length * 0.5) / 185; // =1.0835027027027
+            $length = ceil($length);
+            $height += $length;
+          }
+        }else{
+          $height = 1;
+        }
         $refrence['height'] = 9.01 + ($height * 5.5) + (1.14 * $height * $font);
         return $refrence;
       }, $refrences);

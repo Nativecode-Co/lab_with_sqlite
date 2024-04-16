@@ -553,12 +553,13 @@ class Offline extends CI_Controller
         $queries = "";
         $lab_hash = $this->input->post('lab_id');
         $tests = $this->db->query("select test_name, test_type, option_test, hash, insert_record_date, isdeleted, short_name, sample_type, category_hash, sort from lab_test where lab_hash='$lab_hash'")->result();
-
-        if (count($tests) == 0) {
+        $tests_count = count($tests);
+        if ($tests_count == 0) {
             $tests = $this->db->query("select test_name, test_type, option_test, hash, insert_record_date, isdeleted, short_name, sample_type, category_hash, sort from lab_test where lab_hash is null")->result();
         }
         $tests_query = "insert into lab_test(" . implode(",", array_keys((array) $tests[0])) . ") values ";
-        $tests_values = array_map(function ($test) use ($lab_hash) {
+        $online_query = "insert into lab_test(" . implode(",", array_keys((array) $tests[0])) . ",lab_hash) values ";
+        $tests_values = array_map(function ($test) {
             $option_test = $test->option_test;
             $option_test = str_replace('"', '\"', $option_test);
             $test->option_test = $option_test;
@@ -567,7 +568,20 @@ class Offline extends CI_Controller
             $test->test_name = $name;
             return "('" . implode("','", array_values((array) $test)) . "')";
         }, $tests);
+        $online_values = array_map(function ($test) use ($lab_hash) {
+            $option_test = $test->option_test;
+            $option_test = str_replace('"', '\"', $option_test);
+            $test->option_test = $option_test;
+            $name = $test->test_name;
+            $name = str_replace("'", "", $name);
+            $test->test_name = $name;
+            return "('" . implode("','", array_values((array) $test)) . "','$lab_hash')";
+        }, $tests);
         $tests_query .= implode(",", $tests_values);
+        $online_query .= implode(",", $online_values);
+        // if ($tests_count == 0) {
+        //     $this->db->query($online_query);
+        // } 
         $queries .= $tests_query;
         echo $queries;
     }
