@@ -543,7 +543,7 @@ const Setting = ({ dispatch, state, invoice, setInvoice }) => {
               </div>
               <div className="form-group col-md-6">
                 <label htmlFor="barcode_width">
-                  عرض الباركود
+                  عرض الباركود(mm)
                 </label>
                 <input
                   type="text"
@@ -561,7 +561,7 @@ const Setting = ({ dispatch, state, invoice, setInvoice }) => {
               </div>
               <div className="form-group col-md-6">
                 <label htmlFor="barcode_height">
-                  طول الباركود
+                  طول الباركود(mm)
                 </label>
                 <input
                   type="text"
