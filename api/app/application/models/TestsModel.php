@@ -315,11 +315,10 @@ class TestsModel extends CI_Model
         }
     }
 
-    public function set_result_by_alias($alias, $date, $patient, $result)
+    public function set_result_by_alias($alias, $visit_id, $result)
     {
         $test_hash = $this->TestAliasModel->get_test_hash_by_alias($alias);
-        $visit = $this->VisitModel->get_visit_by_patient_and_date($patient, $date);
-        if (isset ($visit) && isset ($test_hash)) {
+        if (isset ($visit_id) && isset ($test_hash)) {
             // test name from lab_test
             $test_name = $this->db
                 ->select('test_name as name')
@@ -333,7 +332,7 @@ class TestsModel extends CI_Model
                 )
             );
             $this->db
-                ->where('visit_id', $visit)
+                ->where('visit_id', $visit_id)
                 ->where('tests_id', $test_hash)
                 ->update('lab_visits_tests', [
                     'result_test' => $result

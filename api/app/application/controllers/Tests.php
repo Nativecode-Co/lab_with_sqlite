@@ -171,7 +171,7 @@ class Tests extends CI_Controller
             'alias',
             'required',
             array(
-                'required' => 'هذا الحقل مطلوب',
+                'required' => 'الاختصار مطلوب',
             )
         )
         ->set_rules(
@@ -179,23 +179,15 @@ class Tests extends CI_Controller
             'result',
             'required',
             array(
-                'required' => 'هذا الحقل مطلوب',
+                'required' => 'النتيجة مطلوبة',
             )
         )
         ->set_rules(
-            'date',
-            'date',
+            'visit_id',
+            'visit_id',
             'required',
             array(
-                'required' => 'هذا الحقل مطلوب',
-            )
-        )
-        ->set_rules(
-            'patient',
-            'patient',
-            'required',
-            array(
-                'required' => 'هذا الحقل مطلوب',
+                'required' => 'id الزيارة مطلوب',
             )
         );
         $valid = $this->form_validation->run();
@@ -209,9 +201,8 @@ class Tests extends CI_Controller
         }
         $alias = $this->input->post("alias");
         $result = $this->input->post("result");
-        $date = $this->input->post("date");
-        $patient = $this->input->post("patient");
-        $data = $this->TestsModel->set_result_by_alias($alias, $date, $patient, $result);
+        $visit_id = $this->input->post("visit_id");
+        $data = $this->TestsModel->set_result_by_alias($alias, $visit_id, $result);
         $this->output
             ->set_status_header(200)
             ->set_content_type('application/json')

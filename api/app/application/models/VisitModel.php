@@ -33,7 +33,6 @@ class VisitModel extends CI_Model
         $start = $params['start'];
         $rowsPerPage = $params['length'];
         $page = $start / $rowsPerPage;
-
         $orderBy = $params['order'][0]['column'];
         $orderBy = $params['columns'][$orderBy]['data'];
         $order = $params['order'][0]['dir'];
@@ -483,21 +482,6 @@ class VisitModel extends CI_Model
             ->group_by('lab_visits_package.hash')
             ->get()->result_array();
         return $result;
-    }
-
-    public function get_visit_by_patient_and_date($patient_name, $date)
-    {
-        $result = $this->db
-            ->select('lab_visits.hash as hash')
-            ->from('lab_visits')
-            ->join('lab_patient', 'lab_patient.hash = lab_visits.visits_patient_id')
-            ->where(array('lab_patient.name' => $patient_name, 'visit_date' => $date))
-            ->get()->row();
-        if(isset($result)){
-            return $result->hash;
-        }else{
-            return null;
-        }
     }
 
     public function get_visits_mobile($page, $search){
