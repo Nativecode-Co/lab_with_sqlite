@@ -9,6 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const unitsSelect = document.getElementById("unit");
   const devicesSelect = document.getElementById("lab_device_id");
   const testsSelect = document.getElementById("test_id");
+  const categorySelect = document.getElementById("category_hash");
   const packagesSelect = document.querySelector("select[name='tests']");
   // add no kit option
   const noKitOption = document.createElement("option");
@@ -37,6 +38,12 @@ document.addEventListener("DOMContentLoaded", () => {
     option.value = test.hash;
     option.textContent = test.text;
     testsSelect.appendChild(option);
+  }
+  for(const category of categories){
+    const option = document.createElement("option");
+    option.value = category.hash;
+    option.textContent = category.name;
+    categorySelect.appendChild(option);
   }
   for (const kit of kits) {
     const option = document.createElement("option");
@@ -171,6 +178,8 @@ function saveUpdateTest(hash) {
     hash,
     name,
     catigory_id: 9,
+    category_hash: formData.category_hash,
+    test_hash: formData.test_id,
     tests: JSON.stringify(tests),
   };
   fetchApi("/tests/update_test", "post", formData);
@@ -197,6 +206,8 @@ function saveNewTest() {
     price: formData.price,
     name,
     catigory_id: 9,
+    category_hash: formData.category_hash,
+    test_hash: formData.test_id,
     tests: JSON.stringify(tests),
   };
   fetchApi("/tests/create_test", "post", formData);

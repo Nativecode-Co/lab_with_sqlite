@@ -1,6 +1,7 @@
 const oldTests = [];
 
 const packages = fetchApi("/tests/get_packages_test");
+const categories = fetchApi("/visit/get_categories");
 class PackageTest extends Factory {
   init() {
     this.createModal();

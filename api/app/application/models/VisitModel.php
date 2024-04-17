@@ -204,19 +204,19 @@ class VisitModel extends CI_Model
         $doctors = $this->db->select('hash,name')->where("isdeleted", "0")->get('lab_doctor')->result_array();
         $units = $this->db->select('hash,name')->get('lab_test_units')->result_array();
         $data = $this->get_tests_and_packages();
+        $categories = $this->get_categories();
         return array(
             "patients" => $patients,
             "doctors" => $doctors,
             "tests" => $data['tests'],
             "packages" => $data['packages'],
-            "categories" => $data['categories'],
+            "categories" => $categories,
             "units" => $units
         );
     }
 
     public function get_tests_and_packages()
     {
-        $categories = $this->db->select('hash,name')->get('lab_test_catigory')->result_array();
         // get all packages
         $packages = $this->db->select('hash,name,price,"package" as type,"false" as checked')
             ->where(
@@ -249,9 +249,12 @@ class VisitModel extends CI_Model
         // return all data
         return array(
             "packages" => $packages,
-            "tests" => $tests,
-            "categories" => $categories
+            "tests" => $tests
         );
+    }
+
+    public function get_categories(){
+        return $this->db->select('hash,name')->get('lab_test_catigory')->result_array();
     }
 
 

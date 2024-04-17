@@ -63,6 +63,10 @@ const showReferences = (hash, kit, unit) => {
     kit,
     unit,
   });
+  const categorySelect = document.getElementById("category_hash");
+  categorySelect.value = references?.category_hash ?? "";
+  // trigger change event to get tests
+  categorySelect.dispatchEvent(new Event("change"));
   const data = references?.refrence ??[];
 
   const referencesElement = document.getElementById("references");
@@ -106,7 +110,8 @@ const testId = document.getElementsByName("test_id")[0];
 const testKit = document.getElementsByName("kit_id")[0];
 const testUnit = document.getElementsByName("unit")[0];
 
-$(document).on("change", "#test-form select", function () {
+// select not category_hash
+$(document).on("change", "#test-form select:not(#category_hash)",  () =>{
   const hash = testId.value;
   const kit = testKit.value;
   const unit = testUnit.value;

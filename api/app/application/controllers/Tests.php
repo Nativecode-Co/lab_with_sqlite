@@ -8,6 +8,7 @@ class Tests extends CI_Controller
     {
         parent::__construct();
         $this->load->model('TestsModel');
+        $this->load->model('MainTestsModel');
         $this->load->library('form_validation');
     }
 
@@ -57,6 +58,12 @@ class Tests extends CI_Controller
             return;
         }
         ;
+        $category_hash = $req['category_hash'];
+        $test_hash = $req['test_hash'];
+        unset($req['category_hash']);
+        unset($req['test_hash']);
+        $this->MainTestsModel->update($test_hash, array("category_hash" => $category_hash));
+        
         $tests = $req['tests'];
         $tests = json_decode($tests, true);
         unset($req['tests']);
@@ -71,7 +78,7 @@ class Tests extends CI_Controller
     {
         $req = $this->input->post();
         $this->form_validation->set_data($req);
-
+        
         $valid = $this->form_validation->
             set_data($req)->
             set_rules(
@@ -92,12 +99,20 @@ class Tests extends CI_Controller
                 ->set_output(json_encode($errors));
             return;
         }
+        $category_hash = $req['category_hash'];
+        $test_hash = $req['test_hash'];
+        unset($req['category_hash']);
+        unset($req['test_hash']);
+        $this->MainTestsModel->update($test_hash, array("category_hash" => $category_hash));
+
         $hash = $req['hash'];
         unset($req['hash']);
         $tests = $req['tests'];
         $tests = json_decode($tests, true);
         unset($req['tests']);
+
         $data = $this->TestsModel->update($hash, $req, $tests);
+        
         $this->output
             ->set_status_header(200)
             ->set_content_type('application/json')

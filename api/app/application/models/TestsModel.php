@@ -26,9 +26,11 @@ class TestsModel extends CI_Model
     public function get($hash)
     {
         $data = $this->db
+            ->select('category_hash, lab_pakage_tests.*, lab_package.*')
             ->where('lab_pakage_tests.isdeleted', 0)
             ->where('lab_package.isdeleted', 0)
             ->join('lab_pakage_tests', 'lab_pakage_tests.package_id = lab_package.hash', 'inner')
+            ->join("lab_test", "lab_test.hash = lab_pakage_tests.test_id", "left")
             ->where('lab_package.hash', $hash)
             ->get($this->table)
             ->row();

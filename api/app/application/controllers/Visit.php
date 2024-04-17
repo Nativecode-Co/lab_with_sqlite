@@ -87,6 +87,15 @@ class Visit extends CI_Controller
                 )
             );
     }
+
+    public function get_categories()
+    {
+        $data = $this->VisitModel->get_categories();
+        $this->output
+            ->set_status_header(200)
+            ->set_content_type('application/json')
+            ->set_output(json_encode($data));
+    }
     
 
     public function get_visit_form_data()
