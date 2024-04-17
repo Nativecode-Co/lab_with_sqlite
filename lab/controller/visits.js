@@ -360,7 +360,6 @@ function showAddResult(hash, animate = true) {
   const workSpace = $("#work-sapce");
   workSpace.html("");
   const data = fetchApi("/visit/get_visit", "GET", { hash });
-  console.log(data);
   const form = addResult(data);
   const { invoice, buttons } = showResult(data);
   const html = `
@@ -2103,7 +2102,6 @@ function showResult(data) {
         }
       }
       let result = test.result[test.name];
-      console.log(test.result);
       if (reference.type === "calc") {
         let evaluatedResult = 0;
         try {
@@ -2666,16 +2664,57 @@ const updatePatientName = async (hash, ele) => {
 };
 
 const printBarcode = (hash, name) => {
-  // draw barcode
+  if(Number(invoices?.barcode_first_time) === 0){
+    setBarcode(hash);
+    return;
+    
+  }
     JsBarcode("#visit-barcode-svg", hash, {
       format: "CODE39",
       width: 1,
       height: 50,
-  });
-  $("text").html(name);
-  // print barcode
-  $("#visit-barcode").printThis({
-    pageTitle: "Barcode",
-    importCSS: false,
+    });
+    $("text").html(name);
+    // print barcode
+    $("#visit-barcode").printThis({
+      pageTitle: "Barcode",
+      importCSS: false,
+    });
+}
+
+function setBarcode(hash) {
+  // fire swal form to insert barcode_hight and barcode_width
+  Swal.fire({
+    title: "ابعاد الباركود",
+    html:`
+    <form id="barcode-form" class="text-left">
+      <div class="form-group
+        <label for="barcode_height">طول الباركود (mm)</label>
+        <input type="number" class="form-control mt-3" id="barcode_height" placeholder="طول الباركود" value="${invoices?.barcode_height??40}">
+      </div>
+      <div class="form-group">
+        <label for="barcode_width">عرض الباركود (mm)</label>
+        <input type="number" class="form-control mt-3" id="barcode_width" placeholder="عرض الباركود" value="${invoices?.barcode_width??80}">
+      </div>
+    </form>`,
+    showCancelButton: true,
+    confirmButtonText: "حفظ",
+    cancelButtonText: "الغاء",
+    preConfirm: async (data) => {
+      const height = $("#barcode_height").val();
+      const width = $("#barcode_width").val();
+      if(height && width){
+        fetchData("/invoice/update", "POST", { barcode_height: height, barcode_width: width ,barcode_first_time: 1 ,lab_hash : localStorage.getItem("lab_hash")});
+        invoices = { ...invoices, barcode_height: height, barcode_width: width ,barcode_first_time: 1};
+      }else{
+        Swal.showValidationMessage(`
+          يجب ادخال الطول والعرض
+        `);
+      }
+    },
+  }).then((result) => {
+    if (result.isConfirmed) {
+      showAddResult(hash, false);
+    }
   });
 }

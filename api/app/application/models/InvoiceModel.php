@@ -36,6 +36,10 @@ class InvoiceModel extends CI_Model
         if (!$this->db->field_exists('barcode_height', 'lab_invoice')) {
             $this->db->query("ALTER TABLE `lab_invoice` ADD COLUMN `barcode_height` INTEGER NOT NULL DEFAULT 20 ;");
         }
+        // barcode first_time
+        if (!$this->db->field_exists('barcode_first_time', 'lab_invoice')) {
+            $this->db->query("ALTER TABLE `lab_invoice` ADD COLUMN `barcode_first_time` INTEGER NOT NULL DEFAULT 0 ;");
+        }
     }
 
     public function get()
@@ -45,7 +49,7 @@ class InvoiceModel extends CI_Model
             ->select(" phone_2 as size, address, facebook, header, center")
             ->select("logo, water_mark, footer_header_show, invoice_about_ar")
             ->select("font_size, zoom, doing_by, name_in_invoice, font_color,setting")
-            ->select("barcode_width, barcode_height")
+            ->select("barcode_width, barcode_height,barcode_first_time")
             ->limit(1)
             ->get('lab_invoice')->row_array();
         $invoice = array_merge($invoice, $setting);

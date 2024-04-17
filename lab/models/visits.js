@@ -6,7 +6,7 @@ const { patients, units, doctors, tests, packages, categories } = fetchApi(
   "GET",
   {}
 );
-const { workers, ...invoices } = fetchApi("/invoice/get");
+let { workers, ...invoices } = fetchApi("/invoice/get");
 
 class Visit extends Factory {
   init() {
