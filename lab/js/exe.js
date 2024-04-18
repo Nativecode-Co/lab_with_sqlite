@@ -298,3 +298,23 @@ function syncOnline() {
     }).catch((e)=>{console.log("error", e)})
   }, 500);
 }
+
+// load notification every 5 seconds
+setInterval(() => {
+  const data = fetchApi("/testNot/get");
+  if(data){
+    Swal.fire({
+      icon: "success",
+      title: "تم !",
+      text: data.message,
+      confirmButtonText: "موافق",
+      showCancelButton: true,
+      cancelButtonText: "الغاء",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // redirect to visits page
+        location.href = `${front_url}visits.html`;
+      }
+    });
+  }
+}, 5000);

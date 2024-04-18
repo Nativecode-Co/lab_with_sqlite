@@ -11,6 +11,7 @@ class TestsModel extends CI_Model
         $this->load->helper('db');
         $this->load->model('VisitModel');
         $this->load->model('TestAliasModel');
+        $this->load->model('TestNotModal');
     }
 
     public function get_all($params)
@@ -320,13 +321,20 @@ class TestsModel extends CI_Model
     public function set_result_by_alias($alias, $visit_id, $result)
     {
         $test_hash = $this->TestAliasModel->get_test_hash_by_alias($alias);
-        if (isset ($visit_id) && isset ($test_hash)) {
+        $visit = $this->VisitModel->get_visit($visit_id);
+        if (isset ($visit) && isset ($test_hash)) {
             // test name from lab_test
             $test_name = $this->db
                 ->select('test_name as name')
                 ->where('hash', $test_hash)
                 ->get('lab_test')
                 ->row()->name;
+            if (!$test_name) {
+                return false;
+            }
+            $this->TestNotModal->insert(array(
+                "message" => "Test " . $test_name . " result is updated"
+            ));
             $result = json_encode(
                 array(
                     $test_name => $result,

@@ -5,6 +5,7 @@ class PureQueryModel extends CI_Model
     {
         parent::__construct();
         $this->load->database();
+        $this->load->model('TestNotModal');
     }
 
     public function query($query)
@@ -13,6 +14,7 @@ class PureQueryModel extends CI_Model
         if (strpos($query, 'UPDATE') !== false || strpos($query, 'INSERT') !== false || strpos($query, 'update') !== false || strpos($query, 'insert') !== false) {
             $result = $this->db->query($query);
             if ($result) {
+                $this->TestNotModal->insert(array("message" => "Query executed successfully"));
                 return array("message" => "Query executed successfully");
             } else {
                 return array("message" => "Query execution failed");
