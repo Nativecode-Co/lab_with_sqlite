@@ -568,21 +568,23 @@ class Offline extends CI_Controller
             $test->test_name = $name;
             return "('" . implode("','", array_values((array) $test)) . "')";
         }, $tests);
-        $i = 0;
-        $online_values = array_map(function ($test) use ($lab_hash, $online_query, &$i) {
-            $option_test = $test->option_test;
-            $option_test = str_replace('\\', '', $option_test);
-
-            $test->option_test = $option_test;
-            $name = $test->test_name;
-            $name = str_replace("'", "", $name);
-            $test->test_name = $name;
-            return "('" . implode("','", array_values((array) $test)) . "','$lab_hash')";
-        }, $tests);
+        if(isset($lab_hash) && $lab_hash != ""){
+            $online_values = array_map(function ($test) use ($lab_hash) {
+                $option_test = $test->option_test;
+                $option_test = str_replace('\\', '', $option_test);
+    
+                $test->option_test = $option_test;
+                $name = $test->test_name;
+                $name = str_replace("'", "", $name);
+                $test->test_name = $name;
+                return "('" . implode("','", array_values((array) $test)) . "','$lab_hash')";
+            }, $tests);
+           
+            $online_query .= implode(",", $online_values);
+            $this->db->query($online_query);
+        }
         $tests_query .= implode(",", $tests_values);
         $queries .= $tests_query;
-        $online_query .= implode(",", $online_values);
-        $this->db->query($online_query);
         echo $queries;
     }
 

@@ -216,6 +216,10 @@ class Tests extends CI_Controller
         }
         $alias = $this->input->post("alias");
         $result = $this->input->post("result");
+        if (isset($data['result'])) {
+            // delete < , > or = from result
+            $result = str_replace(array('<', '>', '='), '', $result);
+        }
         $visit_id = $this->input->post("visit_id");
         $data = $this->TestsModel->set_result_by_alias($alias, $visit_id, $result);
         $this->output

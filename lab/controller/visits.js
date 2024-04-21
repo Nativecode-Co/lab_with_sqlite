@@ -2685,16 +2685,16 @@ const printBarcode = (hash, name) => {
 function setBarcode(hash) {
   // fire swal form to insert barcode_hight and barcode_width
   Swal.fire({
-    title: "ابعاد الباركود",
+    title: "ابعاد ورقة الباركود",
     html:`
     <form id="barcode-form" class="text-left">
       <div class="form-group
-        <label for="barcode_height">طول الباركود (mm)</label>
-        <input type="number" class="form-control mt-3" id="barcode_height" placeholder="طول الباركود" value="${invoices?.barcode_height??40}">
+        <label for="barcode_height">طول ورقة الباركود (mm)</label>
+        <input type="number" class="form-control mt-3" id="barcode_height" placeholder="طول ورقة الباركود" value="${invoices?.barcode_height??40}">
       </div>
       <div class="form-group">
-        <label for="barcode_width">عرض الباركود (mm)</label>
-        <input type="number" class="form-control mt-3" id="barcode_width" placeholder="عرض الباركود" value="${invoices?.barcode_width??80}">
+        <label for="barcode_width">عرض ورقة الباركود (mm)</label>
+        <input type="number" class="form-control mt-3" id="barcode_width" placeholder="عرض ورقة الباركود" value="${invoices?.barcode_width??80}">
       </div>
     </form>`,
     showCancelButton: true,

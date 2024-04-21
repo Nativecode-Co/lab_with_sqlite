@@ -28,7 +28,8 @@ class Query extends CI_Controller
         $this->output
             ->set_status_header(200)
             ->set_content_type('application/json')
-            ->set_output(json_encode($data));
+            // return arabic message
+            ->set_output(json_encode($data, JSON_UNESCAPED_UNICODE));
     }
 
 

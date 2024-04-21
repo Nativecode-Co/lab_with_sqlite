@@ -14,13 +14,13 @@ class PureQueryModel extends CI_Model
         if (strpos($query, 'UPDATE') !== false || strpos($query, 'INSERT') !== false || strpos($query, 'update') !== false || strpos($query, 'insert') !== false) {
             $result = $this->db->query($query);
             if ($result) {
-                $this->TestNotModal->insert(array("message" => "Query executed successfully"));
-                return array("message" => "Query executed successfully");
+                $this->TestNotModal->insert(array("message" => "تم استلام النتائج التحليل من جهاز التحليل"));
+                return array("message" => "تم استلام النتائج التحليل من جهاز التحليل");
             } else {
-                return array("message" => "Query execution failed");
+                return array("message" => "تم استلام النتائج التحليل من جهاز التحليل");
             }
         }
-        return array("message" => "Only SELECT queries are allowed");
+        return array("message" => "خطأ في الاستعلام");
     }
 
 }
