@@ -189,8 +189,8 @@ class Json
       $refrences = $this->default_refrence;
       unset($refrences['component']);
       $refrences['range'] = array();
-      $refrences['type'] = $this->type;
-      $refrences['result_type'] = $this->result_type;
+      $refrences['type'] = isset($this->type) ? $this->type : 'normal';
+      $refrences['result_type'] = isset($this->result_type) ? $this->result_type : 'number';
       $height = isset($refrences['range']) ? count($refrences['range']) : 1;
       $height = $height == 0 ? 1 : $height;
       $refrences['height'] = 9 + ($height * 5.5) + (1.15944 * $height * $font);
