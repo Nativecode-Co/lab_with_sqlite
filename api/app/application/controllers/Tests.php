@@ -58,8 +58,8 @@ class Tests extends CI_Controller
             return;
         }
         ;
-        $category_hash = $req['category_hash'];
-        $test_hash = $req['test_hash'];
+        $category_hash = isset($req['category_hash']) ? $req['category_hash'] : null;
+        $test_hash = isset($req['test_hash']) ? $req['test_hash'] : null;
         unset($req['category_hash']);
         unset($req['test_hash']);
         $this->MainTestsModel->update($test_hash, array("category_hash" => $category_hash));

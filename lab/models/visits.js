@@ -195,21 +195,21 @@ class Visit extends Factory {
       return false;
     }
 
+    const age = Number.parseInt(data.age_year) + Number.parseInt(data.age_month) + Number.parseInt(data.age_day);
+    if( Number.isNaN(age)){
+      niceSwal("error", "bottom-end", "خانة العمر يجب ان تكون ارقام فقط");
+      return false;
+    }
+    if (age <= 0) {
+      niceSwal("error", "bottom-end", "لا يمكن ادخال عمر اقل من صفر");
+      return false;
+    }
+    
+
     if (data.tests.length === 0) {
       niceSwal("error", "bottom-end", "يجب اختيار تحاليل");
       return false;
     }
-
-    if (
-      Number.parseInt(data.age_year) +
-        Number.parseInt(data.age_month) +
-        Number.parseInt(data.age_day) <=
-      0
-    ) {
-      niceSwal("error", "bottom-end", "يجب ادخال عمر صحيح");
-      return false;
-    }
-
     return data;
   }
 
