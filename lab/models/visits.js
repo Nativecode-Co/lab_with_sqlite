@@ -52,7 +52,10 @@ class Visit extends Factory {
           className: "not-print",
           render: (data, type, row) => {
             return `
-            <a class="btn-action add" title"تحميل النتائج" onclick="dwonloadInvoice('${row.hash}')">
+            
+            <a class="btn-action add" title"تحميل النتائج" onclick="dwonloadInvoice('${
+              row.hash
+            }')">
             <i class="fas fa-file-pdf"></i>
             </a>
                             <a class="btn-action add" title="عرض الزيارة"  onclick="visitDetail('${
@@ -68,7 +71,15 @@ class Visit extends Factory {
                                 ? `<a class="btn-action delete" title="حذف الزيارة" onclick="fireSwalForDelete.call(lab_visits,lab_visits.deleteItem, '${row.hash}')"><i class="far fa-trash-alt"></i></a>`
                                 : ""
                             }
-                        `;
+                            ${
+                              Number(row.status) === 5
+                                ? `
+                            <a class="text-success mt-2" title"تمت الطباعة">
+                            <i class="fas fa-check"></i>
+                            </a>
+                            `
+                                : ""
+                            }`;
           },
         },
         {
@@ -195,16 +206,18 @@ class Visit extends Factory {
       return false;
     }
 
-    const age = Number.parseInt(data.age_year) + Number.parseInt(data.age_month) + Number.parseInt(data.age_day);
-    if( Number.isNaN(age)){
-      niceSwal("error", "bottom-end", "خانة العمر يجب ان تكون ارقام فقط");
+    const age =
+      Number.parseInt(data.age_year) +
+      Number.parseInt(data.age_month) +
+      Number.parseInt(data.age_day);
+    if (Number.isNaN(age)) {
+      niceSwal("error", "bottom-end", "حقول العمر يجب ان تكون ارقام فقط");
       return false;
     }
     if (age <= 0) {
       niceSwal("error", "bottom-end", "لا يمكن ادخال عمر اقل من صفر");
       return false;
     }
-    
 
     if (data.tests.length === 0) {
       niceSwal("error", "bottom-end", "يجب اختيار تحاليل");
@@ -253,14 +266,13 @@ class Visit extends Factory {
         if (result.isConfirmed) {
           // new promise
           new Promise((resolve, reject) => {
-            document.querySelector("input[name='new_patient']").checked = false
+            document.querySelector("input[name='new_patient']").checked = false;
             changePatientTag();
             resolve();
-          })
-            .then(() => {
-              $("#patient").val(hash).trigger("change");
-              this.saveNewItem();
-            })
+          }).then(() => {
+            $("#patient").val(hash).trigger("change");
+            this.saveNewItem();
+          });
         } else if (result.isDenied) {
           this.saveNewItem();
         } else {
@@ -285,9 +297,7 @@ class Visit extends Factory {
     visitDetail(visit.hash);
     showAddResult(visit.hash);
 
-    document.querySelector(
-      `input[name="new_patient"]`
-    ).checked = true;
+    document.querySelector(`input[name="new_patient"]`).checked = true;
     changePatientTag();
   }
 

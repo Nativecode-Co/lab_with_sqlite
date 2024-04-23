@@ -52,7 +52,7 @@ const changePatientTag = () => {
 // change the patient addEventListener
 document
   .querySelector("input[name='new_patient']")
-  .addEventListener("change", ()=>{
+  .addEventListener("change", () => {
     changePatientTag();
     lab_visits.resetForm();
   });
@@ -147,9 +147,7 @@ function showPackagesList(hash) {
                     }</p>
                 </div>
                 <div class="col-md-12">
-                    <p class="text-left">الكت: ${
-                      package.kit ?? "No Kit"
-                    }</p>
+                    <p class="text-left">الكت: ${package.kit ?? "No Kit"}</p>
                 </div>
                 `
                 }
@@ -179,10 +177,7 @@ function visitDetail(hash, name) {
     "onclick",
     `fireSwalWithoutConfirm(showInvoice,'${hash}')`
   );
-  print_barcode.attr(
-    "onclick",
-    `printBarcode('${hash}', '${name}')`
-  );
+  print_barcode.attr("onclick", `printBarcode('${hash}', '${name}')`);
 }
 
 function showVisit(hash) {
@@ -199,7 +194,9 @@ function showVisit(hash) {
                               margin: 0 !important;
                               padding: 0 !important;
                               box-sizing: border-box;
-                              size: ${invoices?.barcode_width??25}mm ${invoices?.barcode_height??25}mm;
+                              size: ${invoices?.barcode_width ?? 25}mm ${
+    invoices?.barcode_height ?? 25
+  }mm;
                           }
                       }
                       </style>
@@ -245,28 +242,6 @@ function showVisit(hash) {
                             <tr>
                                 <td>ملاحظات</td>
                                 <td>${visit?.note ?? ""}</td>
-                            </tr>
-                            <tr>
-                                <td>الرمز</td>
-                                <td id="visit-code">
-                                    <div class="barcode" id="barcode-print">
-                                        <div class="title">
-                                            <p>${visit.name}</p>
-                                        </div>
-                                        
-                                        <div class="code">	
-                                        <svg width="100%" x="0px" y="0px" viewBox="0 0 310 50" xmlns="http://www.w3.org/2000/svg" version="1.1" style="transform: translate(0,0)" id="barcode"></svg>
-                                        </div>
-                                    </div>
-                                    <button class="btn btn-action d-print-none" onclick="printElement('#visit-code', 'A3', 'css/barcode.css')">طباعة</button>
-                                </td>
-                                <script>
-                                    JsBarcode("#barcode", '${visit.hash}', {
-                                        width:1.5,
-                                        height:18,
-                                        fontSize:20,
-                                    });
-                                </script>
                             </tr>
                         </tbody>
                     </table>
@@ -503,12 +478,20 @@ function manageRange(reference) {
 function addNormalResult(test, resultList, visit_hash) {
   __VISIT_TESTS__.push(resultList);
   const { type: testType, ...reference } = test.option_test;
-  const checked = resultList?.[test.name]?.checked === "false" || resultList?.[test.name]?.checked === false  ? false : true;
+  const checked =
+    resultList?.[test.name]?.checked === "false" ||
+    resultList?.[test.name]?.checked === false
+      ? false
+      : true;
   return `
   <form class="col-md-11 results test-normalTests mb-15" id="${test.hash}">
       <div class="row align-items-center">
           <div class="col-md-3 h6 text-center">
-              ${testType === "normal" || testType === "calc" ? `${test.kit_name ?? "NO KIT"}` : ""}
+              ${
+                testType === "normal" || testType === "calc"
+                  ? `${test.kit_name ?? "NO KIT"}`
+                  : ""
+              }
               <a 
                 class="text-info"
                 onclick="updateNormal(
@@ -562,10 +545,13 @@ function addNormalResult(test, resultList, visit_hash) {
                       <label for="result" class="w-100 text-center text-dark">النتيجة</label>
                       ${
                         reference.result_type.trim() === "result"
-                          ? `<select class="form-control result" name="${test.name}">
+                          ? `<select class="form-control result" name="${
+                              test.name
+                            }">
                               ${reference.options
                                 .map((option) => {
-                                  const result = resultList?.[test.name]?.[test.name];
+                                  const result =
+                                    resultList?.[test.name]?.[test.name];
                                   return `<option value="${option}" ${
                                     result
                                       ? result === option
@@ -582,7 +568,9 @@ function addNormalResult(test, resultList, visit_hash) {
                               test.name
                             }" placeholder="ادخل النتيجة" ${
                               testType === "calc" ? "readonly" : ""
-                            } value="${resultList?.[test.name]?.[test.name] ??""}">`
+                            } value="${
+                              resultList?.[test.name]?.[test.name] ?? ""
+                            }">`
                       }
                       
                   </div>
@@ -864,12 +852,13 @@ function addSusceptibility(funType, id, type, name, dose) {
       options: ["+", "++", "+++", "++++"],
     },
   ];
-  const item = component.filter(item=>{
-    if(type.toLocaleLowerCase()==="resisteant" && item.name ==="dose"){
-      return false;
-    }
-    return true;
-  })
+  const item = component
+    .filter((item) => {
+      if (type.toLocaleLowerCase() === "resisteant" && item.name === "dose") {
+        return false;
+      }
+      return true;
+    })
     .map((item) => {
       const select = selectInput({
         options: item.options,
@@ -878,7 +867,9 @@ function addSusceptibility(funType, id, type, name, dose) {
         name: `${type}.${item.name}`,
       });
       const element = `
-              <div class="col-md-${type.toLocaleLowerCase()==="resisteant"?"10":"5"}">
+              <div class="col-md-${
+                type.toLocaleLowerCase() === "resisteant" ? "10" : "5"
+              }">
                 <label for="result" class="w-100 text-center text-black font-weight-bold h5">
                   ${item.name}
                 </label>
@@ -1072,22 +1063,20 @@ function addResult(data) {
       let evaluatedResult = 0;
       try {
         const eq = reference.value
-        .map((item) => {
-          // check if item is number
-          if (!isNaN(item)) {
+          .map((item) => {
+            // check if item is number
+            if (!isNaN(item)) {
+              return item;
+            }
+            if (!calcOperator.includes(item)) {
+              let newValue = result_tests?.[item]?.[item] ?? 0;
+              newValue = newValue === "" ? 0 : newValue;
+              return newValue;
+            }
             return item;
-          }
-          if (!calcOperator.includes(item)) {
-            let newValue = result_tests?.[item]?.[item] ?? 0;
-            newValue = newValue === "" ? 0 : newValue;
-            return newValue;
-          }
-          return item;
-        })
-        .join("")
-        evaluatedResult = eval(
-          eq
-        );
+          })
+          .join("");
+        evaluatedResult = eval(eq);
       } catch (e) {
         console.log("Calc Tests error", e);
       }
@@ -1556,8 +1545,7 @@ function invoiceHeader(invoice) {
                   "اسم التحليل"
                 }</p>
                 <p class="namet">${
-                  localStorage?.invoice_about_ar ??
-                  "للتحليلات المرضية المتقدمة"
+                  localStorage?.invoice_about_ar ?? "للتحليلات المرضية المتقدمة"
                 }</p>
                 <p class="certificate">${
                   localStorage?.invoice_about_en ??
@@ -1597,8 +1585,7 @@ function invoiceHeader(invoice) {
                   "اسم التحليل"
                 }</p>
                 <p class="namet">${
-                  localStorage?.invoice_about_ar ??
-                  "للتحليلات المرضية المتقدمة"
+                  localStorage?.invoice_about_ar ?? "للتحليلات المرضية المتقدمة"
                 }</p>
                 <p class="certificate">${
                   localStorage?.invoice_about_en ??
@@ -1623,7 +1610,7 @@ function createBookResult(invoices, type) {
 }
 
 function createInvoiceItems(visit) {
-  const  invoice  = fetchApi("/invoice/get", "GET", {});
+  const invoice = fetchApi("/invoice/get", "GET", {});
   const random = Math.floor(Math.random() * 1000000);
   const header = invoiceHeader(invoice);
   const nav = `
@@ -1756,8 +1743,8 @@ function getNormalRange(finalResult = "", range = []) {
     normalRange = `${(name ? `${name} : ` : "") + low} <= `;
   }
   try {
-    finalResult = finalResult  ? finalResult : "";
-    let numers = finalResult?.match(/\d+/g) ??0;
+    finalResult = finalResult ? finalResult : "";
+    let numers = finalResult?.match(/\d+/g) ?? 0;
     if (numers) {
       finalResult = numers.join(".");
     }
@@ -1837,7 +1824,7 @@ function showResult(data) {
   const { tests, ...visit } = data;
   const { invoice, ...invoiceItems } = createInvoiceItems(visit);
   let history = [];
-  if(Number(invoice?.history) === 1){
+  if (Number(invoice?.history) === 1) {
     const { data } = fetchData("Visit/history", "POST", {
       date: visit.date,
       patient: visit.patient_hash,
@@ -2001,9 +1988,9 @@ function showResult(data) {
           case "multi":
             // if result is Array
             if (Array.isArray(result)) {
-              // sort by dose 
+              // sort by dose
               result.sort((a, b) => {
-                if(a.dose){
+                if (a.dose) {
                   return b.dose.length - a.dose.length;
                 }
                 return 0;
@@ -2011,10 +1998,10 @@ function showResult(data) {
               finalResult = "";
               for (const obj of result) {
                 for (const [key, value] of Object.entries(obj)) {
-                  if(key === "dose"){
+                  if (key === "dose") {
                     finalResult += `<span class="mr-5 text-danger-red">${value}</span>`;
-                  }else{
-                    finalResult += value
+                  } else {
+                    finalResult += value;
                   }
                 }
                 finalResult += "<br>";
@@ -2063,7 +2050,6 @@ function showResult(data) {
       }
       invoices[idName] = invoiceBody;
     } else {
-      
       if (height + reference.height >= defaultHeight) {
         invoices.normalTests += createInvoice(normalTests, invoiceItems);
         normalTests = manageHead("flag");
@@ -2106,22 +2092,20 @@ function showResult(data) {
         let evaluatedResult = 0;
         try {
           const eq = reference.value
-          .map((item) => {
-            // check if item is number
-            if (!isNaN(item)) {
+            .map((item) => {
+              // check if item is number
+              if (!isNaN(item)) {
+                return item;
+              }
+              if (!calcOperator.includes(item)) {
+                let newValue = result_tests?.[item] ?? 0;
+                newValue = newValue === "" ? 0 : newValue;
+                return newValue;
+              }
               return item;
-            }
-            if (!calcOperator.includes(item)) {
-              let newValue = result_tests?.[item] ?? 0;
-              newValue = newValue === "" ? 0 : newValue;
-              return newValue;
-            }
-            return item;
-          })
-          .join("")
-          evaluatedResult = eval(
-            eq
-          );
+            })
+            .join("");
+          evaluatedResult = eval(eq);
         } catch (e) {}
         result = evaluatedResult.toFixed(1);
       }
@@ -2133,7 +2117,10 @@ function showResult(data) {
         result: result,
         hash: test.hash,
         category: category,
-        checked: test.result?.checked === "false" || test.result?.checked === false ? "none" : "flex",
+        checked:
+          test.result?.checked === "false" || test.result?.checked === false
+            ? "none"
+            : "flex",
         normal: normalRange,
         flag: flag,
         history: history.find((item) => item.name == test.name)?.result ?? "",
@@ -2407,7 +2394,7 @@ function manageTestType(type, test = {}) {
     dependOn,
     allResults,
   } = test;
-  result = (result && result !== "undefined") ? result : "";
+  result = result && result !== "undefined" ? result : "";
   let htmlHestory = "";
   if (invoices?.history === "1") {
     if (history !== "" && history && history !== "{}") {
@@ -2506,14 +2493,22 @@ function manageTestType(type, test = {}) {
             hiddenClass = d.includes(when) ? "false" : "true";
           })
         : null;
-      const isSusceptibility = ["resisteant", "sensitive"].includes(name.toLocaleLowerCase());
+      const isSusceptibility = ["resisteant", "sensitive"].includes(
+        name.toLocaleLowerCase()
+      );
       return `
             <div 
-              style="font-size:${font} !important;display:${hiddenClass === "true" ? "none" : "flex"}"
+              style="font-size:${font} !important;display:${
+        hiddenClass === "true" ? "none" : "flex"
+      }"
               data-flag="result" 
-              class="test strc-test row m-0 border-test ${showClass} ${isSusceptibility? "w-50":""}
+              class="test strc-test row m-0 border-test ${showClass} ${
+        isSusceptibility ? "w-50" : ""
+      }
             ">
-              <div class="testname ${isSusceptibility? "col-12 mx-3":"col-6"}">
+              <div class="testname ${
+                isSusceptibility ? "col-12 mx-3" : "col-6"
+              }">
                   <p class="text-right">${name}</p>
               </div>
               <div class="testresult result-field col-6 justify-content-center ">
@@ -2597,7 +2592,10 @@ function printAfterSelect(hash) {
   // loop over all invoices
   __invoces.each((index, invoice) => {
     // invice clone
-    if (invoice.querySelector(".tester").childElementCount <= 1 && invoice.id ==="invoice-normalTests") {
+    if (
+      invoice.querySelector(".tester").childElementCount <= 1 &&
+      invoice.id === "invoice-normalTests"
+    ) {
       return;
     }
     const clone = $(invoice).clone();
@@ -2664,37 +2662,40 @@ const updatePatientName = async (hash, ele) => {
 };
 
 const printBarcode = (hash, name) => {
-  if(Number(invoices?.barcode_first_time) === 0){
-    setBarcode(hash,name);
+  if (Number(invoices?.barcode_first_time) === 0) {
+    setBarcode(hash, name);
     return;
-    
   }
-    JsBarcode("#visit-barcode-svg", hash, {
-      format: "CODE39",
-      width: 1,
-      height: 50,
-    });
-    $("text").html(name);
-    // print barcode
-    $("#visit-barcode").printThis({
-      pageTitle: "Barcode",
-      importCSS: false,
-    });
-}
+  JsBarcode("#visit-barcode-svg", hash, {
+    format: "CODE39",
+    width: 1,
+    height: 50,
+  });
+  $("text").html(name);
+  // print barcode
+  $("#visit-barcode").printThis({
+    pageTitle: "Barcode",
+    importCSS: false,
+  });
+};
 
-function setBarcode(hash,name) {
+function setBarcode(hash, name) {
   // fire swal form to insert barcode_hight and barcode_width
   Swal.fire({
     title: "ابعاد الباركود",
-    html:`
+    html: `
     <form id="barcode-form" class="text-left">
       <div class="form-group
         <label for="barcode_height">طول الباركود (mm)</label>
-        <input type="number" class="form-control mt-3" id="barcode_height" placeholder="طول الباركود" value="${invoices?.barcode_height??40}">
+        <input type="number" class="form-control mt-3" id="barcode_height" placeholder="طول الباركود" value="${
+          invoices?.barcode_height ?? 40
+        }">
       </div>
       <div class="form-group">
         <label for="barcode_width">عرض الباركود (mm)</label>
-        <input type="number" class="form-control mt-3" id="barcode_width" placeholder="عرض الباركود" value="${invoices?.barcode_width??80}">
+        <input type="number" class="form-control mt-3" id="barcode_width" placeholder="عرض الباركود" value="${
+          invoices?.barcode_width ?? 80
+        }">
       </div>
     </form>`,
     showCancelButton: true,
@@ -2703,10 +2704,20 @@ function setBarcode(hash,name) {
     preConfirm: async (data) => {
       const height = $("#barcode_height").val();
       const width = $("#barcode_width").val();
-      if(height && width){
-        fetchData("/invoice/update", "POST", { barcode_height: height, barcode_width: width ,barcode_first_time: 1 ,lab_hash : localStorage.getItem("lab_hash")});
-        invoices = { ...invoices, barcode_height: height, barcode_width: width ,barcode_first_time: 1};
-      }else{
+      if (height && width) {
+        fetchData("/invoice/update", "POST", {
+          barcode_height: height,
+          barcode_width: width,
+          barcode_first_time: 1,
+          lab_hash: localStorage.getItem("lab_hash"),
+        });
+        invoices = {
+          ...invoices,
+          barcode_height: height,
+          barcode_width: width,
+          barcode_first_time: 1,
+        };
+      } else {
         Swal.showValidationMessage(`
           يجب ادخال الطول والعرض
         `);
@@ -2714,7 +2725,7 @@ function setBarcode(hash,name) {
     },
   }).then((result) => {
     if (result.isConfirmed) {
-        showVisit(hash, name);
+      showVisit(hash, name);
     }
   });
 }

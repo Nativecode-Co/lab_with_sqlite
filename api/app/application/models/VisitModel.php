@@ -40,7 +40,7 @@ class VisitModel extends CI_Model
         $today = $params['today'];
         $opration = $today == 1 ? "=" : "<=";
         $data = $this->db
-            ->select('lab_visits.hash as hash ,visits_patient_id as patient_hash,ispayed')
+            ->select('lab_visits.hash as hash ,visits_patient_id as patient_hash,ispayed,visits_status_id as status')
             ->select("lab_patient.name as name,visit_date")
             ->select("(select name from lab_visit_status where hash=visits_status_id) as visit_type")
             ->join('lab_patient', 'lab_patient.hash = lab_visits.visits_patient_id')
@@ -52,31 +52,33 @@ class VisitModel extends CI_Model
         return $data;
     }
 
-    public function get_visits_report($params){
-         // get data table params
-         $start = $params['start'];
-         $rowsPerPage = $params['length'];
-         $page = $start / $rowsPerPage;
-         $orderBy = $params['order'][0]['column'];
-         $orderBy = $params['columns'][$orderBy]['data'];
-         $order = $params['order'][0]['dir'];
-         $searchText = $params['search']['value'];
-         $startDate = $params['startDate'] ?? date('Y-m-d', strtotime('-1 month'));
+    public function get_visits_report($params)
+    {
+        // get data table params
+        $start = $params['start'];
+        $rowsPerPage = $params['length'];
+        $page = $start / $rowsPerPage;
+        $orderBy = $params['order'][0]['column'];
+        $orderBy = $params['columns'][$orderBy]['data'];
+        $order = $params['order'][0]['dir'];
+        $searchText = $params['search']['value'];
+        $startDate = $params['startDate'] ?? date('Y-m-d', strtotime('-1 month'));
         $endDate = $params['endDate'] ?? date('Y-m-d');
-         $data = $this->db
-             ->select('lab_visits.hash as hash ,visits_patient_id as patient_hash,ispayed')
-             ->select("lab_patient.name as name,visit_date")
-             ->select("(select name from lab_visit_status where hash=visits_status_id) as visit_type")
-             ->join('lab_patient', 'lab_patient.hash = lab_visits.visits_patient_id')
-             ->like(array('lab_patient.name' => $searchText))
-             ->where(array('lab_visits.isdeleted' => '0' , 'visit_date >=' => $startDate, 'visit_date <=' => $endDate))
-             ->order_by($orderBy, $order)
-             ->get($this->table, $rowsPerPage, $page * $rowsPerPage)
-             ->result_array();
-         return $data;
+        $data = $this->db
+            ->select('lab_visits.hash as hash ,visits_patient_id as patient_hash,ispayed')
+            ->select("lab_patient.name as name,visit_date")
+            ->select("(select name from lab_visit_status where hash=visits_status_id) as visit_type")
+            ->join('lab_patient', 'lab_patient.hash = lab_visits.visits_patient_id')
+            ->like(array('lab_patient.name' => $searchText))
+            ->where(array('lab_visits.isdeleted' => '0', 'visit_date >=' => $startDate, 'visit_date <=' => $endDate))
+            ->order_by($orderBy, $order)
+            ->get($this->table, $rowsPerPage, $page * $rowsPerPage)
+            ->result_array();
+        return $data;
     }
 
-    public function visit_count_report($params){
+    public function visit_count_report($params)
+    {
         $searchText = $params['search']['value'];
         $startDate = $params['startDate'] ?? date('Y-m-d', strtotime('-1 month'));
         $endDate = $params['endDate'] ?? date('Y-m-d');
@@ -159,25 +161,25 @@ class VisitModel extends CI_Model
             ->group_by("test_id,kit_id,unit,lab_pakage_tests.package_id")
             ->order_by("sort")
             ->get()->result_array();
-            // $last_query = $this->db->last_query();
-            // die($last_query);
+        // $last_query = $this->db->last_query();
+        // die($last_query);
         // packges get name and hash only
         $packages = $this->get_visit_packages($hash);
         $visit['packages'] = $packages;
-        if (isset ($visit) && isset ($tests)) {
+        if (isset($visit) && isset($tests)) {
             $tests = array_map(function ($test) use ($visit, $font) {
                 $json = new Json($test['option_test']);
-                $filterFeilds = array (
-                    "kit" => $test['kit_id']?? "",
+                $filterFeilds = array(
+                    "kit" => $test['kit_id'] ?? "",
                     "unit" => $test['unit'] ?? "",
                     "gender" => $visit['gender'],
                     "age" => $visit['age'],
                 );
                 $test['option_test'] = $json->filter($filterFeilds)->setHeight($font)->row();
-                
+
                 $test['result'] = json_decode($test['result'], true);
                 if ($test['result'] == null) {
-                    $test['result'] = array (
+                    $test['result'] = array(
                         "checked" => true,
                         $test['name'] => ""
                     );
@@ -253,7 +255,8 @@ class VisitModel extends CI_Model
         );
     }
 
-    public function get_categories(){
+    public function get_categories()
+    {
         return $this->db->select('hash,name')->get('lab_test_catigory')->result_array();
     }
 
@@ -263,7 +266,7 @@ class VisitModel extends CI_Model
     {
         $hash = $data['hash'];
         $visit = $this->db->get_where('lab_visits', array('hash' => $hash))->row_array();
-        if (isset ($visit)) {
+        if (isset($visit)) {
             $this->db->where('hash', $hash);
             $this->db->update('lab_visits', $data);
         } else {
@@ -275,7 +278,7 @@ class VisitModel extends CI_Model
     {
         $hash = $data['hash'];
         $patient = $this->db->get_where('lab_patient', array('hash' => $hash))->row_array();
-        if (isset ($patient)) {
+        if (isset($patient)) {
             $this->db->where('hash', $hash);
             $this->db->update('lab_patient', $data);
         } else {
@@ -288,11 +291,11 @@ class VisitModel extends CI_Model
         $this->create_calc_tests($tests, $visit_hash);
         $old_packages = $this->db->select("package_id")->where('visit_id', $visit_hash)->get('lab_visits_package')->result_array();
         $old_packages = array_column($old_packages, 'package_id');
-        if (isset ($old_packages[0])) {
+        if (isset($old_packages[0])) {
             $tests = array_diff($tests, $old_packages);
         }
         $tests = array_values($tests);
-        if (!isset ($tests[0])) {
+        if (!isset($tests[0])) {
             return [];
         }
 
@@ -302,7 +305,7 @@ class VisitModel extends CI_Model
             ->get('lab_pakage_tests')->result_array();
 
         $packages = array_map(function ($package) use ($visit_hash) {
-            return array (
+            return array(
                 "visit_id" => $visit_hash,
                 "package_id" => $package['hash'],
                 "price" => $package['price'],
@@ -310,13 +313,13 @@ class VisitModel extends CI_Model
             );
         }, $packages);
         $tests = array_map(function ($test) use ($visit_hash) {
-            return array (
+            return array(
                 "visit_id" => $visit_hash,
                 "tests_id" => $test['test_id'],
                 "package_id" => $test['package_id'],
                 "hash" => create_hash(),
                 "result_test" => json_encode(
-                    array (
+                    array(
                         "checked" => true,
                         $test['name'] => ""
                     )
@@ -348,7 +351,7 @@ class VisitModel extends CI_Model
                 $tests = [];
             }
             $test['tests'] = $tests;
-            unset ($test['option_test']);
+            unset($test['option_test']);
             return $test;
         }, $calc_tests);
 
@@ -369,13 +372,13 @@ class VisitModel extends CI_Model
 
 
         $calc_tests = array_map(function ($test) use ($visit_hash) {
-            return array (
+            return array(
                 "tests_id" => $test['hash'],
                 "package_id" => "",
                 "visit_id" => $visit_hash,
                 "hash" => create_hash(),
                 "result_test" => json_encode(
-                    array (
+                    array(
                         "checked" => true,
                         $test['name'] => ""
                     )
@@ -429,7 +432,7 @@ class VisitModel extends CI_Model
             where lab_visits.hash='$visit_id'
         ");
         $result = $query->result_array();
-        if (isset ($result[0])) {
+        if (isset($result[0])) {
             $result = $result[0];
             return $result;
         } else {
@@ -469,7 +472,6 @@ class VisitModel extends CI_Model
             ->db
             ->update_batch('lab_visits_tests', $data, 'hash');
         return $result;
-
     }
 
     public function get_visit_packages($hash)
@@ -487,7 +489,8 @@ class VisitModel extends CI_Model
         return $result;
     }
 
-    public function get_visits_mobile($page, $search){
+    public function get_visits_mobile($page, $search)
+    {
         $visits = $this->db
             ->select("age,gender,doctor_hash,phone,lab_patient.name,DATE(visit_date) as date,age_year,age_month,age_day,address,note")
             ->select("TIME(visit_date) as time,visits_patient_id as patient,lab_visits.hash")
@@ -508,6 +511,4 @@ class VisitModel extends CI_Model
 
         return $visits;
     }
-
-
 }
