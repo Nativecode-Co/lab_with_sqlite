@@ -726,8 +726,16 @@ function showResult(hash) {
 
 function invoiceHeader(invoice) {
   let html = "";
-  const { size, workers, logo, name_in_invoice, show_name, show_logo,invoice_about_ar,invoice_about_en } =
-    invoice;
+  const {
+    size,
+    workers,
+    logo,
+    name_in_invoice,
+    show_name,
+    show_logo,
+    invoice_about_ar,
+    invoice_about_en,
+  } = invoice;
   if (workers.length > 0) {
     html = workers
       .map((worker) => {
@@ -751,7 +759,7 @@ function invoiceHeader(invoice) {
             <div class="size1">
                 <p class="title">${name_in_invoice}</p>
                 <p class="namet">${invoice_about_ar}</p>
-                <p class="certificate">${invoice_about_en }</p>
+                <p class="certificate">${invoice_about_en}</p>
             </div>
         </div>
           
