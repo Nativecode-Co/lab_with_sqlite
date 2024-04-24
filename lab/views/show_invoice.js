@@ -725,18 +725,9 @@ function showResult(hash) {
 }
 
 function invoiceHeader(invoice) {
-  const displayHeaderAndFooter = invoice.footer_header_show === "1";
   let html = "";
-  const {
-    size,
-    workers,
-    logo,
-    name_in_invoice,
-    show_name,
-    show_logo,
-    invoice_about_ar,
-    invoice_about_en,
-  } = invoice;
+  const { size, workers, logo, name_in_invoice, show_name, show_logo,invoice_about_ar,invoice_about_en } =
+    invoice;
   if (workers.length > 0) {
     html = workers
       .map((worker) => {
@@ -752,16 +743,18 @@ function invoiceHeader(invoice) {
         }
         if (worker.hash == "name") {
           return `
-          <div class="right ${show_name == "1" ? "d-flex" : "d-none"}"
-          style="flex: 0 0 ${size}%;max-width: ${size}%;"
-          >
+          <div class="right ${show_name == "1" ? "d-flex" : "d-none"}" style="
+          flex: 0 0 ${size}%;
+          max-width: ${size}%;
+        ">
             <!-- عنوان جانب الايمن -->
             <div class="size1">
                 <p class="title">${name_in_invoice}</p>
                 <p class="namet">${invoice_about_ar}</p>
-                <p class="certificate">${invoice_about_en}</p>
+                <p class="certificate">${invoice_about_en }</p>
             </div>
         </div>
+          
         `;
         }
         return `
@@ -780,23 +773,31 @@ function invoiceHeader(invoice) {
       .join("");
   } else {
     html = `
-        <div class="logo col-4 p-2 ${show_logo == "1" ? "d-flex" : "d-none"}">
+        <div class="logo col-6 p-2 ${show_logo == "1" ? "d-flex" : "d-none"}">
             <img src="${logo ?? ""}"
             alt="${logo ?? "upload Logo"}">
         </div>
-        <div class="logo border p-2 text-center  justify-content-center align-content-center ${
-          show_name == "1" ? "d-flex" : "d-none"
-        }">
-            <h1 class="navbar-brand-name text-center">${
-              name_in_invoice ?? localStorage.lab_name ?? ""
-            }</h1>
+        <div class="right col-6 ${show_name == "1" ? "d-flex" : "d-none"}">
+            <!-- عنوان جانب الايمن -->
+            <div class="size1">
+                <p class="title">${
+                  invoices?.name_in_invoice ??
+                  localStorage?.lab_name ??
+                  "اسم التحليل"
+                }</p>
+                <p class="namet">${
+                  localStorage?.invoice_about_ar ?? "للتحليلات المرضية المتقدمة"
+                }</p>
+                <p class="certificate">${
+                  localStorage?.invoice_about_en ??
+                  "Medical Lab for Pathological Analyses"
+                }</p>
+            </div>
         </div>`;
   }
   return `
     <div class="header">
-        <div class="row justify-content-between" style="display: ${
-          displayHeaderAndFooter ? "flex" : "none"
-        }">
+        <div class="row justify-content-between align-items-center h-100">
             ${html}
         </div>
     </div>
