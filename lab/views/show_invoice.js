@@ -7,11 +7,14 @@ const pk = urlParams.get("pk").split("-")[0];
 const number = urlParams.get("pk").split("-")[1];
 showAddResult(pk);
 
-function getApi(baseLink = "app",url = "", type = "GET", data = {}) {
+function getApi(baseLink = "app", url = "", type = "GET", data = {}) {
   let res = null;
-  
+
   $.ajax({
-    url: baseLink === "app" ? `http://localhost:8807/app/index.php${url}` : `${api_url}${url}`,
+    url:
+      baseLink === "app"
+        ? `http://localhost:8807/app/index.php${url}`
+        : `${api_url}${url}`,
     type,
     data,
     dataType: "JSON",
@@ -20,7 +23,7 @@ function getApi(baseLink = "app",url = "", type = "GET", data = {}) {
       res = result;
     },
     error: (e) => {
-      console.log(e.responseText)
+      console.log(e.responseText);
     },
   });
   return res;
@@ -45,9 +48,9 @@ function hideHederelments() {
 
 function createBarCode(code) {
   JsBarcode(`#visit-code`, `${code}`, {
-    width:2,
-    height:20,
-    displayValue: false
+    width: 2,
+    height: 20,
+    displayValue: false,
   });
 }
 function showAddResult(hash) {
@@ -158,7 +161,7 @@ function manageTestType(type, test = {}) {
     dependOn,
     allResults,
   } = test;
-  result = (result && result !== "undefined") ? result : "";
+  result = result && result !== "undefined" ? result : "";
   let htmlHestory = "";
   if (invoices?.history === "1") {
     if (history !== "" && history && history !== "{}") {
@@ -257,12 +260,18 @@ function manageTestType(type, test = {}) {
             hiddenClass = d.includes(when) ? "false" : "true";
           })
         : null;
-      let isSusceptibility = ["resisteant", "sensitive"].includes(name.toLocaleLowerCase());
+      let isSusceptibility = ["resisteant", "sensitive"].includes(
+        name.toLocaleLowerCase()
+      );
       return `
             <div 
-              style="font-size:${font} !important;display:${hiddenClass === "true" ? "none" : "flex"}"
+              style="font-size:${font} !important;display:${
+        hiddenClass === "true" ? "none" : "flex"
+      }"
               data-flag="result" 
-              class="test strc-test row m-0 border-test ${showClass} ${isSusceptibility? "w-50":""}
+              class="test strc-test row m-0 border-test ${showClass} ${
+        isSusceptibility ? "w-50" : ""
+      }
             ">
               <div class="testname col-6">
                   <p class="text-right">${name}</p>
@@ -406,14 +415,13 @@ function normalTestRange(finalResult, refrence) {
 }
 
 function showResult(hash) {
-  const visit = getApi("api","/visit/get_visit", "GET", { hash });
- 
+  const visit = getApi("api", "/visit/get_visit", "GET", { hash });
+
   const tests = visit.tests;
-  const history  = getApi("app","/Visit/history", "POST", {
+  const history = getApi("app", "/Visit/history", "POST", {
     date: visit.date,
     patient: visit.patient_hash,
   }).data;
-  
 
   const { invoice, ...invoiceItems } = createInvoiceItems(visit);
   invoiceItems.invoice = invoice;
@@ -687,7 +695,10 @@ function showResult(hash) {
         result: result,
         hash: test.hash,
         category: category,
-        checked: test.result?.checked === "false" || test.result?.checked === false ? "none" : "flex",
+        checked:
+          test.result?.checked === "false" || test.result?.checked === false
+            ? "none"
+            : "flex",
         normal: normalRange,
         flag: flag,
         history: history.find((item) => item.name == test.name)?.result ?? "",
@@ -702,7 +713,7 @@ function showResult(hash) {
     invoice: `${Object.entries(invoices)
       .map(([key, value]) => {
         if (key === "normalTests") {
-          if(normalTests === manageHead("flag")) return "";
+          if (normalTests === manageHead("flag")) return "";
           const form = value + createInvoice(normalTests, invoiceItems);
           return createBookResult(form, key);
         }
@@ -713,10 +724,17 @@ function showResult(hash) {
 }
 
 function invoiceHeader(invoice) {
-  const displayHeaderAndFooter = invoice.footer_header_show === "1";
   let html = "";
-  const { size, workers, logo, name_in_invoice, show_name, show_logo,invoice_about_ar,invoice_about_en } =
-    invoice;
+  const {
+    size,
+    workers,
+    logo,
+    name_in_invoice,
+    invoice_about_ar,
+    show_name,
+    show_logo,
+    invoice_about_en,
+  } = invoice;
   if (workers.length > 0) {
     html = workers
       .map((worker) => {
@@ -732,16 +750,22 @@ function invoiceHeader(invoice) {
         }
         if (worker.hash == "name") {
           return `
-          <div class="right ${show_name == "1" ? "d-flex" : "d-none"}"
-          style="flex: 0 0 ${size}%;max-width: ${size}%;"
-          >
+          <div class="right ${show_name == "1" ? "d-flex" : "d-none"}" style="
+          flex: 0 0 ${size}%;
+          max-width: ${size}%;
+        ">
             <!-- عنوان جانب الايمن -->
             <div class="size1">
-                <p class="title">${name_in_invoice}</p>
-                <p class="namet">${invoice_about_ar}</p>
-                <p class="certificate">${invoice_about_en }</p>
+                <p class="title">${name_in_invoice ?? "اسم التحليل"}</p>
+                <p class="namet">${
+                  invoice_about_ar ?? "للتحليلات المرضية المتقدمة"
+                }</p>
+                <p class="certificate">${
+                  invoice_about_en ?? "Medical Lab for Pathological Analyses"
+                }</p>
             </div>
         </div>
+          
         `;
         }
         return `
@@ -760,23 +784,31 @@ function invoiceHeader(invoice) {
       .join("");
   } else {
     html = `
-        <div class="logo col-4 p-2 ${show_logo == "1" ? "d-flex" : "d-none"}">
+        <div class="logo col-6 p-2 ${show_logo == "1" ? "d-flex" : "d-none"}">
             <img src="${logo ?? ""}"
             alt="${logo ?? "upload Logo"}">
         </div>
-        <div class="logo border p-2 text-center  justify-content-center align-content-center ${
-          show_name == "1" ? "d-flex" : "d-none"
-        }">
-            <h1 class="navbar-brand-name text-center">${
-              name_in_invoice ?? localStorage.lab_name ?? ""
-            }</h1>
+        <div class="right col-6 ${show_name == "1" ? "d-flex" : "d-none"}">
+            <!-- عنوان جانب الايمن -->
+            <div class="size1">
+                <p class="title">${
+                  invoices?.name_in_invoice ??
+                  localStorage?.lab_name ??
+                  "اسم التحليل"
+                }</p>
+                <p class="namet">${
+                  localStorage?.invoice_about_ar ?? "للتحليلات المرضية المتقدمة"
+                }</p>
+                <p class="certificate">${
+                  localStorage?.invoice_about_en ??
+                  "Medical Lab for Pathological Analyses"
+                }</p>
+            </div>
         </div>`;
   }
   return `
     <div class="header">
-        <div class="row justify-content-between" style="display: ${
-          displayHeaderAndFooter ? "flex" : "none"
-        }">
+        <div class="row justify-content-between align-items-center h-100">
             ${html}
         </div>
     </div>
@@ -790,7 +822,7 @@ function createBookResult(invoices, type) {
 }
 
 function createInvoiceItems(visit) {
-  const invoice = getApi("api","/invoice/get");
+  const invoice = getApi("api", "/invoice/get");
   const displayHeaderAndFooter = invoice.footer_header_show === "1";
   const random = Math.floor(Math.random() * 1000000);
   const header = invoiceHeader(invoice);
