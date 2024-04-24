@@ -231,28 +231,6 @@ function showVisit(hash) {
                                 <td>ملاحظات</td>
                                 <td>${visit?.note ?? ""}</td>
                             </tr>
-                            <tr>
-                                <td>الرمز</td>
-                                <td id="visit-code">
-                                    <div class="barcode" id="barcode-print">
-                                        <div class="title">
-                                            <p>${visit.name}</p>
-                                        </div>
-                                        
-                                        <div class="code">	
-                                        <svg width="100%" x="0px" y="0px" viewBox="0 0 310 50" xmlns="http://www.w3.org/2000/svg" version="1.1" style="transform: translate(0,0)" id="barcode"></svg>
-                                        </div>
-                                    </div>
-                                    <button class="btn btn-action d-print-none" onclick="printElement('#visit-code', 'A3', 'css/barcode.css')">طباعة</button>
-                                </td>
-                                <script>
-                                    JsBarcode("#barcode", '${visit.hash}', {
-                                        width:1.5,
-                                        height:18,
-                                        fontSize:20,
-                                    });
-                                </script>
-                            </tr>
                         </tbody>
                     </table>
                 </div>
