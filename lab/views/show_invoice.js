@@ -56,6 +56,7 @@ function createBarCode(code) {
 function showAddResult(hash) {
   const workSpace = document.getElementById("root");
   const invoice = showResult(hash).invoice;
+  const invoiceData = getApi("api", "/invoice/get");
   const html = `
     <div class="col-md-12 mt-48">
         ${invoice}
@@ -64,7 +65,7 @@ function showAddResult(hash) {
   workSpace.innerHTML = html;
   hideHederelments();
   createBarCode(hash);
-  setInvoiceStyle(invoice);
+  setInvoiceStyle(invoiceData);
 }
 
 // Create a function for setting a variable value
@@ -326,6 +327,8 @@ function setInvoiceStyle(invoice) {
       height: ${invoice.center}px;
     }
   `;
+  set_var("--color-orange", invoice.color);
+  set_var("--invoice-color", invoice.font_color);
   document.head.appendChild(style);
 }
 
