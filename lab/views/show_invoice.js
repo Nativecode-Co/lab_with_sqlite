@@ -288,12 +288,6 @@ function manageTestType(type, test = {}) {
 }
 function setInvoiceStyle(invoice) {
   const style = document.createElement("style");
-  // $(".sections").css("border-bottom", `2px solid ${invoice.color}`);
-  style.innerHTML = `
-    .sections {
-      border-bottom: 2px solid ${invoice.color};
-    }
-  `;
 
   // change .center2-background background-image
   if (Number(invoice.water_mark) === 1) {
