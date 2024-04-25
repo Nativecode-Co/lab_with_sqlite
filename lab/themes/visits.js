@@ -1,10 +1,9 @@
-
 const createTest = (test, type) => {
   switch (type) {
     case "1":
       return `
       <div 
-        class="n-chk package text-left mb-3 ml-3"
+        class="n-chk package text-left mb-3 col-2"
       >
         <label 
           class="new-control items offer new-checkbox new-checkbox-rounded checkbox-outline-success font-weight-bolder mb-0"
@@ -27,7 +26,7 @@ const createTest = (test, type) => {
     case "2":
       return `
       <div 
-        class="n-chk test text-left mb-3 ml-3" 
+        class="n-chk test text-left mb-3 col-2" 
         data-category="${test.catigory}"
       >
         <label 
