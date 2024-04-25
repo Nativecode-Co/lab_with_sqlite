@@ -123,7 +123,7 @@ class LocalApi extends CI_Controller
         );
         die();
     }
-    
+
 
     public function getTestsQueries()
     {
@@ -180,6 +180,7 @@ class LocalApi extends CI_Controller
             echo json_encode(
                 array(
                     'status' => true,
+                    'data' => $response,
                     'message' => 'تمت إضافة الاختبارات بنجاح',
                     'isAuth' => true
                 ),
@@ -195,15 +196,15 @@ class LocalApi extends CI_Controller
                 ),
                 JSON_UNESCAPED_UNICODE
             );
-
         }
-
     }
-    
 
-    public function createAfterInsertTrigger(){
+
+    public function createAfterInsertTrigger()
+    {
         // create trigger for lab_visits AFTER INSERT if not exists
-        $this->db->query("CREATE TRIGGER lab_visits_AFTER_INSERT
+        $this->db->query(
+            "CREATE TRIGGER lab_visits_AFTER_INSERT
         AFTER INSERT ON `lab_visits`
         FOR EACH ROW
         BEGIN
@@ -213,7 +214,8 @@ class LocalApi extends CI_Controller
         
         END;"
         );
-        $this->db->query("CREATE TRIGGER lab_visits_tests_AFTER_INSERT
+        $this->db->query(
+            "CREATE TRIGGER lab_visits_tests_AFTER_INSERT
         AFTER INSERT ON `lab_visits_tests`
         FOR EACH ROW
         BEGIN
@@ -223,7 +225,8 @@ class LocalApi extends CI_Controller
         
         END;"
         );
-        $this->db->query("CREATE TRIGGER lab_visits_package_AFTER_INSERT
+        $this->db->query(
+            "CREATE TRIGGER lab_visits_package_AFTER_INSERT
         AFTER INSERT ON `lab_visits_package`
         FOR EACH ROW
         BEGIN
@@ -312,7 +315,8 @@ class LocalApi extends CI_Controller
         );
     }
 
-    public function deleteAfterInsertTrigger(){
+    public function deleteAfterInsertTrigger()
+    {
         $this->db->query("DROP TRIGGER IF EXISTS `lab_visits_tests_AFTER_INSERT`;");
         $this->db->query("DROP TRIGGER IF EXISTS `lab_visits_AFTER_INSERT`;");
         $this->db->query("DROP TRIGGER IF EXISTS `lab_visits_package_AFTER_INSERT`;");
@@ -400,8 +404,6 @@ class LocalApi extends CI_Controller
                 );
             }
         }
-
-
     }
 
     public function installTestsOrDefaults()
@@ -478,8 +480,6 @@ class LocalApi extends CI_Controller
                 );
             }
         }
-
-
     }
 
     public function clean()
@@ -590,12 +590,7 @@ class LocalApi extends CI_Controller
     //select insert_record_date as date from system_users_type order by id desc limit 1;
     public function get_last_update_date()
     {
-        $date = $this->db->
-            select("insert_record_date as date")->
-            from("system_users_type")->
-            order_by("id", "desc")->
-            limit(1)->
-            get()->row()->date;
+        $date = $this->db->select("insert_record_date as date")->from("system_users_type")->order_by("id", "desc")->limit(1)->get()->row()->date;
         if (!(isset($date) && $date != null && $date != "")) {
             $date = "2023-01-01 00:00:00";
         }
@@ -613,11 +608,7 @@ class LocalApi extends CI_Controller
     public function check_if_test_exit_by_name()
     {
         $names = $this->input->get('names');
-        $tests = $this->db->select("test_name as name")->
-            from("lab_test")->
-            where("test_name in ('$names')")->
-            group_by("test_name")->
-            get()->result();
+        $tests = $this->db->select("test_name as name")->from("lab_test")->where("test_name in ('$names')")->group_by("test_name")->get()->result();
         $tests = array_map(function ($test) {
             return $test->name;
         }, $tests);
@@ -643,10 +634,7 @@ class LocalApi extends CI_Controller
                 else '2023-01-01 00:00:00' 
             end as date,
             hash
-        ")->
-            from("lab_test")->
-            where("hash in ('$hashes')")->
-            get()->result();
+        ")->from("lab_test")->where("hash in ('$hashes')")->get()->result();
         echo json_encode(
             array(
                 'status' => true,
