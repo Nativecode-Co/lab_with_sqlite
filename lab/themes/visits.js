@@ -17,7 +17,7 @@ const createTest = (test, type) => {
             value="${test.hash}" 
             id="package_${test.hash}" 
           >
-          <p class=""> ${parseInt(test.price)?.toLocaleString()} </p>
+          <p class=""> ${Number.parseInt(test.price)?.toLocaleString()} </p>
           <span class="new-control-indicator m-3 d-none"></span>
           <span dir="ltr" class="ml-2 overflow-text-hidden">${test.name}</span>
         </label>

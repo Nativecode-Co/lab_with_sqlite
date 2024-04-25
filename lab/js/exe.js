@@ -17,7 +17,7 @@ function fetchData(url = "", type = "GET", data = {}) {
       res = result;
     },
     error: (e) => {
-      console.log(e.responseText)
+      console.log(e.responseText);
     },
   });
   syncOnline();
@@ -40,7 +40,7 @@ function fetchSync(url = "", type = "GET", data = {}) {
       res = result;
     },
     error: (e) => {
-      console.log(e.responseText)
+      console.log(e.responseText);
     },
   });
   syncOnline();
@@ -63,7 +63,7 @@ function fetchApi(url = "", type = "GET", data = {}) {
       res = result;
     },
     error: (e) => {
-      console.log(e.responseText)
+      console.log(e.responseText);
     },
   });
   return res;
@@ -89,7 +89,7 @@ function fetchDataOnline(url = "", type = "GET", data = {}) {
       res = result;
     },
     error: (e) => {
-      console.log(e.responseText)
+      console.log(e.responseText);
     },
   });
   return res;
@@ -116,7 +116,7 @@ function add_calc_tests(tests, visit_hash, action = "insert") {
       console.log(result);
     },
     error: (e) => {
-      console.log(e.responseText)
+      console.log(e.responseText);
     },
   });
 }
@@ -253,26 +253,37 @@ async function updateSystem() {
 
 async function updateExpireDate() {
   let date;
-  if (!navigator.onLine || window.location.href.includes("login.html") || window.location.href.includes("show_invoice.html")) {
-    const {data} = fetchData("LastDate/get", "POST", { lab: localStorage.getItem("lab_hash") });
+  if (
+    !navigator.onLine ||
+    window.location.href.includes("login.html") ||
+    window.location.href.includes("show_invoice.html")
+  ) {
+    const { data } = fetchData("LastDate/get", "POST", {
+      lab: localStorage.getItem("lab_hash"),
+    });
     date = data;
-  }else{
-    const {data} = fetchDataOnline("LastDate/get", "POST", { lab: localStorage.getItem("lab_hash") });
+  } else {
+    const { data } = fetchDataOnline("LastDate/get", "POST", {
+      lab: localStorage.getItem("lab_hash"),
+    });
     date = data;
-    if(!date){
+    if (!date) {
       let current_location = window.location.href;
       current_location = current_location.split("/");
-      if (!current_location.includes("active.html") ) {
+      if (!current_location.includes("active.html")) {
         location.href = `${front_url}active.html`;
       }
     }
-    fetchData("LocalApi/update_expire", "POST", { lab: localStorage.getItem("lab_hash"), date });
+    fetchData("LocalApi/update_expire", "POST", {
+      lab: localStorage.getItem("lab_hash"),
+      date,
+    });
     const now = new Date();
     const expire = new Date(date);
     if (now > expire) {
       let current_location = window.location.href;
       current_location = current_location.split("/");
-      if (!current_location.includes("active.html") ) {
+      if (!current_location.includes("active.html")) {
         location.href = `${front_url}active.html`;
       }
     }
@@ -291,18 +302,21 @@ function syncOnline() {
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
-        "Authorization": localStorage.getItem("token"),
+        Authorization: localStorage.getItem("token"),
       },
-    }).then((res) => res.json()).then((data)=>{
-      
-    }).catch((e)=>{console.log("error", e)})
+    })
+      .then((res) => res.json())
+      .then((data) => {})
+      .catch((e) => {
+        console.log("error", e);
+      });
   }, 500);
 }
 
 // load notification every 5 seconds
 setInterval(() => {
   const data = fetchApi("/testNot/get");
-  if(data){
+  if (data) {
     Swal.fire({
       icon: "success",
       title: "تم !",
@@ -318,3 +332,9 @@ setInterval(() => {
     });
   }
 }, 5000);
+
+const uploadTestsSync = () => {
+  fetchData("LocalApi/getTestsQueries", "POST", {
+    lab_id: localStorage.getItem("lab_hash"),
+  });
+};
