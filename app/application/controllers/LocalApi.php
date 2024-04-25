@@ -129,7 +129,7 @@ class LocalApi extends CI_Controller
     {
         $queries = "";
         $lab_hash = $this->input->post('lab_id');
-        $tests = $this->db->query("select test_name, test_type, option_test, hash, insert_record_date, isdeleted, short_name, sample_type, category_hash, sort from lab_test")->result();
+        $tests = $this->db->query("select test_name, test_type, option_test, hash, insert_record_date, isdeleted, short_name, sample_type, category_hash, sort from lab_test NOT IN (17109315508977536,17109315495627940)")->result();
 
         if (count($tests) > 0) {
             $tests_query = "insert into lab_test(" . implode(",", array_keys((array) $tests[0])) . ", lab_hash) values ";
