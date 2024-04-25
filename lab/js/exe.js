@@ -333,8 +333,8 @@ setInterval(() => {
   }
 }, 5000);
 
-const uploadTestsSync = () => {
-  fetchData("LocalApi/getTestsQueries", "POST", {
-    lab_id: localStorage.getItem("lab_hash"),
-  });
-};
+// const uploadTestsSync = () => {
+//   fetchData("LocalApi/getTestsQueries", "POST", {
+//     lab_id: localStorage.getItem("lab_hash"),
+//   });
+// };
