@@ -20,7 +20,7 @@ class Network extends CI_Controller
             array(
                 "computerName" => $computerName,
                 "url" => $url,
-                "ip" => $ip,
+                "ip" => gethostbyname($computerName) . ":" . $port,
                 'SERVER_NAME' => $_SERVER['SERVER_NAME'],
                 'HTTP_HOST' => $_SERVER['HTTP_HOST'],
                 'ip_address' => gethostbyname($url)

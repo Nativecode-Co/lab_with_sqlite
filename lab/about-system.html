@@ -523,7 +523,7 @@
                     });
 
                     var qrcode = new QRCode("app_img", {
-                        text: `${res.url},Bearer ${localStorage.getItem("token")}`,
+                        text: `${res.ip},Bearer ${localStorage.getItem("token")}`,
                         width: 300,
                         height: 300,
                         colorDark: "#000000",
