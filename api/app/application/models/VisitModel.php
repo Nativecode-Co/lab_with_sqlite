@@ -345,11 +345,7 @@ class VisitModel extends CI_Model
         $calc_tests = array_map(function ($test) {
             $option = str_replace('\\', '', $test['option_test']);
             $option = json_decode($option, true);
-            try {
-                $tests = $option['tests'];
-            } catch (Exception $e) {
-                $tests = [];
-            }
+            $tests = isset($option['tests']) ? $option['tests'] : [];
             $test['tests'] = $tests;
             unset($test['option_test']);
             return $test;
