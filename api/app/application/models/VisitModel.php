@@ -357,6 +357,9 @@ class VisitModel extends CI_Model
 
         $calc_tests = array_filter($calc_tests, function ($test) use ($package_tests) {
             $tests = $test['tests'];
+            if (count($tests) == 0) {
+                return false;
+            }
             // check if all tests in package
             $result = array_diff($tests, $package_tests);
             if (count($result) == 0) {

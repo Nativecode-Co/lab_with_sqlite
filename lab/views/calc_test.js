@@ -40,11 +40,12 @@ class Test extends Factory {
       type: "calc",
       value: data.option_test,
       tests: data.option_test
-        .filter((item) => {
-          return !calcOperator.includes(item) && Number.isNaN(item);
-        })
         .map((item) => {
-          return tests.find((test) => test.text === item).hash;
+          const test = tests.find((test) => test.text === item);
+          return test ? test.hash : null;
+        })
+        .filter((item) => {
+          return item !== null;
         }),
     };
     if (localStorage.getItem("options")) {

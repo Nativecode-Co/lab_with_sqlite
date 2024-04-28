@@ -1,6 +1,6 @@
 <?php
 
-defined('BASEPATH') or exit ('No direct script access allowed');
+defined('BASEPATH') or exit('No direct script access allowed');
 require __DIR__ . '/jwt/autoload.php';
 
 use Firebase\JWT\JWT;
@@ -206,7 +206,6 @@ class Offline extends CI_Controller
                             $query = $visits_tests_query . implode(",", $values) . ";";
                             $queries[] = $query;
                         }
-
                     } else {
                         $visits_tests_query = '';
                     }
@@ -265,8 +264,6 @@ class Offline extends CI_Controller
                 ),
                 JSON_UNESCAPED_UNICODE
             );
-
-
         }
     }
 
@@ -303,7 +300,6 @@ class Offline extends CI_Controller
                 // delete values('
                 $name = $matches[0];
                 $name = str_replace("values('", "", $name);
-
             } else {
                 $name = '';
             }
@@ -374,7 +370,7 @@ class Offline extends CI_Controller
                 }
             }
             $name = $this->db->query("select test_name from lab_test where hash='$hash'")->row();
-            if (isset ($name->test_name))
+            if (isset($name->test_name))
                 $name = $name->test_name;
             else
                 $name = '';
@@ -420,7 +416,6 @@ class Offline extends CI_Controller
                 // delete values('
                 $name = $matches[0];
                 $name = str_replace("values('", "", $name);
-
             } else {
                 $name = '';
             }
@@ -568,21 +563,21 @@ class Offline extends CI_Controller
             $test->test_name = $name;
             return "('" . implode("','", array_values((array) $test)) . "')";
         }, $tests);
-        if(isset($lab_hash) && $lab_hash != ""){
-            $online_values = array_map(function ($test) use ($lab_hash) {
-                $option_test = $test->option_test;
-                $option_test = str_replace('\\', '', $option_test);
-    
-                $test->option_test = $option_test;
-                $name = $test->test_name;
-                $name = str_replace("'", "", $name);
-                $test->test_name = $name;
-                return "('" . implode("','", array_values((array) $test)) . "','$lab_hash')";
-            }, $tests);
-           
-            $online_query .= implode(",", $online_values);
-            $this->db->query($online_query);
-        }
+        // if(isset($lab_hash) && $lab_hash != ""){
+        //     $online_values = array_map(function ($test) use ($lab_hash) {
+        //         $option_test = $test->option_test;
+        //         $option_test = str_replace('\\', '', $option_test);
+
+        //         $test->option_test = $option_test;
+        //         $name = $test->test_name;
+        //         $name = str_replace("'", "", $name);
+        //         $test->test_name = $name;
+        //         return "('" . implode("','", array_values((array) $test)) . "','$lab_hash')";
+        //     }, $tests);
+
+        //     $online_query .= implode(",", $online_values);
+        //     $this->db->query($online_query);
+        // }
         $tests_query .= implode(",", $tests_values);
         $queries .= $tests_query;
         echo $queries;
