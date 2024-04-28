@@ -27,7 +27,7 @@ class Network extends CI_Controller
                 break; // Stop the loop once we find an IP address starting with "192.168"
             }
         }
-        $myip = "http://" . $myip . ":" . $port;
+        $myip = $myip . ":" . $port;
 
         echo json_encode(
             array(
