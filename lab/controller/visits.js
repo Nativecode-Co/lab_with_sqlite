@@ -1631,7 +1631,7 @@ function createInvoiceItems(visit) {
     <div class="namego">
       <p>
         ${
-          visit.age > 16
+          visit.age > 10
             ? visit.gender === "ذكر"
               ? "السيد"
               : "السيدة"

@@ -16,11 +16,24 @@ class Network extends CI_Controller
         $port = 8807;
         $url = "http://" . $computerName . ":" . $port;
         $ip = "http://" . $_SERVER['REMOTE_ADDR'] . ":" . $port;
+        $ipAddresses = gethostbynamel($computerName);
+
+        //die(print_r($ipAddresses));
+        $myip = "";
+        // Output all IP addresses
+        foreach ($ipAddresses as $ip) {
+            if (strpos($ip, '192.168') === 0) {
+                $myip = $ip;
+                break; // Stop the loop once we find an IP address starting with "192.168"
+            }
+        }
+        $myip = "http://" . $myip . ":" . $port;
+
         echo json_encode(
             array(
                 "computerName" => $computerName,
                 "url" => $url,
-                "ip" => $ip,
+                "ip" => $myip,
                 'SERVER_NAME' => $_SERVER['SERVER_NAME'],
                 'HTTP_HOST' => $_SERVER['HTTP_HOST'],
                 'ip_address' => gethostbyname($url)
