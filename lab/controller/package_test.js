@@ -39,7 +39,7 @@ document.addEventListener("DOMContentLoaded", () => {
     option.textContent = test.text;
     testsSelect.appendChild(option);
   }
-  for(const category of categories){
+  for (const category of categories) {
     const option = document.createElement("option");
     option.value = category.hash;
     option.textContent = category.name;
@@ -115,7 +115,6 @@ function emptyTestForm() {
     select.dispatchEvent(event);
   }
   $("#addTest #test_id").trigger("change");
-
 }
 
 function updateTest(hash) {
@@ -334,11 +333,15 @@ function deletePackage(hash) {
   niceSwal("success", "bottom-end", "تم الحذف بنجاح");
 }
 
-const updateNormal = (test,kit,unit) => {
-  TEST = fetchApi("/maintests/get_main_test", "post", { hash: test,kit,unit });
+const updateNormal = (test, kit, unit) => {
+  TEST = fetchApi("/maintests/get_main_test", "post", {
+    hash: test,
+    kit,
+    unit,
+  });
   try {
     const { refrence: reference } = TEST;
-    const refrenceTable = THEME.build(test, reference, kit,unit);
+    const refrenceTable = THEME.build(test, reference, kit, unit);
     $("#refrence_editor .modal-body").html(refrenceTable);
     $("#refrence_editor").modal("show");
   } catch (error) {

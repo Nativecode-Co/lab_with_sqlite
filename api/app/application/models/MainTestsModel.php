@@ -56,6 +56,7 @@ class MainTestsModel extends CI_Model
             $test->refrence = $option_test;
             unset($test->option_test);
         }
+        die($tests);
         return $tests;
     }
 
@@ -87,7 +88,6 @@ class MainTestsModel extends CI_Model
         $output["refrence"] = $option_test;
         unset($output["option_test"]);
         return $output;
-
     }
 
     public function get_by_patient_and_test($hash, $visit_hash)
@@ -125,7 +125,6 @@ class MainTestsModel extends CI_Model
         $output["refrence"] = $option_test;
         unset($output["option_test"]);
         return $output;
-
     }
 
     public function get_calc($hash)
@@ -149,7 +148,7 @@ class MainTestsModel extends CI_Model
 
     public function update($hash, $data)
     {
-        if(isset($data['option_test'])){
+        if (isset($data['option_test'])) {
             $option_test = $data['option_test'];
             // replace backslashes with empty string to avoid SQL injection
             $option_test = str_replace('\\', '', $option_test);
@@ -194,7 +193,6 @@ class MainTestsModel extends CI_Model
             "recordsFiltered" => $count,
             "data" => $tests
         );
-
     }
 
     public function get_main_tests_data()
@@ -227,5 +225,4 @@ class MainTestsModel extends CI_Model
             "kits" => $kits
         );
     }
-
 }

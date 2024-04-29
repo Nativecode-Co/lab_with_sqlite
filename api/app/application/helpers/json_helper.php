@@ -171,6 +171,8 @@ class Json
           } else if ($refrence[$key] != $value) {
             $result = false;
           }
+        } else {
+          $result = false;
         }
       }
       return $result;
@@ -256,10 +258,10 @@ class Json
 
   function getAgeRange($refrence)
   {
-    $ageLow = $refrence['age low'];
-    $ageHigh = $refrence['age high'];
-    $ageUnitLow = $refrence['age unit low'];
-    $ageUnitHigh = $refrence['age unit high'];
+    $ageLow = isset($refrence['age low']) ? $refrence['age low'] : 0;
+    $ageHigh =  isset($refrence['age high']) ? $refrence['age high'] : 0;
+    $ageUnitLow = isset($refrence['age unit low']) ? $refrence['age unit low'] : 'عام';
+    $ageUnitHigh = isset($refrence['age unit high']) ? $refrence['age unit high'] : 'عام';
     switch ($ageUnitLow) {
       case 'عام':
         $ageLow = $ageLow * 365;
