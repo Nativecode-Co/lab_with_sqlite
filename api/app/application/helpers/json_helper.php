@@ -8,11 +8,11 @@ class Json
     $refrences = [];
     $this->type = $json['type'] ?? 'normal';
     $this->default_refrence = $json;
-    if($this->type == 'calc'){
-      if(isset($json['value'])){
+    if ($this->type == 'calc') {
+      if (isset($json['value'])) {
         $this->value = $json['value'];
       }
-    }else{
+    } else {
       $this->value = null;
     }
     if (isset($json['component'])) {
@@ -57,7 +57,7 @@ class Json
       $this->refrences = $this->default_refrence;
       return $this;
     }
-    if($this->type == 'calc'){
+    if ($this->type == 'calc') {
       $refrences = array_filter($refrences, function ($refrence) use ($fields) {
         $result = true;
         foreach ($fields as $key => $value) {
@@ -78,13 +78,11 @@ class Json
             } else if ($key == 'gender') {
               // if key in['انثي','انثى'] and value in ['انثي','انثى'] return true
               if ($refrence[$key] == 'انثي' && $value == 'انثى') {
-                
               } else if ($refrence[$key] == 'انثى' && $value == 'انثي') {
               } else if ($refrence[$key] != 'كلاهما' && $refrence[$key] != $value) {
                 $result = false;
               }
-            }else if ($key == 'unit') {
-              
+            } else if ($key == 'unit') {
             } else if ($refrence[$key] != $value) {
               $result = false;
             }
@@ -92,7 +90,7 @@ class Json
         }
         return $result;
       });
-    }else{
+    } else {
       $refrences = array_filter($refrences, function ($refrence) use ($fields) {
         $result = true;
         foreach ($fields as $key => $value) {
@@ -112,13 +110,13 @@ class Json
               }
             } else if ($key == 'gender') {
               // if key in['انثي','انثى'] and value in ['انثي','انثى'] return true
-              if ($refrence[$key] == 'انثي' && $value == 'انثى') {
-                
-              } else if ($refrence[$key] == 'انثى' && $value == 'انثي') {
-              } else if ($refrence[$key] != 'كلاهما' && $refrence[$key] != $value) {
+              $gender = isset($refrence[$key]) ? $refrence[$key] : 'كلاهما';
+              if ($gender == 'انثي' && $value == 'انثى') {
+              } else if ($gender == 'انثى' && $value == 'انثي') {
+              } else if ($gender != 'كلاهما' && $gender != $value) {
                 $result = false;
               }
-            } else if ($refrence[$key] != $value) {
+            } else if ($gender != $value) {
               $result = false;
             }
           }
@@ -126,8 +124,8 @@ class Json
         return $result;
       });
     }
-    
-    
+
+
 
     $refrences = array_map(function ($refrence) {
       $refrence['result_type'] = $refrence["result"] ?? $this->result_type;
@@ -197,18 +195,18 @@ class Json
     } else {
       $refrences = array_map(function ($refrence) use ($font) {
         $height = 0;
-        if(isset($refrence['range'])){
+        if (isset($refrence['range'])) {
           // use range to calculate height
-          foreach ($refrence['range'] as $range ) {
+          foreach ($refrence['range'] as $range) {
             $name = isset($range['name']) ? $range['name'] : '';
             $low = isset($range['low']) ? $range['low'] : '';
             $high = isset($range['high']) ? $range['high'] : '';
-            $length = strlen($name) + strlen($low) + strlen($high) +6;
+            $length = strlen($name) + strlen($low) + strlen($high) + 6;
             $length = ($font * $length * 0.5) / 185; // =1.0835027027027
             $length = ceil($length);
             $height += $length;
           }
-        }else{
+        } else {
           $height = 1;
         }
         $refrence['height'] = 9.01 + ($height * 5.5) + (1.14 * $height * $font);
@@ -230,9 +228,10 @@ class Json
     if ($this->type == 'type' || $this->type == 'culture') {
       return $this->default_refrence;
     } else {
-      if(!isset($this->refrences[0])){
+      if (!isset($this->refrences[0])) {
         return $this->refrences;
-      } else {$length = count($this->refrences);
+      } else {
+        $length = count($this->refrences);
         if ($length == 0) {
           return array();
         } else if ($length == 1) {
@@ -249,7 +248,8 @@ class Json
             }
           }
           return $min;
-        }}
+        }
+      }
     }
   }
 
