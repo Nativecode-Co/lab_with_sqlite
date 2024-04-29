@@ -116,7 +116,7 @@ class Json
               } else if ($gender != 'كلاهما' && $gender != $value) {
                 $result = false;
               }
-            } else if ($gender != $value) {
+            } else if ($refrence[$key] != $value) {
               $result = false;
             }
           }
