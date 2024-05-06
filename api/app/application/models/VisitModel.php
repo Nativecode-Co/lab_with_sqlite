@@ -12,6 +12,7 @@ class VisitModel extends CI_Model
         $this->load->helper('visit');
         $this->load->helper('test');
         $this->load->helper('json');
+        $this->load->model('TubeModel');
     }
 
     public function visit_count($params)
@@ -192,8 +193,12 @@ class VisitModel extends CI_Model
         usort($tests, function ($a, $b) {
             return $a['category'] <=> $b['category'];
         });
-        // die(json_encode($tests));
+        $tests_hashes = array_map(function ($test) {
+            return $test['test_id'];
+        }, $tests);
+        $tubes = $this->TubeModel->get_tube_by_tests($tests_hashes);
         $visit["tests"] = $tests;
+        $visit["tubes"] = $tubes;
 
         return $visit;
     }

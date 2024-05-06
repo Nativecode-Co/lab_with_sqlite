@@ -1,5 +1,11 @@
 <?php
 
+function is__array($str)
+{
+    $arr = json_decode($str, true);
+    return is_array($arr);
+}
+
 $config = array(
     "package" => array(
         array(
@@ -184,7 +190,7 @@ $config = array(
         ),
     ),
 
-    "visit" =>array(
+    "visit" => array(
         // visit_date, gender ,dicount total_price, net_price, tests[]
         array(
             'field' => 'visit_date',
@@ -253,6 +259,23 @@ $config = array(
             'errors' => array(
                 'required' => 'هذا الحقل مطلوب',
                 'numeric' => 'يجب ادخال قيمة رقمية'
+            )
+        ),
+    ),
+    "tubes" => array(
+        array(
+            'field' => 'name',
+            'rules' => 'required',
+            'errors' => array(
+                'required' => 'هذا الحقل مطلوب',
+            )
+        ),
+        array(
+            'field' => 'tests',
+            'rules' => 'required|is__array',
+            'errors' => array(
+                'required' => 'هذا الحقل مطلوب',
+                'is__array' => 'يجب ادخال قيمة صحيحة'
             )
         ),
     ),

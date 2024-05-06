@@ -1,5 +1,6 @@
 const calcOperator = ["+", "-", "*", "/", "(", ")", "Math.log10("];
 let HASH = null;
+let VISIT = null;
 
 let __VISIT_TESTS__ = [];
 
@@ -336,6 +337,7 @@ function showAddResult(hash, animate = true) {
   const workSpace = $("#work-sapce");
   workSpace.html("");
   const data = fetchApi("/visit/get_visit", "GET", { hash });
+  VISIT = data;
   const form = addResult(data);
   const { invoice, buttons } = showResult(data);
   const html = `
@@ -355,22 +357,7 @@ function showAddResult(hash, animate = true) {
                     <div class="col-md-6 mt-48 invoice-height global-border" style="overflow-y:scroll;">
                         ${invoice}
                     </div>
-                    <div class="d-none d-print-block" id="visit-barcode">
-                      <style>
-                        @media  print {
-                          @page  {
-                              margin: 0 !important;
-                              padding: 0 !important;
-                              box-sizing: border-box;
-                              size: ${invoices?.barcode_width ?? 25}mm ${
-    invoices?.barcode_height ?? 25
-  }mm;
-                          }
-                      }
-                      </style>
-                      <svg id="visit-barcode-svg"></svg>
-                    </div>
-
+                    ${createBarcode()}
                     <div class="col-lg-12 mt-48">
                         <div class="row mt-15 justify-content-around">
                             <div class="col-md-2 col-6">
@@ -460,6 +447,61 @@ function showAddResult(hash, animate = true) {
     );
   }
   hideHederelments();
+}
+
+function createBarcode() {
+  const { barcode_width, barcode_height } = invoices;
+  const createStyle = (barcode_width, barcode_height) => {
+    return `
+      <style>
+        @media  print {
+          @page  {
+              margin: 0 !important;
+              padding: 0 !important;
+              box-sizing: border-box;
+              size: ${barcode_width ?? 80}mm ${barcode_height ?? 40}mm;
+          }
+          .barcode-page {
+            width: ${barcode_width ?? 80}mm;
+            height: ${barcode_height ?? 40}mm;
+            page-break-after: always;
+          }
+
+        }
+      </style>
+    `;
+  };
+  const { tubes, name, age, date } = VISIT;
+
+  const createItem = (tube, name, age, gender) => {
+    const title =
+      gender === "ذكر"
+        ? age > 10
+          ? "السيد"
+          : "الطفل"
+        : age > 10
+        ? "السيدة"
+        : "الطفلة";
+    return `
+    <div class="h6 barcode-page">
+      <div class="text-center ">${title} / ${name}</div>
+      <div class="row justify-content-between px-4">
+        <span>${date}</span>
+        <span>${age} Years / ${gender === "ذكر" ? "male" : "female"} </span>
+      </div>
+      <hr class="border p-0 m-1">
+      <div class="text-right px-2">${tube.tests}</div>
+      <svg class="visit-barcode-svg"></svg>
+      <div class="text-left px-2">${tube.name}</div>
+    </div>
+  `;
+  };
+  return `
+  <div class="d-none d-print-block" id="visit-barcode">
+    ${createStyle(barcode_width, barcode_height)}
+    ${tubes.map((tube) => createItem(tube, name, age, gender)).join("")}
+  </div>
+  `;
 }
 
 function manageRange(reference) {
@@ -2676,16 +2718,17 @@ const printBarcode = (hash, name) => {
     setBarcode(hash);
     return;
   }
-  JsBarcode("#visit-barcode-svg", hash, {
+  JsBarcode(".visit-barcode-svg", hash, {
     format: "CODE39",
     width: 1,
-    height: 50,
+    height: 40,
+    displayValue: false,
   });
-  $("text").html(name);
   // print barcode
   $("#visit-barcode").printThis({
     pageTitle: "Barcode",
     importCSS: false,
+    loadCSS: ["lab/bootstrap/css/bootstrap.min.css"],
   });
 };
 
