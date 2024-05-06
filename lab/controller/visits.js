@@ -2718,6 +2718,15 @@ const printBarcode = (hash, name) => {
     setBarcode(hash);
     return;
   }
+  // if svg not exist
+  if ($(".visit-barcode-svg").length === 0) {
+    // fire error swal
+    Swal.fire({
+      icon: "error",
+      title: "لا توجد تيوبات للطباعة",
+      confirmButtonText: "حسنا",
+    });
+  }
   JsBarcode(".visit-barcode-svg", hash, {
     format: "CODE39",
     width: 1,
