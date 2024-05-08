@@ -36,7 +36,6 @@ class VisitModel extends CI_Model
         $page = $start / $rowsPerPage;
         $orderBy = $params['order'][0]['column'];
         $orderBy = $params['columns'][$orderBy]['data'];
-        $order = $params['order'][0]['dir'];
         $searchText = $params['search']['value'];
         $today = $params['today'];
         $opration = $today == 1 ? "=" : "<=";
@@ -138,6 +137,7 @@ class VisitModel extends CI_Model
         $this->load->helper('json');
         $font = $this->db->select('font_size')->from('lab_invoice')->get()->row();
         $font = $font->font_size;
+
         $visit = $this->db
             ->select("age,gender,doctor_hash,phone,lab_patient.name,DATE(visit_date) as date,age_year,age_month,age_day,address,note")
             ->select("TIME(visit_date) as time,visits_patient_id as patient,lab_visits.hash")
@@ -147,6 +147,7 @@ class VisitModel extends CI_Model
             ->join("lab_patient", "lab_patient.hash=lab_visits.visits_patient_id")
             ->where("lab_visits.hash", $hash)
             ->get()->row_array();
+
         $tests = $this->db
             ->select("option_test, lab_test.test_name as name, kit_id")
             ->select(" (select name from devices where devices.id=lab_device_id limit 1) as device_name")
@@ -162,9 +163,6 @@ class VisitModel extends CI_Model
             ->group_by("test_id,kit_id,unit,lab_pakage_tests.package_id")
             ->order_by("sort")
             ->get()->result_array();
-        // $last_query = $this->db->last_query();
-        // die($last_query);
-        // packges get name and hash only
         $packages = $this->get_visit_packages($hash);
         $visit['packages'] = $packages;
         if (isset($visit) && isset($tests)) {
@@ -462,7 +460,16 @@ class VisitModel extends CI_Model
         return $result;
     }
 
-    public function update_visit_status($status, $hash)
+    public function get_visit_status()
+    {
+        $result = $this->db
+            ->select('name,id')
+            ->from('lab_visit_status')
+            ->get()->result_array();
+        return $result;
+    }
+
+    public function update_visit_status($hash, $status)
     {
         $result = $this->db
             ->update('lab_visits', array('visits_status_id' => $status), array('hash' => $hash));
@@ -493,16 +500,26 @@ class VisitModel extends CI_Model
         return $result;
     }
 
-    public function get_visits_mobile($page, $search)
+    public function get_visits_mobile($page, $search, $status_val)
     {
+
+        if ($status_val == "1") {
+            $status = "=3";
+        } elseif ($status_val == "0") {
+            $status = "!=3";
+        } else {
+            $status = "is not null";
+        }
         $visits = $this->db
             ->select("age,gender,doctor_hash,phone,lab_patient.name,DATE(visit_date) as date,age_year,age_month,age_day,address,note")
             ->select("TIME(visit_date) as time,visits_patient_id as patient,lab_visits.hash")
             ->select("(select name from lab_doctor where hash=lab_visits.doctor_hash) as doctor")
             ->select("lab_patient.hash as patient_hash, gender,age,dicount,total_price,net_price")
+            ->select("(select name from lab_visit_status where hash=lab_visits.visits_status_id) as status")
             ->join("lab_patient", "lab_patient.hash=lab_visits.visits_patient_id")
             ->like("lab_patient.name", $search)
-            ->where(array('lab_visits.isdeleted' => '0'))
+            ->where('lab_visits.isdeleted', '0')
+            ->where('visits_status_id ' . $status)
             ->order_by("visit_date", "DESC")
             ->get($this->table, 10, $page * 10)
             ->result_array();
