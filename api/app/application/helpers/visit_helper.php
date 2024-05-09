@@ -10,27 +10,27 @@ function get_birth_date($age)
 function get_age($age_year, $age_month, $age_day)
 {
     $age = ($age_year * 365) + ($age_month * 30) + $age_day;
-    return round($age / 365, 1);
+    return round($age / 365, 2);
 }
 
 function split_data($data)
 {
-    $age_month = (isset ($data["age_month"]) && $data["age_month"] != "") ? $data["age_month"] : 0;
-    $age_day = (isset ($data["age_day"]) && $data["age_day"] != "") ? $data["age_day"] : 0;
-    $age_year = (isset ($data["age_year"]) && $data["age_year"] != "") ? $data["age_year"] : 0;
+    $age_month = (isset($data["age_month"]) && $data["age_month"] != "") ? $data["age_month"] : 0;
+    $age_day = (isset($data["age_day"]) && $data["age_day"] != "") ? $data["age_day"] : 0;
+    $age_year = (isset($data["age_year"]) && $data["age_year"] != "") ? $data["age_year"] : 0;
     $age = get_age($age_year, $age_month, $age_day);
     $birth = get_birth_date($age);
 
-    $doctor_hash = (isset ($data["doctor_hash"]) && $data["doctor_hash"] != "") ? $data["doctor_hash"] : "";
-    $address = (isset ($data["address"]) && $data["address"] != "") ? $data["address"] : "";
-    $phone = (isset ($data["phone"]) && $data["phone"] != "") ? $data["phone"] : "";
-    $visits_patient_id = (isset ($data["patient"]) && $data["patient"] != "") ? $data["patient"] : create_hash();
-    $note = (isset ($data["note"]) && $data["note"] != "") ? $data["note"] : "";
-    $discount = (isset ($data["dicount"]) && $data["dicount"] != "") ? $data["dicount"] : 0;
-    $net_price = (isset ($data["net_price"]) && $data["net_price"] != "") ? $data["net_price"] : 0;
-    $total_price = (isset ($data["total_price"]) && $data["total_price"] != "") ? $data["total_price"] : 0;
-    $tests = (isset ($data["tests"]) && $data["tests"] != "") ? $data["tests"] : "[]";
-    $gender = (isset ($data["gender"]) && $data["gender"] != "") ? $data["gender"] : "ذكر";
+    $doctor_hash = (isset($data["doctor_hash"]) && $data["doctor_hash"] != "") ? $data["doctor_hash"] : "";
+    $address = (isset($data["address"]) && $data["address"] != "") ? $data["address"] : "";
+    $phone = (isset($data["phone"]) && $data["phone"] != "") ? $data["phone"] : "";
+    $visits_patient_id = (isset($data["patient"]) && $data["patient"] != "") ? $data["patient"] : create_hash();
+    $note = (isset($data["note"]) && $data["note"] != "") ? $data["note"] : "";
+    $discount = (isset($data["dicount"]) && $data["dicount"] != "") ? $data["dicount"] : 0;
+    $net_price = (isset($data["net_price"]) && $data["net_price"] != "") ? $data["net_price"] : 0;
+    $total_price = (isset($data["total_price"]) && $data["total_price"] != "") ? $data["total_price"] : 0;
+    $tests = (isset($data["tests"]) && $data["tests"] != "") ? $data["tests"] : "[]";
+    $gender = (isset($data["gender"]) && $data["gender"] != "") ? $data["gender"] : "ذكر";
     $patient_data = array(
         "birth" => $birth,
         "age_year" => $age_year,
@@ -41,10 +41,10 @@ function split_data($data)
         "phone" => $phone,
         "hash" => $visits_patient_id
     );
-    if (isset ($data["name"])) {
+    if (isset($data["name"])) {
         $patient_data["name"] = $data["name"];
     }
-    $visit_hash = isset ($data["hash"]) ? $data["hash"] : create_hash();
+    $visit_hash = isset($data["hash"]) ? $data["hash"] : create_hash();
     $visit_data = array(
         "visits_patient_id" => $visits_patient_id,
         "visit_date" => $data["visit_date"],
