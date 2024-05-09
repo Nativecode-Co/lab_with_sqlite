@@ -10,7 +10,7 @@ function get_birth_date($age)
 function get_age($age_year, $age_month, $age_day)
 {
     $age = ($age_year * 365) + ($age_month * 30) + $age_day;
-    return round($age / 365, 2);
+    return round($age / 365, 3);
 }
 
 function split_data($data)
