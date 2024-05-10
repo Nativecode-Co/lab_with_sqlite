@@ -417,7 +417,7 @@ function showResult(hash) {
 
   const tests = visit.tests;
   const history = getApi("app", "/Visit/history", "POST", {
-    date: visit.date,
+    id: visit.id,
     patient: visit.patient_hash,
   }).data;
 
@@ -432,7 +432,7 @@ function showResult(hash) {
     return acc;
   }, {});
   let category = "";
-  const invoices = { normalTests: "" };
+  const invoicesTemplates = { normalTests: "" };
   const buttons = {};
   const results = {};
   let height = 0;
@@ -548,8 +548,9 @@ function showResult(hash) {
           });
         }
       }
-      invoices[test.name.replace(/\s/g, "").replace(/[^a-zA-Z0-9]/g, "")] =
-        invoiceBody;
+      invoicesTemplates[
+        test.name.replace(/\s/g, "").replace(/[^a-zA-Z0-9]/g, "")
+      ] = invoiceBody;
     } else if (reference.type === "culture") {
       const { name, option_test: options } = test;
       const idName = name.replace(/\s/g, "").replace(/[^a-zA-Z0-9]/g, "");
@@ -624,10 +625,13 @@ function showResult(hash) {
         );
         invoiceBody += testType;
       }
-      invoices[idName] = invoiceBody;
+      invoicesTemplates[idName] = invoiceBody;
     } else {
       if (height + reference.height >= defaultHeight) {
-        invoices.normalTests += createInvoice(normalTests, invoiceItems);
+        invoicesTemplates.normalTests += createInvoice(
+          normalTests,
+          invoiceItems
+        );
         normalTests = manageHead("flag");
         if (category !== test.category) {
           height = 50;
@@ -699,7 +703,7 @@ function showResult(hash) {
             : "flex",
         normal: normalRange,
         flag: flag,
-        history: history.find((item) => item.name == test.name)?.result ?? "",
+        history: history.find((item) => item.name === test.name)?.result ?? "",
         unit: test.unit_name ?? "",
       });
     }
@@ -708,7 +712,7 @@ function showResult(hash) {
     buttons: `<div class="row justify-content-center mb-30" id="invoice-tests-buttons">
                     ${Object.values(buttons).join("")}
                 </div>`,
-    invoice: `${Object.entries(invoices)
+    invoice: `${Object.entries(invoicesTemplates)
       .map(([key, value]) => {
         if (key === "normalTests") {
           if (normalTests === manageHead("flag")) return "";
@@ -809,14 +813,15 @@ function invoiceHeader(invoice) {
   `;
 }
 
-function createBookResult(invoices, type) {
+function createBookResult(invoicesTemplates, type) {
   return `<div class="book-result" dir="ltr" id="invoice-${type}">
-            ${invoices}
+            ${invoicesTemplates}
           </div>`;
 }
 
 function createInvoiceItems(visit) {
   const invoice = getApi("api", "/invoice/get");
+  invoices = invoice;
   const displayHeaderAndFooter = invoice.footer_header_show === "1";
   const random = Math.floor(Math.random() * 1000000);
   const header = invoiceHeader(invoice);

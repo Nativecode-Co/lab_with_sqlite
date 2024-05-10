@@ -1878,7 +1878,7 @@ function showResult(data) {
   let history = [];
   if (Number(invoice?.history) === 1) {
     const { data } = fetchData("Visit/history", "POST", {
-      date: visit.date,
+      id: visit.id,
       patient: visit.patient_hash,
     });
     history = data;
@@ -2175,7 +2175,7 @@ function showResult(data) {
             : "flex",
         normal: normalRange,
         flag: flag,
-        history: history.find((item) => item.name == test.name)?.result ?? "",
+        history: history.find((item) => item.name === test.name)?.result ?? "",
         unit: test.unit_name ?? "",
       });
     }

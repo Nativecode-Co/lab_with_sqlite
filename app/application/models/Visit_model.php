@@ -90,7 +90,7 @@ class Visit_model extends CI_Model
                 $test['option_test'] = $json->filter($filterFeilds)->setHeight($font)->row();
                 $test['result'] = json_decode($test['result'], true);
                 if ($test['result'] == null) {
-                    $test['result'] = array (
+                    $test['result'] = array(
                         "checked" => true,
                         $test['name'] => ""
                     );
@@ -155,18 +155,18 @@ class Visit_model extends CI_Model
     }
 
 
-    public function patient_history($patient_id, $visit_date)
+    public function patient_history($patient_id, $id)
     {
-        $tests = $this->get_tests($patient_id, $visit_date);
+        $tests = $this->get_tests($patient_id, $id);
         if (!isset($tests[0]))
             return [];
         // map tests
         $tests = array_map(function ($test) {
             // decode result
             $result = json_decode($test['result'], true);
-            if (isset ($result[$test['name']])) {
+            if (isset($result[$test['name']])) {
                 $result = $result[$test['name']];
-                if (!isset ($result) || $result == "") {
+                if (!isset($result) || $result == "") {
                     $result = "";
                 } else {
                     $result = " - Last Result dated " . $test['date'] . "  was : " . $result;
@@ -198,7 +198,7 @@ class Visit_model extends CI_Model
         return $visits;
     }
 
-    public function get_tests($patient_id, $visit_date)
+    public function get_tests($patient_id, $id)
     {
         $query = $this->db->query("
         SELECT 
@@ -213,7 +213,7 @@ FROM
 WHERE
     lv.visits_patient_id = '$patient_id'
     AND lv.isdeleted = 0
-    AND lv.visit_date < '$visit_date'
+    AND lv.id < " . $id . "
     AND lvt.tests_id != 0 
 ORDER BY
     lv.visit_date DESC;
@@ -308,7 +308,7 @@ ORDER BY
                 $component = $options["component"][0];
                 $options = $options["component"][0]["reference"];
                 $options = array_filter($options, function ($item) use ($patient, $test) {
-                    $lowAge = $this->issetOrValue(isset ($item['age low']), 0);
+                    $lowAge = $this->issetOrValue(isset($item['age low']), 0);
                     $highAge = $this->issetOrValue($item['age high'], 1000);
                     $gender = $this->issetOrValue($item['gender'], "كلاهما");
                     if (
@@ -321,27 +321,26 @@ ORDER BY
                     } else {
                         return false;
                     }
-
                 });
                 $options = array_map(function ($item) use ($component, $test) {
-                    if (isset ($component['name'])) {
+                    if (isset($component['name'])) {
                         $item['name'] = $component['name'];
                     }
-                    if (isset ($component['unit'])) {
+                    if (isset($component['unit'])) {
                         $item['unit'] = $component['unit'];
                     }
-                    if (isset ($component['result'])) {
+                    if (isset($component['result'])) {
                         $item['result'] = $component['result'];
                     }
-                    if (isset ($test['result'])) {
+                    if (isset($test['result'])) {
                         $item['result'] = $this->getResult($test['result']);
                     } else if ($component['name']) {
-                        $item['result'] = array (
+                        $item['result'] = array(
                             "checked" => true,
                             $component['name'] => ""
                         );
                     }
-                    if (isset ($test['category'])) {
+                    if (isset($test['category'])) {
                         $item['category'] = $test['category'];
                     } else {
                         $item['category'] = "Tests";
@@ -349,7 +348,6 @@ ORDER BY
                     return $item;
                 }, $options);
                 $test = $options;
-
             } catch (Exception $e) {
                 $test = [];
             }

@@ -1826,7 +1826,7 @@ function showResult(data) {
   let history = [];
   if (Number(invoice?.history) === 1) {
     const { data } = fetchData("Visit/history", "POST", {
-      date: visit.date,
+      id: visit.id,
       patient: visit.patient_hash,
     });
     history = data;

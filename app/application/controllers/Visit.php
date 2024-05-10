@@ -80,7 +80,7 @@ class Visit extends CI_Controller
     public function history()
     {
         $patient = $this->input->post('patient');
-        $visit_date = $this->input->post('date') ?? date("Y-m-d");
+        $id = $this->input->post('id') ?? null;
         // check patient
         if (!isset($patient) && $patient == "") {
             $output = array(
@@ -89,7 +89,7 @@ class Visit extends CI_Controller
                 "message" => "تاكد من ادخال ID المريض"
             );
         } else {
-            $tests = $this->Visit_model->patient_history($patient, $visit_date);
+            $tests = $this->Visit_model->patient_history($patient, $id);
             $output = array(
                 "status" => 200,
                 "data" => $tests,
