@@ -136,7 +136,7 @@ class VisitModel extends CI_Model
     {
         $this->load->helper('json');
         $font = $this->db->select('font_size')->from('lab_invoice')->get()->row();
-        $font = $font["font_size"];
+        $font = $font->font_size; //  $font = $font->font_size;
 
         $visit = $this->db
             ->select("lab_visits.id as id,age,gender,doctor_hash,phone,lab_patient.name,DATE(visit_date) as date,age_year,age_month,age_day,address,note")
