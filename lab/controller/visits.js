@@ -456,15 +456,16 @@ function createBarcode() {
       <style>
         @media  print {
           @page  {
-              margin: 0 !important;
-              padding: 0 !important;
+              padding: 0 auto !important;
               box-sizing: border-box;
+              margin: 0 auto !important;
               size: ${barcode_width ?? 80}mm ${barcode_height ?? 40}mm;
           }
           .barcode-page {
             width: ${barcode_width ?? 80}mm;
             height: ${barcode_height ?? 40}mm;
             page-break-after: always;
+            margin-top: 20px;
           }
 
         }
@@ -484,15 +485,14 @@ function createBarcode() {
         : "الطفلة";
     return `
     <div class="h6 barcode-page">
-      <div class="text-center ">${title} / ${name}</div>
-      <div class="row justify-content-between px-4">
-        <span>${date}</span>
-        <span>${age} Years / ${gender === "ذكر" ? "male" : "female"} </span>
-      </div>
-      <hr class="border p-0 m-1">
-      <div class="text-right px-2">${tube.tests}</div>
-      <svg class="visit-barcode-svg"></svg>
-      <div class="text-left px-2">${tube.name}</div>
+        <div class="text-center">${title} / ${name}</div>
+        <div class="row justify-content-between px-4 border-bottom pb-1 mb-1 border-3">
+          <span>${date}</span>
+          <span>${age} Years / ${gender === "ذكر" ? "male" : "female"} </span>
+        </div>
+        <div class="text-right px-2">${tube.tests}</div>
+        <svg class="visit-barcode-svg"></svg>
+        <div class="text-left px-2">${tube.name}</div>
     </div>
   `;
   };
