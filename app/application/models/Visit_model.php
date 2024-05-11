@@ -6,9 +6,6 @@ class Visit_model extends CI_Model
     {
         parent::__construct();
         $this->load->database();
-        // $this->load->database('unimedica', TRUE);
-        $this->load->library('session');
-        $this->load->library('migration');
         // check if lab_invoice have col named border
         if (!$this->db->field_exists('history', 'lab_invoice')) {
             $this->db->query("ALTER TABLE lab_invoice ADD COLUMN history INTEGER NOT NULL DEFAULT 0;");
@@ -541,6 +538,21 @@ ORDER BY
             ->where('visit_date', date('Y-m-d'))
             ->join('lab_visit_status', 'lab_visit_status.hash = lab_visits.visits_status_id', "left")
             ->order_by('lab_visits.id', 'DESC')
+            ->get()->result_array();
+        return $result;
+    }
+
+    public function get_visit_analysis($start, $end)
+    {
+        $result = $this->db
+            ->select('lab.name,count(*) as count,lab.id')
+            ->from('lab_visits')
+            ->join('lab', 'lab.id = lab_visits.labId')
+            ->where('isdeleted', '0')
+            ->where('visit_date >', $start)
+            ->where('visit_date <=', $end)
+            ->group_by('labId')
+            ->order_by('count', 'desc')
             ->get()->result_array();
         return $result;
     }

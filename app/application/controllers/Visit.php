@@ -215,4 +215,16 @@ class Visit extends CI_Controller
         echo json_encode($output);
         exit();
     }
+
+    public function get_visit_analysis()
+    {
+        $start = $this->input->post("start");
+        $end = $this->input->post("end");
+        // first date of month
+        $start = isset($start) ? date("Y-m-d", strtotime($start)) : date("Y-m-01");
+        // last date of month
+        $end = isset($end) ? date("Y-m-d", strtotime($end)) : date("Y-m-t");
+        $data = $this->Visit_model->get_visit_analysis($start, $end);
+        echo json_encode(array("status" => 200, "data" => $data, "start" => $start, "end" => $end));
+    }
 }
