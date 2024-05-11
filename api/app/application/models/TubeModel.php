@@ -137,6 +137,9 @@ class TubeModel extends CI_Model
     // get tube by tests
     public function get_tube_by_tests($tests)
     {
+        if (count($tests) == 0 || $tests == null) {
+            return [];
+        }
         return $this->db
             ->select('tube.id, tube.name, GROUP_CONCAT(lab_test.test_name) as tests, GROUP_CONCAT(lab_test.hash) as test_ids')
             ->join('tube_test', 'tube_test.tube_id = tube.id', 'left')
