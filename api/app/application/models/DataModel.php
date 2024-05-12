@@ -17,10 +17,13 @@ class DataModel extends CI_Model
             ->select('hash')
             ->get('system_group_name')
             ->result();
+        $groups = array_map(function ($group) {
+            return $group->hash;
+        }, $groups);
         return array(
-            'tubes' => $tubes,
-            'aliases' => $aliases,
-            'groups' => $groups,
+            'tube' => $tubes,
+            'test_alias' => $aliases,
+            'system_group_name' => $groups,
         );
     }
 }

@@ -138,10 +138,12 @@ class TestAliasModel extends CI_Model
 
     public function get_all_ids()
     {
-        $ids = $this->db
+        $ids =  $this->db
             ->select('id')
             ->get($this->table)
             ->result();
-        return $ids;
+        return array_map(function ($id) {
+            return $id->id;
+        }, $ids);
     }
 }

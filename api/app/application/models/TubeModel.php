@@ -153,9 +153,12 @@ class TubeModel extends CI_Model
 
     public function get_all_ids()
     {
-        return $this->db
+        $ids =  $this->db
             ->select('id')
             ->get($this->table)
             ->result();
+        return array_map(function ($id) {
+            return $id->id;
+        }, $ids);
     }
 }

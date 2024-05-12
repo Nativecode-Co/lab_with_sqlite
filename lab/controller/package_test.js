@@ -440,10 +440,12 @@ function deleteRange(e, id) {
 }
 
 function deleteRefrence(hash, refID) {
-  const { refrence, name } = fetchApi("/maintests/get_main_test", "post", {
+  let { refrence, name } = fetchApi("/maintests/get_main_test", "post", {
     hash,
   });
-  refrence.splice(refID, 1);
+  console.log(refrence, refID);
+  refrence = refrence.filter((item) => Number(item.id) !== Number(refID));
+  console.log(refrence, refID);
   const component = [
     {
       name: name,
