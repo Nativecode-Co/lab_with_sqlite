@@ -18,6 +18,7 @@ function fetchData(url = "", type = "GET", data = {}) {
     },
     error: (e) => {
       console.log(e.responseText);
+      return false;
     },
   });
   syncOnline();
@@ -64,6 +65,7 @@ function fetchApi(url = "", type = "GET", data = {}) {
     },
     error: (e) => {
       console.log(e.responseText);
+      return false;
     },
   });
   return res;
