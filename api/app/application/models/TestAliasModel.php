@@ -77,7 +77,7 @@ class TestAliasModel extends CI_Model
         $this->truncate();
         $this->db->insert_batch($this->table, $data);
     }
-    
+
 
     public function update($hash, $data)
     {
@@ -113,7 +113,6 @@ class TestAliasModel extends CI_Model
         } else {
             return null;
         }
-        
     }
 
     public function get_tests()
@@ -137,4 +136,12 @@ class TestAliasModel extends CI_Model
         return $devices;
     }
 
+    public function get_all_ids()
+    {
+        $ids = $this->db
+            ->select('id')
+            ->get($this->table)
+            ->result();
+        return $ids;
+    }
 }

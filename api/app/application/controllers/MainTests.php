@@ -86,18 +86,6 @@ class MainTests extends CI_Controller
     function create_main_test()
     {
         $req = $this->input->post();
-        $valid = $this->form_validation->
-            set_data($req)->
-            run('main_tests');
-        if (!$valid) {
-            $errors = $this->form_validation->error_array();
-            $this->output
-                ->set_status_header(400)
-                ->set_content_type('application/json')
-                ->set_output(json_encode($errors));
-            return;
-        }
-        ;
         $data = $this->MainTestsModel->insert($req);
         $this->output
             ->set_status_header(201)
@@ -110,9 +98,7 @@ class MainTests extends CI_Controller
         $req = $this->input->post();
         $this->form_validation->set_data($req);
 
-        $valid = $this->form_validation->
-            set_data($req)->
-            set_rules(
+        $valid = $this->form_validation->set_data($req)->set_rules(
                 'hash',
                 'hash',
                 'required|numeric',
@@ -120,8 +106,7 @@ class MainTests extends CI_Controller
                     'required' => 'هذا الحقل مطلوب',
                     'numeric' => 'يجب ادخال قيمة رقمية'
                 )
-            )->
-            run('main_tests');
+            )->run('main_tests');
         if (!$valid) {
             $errors = $this->form_validation->error_array();
             $this->output
@@ -166,5 +151,4 @@ class MainTests extends CI_Controller
             ->set_content_type('application/json')
             ->set_output(json_encode($data));
     }
-
 }
