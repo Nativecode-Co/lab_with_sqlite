@@ -161,4 +161,15 @@ class TubeModel extends CI_Model
             return $id->id;
         }, $ids);
     }
+
+    public function get_all_tube_tests()
+    {
+        $ids =  $this->db
+            ->select('id')
+            ->get('tube_test')
+            ->result();
+        return array_map(function ($id) {
+            return $id->id;
+        }, $ids);
+    }
 }

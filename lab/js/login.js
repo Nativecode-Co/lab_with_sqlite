@@ -1,18 +1,18 @@
 async function offlineLogin() {
   $("body").append(waitElement);
 
-  var username = $("#username").val();
-  var password = $("#password").val();
+  const username = $("#username").val();
+  const password = $("#password").val();
   // add waitElement to body
 
   //console.log(username+" --  "+password);
   $.ajax({
-    url: base_url + "login",
+    url: `${base_url}login`,
     type: "POST",
     /* or type:"GET" or type:"PUT" */
     dataType: "JSON",
     data: { username: username, password: password },
-    success: async function (result) {
+    success: async (result) => {
       if (result.result == "0") {
         document.getElementById("message").innerHTML =
           "يرجى التاكد من اسم الحساب او الرمز السري";
@@ -26,7 +26,7 @@ async function offlineLogin() {
         localStorage.setItem("lab_name", result.lab_name);
         localStorage.setItem("logo", result.logo);
         await updateExpireDate();
-        let user_type = result.user_type;
+        const user_type = result.user_type;
         if (
           result.lab_id == 0 ||
           result.lab_id == null ||
@@ -37,18 +37,12 @@ async function offlineLogin() {
           document.getElementById("alert_screen").remove();
           return;
         }
-        if (user_type == "2" || user_type == "111") {
-          fetchData("/localapi/deleteAfterInsertTrigger");
-          fetchData("/localapi/createAfterInsertTrigger");
-          location.href = `${front_url}index.html`;
-        } else {
-          document.getElementById("message").innerHTML =
-            "ليس لديك صلاحية دخول جرب مرة اخري";
-          document.getElementById("alert_screen").remove();
-        }
+        fetchData("/localapi/deleteAfterInsertTrigger");
+        fetchData("/localapi/createAfterInsertTrigger");
+        location.href = `${front_url}index.html`;
       }
     },
-    error: function () {
+    error: () => {
       document.getElementById("message").innerHTML =
         "يرجى التاكد من الاتصال بلانترنت";
       document.getElementById("alert_screen").remove();

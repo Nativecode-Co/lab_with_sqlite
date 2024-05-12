@@ -54,9 +54,7 @@ class Users extends CI_Controller
     function create_user()
     {
         $req = $this->input->post();
-        $valid = $this->form_validation->
-            set_data($req)->
-            run('users');
+        $valid = $this->form_validation->set_data($req)->run('users');
         if (!$valid) {
             $errors = $this->form_validation->error_array();
             $this->output
@@ -64,8 +62,7 @@ class Users extends CI_Controller
                 ->set_content_type('application/json')
                 ->set_output(json_encode($errors));
             return;
-        }
-        ;
+        };
         $data = $this->UsersModel->insert($req);
         $this->output
             ->set_status_header(201)
@@ -78,9 +75,7 @@ class Users extends CI_Controller
         $req = $this->input->post();
         $this->form_validation->set_data($req);
 
-        $valid = $this->form_validation->
-            set_data($req)->
-            set_rules(
+        $valid = $this->form_validation->set_data($req)->set_rules(
                 'hash',
                 'hash',
                 'required|numeric',
@@ -88,8 +83,7 @@ class Users extends CI_Controller
                     'required' => 'هذا الحقل مطلوب',
                     'numeric' => 'يجب ادخال قيمة رقمية'
                 )
-            )->
-            run('users');
+            )->run('users');
         if (!$valid) {
             $errors = $this->form_validation->error_array();
             $this->output
@@ -126,4 +120,13 @@ class Users extends CI_Controller
             ->set_output(json_encode($data));
     }
 
+    // groups
+    public function get_groups()
+    {
+        $data = $this->UsersModel->get_groups();
+        $this->output
+            ->set_status_header(200)
+            ->set_content_type('application/json')
+            ->set_output(json_encode($data));
+    }
 }

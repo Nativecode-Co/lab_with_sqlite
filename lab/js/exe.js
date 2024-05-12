@@ -314,6 +314,7 @@ function syncOnline() {
       });
   }, 500);
 }
+fetchApi("/data/check_data");
 
 // load notification every 5 seconds
 setInterval(() => {

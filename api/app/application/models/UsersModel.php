@@ -16,7 +16,7 @@ class UsersModel extends CI_Model
         $searchText = $params['search']['value'];
         return $this->db
             ->where('is_deleted', 0)
-            ->like("user_type", 111)
+            ->where_not_in('user_type', [2, 3])
             ->like("name", $searchText)
             ->count_all_results($this->table);
     }
@@ -34,7 +34,7 @@ class UsersModel extends CI_Model
         return $this->db
             ->select('*')->select('(SELECT name FROM system_group_name WHERE hash = system_users.user_type limit 1) as user_type_name')
             ->where('is_deleted', 0)
-            ->like("user_type", 111)
+            ->where_not_in('user_type', [2, 3])
             ->like("name", $searchText)
             ->order_by($orderBy, $order)
             ->get($this->table, $rowsPerPage, $page * $rowsPerPage)
@@ -91,7 +91,14 @@ class UsersModel extends CI_Model
             "users" => $users,
             "doctors" => $doctors
         );
-
     }
 
+    public function get_groups()
+    {
+        return $this->db
+            ->select('hash,name as text')
+            ->where_not_in('hash', [2, 3])
+            ->get('system_group_name')
+            ->result();
+    }
 }

@@ -1,3 +1,5 @@
+const groups = fetchApi("/users/get_groups");
+
 class User extends Factory {
   init() {
     this.createModal();
@@ -35,11 +37,6 @@ class User extends Factory {
     data.lab_id = localStorage.getItem("lab_hash");
     data.type2 = Math.floor(Math.random() * 900000) + 100000;
     return data;
-  }
-
-  newItem() {
-    super.newItem();
-    $("#user_type").val("111").trigger("change");
   }
 
   updateItem(hash) {
@@ -80,7 +77,7 @@ const system_users = new User("system_users", " موظف", [
     name: "user_type",
     type: "select",
     label: "الوظيفة",
-    options: [{ text: "موظف مختبري (ادارة الزيارات والتحاليل)", hash: "111" }],
+    options: groups ?? [],
   },
 ]);
 
@@ -92,7 +89,3 @@ $(() => {
 });
 
 // dom ready
-$(() => {
-  // user_type select first option
-  $("#user_type").val("111").trigger("change");
-});
