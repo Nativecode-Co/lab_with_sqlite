@@ -2583,7 +2583,7 @@ function downloadPdf() {
 }
 
 function printAfterSelect(hash) {
-  fetchApi("/visit/update_visit_status", "POST", { hash: hash, status: 3 });
+  fetchApi("/visit/update_visit_status", "POST", { hash: hash, status: 5 });
   const __invoces = $("#work-sapce .book-result");
   // modal body
   const body = $("#print-dialog .modal-body");

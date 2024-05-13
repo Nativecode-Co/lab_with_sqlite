@@ -478,7 +478,7 @@ class VisitModel extends CI_Model
 
     public function saveTestsResult($data, $visit_hash)
     {
-        $this->update_visit_status(5, $visit_hash);
+        $this->update_visit_status(3, $visit_hash);
         $result = $this
             ->db
             ->update_batch('lab_visits_tests', $data, 'hash');
