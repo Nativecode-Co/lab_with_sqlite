@@ -472,6 +472,20 @@ function createBarcode() {
           }
 
         }
+        @media (orientation: landscape) {
+          @page  {
+            padding: 0 auto !important;
+            box-sizing: border-box;
+            margin: 0 auto !important;
+            size: ${barcode_width ?? 80}mm ${barcode_height ?? 40}mm;
+          }
+          .barcode-page {
+            width: ${barcode_width ?? 80}mm;
+            height: ${barcode_height ?? 40}mm;
+            page-break-after: always;
+            margin-top: 20px;
+          }
+        }
       </style>
     `;
   };
@@ -505,12 +519,6 @@ function createBarcode() {
       name: "Vitamins",
       test_ids: "47,48",
       tests: "Vitamin D,Vitamin-B12",
-    },
-    {
-      id: "2",
-      name: "AnyThing",
-      test_ids: "47,48",
-      tests: "Test1,Test2",
     },
   ];
   console.log(tubes);
