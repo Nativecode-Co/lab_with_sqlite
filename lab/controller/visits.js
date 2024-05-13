@@ -489,7 +489,7 @@ function createBarcode() {
       </style>
     `;
   };
-  const { /*tubes,*/ name, age, date } = VISIT;
+  const { /*tubes,*/ name, age, date, gender } = VISIT;
 
   const createItem = (tube, name, age, gender) => {
     const title =

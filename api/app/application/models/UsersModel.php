@@ -53,7 +53,6 @@ class UsersModel extends CI_Model
     public function insert($data)
     {
         $data['hash'] = create_hash();
-        $data["user_type"] = "111";
         $this->db->insert($this->table, $data);
         return $this->get($data['hash']);
     }
