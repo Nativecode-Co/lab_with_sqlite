@@ -112,6 +112,10 @@ const getAge = (birth) => {
 const getOldPatient = (hash) => {
   if (hash !== 0) {
     const patient = fetchApi(`/patient/get_patient?hash=${hash}`);
+    if (!patient) {
+      niceSwal("error", "top-end", "حدث خطأ ما المريض غير موجود");
+      return;
+    }
     $("#age_year").val(patient?.age_year);
     $("#age_month").val(patient?.age_month);
     $("#age_day").val(patient?.age_day);
@@ -184,6 +188,10 @@ function showVisit(hash) {
   $(".action").removeClass("active");
   $("#show_visit_button").addClass("active");
   const visit = fetchApi(`/visit/get_visit?hash=${hash}`);
+  if (!visit) {
+    niceSwal("error", "top-end", "حدث خطأ ما");
+    return;
+  }
   const workSpace = $("#work-sapce");
   workSpace.html("");
   const visitInfo = `
@@ -348,6 +356,10 @@ function showAddResult(hash, animate = true) {
   const workSpace = $("#work-sapce");
   workSpace.html("");
   const data = fetchApi("/visit/get_visit", "GET", { hash });
+  if (!data) {
+    niceSwal("error", "top-end", "حدث خطأ ما");
+    return;
+  }
   const form = addResult(data);
   const { invoice, buttons } = showResult(data);
   const html = `
@@ -1281,6 +1293,13 @@ function showInvoice(hash) {
   const { packages: visitPackages, ...visit } = fetchApi(
     `/visit/get_visit?hash=${hash}`
   );
+  if (!visitPackages || !visit) {
+    niceSwal(
+      "error",
+      "top-end",
+      "حدث خطأ ما حدث خطأ أثناء جلب البيانات الخاصة بالفاتورة"
+    );
+  }
   const invoice = `
     <div class="col-md-7 mt-4">
         <div class="statbox widget box box-shadow bg-white py-3">
@@ -1611,6 +1630,14 @@ function createBookResult(invoices, type) {
 
 function createInvoiceItems(visit) {
   const invoice = fetchApi("/invoice/get", "GET", {});
+  if (!invoice) {
+    niceSwal(
+      "error",
+      "top-end",
+      "حدث خطأ ما حدث خطأ أثناء جلب البيانات الخاصة بالفاتورة"
+    );
+    return;
+  }
   const random = Math.floor(Math.random() * 1000000);
   const header = invoiceHeader(invoice);
   const nav = `
@@ -1829,7 +1856,7 @@ function showResult(data) {
       id: visit.id,
       patient: visit.patient_hash,
     });
-    history = data;
+    if (data) history = data;
   }
   invoiceItems.invoice = invoice;
   const result_tests = tests.reduce((acc, test) => {

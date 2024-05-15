@@ -6,7 +6,13 @@ const { patients, units, doctors, tests, packages, categories } = fetchApi(
   "GET",
   {}
 );
+if (!patients || !units || !doctors || !tests || !packages || !categories) {
+  niceSwal("error", "bottom-end", "حدث خطأ اثناء تحميل البيانات");
+}
 let { workers, ...invoices } = fetchApi("/invoice/get");
+if (!workers || !invoices) {
+  niceSwal("error", "bottom-end", "حدث خطأ اثناء تحميل البيانات");
+}
 
 class Visit extends Factory {
   init() {
@@ -52,10 +58,18 @@ class Visit extends Factory {
           className: "not-print",
           render: (data, type, row) => {
             return `
-            <a class="btn-action add" title"تحميل النتائج" onclick="dwonloadInvoice('${row.hash}')">
+            <a class="btn-action add" title"تحميل النتائج" onclick="dwonloadInvoice('${
+              row.hash
+            }')">
             <i class="fas fa-file-pdf"></i>
             </a>
-                            <a class="btn-action add" title="عرض الزيارة"  onclick="visitDetail('${row.hash}', '${row.name}');fireSwalWithoutConfirm(showVisit, '${row.hash}', '${row.name}')"><i class="far fa-eye"></i></a>
+                            <a class="btn-action add" title="عرض الزيارة"  onclick="visitDetail('${
+                              row.hash
+                            }', '${
+              row.name
+            }');fireSwalWithoutConfirm(showVisit, '${row.hash}', '${
+              row.name
+            }')"><i class="far fa-eye"></i></a>
             <a class="btn-action add" title="تعديل الزيارة" onclick="fireSwalWithoutConfirm.call(lab_visits, lab_visits.updateItem,'${
               row.hash
             }')"><i class="far fa-edit"></i></a>
@@ -115,6 +129,10 @@ class Visit extends Factory {
 
   updateItem(hash) {
     const visit = fetchApi("/visit/get_visit", "GET", { hash });
+    if (!visit) {
+      niceSwal("error", "bottom-end", "حدث خطأ اثناء تحميل البيانات");
+      return false;
+    }
     $("#work-sapce").empty();
     $("#show_selected_tests div").remove();
     this.resetForm();
@@ -249,14 +267,13 @@ class Visit extends Factory {
         if (result.isConfirmed) {
           // new promise
           new Promise((resolve, reject) => {
-            document.querySelector("input[name='new_patient']").checked = false
+            document.querySelector("input[name='new_patient']").checked = false;
             changePatientTag();
             resolve();
-          })
-            .then(() => {
-              $("#patient").val(hash).trigger("change");
-              this.saveNewItem();
-            })
+          }).then(() => {
+            $("#patient").val(hash).trigger("change");
+            this.saveNewItem();
+          });
         } else if (result.isDenied) {
           this.saveNewItem();
         } else {
@@ -276,14 +293,16 @@ class Visit extends Factory {
       hash: visit.patient_hash,
       name: data.name,
     });
+    if (!visit) {
+      niceSwal("error", "bottom-end", "حدث خطأ اثناء حفظ البيانات");
+      return false;
+    }
     this.dataTable.ajax.reload();
     this.resetForm();
-    visitDetail(visit.hash , data.name);
-    showVisit(visit.hash, data.name );
+    visitDetail(visit.hash, data.name);
+    showVisit(visit.hash, data.name);
 
-    document.querySelector(
-      `input[name="new_patient"]`
-    ).checked = true;
+    document.querySelector(`input[name="new_patient"]`).checked = true;
     changePatientTag();
   }
 
@@ -294,6 +313,10 @@ class Visit extends Factory {
       ...data,
       hash: hash,
     });
+    if (!visit) {
+      niceSwal("error", "bottom-end", "حدث خطأ اثناء حفظ البيانات");
+      return false;
+    }
     this.dataTable.ajax.reload();
     this.resetForm();
     const newPatientElement = document.querySelector(

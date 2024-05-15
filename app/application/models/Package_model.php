@@ -126,8 +126,8 @@ class Package_model extends CI_Model
             $kit = json_decode($package['kit']);
             $unit = json_decode($package['unit']);
             $index = array_search('', $kit);
-            $package['kit'] = $kit[$index];
-            $package['unit'] = $unit[$index];
+            $package['kit'] = isset($kit[$index]) ? $kit[$index] : '';
+            $package['unit'] = isset($unit[$index]) ? $unit[$index] : '';
             return $package;
         }, $packages);
 

@@ -163,7 +163,8 @@ class Visit_model extends CI_Model
             $result = json_decode($test['result'], true);
             if (isset($result[$test['name']])) {
                 $result = $result[$test['name']];
-                if (!isset($result) || $result == "") {
+
+                if (!isset($result) || $result == "" || is_array($result)) {
                     $result = "";
                 } else {
                     $result = " - Last Result dated " . $test['date'] . "  was : " . $result;

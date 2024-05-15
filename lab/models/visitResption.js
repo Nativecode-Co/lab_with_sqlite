@@ -6,7 +6,13 @@ const { patients, units, doctors, tests, packages, categories } = fetchApi(
   "GET",
   {}
 );
+if (!patients || !units || !doctors || !tests || !packages || !categories) {
+  niceToast("error", "حدث خطأ اثناء تحميل البيانات");
+}
 let { workers, ...invoices } = fetchApi("/invoice/get");
+if (!workers || !invoices) {
+  niceToast("error", "حدث خطأ اثناء تحميل البيانات");
+}
 
 class Visit extends Factory {
   init() {
@@ -116,6 +122,10 @@ class Visit extends Factory {
 
   updateItem(hash) {
     const visit = fetchApi("/visit/get_visit", "GET", { hash });
+    if (!visit) {
+      niceSwal("error", "bottom-end", "حدث خطأ اثناء تحميل البيانات");
+      return;
+    }
     $("#work-sapce").empty();
     $("#show_selected_tests div").remove();
     this.resetForm();
@@ -274,6 +284,10 @@ class Visit extends Factory {
     const data = this.validate();
     if (!data) return;
     const visit = fetchApi("/visit/create_visit", "POST", data);
+    if (!visit) {
+      niceSwal("error", "bottom-end", "حدث خطأ اثناء اضافة الزيارة");
+      return;
+    }
     patients.push({
       hash: visit.patient_hash,
       name: data.name,
@@ -292,6 +306,10 @@ class Visit extends Factory {
       ...data,
       hash: hash,
     });
+    if (!visit) {
+      niceSwal("error", "bottom-end", "حدث خطأ اثناء تعديل الزيارة");
+      return;
+    }
     this.dataTable.ajax.reload();
     this.resetForm();
     const newPatientElement = document.querySelector(

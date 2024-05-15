@@ -432,7 +432,6 @@ class LocalApi extends CI_Controller
         if (curl_errno($ch)) {
             echo 'Error: ' . curl_error($ch);
         }
-
         curl_close($ch);
         if ($response == "" || $response == null || $response == "null") {
             echo json_encode(
