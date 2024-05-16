@@ -31,10 +31,12 @@ class TubeModel extends CI_Model
     {
         $searchText = $params['search']['value'];
         return $this->db
+            ->select("tube.id")
             ->where('tube.isdeleted', 0)
             ->join('tube_test', 'tube_test.tube_id = tube.id', 'left')
             ->join('lab_test', 'lab_test.hash = tube_test.test_id', 'left')
             ->like("name", $searchText)
+            ->group_by('tube.name,tube.id')
             ->count_all_results($this->table);
     }
 
@@ -50,6 +52,7 @@ class TubeModel extends CI_Model
             ->where('tube.isdeleted', 0)
             ->join('tube_test', 'tube_test.tube_id = tube.id', 'left')
             ->join('lab_test', 'lab_test.hash = tube_test.test_id', 'left')
+            ->where('lab_test.lab_hash is null')
             ->like("tube.name", $searchText)
             ->group_by('tube.id')
             ->order_by('tube.id', 'asc')
@@ -72,6 +75,7 @@ class TubeModel extends CI_Model
             ->join('tube_test', 'tube_test.tube_id = tube.id', 'left')
             ->join('lab_test', 'lab_test.hash = tube_test.test_id', 'left')
             ->where('tube.isdeleted', 0)
+            ->where('lab_test.lab_hash is null')
             ->where("tube.id", $id)
             ->get($this->table)
             ->row();

@@ -512,10 +512,10 @@ function createBarcode() {
     return `
     <div class="h6 barcode-page">
         <div class="text-center">${title} / ${name}</div>
-        <div class="row justify-content-between px-4 border-bottom pb-1 mb-1 border-3">
+        <!--<div class="row justify-content-between px-4 border-bottom pb-1 mb-1 border-3">
           <span>${date}</span>
           <span>${age} Years / ${gender === "ذكر" ? "male" : "female"} </span>
-        </div>
+        </div>-->
         <div class="text-right px-2">${tube.tests}</div>
         <svg class="visit-barcode-svg"></svg>
         <div class="text-left px-2">${tube.name}</div>
