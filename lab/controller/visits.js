@@ -498,7 +498,7 @@ function createBarcode() {
       </style>
     `;
   };
-  const { /*tubes,*/ name, age, date, gender } = VISIT;
+  const { tubes, name, age, date, gender } = VISIT;
 
   const createItem = (tube, name, age, gender) => {
     const title =
@@ -522,16 +522,6 @@ function createBarcode() {
     </div>
   `;
   };
-  const tubes = [
-    {
-      id: "1",
-      name: "Vitamins",
-      test_ids: "47,48",
-      tests: "Vitamin D,Vitamin-B12",
-    },
-  ];
-  console.log(tubes);
-
   return `
   <div class="d-none d-print-block" id="visit-barcode">
     ${createStyle(barcode_width, barcode_height)}
