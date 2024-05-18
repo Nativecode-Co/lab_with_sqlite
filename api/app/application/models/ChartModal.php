@@ -74,7 +74,7 @@ class ChartModal extends CI_Model
                 break;
             default:
                 // case 'day':
-                $select = "HOUR(insert_record_date) AS date";
+                $select = "HOUR(lab_visits.insert_record_date) AS date";
                 $groupByClause = "HOUR(insert_record_date)";
                 $start = date('Y-m-d 00:00:00');
                 $end = date('Y-m-d 23:59:59');
