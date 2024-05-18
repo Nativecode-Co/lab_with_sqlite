@@ -42,6 +42,7 @@ class MainTestsModel extends CI_Model
             // order by id
             ->order_by("lab_test.id", "desc")
             ->order_by($orderBy, $order)
+
             ->get($this->table, $rowsPerPage, $page * $rowsPerPage)
             ->result();
         // print query 

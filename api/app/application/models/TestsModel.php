@@ -152,12 +152,15 @@ class TestsModel extends CI_Model
             ->where('lab_package.isdeleted', 0)
             ->like('lab_package.name', $searchText)
             ->order_by($orderBy, $order)
+            ->group_by('lab_package.hash')
             ->get($this->table, $rowsPerPage, $page * $rowsPerPage)->result_array();
         $total = $this->db
+            ->select('lab_package.hash as hash')
             ->join('lab_pakage_tests', 'lab_pakage_tests.package_id = lab_package.hash', 'inner')
             ->where('catigory_id', 9)
             ->where('lab_package.isdeleted', 0)
             ->like('lab_package.name', $searchText)
+            ->group_by('lab_package.hash')
             ->count_all_results($this->table);
         return array(
             "recordsTotal" => $total,
