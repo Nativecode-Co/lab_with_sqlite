@@ -11,7 +11,6 @@
     <link rel="icon" type="image/x-icon" href="assets/image/logo2.ico" />
     <link href="assets/css/loader.css" rel="stylesheet" type="text/css" />
     <script src="assets/js/loader.js"></script>
-
     <!-- BEGIN GLOBAL MANDATORY STYLES -->
 
     <link
@@ -33,7 +32,9 @@
     <link rel="stylesheet" href="css/style.css" />
     <!-- END PAGE LEVEL PLUGINS/CUSTOM STYLES -->
     <script src="assets/js/libs/jquery-3.1.1.min.js"></script>
-    <script src="css/style.css"></script>
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/new_style.css" />
+
     <script>
       $(document).ready(function () {
         $(".header-container").load("header/navbar.html");
@@ -74,6 +75,199 @@
           <div class="page-header"></div>
 
           <div class="row layout-spacing">
+            <div class="col-3 mb-5">
+              <div class="shadow-sm bg-white rounded-2 p-3 static static-teal">
+                <div
+                  class="d-flex align-items-center h-100 py-2 justify-content-around"
+                >
+                  <div class="d-flex">
+                    <div class="d-flex align-items-center flex-lg-column">
+                      <div
+                        class="d-flex align-items-center justify-content-center rounded-circle p-2 bg-teal-500-25"
+                      >
+                        <i
+                          class="fal fa-calendar-day text-teal-500 h1 static-icon p-1"
+                        ></i>
+                      </div>
+                      <h1 class="h2 text-black static-text">زيارات اليوم</h1>
+                    </div>
+                  </div>
+                  <div class="d-flex flex-column align-items-end">
+                    <span class="display-1 text-teal-500 static-count day"
+                      >0
+                    </span>
+                    <div
+                      class="border-bottom border-width-5px w-50 text-teal-500 static-border"
+                    ></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-3 mb-5">
+              <div class="shadow-sm bg-white rounded-2 p-3 static static-blue">
+                <div
+                  class="d-flex align-items-center h-100 py-2 justify-content-around"
+                >
+                  <div class="d-flex">
+                    <div class="d-flex align-items-center flex-lg-column">
+                      <div
+                        class="d-flex align-items-center justify-content-center rounded-circle p-2 bg-blue-500-25"
+                      >
+                        <i
+                          class="fal fa-calendar-week text-blue-500 h1 static-icon p-1"
+                        ></i>
+                      </div>
+                      <h1 class="h2 text-black static-text">زيارات الاسبوع</h1>
+                    </div>
+                  </div>
+                  <div class="d-flex flex-column align-items-end">
+                    <span class="display-1 text-blue-500 static-count week"
+                      >0
+                    </span>
+                    <div
+                      class="border-bottom border-width-5px w-50 text-blue-500 static-border"
+                    ></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-3 mb-5">
+              <div
+                class="shadow-sm bg-white rounded-2 p-3 static static-orange"
+              >
+                <div
+                  class="d-flex align-items-center h-100 py-2 justify-content-around"
+                >
+                  <div class="d-flex">
+                    <div class="d-flex align-items-center flex-lg-column">
+                      <div
+                        class="d-flex align-items-center justify-content-center rounded-circle p-2 bg-orange-500-25"
+                      >
+                        <i
+                          class="fal fa-calendar-check text-orange-500 h1 static-icon p-1"
+                        ></i>
+                      </div>
+                      <h1 class="h2 text-black static-text">زيارات الشهر</h1>
+                    </div>
+                  </div>
+                  <div class="d-flex flex-column align-items-end">
+                    <span class="display-1 text-orange-500 static-count month"
+                      >0
+                    </span>
+                    <div
+                      class="border-bottom border-width-5px w-50 text-orange-500 static-border"
+                    ></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-3 mb-5">
+              <div class="shadow-sm bg-white rounded-2 p-3 static static-green">
+                <div
+                  class="d-flex align-items-center h-100 py-2 justify-content-around"
+                >
+                  <div class="d-flex">
+                    <div class="d-flex align-items-center flex-lg-column">
+                      <div
+                        class="d-flex align-items-center justify-content-center rounded-circle p-2 bg-teal-500-25"
+                      >
+                        <i
+                          class="fal fa-calendar text-teal-500 h1 static-icon"
+                        ></i>
+                      </div>
+                      <h1 class="h2 text-black static-text">زيارات العام</h1>
+                    </div>
+                  </div>
+                  <div class="d-flex flex-column align-items-end">
+                    <span class="display-1 text-teal-500 static-count year"
+                      >0
+                    </span>
+                    <div
+                      class="border-bottom border-width-5px w-50 text-teal-500 static-border"
+                    ></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-4 mb-5">
+              <div class="shadow rounded bg-white h-100 p-4">
+                <div
+                  class="d-flex justify-content-between align-items-center mb-4"
+                >
+                  <h1 class="font-weight-bold">المرضي</h1>
+                  <span class="h3 text-dark">2024-2023</span>
+                </div>
+                <div class="d-flex justify-content-center">
+                  <div
+                    class="d-flex flex-column justify-content-between w-100 gap-y-10"
+                  >
+                    <div
+                      class="d-flex align-items-start justify-content-center"
+                    >
+                      <div class="d-flex flex-column">
+                        <div class="d-flex align-items-center mb-2 gap-5">
+                          <i
+                            class="fal fa-user-plus rounded-lg p-3 text-teal-500 h1 bg-teal-500-25 patient_icon"
+                          ></i>
+                          <span
+                            class="h1 font-weight-bold text-dark mb-0 new_patients"
+                            >8</span
+                          >
+                        </div>
+                        <p class="h2 font-weight-bold text-dark mb-0">
+                          المرضى الجدد
+                        </p>
+                      </div>
+                    </div>
+                    <div
+                      class="d-flex align-items-start justify-content-center"
+                    >
+                      <div class="d-flex flex-column">
+                        <div class="d-flex align-items-center mb-2 gap-5">
+                          <i
+                            class="fal fa-user rounded-lg p-3 text-blue-500 h1 bg-blue-500-25 patient_icon"
+                          ></i>
+                          <span
+                            class="h1 font-weight-bold text-dark mb-0 old_patients"
+                            >8</span
+                          >
+                        </div>
+                        <p class="h2 font-weight-bold text-dark mb-0">
+                          المرضى القدامي
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-4 mb-5">
+              <div class="shadow rounded bg-white h-100 p-4">
+                <div
+                  class="d-flex justify-content-between align-items-center mb-4"
+                >
+                  <h1 class="font-weight-bold">الجنس</h1>
+                  <span class="h3 text-dark">2024-2023</span>
+                </div>
+                <div class="row justify-content-center">
+                  <div id="gender-chart"></div>
+                </div>
+              </div>
+            </div>
+            <div class="col-4 mb-5">
+              <div class="shadow rounded bg-white h-100 p-4">
+                <div
+                  class="d-flex justify-content-between align-items-center mb-4"
+                >
+                  <h1 class="font-weight-bold">الأعمار</h1>
+                  <span class="h3 text-dark">2024-2023</span>
+                </div>
+                <div class="row justify-content-center">
+                  <div id="age-chart"></div>
+                </div>
+              </div>
+            </div>
             <div class="col-lg-12">
               <div class="statbox widget box box-shadow bg-white">
                 <div class="widget-content widget-content-area m-auto">
