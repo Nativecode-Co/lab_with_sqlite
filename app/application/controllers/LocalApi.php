@@ -26,6 +26,27 @@ class LocalApi extends CI_Controller
         header('Access-Control-Allow-Headers: Content-Type, Content-Range, Content-Disposition, Content-Description, Authorization');
         // json response
         header('Content-Type: application/json');
+        if (!$this->db->field_exists('history', 'lab_invoice')) {
+            $this->db->query("ALTER TABLE lab_invoice ADD COLUMN history INTEGER NOT NULL DEFAULT 0;");
+        }
+        if (!$this->db->field_exists('show_name', 'lab_invoice')) {
+            $this->db->query("ALTER TABLE `lab_invoice` ADD COLUMN `show_name` INTEGER NOT NULL DEFAULT 0 ;");
+        }
+        if (!$this->db->field_exists('show_logo', 'lab_invoice')) {
+            $this->db->query("ALTER TABLE `lab_invoice` ADD COLUMN `show_logo` INTEGER NOT NULL DEFAULT 1 ;");
+        }
+        // barcode_width
+        if (!$this->db->field_exists('barcode_width', 'lab_invoice')) {
+            $this->db->query("ALTER TABLE `lab_invoice` ADD COLUMN `barcode_width` INTEGER NOT NULL DEFAULT 80 ;");
+        }
+        // barcode_height
+        if (!$this->db->field_exists('barcode_height', 'lab_invoice')) {
+            $this->db->query("ALTER TABLE `lab_invoice` ADD COLUMN `barcode_height` INTEGER NOT NULL DEFAULT 20 ;");
+        }
+        // barcode first_time
+        if (!$this->db->field_exists('barcode_first_time', 'lab_invoice')) {
+            $this->db->query("ALTER TABLE `lab_invoice` ADD COLUMN `barcode_first_time` INTEGER NOT NULL DEFAULT 0 ;");
+        }
     }
 
     public function getUserCount()
