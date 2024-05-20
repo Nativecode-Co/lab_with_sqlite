@@ -104,7 +104,9 @@ class ChartModal extends CI_Model
         // get count of all in today, this week, this month, this year
 
         $today = date('d');
-        $weekStart = date('Y-m-d', strtotime('saturday this week'));
+        // last saturday not that of this week
+        $weekStart = date('Y-m-d', strtotime('last saturday'));
+
         $query = "
             SELECT 
                 COUNT(*) AS count
@@ -153,7 +155,7 @@ class ChartModal extends CI_Model
             'dayCount' => $today,
             'weekCount' => $week,
             'monthCount' => $month,
-            'yearCount' => $year
+            'yearCount' => $year,
         ];
     }
 

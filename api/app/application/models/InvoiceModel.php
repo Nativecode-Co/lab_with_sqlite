@@ -44,6 +44,26 @@ class InvoiceModel extends CI_Model
 
     public function get()
     {
+        // check if there invoice 
+        $isExit = $this->db->select('count(*) as count')->from($this->table)->limit(1)->get();
+        if ($isExit->row()->count == 0) {
+            $this->db->insert(
+                'lab_invoice',
+                array(
+                    "color" => "#6F8EFC",
+                    "font_color" => "#000000",
+                    "phone_1" => "",
+                    "phone_2" => "",
+                    "address" => "",
+                    "facebook" => "",
+                    "water_mark" => "",
+                    "logo" => "",
+                    "name_in_invoice" => "Name in invoice",
+                    "setting" => json_encode($this->default)
+
+                )
+            );
+        }
         $setting = $this->get_setting();
         $invoice = $this->db->select('color,history, phone_1,show_name,show_logo, footer, invoice_about_en')
             ->select(" phone_2 as size, address, facebook, header, center")
@@ -73,7 +93,7 @@ class InvoiceModel extends CI_Model
             ->select('setting')
             ->get($this->table)
             ->row();
-        if (isset ($setting->setting)) {
+        if (isset($setting->setting)) {
             $setting = json_decode($setting->setting, true);
             if (is_array($setting)) {
                 $default = array_merge($default, $setting);
@@ -95,7 +115,7 @@ class InvoiceModel extends CI_Model
             ->select('setting')
             ->get($this->table)
             ->row();
-        if (isset ($old->setting) && $old->setting != "null" && $old->setting != "") {
+        if (isset($old->setting) && $old->setting != "null" && $old->setting != "") {
             $old = json_decode($old->setting, true);
             $setting = array_merge($old, $setting);
         }
@@ -104,5 +124,4 @@ class InvoiceModel extends CI_Model
             ->set('setting', json_encode($setting))
             ->update($this->table);
     }
-
 }
