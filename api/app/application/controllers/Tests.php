@@ -9,6 +9,8 @@ class Tests extends CI_Controller
         parent::__construct();
         $this->load->model('TestsModel');
         $this->load->model('MainTestsModel');
+        $this->load->model('VisitModel');
+
         $this->load->library('form_validation');
     }
 
@@ -46,9 +48,7 @@ class Tests extends CI_Controller
     function create_test()
     {
         $req = $this->input->post();
-        $valid = $this->form_validation->
-            set_data($req)->
-            run('package');
+        $valid = $this->form_validation->set_data($req)->run('package');
         if (!$valid) {
             $errors = $this->form_validation->error_array();
             $this->output
@@ -56,14 +56,13 @@ class Tests extends CI_Controller
                 ->set_content_type('application/json')
                 ->set_output(json_encode($errors));
             return;
-        }
-        ;
+        };
         $category_hash = isset($req['category_hash']) ? $req['category_hash'] : null;
         $test_hash = isset($req['test_hash']) ? $req['test_hash'] : null;
         unset($req['category_hash']);
         unset($req['test_hash']);
         $this->MainTestsModel->update($test_hash, array("category_hash" => $category_hash));
-        
+
         $tests = $req['tests'];
         $tests = json_decode($tests, true);
         unset($req['tests']);
@@ -78,19 +77,16 @@ class Tests extends CI_Controller
     {
         $req = $this->input->post();
         $this->form_validation->set_data($req);
-        
-        $valid = $this->form_validation->
-            set_data($req)->
-            set_rules(
-                'hash',
-                'hash',
-                'required|numeric',
-                array(
-                    'required' => 'هذا الحقل مطلوب',
-                    'numeric' => 'يجب ادخال قيمة رقمية'
-                )
-            )->
-            run('package');
+
+        $valid = $this->form_validation->set_data($req)->set_rules(
+            'hash',
+            'hash',
+            'required|numeric',
+            array(
+                'required' => 'هذا الحقل مطلوب',
+                'numeric' => 'يجب ادخال قيمة رقمية'
+            )
+        )->run('package');
         if (!$valid) {
             $errors = $this->form_validation->error_array();
             $this->output
@@ -112,7 +108,7 @@ class Tests extends CI_Controller
         unset($req['tests']);
 
         $data = $this->TestsModel->update($hash, $req, $tests);
-        
+
         $this->output
             ->set_status_header(200)
             ->set_content_type('application/json')
@@ -180,31 +176,31 @@ class Tests extends CI_Controller
     {
         $data = $this->input->post();
         $this->form_validation
-        ->set_data($data)
-        ->set_rules(
-            'alias',
-            'alias',
-            'required',
-            array(
-                'required' => 'الاختصار مطلوب',
+            ->set_data($data)
+            ->set_rules(
+                'alias',
+                'alias',
+                'required',
+                array(
+                    'required' => 'الاختصار مطلوب',
+                )
             )
-        )
-        ->set_rules(
-            'result',
-            'result',
-            'required',
-            array(
-                'required' => 'النتيجة مطلوبة',
+            ->set_rules(
+                'result',
+                'result',
+                'required',
+                array(
+                    'required' => 'النتيجة مطلوبة',
+                )
             )
-        )
-        ->set_rules(
-            'visit_id',
-            'visit_id',
-            'required',
-            array(
-                'required' => 'id الزيارة مطلوب',
-            )
-        );
+            ->set_rules(
+                'visit_id',
+                'visit_id',
+                'required',
+                array(
+                    'required' => 'id الزيارة مطلوب',
+                )
+            );
         $valid = $this->form_validation->run();
         if (!$valid) {
             $errors = $this->form_validation->error_array();
@@ -220,7 +216,17 @@ class Tests extends CI_Controller
             // delete < , > or = from result
             $result = str_replace(array('<', '>', '='), '', $result);
         }
+        // check if visit_id is exist
         $visit_id = $this->input->post("visit_id");
+        $visit =  $this->VisitModel->get_visit($data['visit_id']);
+        if (!isset($visit["id"])) {
+            $this->output
+                ->set_status_header(400)
+                ->set_content_type('application/json')
+                ->set_output(json_encode(array("message" => "id الزيارة غير موجود")));
+            return;
+        }
+
         $data = $this->TestsModel->set_result_by_alias($alias, $visit_id, $result);
         $this->output
             ->set_status_header(200)
@@ -230,5 +236,4 @@ class Tests extends CI_Controller
                 "data" => $data
             )));
     }
-
 }
