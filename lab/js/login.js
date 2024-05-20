@@ -246,10 +246,12 @@ document.addEventListener("DOMContentLoaded", () => {
     // disable username and password input
     document.getElementById("username").disabled = true;
     document.getElementById("password").disabled = true;
-    // add alert screen
-    const body = document.getElementsByTagName("body")[0];
-    body.insertAdjacentHTML("beforeend", waitLoginElement);
     // update the system
-    updateLoginSystem();
+    updateSystem().then(() => {
+      document.getElementById("alert_screen").remove();
+      // enable username and password input
+      document.getElementById("username").disabled = false;
+      document.getElementById("password").disabled = false;
+    });
   }
 });
