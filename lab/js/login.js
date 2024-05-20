@@ -118,9 +118,7 @@ const waitLoginElement = `<div id="alert_screen" class="alert_screen">
 </div>
 </div>`;
 async function updateLoginSystem() {
-  await fetch(`${base_url}pull/pull`).then(async (response) => {
-    reloadScripts();
-  });
+  await fetch(`${base_url}pull/pull`);
 }
 
 const login = async () => {
@@ -240,14 +238,36 @@ function addAlert(message) {
 // dom ready pure js
 document.addEventListener("DOMContentLoaded", () => {
   const needUpdate = fetchData("pull/needUpdate");
-  const hasUsers = fetchApi("/users/system_has_any_user");
-  if (Boolean(needUpdate) === true || Boolean(hasUsers) === false) {
+  // const hasUsers = fetchApi("/users/system_has_any_user");
+  if (Boolean(needUpdate) === true) {
     console.log("need update");
     // disable username and password input
     document.getElementById("username").disabled = true;
     document.getElementById("password").disabled = true;
+    // show alert screen
+    const body = document.getElementsByTagName("body")[0];
+    body.insertAdjacentHTML(
+      "beforeend",
+      `
+        <div id="alert_screen" class="alert_screen">
+            <div class="loader">
+                <div class="loader-content">
+                    <div class="card" style="width: 40rem; height: 20rem;">
+                        <div class="card-body text-center">
+                            <h1 class="card-title
+                            ">الرجاء الانتظار </h1>
+                            <h4>يتم الان تحديث النظام الي اخر اصدار</h4>
+                            <img class="spinner-grow-alert" src="${front_url}assets/image/flask.png" width="100" height="100" alt="alert_screen">
+                            <div class="w-100 mt-5"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+   `
+    );
     // update the system
-    updateSystem().then(() => {
+    updateLoginSystem().then(() => {
       document.getElementById("alert_screen").remove();
       // enable username and password input
       document.getElementById("username").disabled = false;
