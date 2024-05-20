@@ -13,7 +13,7 @@ async function offlineLogin() {
     dataType: "JSON",
     data: { username: username, password: password },
     success: async (result) => {
-      if (result.result == "0") {
+      if (Number(result.result) === 0) {
         document.getElementById("message").innerHTML =
           "يرجى التاكد من اسم الحساب او الرمز السري";
         document.getElementById("alert_screen").remove();
@@ -28,8 +28,8 @@ async function offlineLogin() {
         await updateExpireDate();
         const user_type = result.user_type;
         if (
-          result.lab_id == 0 ||
-          result.lab_id == null ||
+          Number(result.lab_id) === 0 ||
+          result.lab_id === null ||
           result.lab_id === undefined
         ) {
           document.getElementById("message").innerHTML =
@@ -52,13 +52,13 @@ async function offlineLogin() {
 
 const runQueries = async (username, password, type) => {
   const message = document.getElementById("message");
-  let dataForm = new FormData();
+  const dataForm = new FormData();
   dataForm.append("username", username);
   dataForm.append("password", password);
   dataForm.append("type", type);
 
-  let res = await fetch(
-    `http://umc.native-code-iq.com/app/index.php/Offline/login`,
+  const res = await fetch(
+    "http://umc.native-code-iq.com/app/index.php/Offline/login",
     {
       method: "POST",
       body: dataForm,
@@ -71,15 +71,15 @@ const runQueries = async (username, password, type) => {
       return;
     });
 
-  if (res.status == false) {
+  if (Boolean(res.status) === false) {
     message.innerHTML = "يرجى التاكد من اسم الحساب او الرمز السري";
     document.getElementById("alert_screen").remove();
     return;
   }
-  if (type == "user") {
-    let { data } = res;
-    let form = new FormData();
-    for (let key in data) {
+  if (String(type) === "user") {
+    const { data } = res;
+    const form = new FormData();
+    for (const key in data) {
       form.append(key, data[key]);
     }
     return { data, form };
@@ -88,8 +88,8 @@ const runQueries = async (username, password, type) => {
 
   try {
     let { queries } = res;
-    queries = queries.filter((query) => query != null && query != "");
-    let queriesForm = new FormData();
+    queries = queries.filter((query) => query !== null && query !== "");
+    const queriesForm = new FormData();
     queriesForm.append("queries", JSON.stringify(queries));
     await fetch(`${base_url}LocalApi/run_queries`, {
       method: "POST",
@@ -125,19 +125,19 @@ async function updateLoginSystem() {
 
 const login = async () => {
   const message = document.getElementById("message");
-  let username = $("#username").val();
-  let password = $("#password").val();
-  let dataForm = new FormData();
+  const username = $("#username").val();
+  const password = $("#password").val();
+  const dataForm = new FormData();
   dataForm.append("username", username);
   dataForm.append("password", password);
   // This code fetches a user count from the api
-  let userCount = await fetch(`${base_url}LocalApi/getUserCount`, {
+  const userCount = await fetch(`${base_url}LocalApi/getUserCount`, {
     method: "POST",
     body: dataForm,
   })
     .then((res) => res.json())
     .then((res) => {
-      if (res.status == false) {
+      if (Boolean(res.status) === false) {
         message.innerHTML = "هناك مشكلة في الاتصال بقاعدة البيانات";
         document.getElementById("alert_screen").remove();
         return 100;
@@ -150,9 +150,10 @@ const login = async () => {
       return 100;
     });
 
-  if (userCount == 100) {
+  if (Number(userCount) === 100) {
     return;
-  } else if (userCount == 0) {
+  }
+  if (Number(userCount) === 0) {
     const body = document.getElementsByTagName("body")[0];
     body.insertAdjacentHTML("beforeend", waitLoginElement);
     await clean_db();
@@ -163,7 +164,7 @@ const login = async () => {
       document.getElementById("alert_screen").remove();
       return;
     }
-    let types = [
+    const types = [
       "doctors",
       "patients",
       "package_tests",
@@ -175,22 +176,24 @@ const login = async () => {
       "invoice",
       "lab",
     ];
-    for (let type of types) {
+    for (const type of types) {
       await runQueries(username, password, type);
     }
     addAlert("تم اكمال 40 % من عملية تنزيل البيانات");
-    let { form, data } = await runQueries(username, password, "user");
-
+    const { form, data } = await runQueries(username, password, "user");
+    fetchDataOnline("offline/insertTestsForLab", "post", {
+      lab_id: data.lab_id,
+    });
     await fetch(`${base_url}LocalApi/addUser`, {
       method: "POST",
       body: form,
     })
       .then((res) => res.json())
-      .then((res) => {
+      .then(() => {
         addAlert("تم اكمال 60 % من عملية تنزيل البيانات");
       });
 
-    let labIdForm = new FormData();
+    const labIdForm = new FormData();
     labIdForm.append("lab_id", data.lab_id);
 
     installTests(data.lab_id);
@@ -223,7 +226,7 @@ const installAlias = async () => {
 };
 
 function addAlert(message) {
-  let alertScreenBody = document
+  const alertScreenBody = document
     .getElementById("alert_screen")
     .getElementsByClassName("card-body")[0];
   alertScreenBody.innerHTML += `

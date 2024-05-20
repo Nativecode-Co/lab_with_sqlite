@@ -688,4 +688,51 @@ class Offline extends CI_Controller
                 )
             );
     }
+
+    public function insertTestsForLab()
+    {
+        $lab_id = $this->input->post('lab_id');
+        // check if lab already has tests
+        $count = $this->db->query("select count(*) as count from lab_test where lab_hash='$lab_id';")->row()->count;
+
+        if ($count > 0) {
+            $this
+                ->output
+                ->set_status_header(200)
+                ->set_content_type('application/json')
+                ->set_output(
+                    json_encode(
+                        array(
+                            'message' => 'Lab Has ' . $count . ' Tests',
+                        )
+                    )
+                );
+            return;
+        }
+        $tests = $this->db->query("select * from lab_test where lab_hash is null;")->result_array();
+        $tests = array_map(function ($test) use ($lab_id) {
+            // delete id
+            unset($test['id']);
+            $test['lab_hash'] = $lab_id;
+            $test['insert_record_date'] = date('Y-m-d H:i:s');
+            $test['isdeleted'] = 0;
+            $option_test = $test['option_test'];
+            $test['option_test'] = json_decode(json_encode($option_test), true);
+
+            return $test;
+        }, $tests);
+        $result = $this->db->insert_batch('lab_test', $tests);
+        $this
+            ->output
+            ->set_status_header(200)
+            ->set_content_type('application/json')
+            ->set_output(
+                json_encode(
+                    array(
+                        'message' => 'Tests inserted',
+                        'result' => $result
+                    )
+                )
+            );
+    }
 }
