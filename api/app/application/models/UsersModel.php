@@ -100,4 +100,12 @@ class UsersModel extends CI_Model
             ->get('system_group_name')
             ->result();
     }
+
+    public function system_has_any_user()
+    {
+        $count =  $this->db
+            ->where('is_deleted', 0)
+            ->count_all_results($this->table);
+        return $count > 0;
+    }
 }

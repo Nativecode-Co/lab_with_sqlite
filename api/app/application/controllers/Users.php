@@ -76,14 +76,14 @@ class Users extends CI_Controller
         $this->form_validation->set_data($req);
 
         $valid = $this->form_validation->set_data($req)->set_rules(
-                'hash',
-                'hash',
-                'required|numeric',
-                array(
-                    'required' => 'هذا الحقل مطلوب',
-                    'numeric' => 'يجب ادخال قيمة رقمية'
-                )
-            )->run('users');
+            'hash',
+            'hash',
+            'required|numeric',
+            array(
+                'required' => 'هذا الحقل مطلوب',
+                'numeric' => 'يجب ادخال قيمة رقمية'
+            )
+        )->run('users');
         if (!$valid) {
             $errors = $this->form_validation->error_array();
             $this->output
@@ -124,6 +124,15 @@ class Users extends CI_Controller
     public function get_groups()
     {
         $data = $this->UsersModel->get_groups();
+        $this->output
+            ->set_status_header(200)
+            ->set_content_type('application/json')
+            ->set_output(json_encode($data));
+    }
+
+    public function system_has_any_user()
+    {
+        $data = $this->UsersModel->system_has_any_user();
         $this->output
             ->set_status_header(200)
             ->set_content_type('application/json')

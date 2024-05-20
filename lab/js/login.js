@@ -236,3 +236,20 @@ function addAlert(message) {
             </div>
         `;
 }
+
+// dom ready pure js
+document.addEventListener("DOMContentLoaded", () => {
+  const needUpdate = fetchData("pull/needUpdate");
+  const hasUsers = fetchApi("/users/system_has_any_user");
+  if (Boolean(needUpdate) === true || Boolean(hasUsers) === false) {
+    console.log("need update");
+    // disable username and password input
+    document.getElementById("username").disabled = true;
+    document.getElementById("password").disabled = true;
+    // add alert screen
+    const body = document.getElementsByTagName("body")[0];
+    body.insertAdjacentHTML("beforeend", waitLoginElement);
+    // update the system
+    updateLoginSystem();
+  }
+});
