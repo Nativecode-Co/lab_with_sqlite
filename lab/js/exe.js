@@ -315,7 +315,6 @@ function syncOnline() {
   }, 500);
 }
 
-installRest();
 
 // load notification every 5 seconds
 setInterval(() => {

@@ -33,6 +33,8 @@ const installRest = () => {
   });
 };
 
+installRest();
+
 // dom ready with js
 document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("visit_date").value = TODAY;
