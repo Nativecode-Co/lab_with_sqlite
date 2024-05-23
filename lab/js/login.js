@@ -125,92 +125,128 @@ const login = async () => {
   const message = document.getElementById("message");
   const username = $("#username").val();
   const password = $("#password").val();
-  const dataForm = new FormData();
-  dataForm.append("username", username);
-  dataForm.append("password", password);
-  // This code fetches a user count from the api
-  const userCount = await fetch(`${base_url}LocalApi/getUserCount`, {
-    method: "POST",
-    body: dataForm,
-  })
-    .then((res) => res.json())
-    .then((res) => {
-      if (Boolean(res.status) === false) {
-        message.innerHTML = "هناك مشكلة في الاتصال بقاعدة البيانات";
-        document.getElementById("alert_screen").remove();
-        return 100;
-      }
-      return res.data;
-    })
-    .catch((e) => {
-      message.innerHTML = "الرجاء تشغيل البرنامج الموجود على سطح المكتب";
-      document.getElementById("alert_screen").remove();
-      return 100;
-    });
 
-  if (Number(userCount) === 100) {
+  const { data: userCount, status } = fetchData("LocalApi/getUserCount");
+  // if not integer
+
+  if (Boolean(status) === false) {
+    message.innerHTML = "هناك مشكلة في الاتصال بقاعدة البيانات";
+    document.getElementById("alert_screen").remove();
     return;
   }
   if (Number(userCount) === 0) {
     const body = document.getElementsByTagName("body")[0];
     body.insertAdjacentHTML("beforeend", waitLoginElement);
     await clean_db();
-    addAlert("تم اكمال 20 % من عملية تنزيل البيانات");
-    // Check if the user is online
-    if (!navigator.onLine) {
-      message.innerHTML = "الرجاء التاكد من الاتصال بالانترنت";
+    const data = fetchApi("/data/insert_lab_data", "post", {
+      username,
+      password,
+    });
+    // if not data
+    if (Boolean(data) === false) {
+      message.innerHTML = "اسم المستخدم او كلمة المرور غير صحيحة";
       document.getElementById("alert_screen").remove();
       return;
     }
-    const types = [
-      "doctors",
-      "patients",
-      "package_tests",
-      "packages",
-      "visits",
-      "visits_packages",
-      "visits_tests",
-      "workers",
-      "invoice",
-      "lab",
-    ];
-    for (const type of types) {
-      await runQueries(username, password, type);
-    }
-    addAlert("تم اكمال 40 % من عملية تنزيل البيانات");
-    const { form, data } = await runQueries(username, password, "user");
-    fetchDataOnline("offline/insertTestsForLab", "post", {
-      lab_id: data.lab_id,
-    });
-    await fetch(`${base_url}LocalApi/addUser`, {
-      method: "POST",
-      body: form,
-    })
-      .then((res) => res.json())
-      .then(() => {
-        addAlert("تم اكمال 60 % من عملية تنزيل البيانات");
-      });
-
-    const labIdForm = new FormData();
-    labIdForm.append("lab_id", data.lab_id);
-
-    installTests(data.lab_id);
-
-    await fetch(`${base_url}LocalApi/downloadImage`, {
-      method: "POST",
-      body: labIdForm,
-    });
     fetchData("localApi/createAfterInsertTrigger");
-    await installAlias();
-    addAlert("تم اكمال 80 % من عملية تنزيل البيانات");
-    offlineLogin().then(() => {
-      addAlert("تم اكمال 100 % من عملية تنزيل البيانات");
-      addAlert("جاري تسجيل الدخول");
-    });
+    const lab_id = fetchApi("/users/get_lab_id");
+    fetchData("LocalApi/downloadImage", "POST", { lab_id: lab_id });
+    offlineLogin();
   } else {
-    await offlineLogin();
+    offlineLogin();
   }
 };
+
+// const login = async () => {
+//   const message = document.getElementById("message");
+//   const username = $("#username").val();
+//   const password = $("#password").val();
+//   const dataForm = new FormData();
+//   dataForm.append("username", username);
+//   dataForm.append("password", password);
+//   // This code fetches a user count from the api
+//   const userCount = await fetch(`${base_url}LocalApi/getUserCount`, {
+//     method: "POST",
+//     body: dataForm,
+//   })
+//     .then((res) => res.json())
+//     .then((res) => {
+//       if (Boolean(res.status) === false) {
+//         message.innerHTML = "هناك مشكلة في الاتصال بقاعدة البيانات";
+//         document.getElementById("alert_screen").remove();
+//         return 100;
+//       }
+//       return res.data;
+//     })
+//     .catch((e) => {
+//       message.innerHTML = "الرجاء تشغيل البرنامج الموجود على سطح المكتب";
+//       document.getElementById("alert_screen").remove();
+//       return 100;
+//     });
+
+//   if (Number(userCount) === 100) {
+//     return;
+//   }
+//   if (Number(userCount) === 0) {
+//     const body = document.getElementsByTagName("body")[0];
+//     body.insertAdjacentHTML("beforeend", waitLoginElement);
+//     await clean_db();
+//     addAlert("تم اكمال 20 % من عملية تنزيل البيانات");
+//     // Check if the user is online
+//     if (!navigator.onLine) {
+//       message.innerHTML = "الرجاء التاكد من الاتصال بالانترنت";
+//       document.getElementById("alert_screen").remove();
+//       return;
+//     }
+//     const types = [
+//       "doctors",
+//       "patients",
+//       "package_tests",
+//       "packages",
+//       "visits",
+//       "visits_packages",
+//       "visits_tests",
+//       "workers",
+//       "invoice",
+//       "lab",
+//     ];
+//     for (const type of types) {
+//       await runQueries(username, password, type);
+//     }
+//     addAlert("تم اكمال 40 % من عملية تنزيل البيانات");
+//     const { form, data } = await runQueries(username, password, "user");
+//     fetchDataOnline("offline/insertTestsForLab", "post", {
+//       lab_id: data.lab_id,
+//     });
+//     await fetch(`${base_url}LocalApi/addUser`, {
+//       method: "POST",
+//       body: form,
+//     })
+//       .then((res) => res.json())
+//       .then(() => {
+//         addAlert("تم اكمال 60 % من عملية تنزيل البيانات");
+//       });
+
+//     const labIdForm = new FormData();
+//     labIdForm.append("lab_id", data.lab_id);
+
+//     installTests(data.lab_id);
+
+//     await fetch(`${base_url}LocalApi/downloadImage`, {
+//       method: "POST",
+//       body: labIdForm,
+//     });
+//     fetchData("localApi/createAfterInsertTrigger");
+//     await installAlias();
+//     addAlert("تم اكمال 80 % من عملية تنزيل البيانات");
+//     offlineLogin().then(() => {
+//       addAlert("تم اكمال 100 % من عملية تنزيل البيانات");
+//       addAlert("جاري تسجيل الدخول");
+//     });
+//   } else {
+//     await offlineLogin();
+//   }
+// };
 
 const installTests = async (lab_id) => {
   fetchData("LocalApi/installTestsOrDefaults", "POST", {
@@ -236,42 +272,42 @@ function addAlert(message) {
 }
 
 // dom ready pure js
-document.addEventListener("DOMContentLoaded", () => {
-  const needUpdate = fetchData("pull/needUpdate");
-  // const hasUsers = fetchApi("/users/system_has_any_user");
-  if (Boolean(needUpdate) === true) {
-    console.log("need update");
-    // disable username and password input
-    document.getElementById("username").disabled = true;
-    document.getElementById("password").disabled = true;
-    // show alert screen
-    //   const body = document.getElementsByTagName("body")[0];
-    //   body.insertAdjacentHTML(
-    //     "beforeend",
-    //     `
-    //       <div id="alert_screen" class="alert_screen">
-    //           <div class="loader">
-    //               <div class="loader-content">
-    //                   <div class="card" style="width: 40rem; height: 20rem;">
-    //                       <div class="card-body text-center">
-    //                           <h1 class="card-title
-    //                           ">الرجاء الانتظار </h1>
-    //                           <h4>يتم الان تحديث النظام الي اخر اصدار</h4>
-    //                           <img class="spinner-grow-alert" src="${front_url}assets/image/flask.png" width="100" height="100" alt="alert_screen">
-    //                           <div class="w-100 mt-5"></div>
-    //                       </div>
-    //                   </div>
-    //               </div>
-    //           </div>
-    //       </div>
-    //  `
-    //   );
-    // update the system
-    updateSystem().then(() => {
-      document.getElementById("alert_screen").remove();
-      // enable username and password input
-      document.getElementById("username").disabled = false;
-      document.getElementById("password").disabled = false;
-    });
-  }
-});
+// document.addEventListener("DOMContentLoaded", () => {
+//   const needUpdate = fetchData("pull/needUpdate");
+//   // const hasUsers = fetchApi("/users/system_has_any_user");
+//   if (Boolean(needUpdate) === true) {
+//     console.log("need update");
+//     // disable username and password input
+//     document.getElementById("username").disabled = true;
+//     document.getElementById("password").disabled = true;
+//     // show alert screen
+//     //   const body = document.getElementsByTagName("body")[0];
+//     //   body.insertAdjacentHTML(
+//     //     "beforeend",
+//     //     `
+//     //       <div id="alert_screen" class="alert_screen">
+//     //           <div class="loader">
+//     //               <div class="loader-content">
+//     //                   <div class="card" style="width: 40rem; height: 20rem;">
+//     //                       <div class="card-body text-center">
+//     //                           <h1 class="card-title
+//     //                           ">الرجاء الانتظار </h1>
+//     //                           <h4>يتم الان تحديث النظام الي اخر اصدار</h4>
+//     //                           <img class="spinner-grow-alert" src="${front_url}assets/image/flask.png" width="100" height="100" alt="alert_screen">
+//     //                           <div class="w-100 mt-5"></div>
+//     //                       </div>
+//     //                   </div>
+//     //               </div>
+//     //           </div>
+//     //       </div>
+//     //  `
+//     //   );
+//     // update the system
+//     updateSystem().then(() => {
+//       document.getElementById("alert_screen").remove();
+//       // enable username and password input
+//       document.getElementById("username").disabled = false;
+//       document.getElementById("password").disabled = false;
+//     });
+//   }
+// });

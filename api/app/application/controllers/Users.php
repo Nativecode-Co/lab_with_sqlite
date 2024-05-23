@@ -130,6 +130,15 @@ class Users extends CI_Controller
             ->set_output(json_encode($data));
     }
 
+    public function get_lab_id()
+    {
+        $data = $this->UsersModel->get_lab_id();
+        $this->output
+            ->set_status_header(200)
+            ->set_content_type('application/json')
+            ->set_output(json_encode($data));
+    }
+
     public function system_has_any_user()
     {
         $data = $this->UsersModel->system_has_any_user();

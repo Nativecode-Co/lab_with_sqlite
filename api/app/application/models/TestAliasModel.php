@@ -146,4 +146,9 @@ class TestAliasModel extends CI_Model
             return $id->id;
         }, $ids);
     }
+
+    public function insert_batch($data)
+    {
+        $this->db->insert_batch($this->table, $data);
+    }
 }

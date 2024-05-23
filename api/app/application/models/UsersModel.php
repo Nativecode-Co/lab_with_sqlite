@@ -108,4 +108,22 @@ class UsersModel extends CI_Model
             ->count_all_results($this->table);
         return $count > 0;
     }
+
+    public function get_lab_id()
+    {
+        $id =  $this->db
+            ->select('id')
+            ->get("lab")
+            ->row();
+
+        if ($id) {
+            return $id->id;
+        }
+        return null;
+    }
+
+    public function insert_batch($data)
+    {
+        $this->db->insert_batch($this->table, $data);
+    }
 }

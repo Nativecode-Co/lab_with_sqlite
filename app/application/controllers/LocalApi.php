@@ -506,6 +506,8 @@ class LocalApi extends CI_Controller
     {
         $this->db->query("call lab_clean()");
         $this->deleteAfterInsertTrigger();
+        $this->db->query("TRUNCATE lab;");
+        $this->db->query("TRUNCATE lab_test;");
         // DELETE FROM lab_doctor;
         // DELETE FROM lab_patient;
         // DELETE FROM lab_visits;

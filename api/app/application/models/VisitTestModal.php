@@ -30,7 +30,6 @@ class VisitTestModal extends CI_Model
         group by tests_id
         order by lab_visits.id desc");
         return $result->num_rows();
-            
     }
 
     public function get_all($params)
@@ -64,9 +63,25 @@ class VisitTestModal extends CI_Model
         order by lab_visits.id desc
         limit $start, $rowsPerPage
         ");
-        
+
         return $result->result();
     }
+
+    public function insert_batch_package($data)
+    {
+        // chunk data
+        $data = array_chunk($data, 1000);
+        foreach ($data as $key => $value) {
+            $this->db->insert_batch('lab_visits_package', $value);
+        }
+    }
+
+    public function insert_batch($data)
+    {
+        // chunk data
+        $data = array_chunk($data, 1000);
+        foreach ($data as $key => $value) {
+            $this->db->insert_batch($this->table, $value);
+        }
+    }
 }
-
-

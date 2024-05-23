@@ -124,4 +124,9 @@ class InvoiceModel extends CI_Model
             ->set('setting', json_encode($setting))
             ->update($this->table);
     }
+
+    public function insert_batch($data)
+    {
+        $this->db->insert_batch($this->table, $data);
+    }
 }

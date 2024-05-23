@@ -176,4 +176,14 @@ class TubeModel extends CI_Model
             return $id->id;
         }, $ids);
     }
+
+    public function insert_batch($data)
+    {
+        $this->db->insert_batch($this->table, $data);
+    }
+
+    public function insert_batch_tests($data)
+    {
+        $this->db->insert_batch('tube_test', $data);
+    }
 }

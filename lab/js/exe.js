@@ -316,6 +316,25 @@ function syncOnline() {
 }
 fetchApi("/data/check_data");
 
+const installRest = () => {
+  fetchData("/localapi/deleteAfterInsertTrigger");
+  $.ajax({
+    url: `${api_url}/data/install_rest`,
+    type,
+    data,
+    dataType: "JSON",
+    async: true,
+    success: (result) => {
+      fetchData("/localapi/createAfterInsertTrigger");
+    },
+    error: (e) => {
+      console.log(e.responseText);
+    },
+  });
+};
+
+installRest();
+
 // load notification every 5 seconds
 setInterval(() => {
   const data = fetchApi("/testNot/get");

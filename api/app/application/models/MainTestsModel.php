@@ -226,4 +226,14 @@ class MainTestsModel extends CI_Model
             "kits" => $kits
         );
     }
+
+    public function insert_batch($data)
+    {
+        $data = array_map(function ($test) {
+            $option_test = $test['option_test'];
+            $test['option_test'] = json_decode(json_encode($option_test), true);
+            return $test;
+        }, $data);
+        $this->db->insert_batch($this->table, $data);
+    }
 }

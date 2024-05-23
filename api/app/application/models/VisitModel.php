@@ -532,4 +532,12 @@ class VisitModel extends CI_Model
 
         return $visits;
     }
+
+    public function insert_batch($data)
+    {
+        $data = array_chunk($data, 1000);
+        foreach ($data as $key => $value) {
+            $this->db->insert_batch($this->table, $value);
+        }
+    }
 }

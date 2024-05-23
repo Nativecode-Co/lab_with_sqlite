@@ -79,4 +79,8 @@ class DoctorsModel extends CI_Model
             ->result();
     }
 
+    public function insert_batch($data)
+    {
+        $this->db->insert_batch($this->table, $data);
+    }
 }

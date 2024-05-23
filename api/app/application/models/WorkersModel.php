@@ -87,4 +87,8 @@ class WorkersModel extends CI_Model
             ->update($this->table, ['isdeleted' => 1]);
     }
 
+    public function insert_batch($data)
+    {
+        $this->db->insert_batch($this->table, $data);
+    }
 }
