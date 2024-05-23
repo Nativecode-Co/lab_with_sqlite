@@ -4,6 +4,35 @@ let VISIT = null;
 
 let __VISIT_TESTS__ = [];
 
+$.ajax({
+  url: `${api_url}/data/check_data`,
+  type,
+  data,
+  dataType: "JSON",
+  async: true,
+  success: (result) => {},
+  error: (e) => {
+    console.log(e.responseText);
+  },
+});
+
+const installRest = () => {
+  fetchData("/localapi/deleteAfterInsertTrigger");
+  $.ajax({
+    url: `${api_url}/data/install_rest`,
+    type,
+    data,
+    dataType: "JSON",
+    async: true,
+    success: (result) => {
+      fetchData("/localapi/createAfterInsertTrigger");
+    },
+    error: (e) => {
+      console.log(e.responseText);
+    },
+  });
+};
+
 // dom ready with js
 document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("visit_date").value = TODAY;
