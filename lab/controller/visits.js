@@ -6,8 +6,8 @@ let __VISIT_TESTS__ = [];
 
 $.ajax({
   url: `${api_url}/data/check_data`,
-  type,
-  data,
+  type: "GET",
+  data: {},
   dataType: "JSON",
   async: true,
   success: (result) => {},
@@ -20,8 +20,8 @@ const installRest = () => {
   fetchData("/localapi/deleteAfterInsertTrigger");
   $.ajax({
     url: `${api_url}/data/install_rest`,
-    type,
-    data,
+    type: "GET",
+    data: {},
     dataType: "JSON",
     async: true,
     success: (result) => {
