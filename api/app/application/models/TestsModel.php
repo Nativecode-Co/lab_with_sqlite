@@ -97,8 +97,10 @@ class TestsModel extends CI_Model
                 ->row();
             if (isset($test_exit)) {
                 $this->db
-                    ->where('package_id', $package_id)
                     ->where('test_id', $test['test_id'])
+                    ->where('kit_id', $test_exit->kit_id)
+                    ->where('lab_device_id', $test_exit->lab_device_id)
+                    ->where('unit', $test_exit->unit)
                     ->update('lab_pakage_tests', $test);
             } else {
                 $test['package_id'] = $package_id;
