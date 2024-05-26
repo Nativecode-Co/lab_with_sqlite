@@ -37,8 +37,6 @@ async function offlineLogin() {
           document.getElementById("alert_screen").remove();
           return;
         }
-        fetchData("/localapi/deleteAfterInsertTrigger");
-        fetchData("/localapi/createAfterInsertTrigger");
         location.href = `${front_url}index.html`;
       }
     },
@@ -102,21 +100,25 @@ const runQueries = async (username, password, type) => {
   } catch (e) {}
 };
 
-const waitLoginElement = `<div id="alert_screen" class="alert_screen"> 
-<div class="loader">
+const waitLoginElement = `
+<div id="alert_screen" class="alert_screen"> 
+  <div class="loader">
     <div class="loader-content">
-        <div class="card" style="width: 40rem; height: 50rem;">
-            <div class="card-body text-center">
-              <h1 class="card-title">الرجاء الانتظار </h1>
-              <h4>يتم الان تهيئة بيانات النظام</h4>
-              <h4>لتجنب حصول مشكلة الرجاء عدم اغلاق الصفحة</h4>
-              <img class="spinner-grow-alert" src="${front_url}assets/image/flask.png" width="100" height="100" alt="alert_screen">
-              <div class="w-100 mt-5"></div>
-            </div>
+      <div class="card" style="width: 40rem; height: 40rem;">
+        <div class="card-body text-center">
+          <h1 class="card-title">الرجاء الانتظار</h1>
+          <h4>يتم الان تهيئة بيانات النظام</h4>
+          <h4>لتجنب حصول مشكلة الرجاء عدم اغلاق الصفحة</h4>
+          <div class="d-flex justify-content-center align-items-center" style="height: 25rem;">
+            <img class="spinner-grow-alert" src="${front_url}assets/image/flask.png" width="200" height="200" alt="alert_screen">
           </div>
+          <div class="w-100 mt-5"></div>
+        </div>
+      </div>
     </div>
-</div>
+  </div>
 </div>`;
+
 async function updateLoginSystem() {
   await fetch(`${base_url}pull/pull`);
 }
@@ -126,31 +128,44 @@ const login = async () => {
   const username = $("#username").val();
   const password = $("#password").val();
 
-  const { data: userCount, status } = fetchData("LocalApi/getUserCount");
-  // if not integer
+  const { data: userCount, status } = await fetchData("LocalApi/getUserCount");
 
   if (Boolean(status) === false) {
     message.innerHTML = "هناك مشكلة في الاتصال بقاعدة البيانات";
     document.getElementById("alert_screen").remove();
     return;
   }
+
   if (Number(userCount) === 0) {
     const body = document.getElementsByTagName("body")[0];
     body.insertAdjacentHTML("beforeend", waitLoginElement);
-    await clean_db();
-    const data = fetchApi("/data/insert_lab_data", "post", {
-      username,
-      password,
-    });
-    // if not data
-    if (Boolean(data) === false) {
-      message.innerHTML = "اسم المستخدم او كلمة المرور غير صحيحة";
+
+    try {
+      await clean_db();
+
+      const data = await fetchApi("/data/insert_lab_data", "post", {
+        username,
+        password,
+      });
+
+      if (Boolean(data) === false) {
+        message.innerHTML = "اسم المستخدم او كلمة المرور غير صحيحة";
+        document.getElementById("alert_screen").remove();
+        return;
+      }
+
+      await fetchData("localApi/createAfterInsertTrigger");
+
+      const lab_id = await fetchApi("/users/get_lab_id");
+      await fetchData("LocalApi/downloadImage", "POST", { lab_id: lab_id });
+    } catch (error) {
+      message.innerHTML = "حدث خطأ أثناء تحديث النظام";
       document.getElementById("alert_screen").remove();
       return;
     }
-    fetchData("localApi/createAfterInsertTrigger");
-    const lab_id = fetchApi("/users/get_lab_id");
-    fetchData("LocalApi/downloadImage", "POST", { lab_id: lab_id });
+    // Ensure the percentage reaches 100% and wait for 2 seconds
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+
     offlineLogin();
   } else {
     offlineLogin();

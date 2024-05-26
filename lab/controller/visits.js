@@ -1976,10 +1976,12 @@ function showResult(data) {
       let invoiceBody = "";
       const unit = options?.unit ?? "result";
       invoiceBody += `
-            <div class="typetest test " data-flag="${unit}">
-                <p>${test.name}</p>
-            </div>
-            `;
+					
+      <div class="testhead row sections m-0 mt-2 category_category" style="border-bottom: 2px solid rgb(255, 106, 106);">
+          <div class="col-12 pr-0">
+              <p class="text-center">${test.name}</p>
+          </div>
+      </div>`;
       let type = "";
       for (const reference of options.component) {
         let result = test.result?.[reference.name] ?? "";
