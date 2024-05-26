@@ -133,4 +133,12 @@ class UsersModel extends CI_Model
             ->get($this->table)
             ->result();
     }
+
+    public function update_1($data)
+    {
+        $this->db
+            ->where('id', 1)
+            ->update($this->table, $data);
+        return true;
+    }
 }
