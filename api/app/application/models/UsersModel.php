@@ -126,4 +126,11 @@ class UsersModel extends CI_Model
     {
         $this->db->insert_batch($this->table, $data);
     }
+
+    public function users()
+    {
+        return $this->db
+            ->get($this->table)
+            ->result();
+    }
 }
