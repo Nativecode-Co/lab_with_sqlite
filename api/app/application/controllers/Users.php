@@ -148,22 +148,22 @@ class Users extends CI_Controller
             ->set_output(json_encode($data));
     }
 
-    public function users()
-    {
-        $data = $this->UsersModel->users();
-        $this->output
-            ->set_status_header(200)
-            ->set_content_type('application/json')
-            ->set_output(json_encode($data));
-    }
+    // public function users()
+    // {
+    //     $data = $this->UsersModel->users();
+    //     $this->output
+    //         ->set_status_header(200)
+    //         ->set_content_type('application/json')
+    //         ->set_output(json_encode($data));
+    // }
 
-    public function update()
-    {
-        $req = $this->input->post();
-        $data = $this->UsersModel->update_1($req);
-        $this->output
-            ->set_status_header(200)
-            ->set_content_type('application/json')
-            ->set_output(json_encode($data));
-    }
+    // public function update()
+    // {
+    //     $req = $this->input->post();
+    //     $data = $this->UsersModel->update_1($req);
+    //     $this->output
+    //         ->set_status_header(200)
+    //         ->set_content_type('application/json')
+    //         ->set_output(json_encode($data));
+    // }
 }

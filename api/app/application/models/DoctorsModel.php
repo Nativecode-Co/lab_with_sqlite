@@ -81,6 +81,9 @@ class DoctorsModel extends CI_Model
 
     public function insert_batch($data)
     {
+        if (empty($data)) {
+            return;
+        }
         $this->db->insert_batch($this->table, $data);
     }
 }

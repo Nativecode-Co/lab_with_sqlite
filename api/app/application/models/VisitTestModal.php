@@ -78,6 +78,9 @@ class VisitTestModal extends CI_Model
 
     public function insert_batch($data)
     {
+        if (empty($data)) {
+            return;
+        }
         // chunk data
         $data = array_chunk($data, 1000);
         foreach ($data as $key => $value) {

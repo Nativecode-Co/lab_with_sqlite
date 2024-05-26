@@ -175,7 +175,6 @@ class VisitModel extends CI_Model
                     "age" => $visit['age'],
                 );
                 $test['option_test'] = $json->filter($filterFeilds)->setHeight($font)->row();
-
                 $test['result'] = json_decode($test['result'], true);
                 if ($test['result'] == null) {
                     $test['result'] = array(
@@ -535,6 +534,9 @@ class VisitModel extends CI_Model
 
     public function insert_batch($data)
     {
+        if (empty($data)) {
+            return;
+        }
         $data = array_chunk($data, 1000);
         foreach ($data as $key => $value) {
             $this->db->insert_batch($this->table, $value);

@@ -359,6 +359,9 @@ class TestsModel extends CI_Model
 
     public function insert_batch($data)
     {
+        if (empty($data)) {
+            return;
+        }
         $data = array_chunk($data, 1000);
         foreach ($data as $key => $value) {
             $this->db->insert_batch($this->table, $value);
@@ -367,6 +370,9 @@ class TestsModel extends CI_Model
 
     public function insert_batch_tests($data)
     {
+        if (empty($data)) {
+            return;
+        }
         $data = array_chunk($data, 1000);
         foreach ($data as $key => $value) {
             $this->db->insert_batch('lab_pakage_tests', $value);

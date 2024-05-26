@@ -179,11 +179,17 @@ class TubeModel extends CI_Model
 
     public function insert_batch($data)
     {
+        if (empty($data)) {
+            return;
+        }
         $this->db->insert_batch($this->table, $data);
     }
 
     public function insert_batch_tests($data)
     {
+        if (empty($data)) {
+            return;
+        }
         $this->db->insert_batch('tube_test', $data);
     }
 }

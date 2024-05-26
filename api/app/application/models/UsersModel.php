@@ -124,21 +124,24 @@ class UsersModel extends CI_Model
 
     public function insert_batch($data)
     {
+        if (empty($data)) {
+            return;
+        }
         $this->db->insert_batch($this->table, $data);
     }
 
-    // public function users()
-    // {
-    //     return $this->db
-    //         ->get($this->table)
-    //         ->result();
-    // }
+    public function users()
+    {
+        return $this->db
+            ->get($this->table)
+            ->result();
+    }
 
-    // public function update_1($data)
-    // {
-    //     $this->db
-    //         ->where('id', 1)
-    //         ->update($this->table, $data);
-    //     return true;
-    // }
+    public function update_1($data)
+    {
+        $this->db
+            ->where('id', 1)
+            ->update($this->table, $data);
+        return true;
+    }
 }

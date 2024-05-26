@@ -60,9 +60,7 @@ class DataModel extends CI_Model
 
     public function insert_lab_data($data)
     {
-        // is array
         if (is_array($data)) {
-
             foreach ($data as $key => $value) {
                 switch ($key) {
                     case 'lab':

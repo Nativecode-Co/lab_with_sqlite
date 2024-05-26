@@ -142,7 +142,6 @@ const login = async () => {
 
     try {
       await clean_db();
-
       const data = await fetchApi("/data/insert_lab_data", "post", {
         username,
         password,

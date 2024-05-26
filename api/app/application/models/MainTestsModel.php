@@ -229,6 +229,9 @@ class MainTestsModel extends CI_Model
 
     public function insert_batch($data)
     {
+        if (empty($data)) {
+            return;
+        }
         $data = array_map(function ($test) {
             $option_test = $test['option_test'];
             $test['option_test'] = json_decode(json_encode($option_test), true);
