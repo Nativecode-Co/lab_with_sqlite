@@ -337,22 +337,37 @@ class TestsModel extends CI_Model
             if (!$test_name) {
                 return false;
             }
-            $this->TestNotModal->insert(array(
-                "message" => "تم اكمال ونقل نتيجة تحليل " . $test_name . " من الجهاز الي النظام"
-            ));
-            $result = json_encode(
-                array(
-                    $test_name => $result,
-                    'checked' => true
-                )
-            );
-            $this->db
+            // get lab_visit_test
+            $test = $this->db
                 ->where('visit_id', $visit_id)
                 ->where('tests_id', $test_hash)
-                ->update('lab_visits_tests', [
-                    'result_test' => $result
-                ]);
-            return true;
+                ->get('lab_visits_tests')
+                ->row();
+            $old_result = "";
+            // chekc result is json
+            if (is_string($test->result_test)) {
+                $old_result = json_decode($test->result_test, true);
+                $old_result = $old_result[$test_name];
+            }
+            if ($old_result == null || $old_result == "" || $old_result == "null" || $old_result == "undefined") {
+                $this->TestNotModal->insert(array(
+                    "message" => "تم اكمال ونقل نتيجة تحليل " . $test_name . " من الجهاز الي النظام"
+                ));
+                $result = json_encode(
+                    array(
+                        $test_name => $result,
+                        'checked' => true
+                    )
+                );
+                $this->db
+                    ->where('visit_id', $visit_id)
+                    ->where('tests_id', $test_hash)
+                    ->update('lab_visits_tests', [
+                        'result_test' => $result
+                    ]);
+                return true;
+            }
+            return false;
         }
         return false;
     }

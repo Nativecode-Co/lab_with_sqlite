@@ -185,6 +185,9 @@ class Json
       return $this;
     }
     $refrences = $this->refrences;
+    $name = $this->json["name"];
+    $line = strlen($name);
+    $line = ($line / 25);
     if (count($refrences) == 0) {
       $refrences = $this->default_refrence;
       unset($refrences['component']);
@@ -193,9 +196,10 @@ class Json
       $refrences['result_type'] = isset($this->result_type) ? $this->result_type : 'number';
       $height = isset($refrences['range']) ? count($refrences['range']) : 1;
       $height = $height == 0 ? 1 : $height;
+      $height = $height + $line;
       $refrences['height'] = 9 + ($height * 5.5) + (1.15944 * $height * $font);
     } else {
-      $refrences = array_map(function ($refrence) use ($font) {
+      $refrences = array_map(function ($refrence) use ($font, $line) {
         $height = 0;
         if (isset($refrence['range'])) {
           // use range to calculate height
@@ -211,6 +215,7 @@ class Json
         } else {
           $height = 1;
         }
+        $height = $height + $line;
         $refrence['height'] = 9.01 + ($height * 5.5) + (1.14 * $height * $font);
         return $refrence;
       }, $refrences);

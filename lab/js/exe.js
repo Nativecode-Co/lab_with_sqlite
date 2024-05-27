@@ -315,7 +315,6 @@ function syncOnline() {
   }, 500);
 }
 
-
 // load notification every 5 seconds
 setInterval(() => {
   const data = fetchApi("/testNot/get");
