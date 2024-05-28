@@ -185,9 +185,13 @@ class Json
       return $this;
     }
     $refrences = $this->refrences;
-    $name = $this->json["name"];
-    $line = strlen($name);
-    $line = ($line / 25);
+    if($this->json["name"]){
+        $name = $this->json["name"];
+        $line = strlen($name);
+        $line = ($line / 25);
+    }else{
+        $line = 1;
+    }
     if (count($refrences) == 0) {
       $refrences = $this->default_refrence;
       unset($refrences['component']);
