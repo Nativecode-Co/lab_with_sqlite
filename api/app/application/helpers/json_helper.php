@@ -185,7 +185,7 @@ class Json
       return $this;
     }
     $refrences = $this->refrences;
-    if($this->json["name"]){
+    if(isset($this->json["name"])){
         $name = $this->json["name"];
         $line = strlen($name);
         $line = ($line / 25);
