@@ -57,15 +57,6 @@ class LabKits extends CI_Controller
     public function create_kit()
     {
         $data = $this->input->post();
-        $valid = $this->form_validation->set_data($data)->run('lab_kits');
-        if (!$valid) {
-            $errors = $this->form_validation->error_array();
-            $this->output
-                ->set_status_header(400)
-                ->set_content_type('application/json')
-                ->set_output(json_encode($errors));
-            return;
-        }
         $data = $this->LabKitsModel->insert($data);
         $this->output
             ->set_status_header(201)
@@ -76,24 +67,6 @@ class LabKits extends CI_Controller
     public function update_kit()
     {
         $req = $this->input->post();
-        $this->form_validation->set_data($req);
-        $valid = $this->form_validation->set_data($req)->set_rules(
-            'hash',
-            'hash',
-            'required|numeric',
-            array(
-                'required' => 'هذا الحقل مطلوب',
-                'numeric' => 'يجب ادخال قيمة رقمية'
-            )
-        )->run('lab_kits');
-        if (!$valid) {
-            $errors = $this->form_validation->error_array();
-            $this->output
-                ->set_status_header(400)
-                ->set_content_type('application/json')
-                ->set_output(json_encode($errors));
-            return;
-        }
         $hash = $req['hash'];
         unset($req['hash']);
         $data = $this->LabKitsModel->update($hash, $req);

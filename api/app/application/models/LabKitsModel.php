@@ -27,6 +27,7 @@ class LabKitsModel extends CI_Model
                     `purchase_price` decimal(10,2) NOT NULL,
                     `total_price` decimal(10,2) NOT NULL,
                     `note` text,
+                    `lab_id` int(11) NOT NULL,
                     `date` date NOT NULL,
                     `status` varchar(50) NOT NULL,
                     `expiry_date` date,
@@ -71,7 +72,8 @@ class LabKitsModel extends CI_Model
     public function get($hash)
     {
         $kit = $this->db
-            ->select("$this->table.id, $this->table.name, $this->table.quantity, $this->table.purchase_price, $this->table.total_price, $this->table.note, $this->table.date, $this->table.status, $this->table.expiry_date, $this->table.hash")
+            ->select("$this->table.id,kit, $this->table.quantity, $this->table.purchase_price, $this->table.total_price, $this->table.note, $this->table.date, $this->table.status, $this->table.expiry_date, $this->table.hash")
+            ->join('kits', 'kits.id = lab_kits.kit')
             ->where("$this->table.is_deleted", 0)
             ->where("$this->table.hash", $hash)
             ->get($this->table)

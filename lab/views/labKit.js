@@ -19,20 +19,24 @@ class LabKit extends Factory {
           className: "center",
           sortable: false,
           render: (
-            data,
-            type,
             row
           ) => `<a href="#" onclick="labKits.updateItem('${row.hash}')" class="text-success"><i class="far fa-edit fa-lg mx-2"></i></a>
                                 <a href="#" onclick="fireSwalForDelete.call(labKits,labKits.deleteItem,'${row.hash}')" class="text-danger"><i class="far fa-trash fa-lg mx-2"></i></a>`,
+        },
+        {
+          data: null,
+          className: "text-success center",
+          defaultContent: '<i class="fas fa-plus"></i>',
         },
       ]
     );
   }
 
+  validate() {}
+
   getNewData() {
     const data = super.getNewData();
     data.lab_id = localStorage.getItem("lab_hash");
-    data.type2 = Math.floor(Math.random() * 900000) + 100000;
     return data;
   }
 
@@ -68,20 +72,36 @@ const labKits = new LabKit("labKits", " أداة مختبر", [
   { name: "hash", type: null },
   { name: "id", type: null },
   {
-    name: "name",
+    name: "kit",
     type: "select",
     label: "اسم الأداة",
     options: kits.map((kit) => {
       return { hash: kit.id, text: kit.name };
     }),
+    req: "required",
   },
-  { name: "quantity", type: "number", label: "الكمية" },
-  { name: "purchase_price", type: "number", label: "سعر الشراء" },
-  { name: "total_price", type: "number", label: "السعر الإجمالي" },
+  { name: "quantity", type: "number", label: "الكمية", req: "required" },
+  {
+    name: "purchase_price",
+    type: "number",
+    label: "سعر الشراء",
+    req: "required",
+  },
+  {
+    name: "total_price",
+    type: "number",
+    label: "السعر الإجمالي",
+    req: "disabled",
+  },
   { name: "note", type: "text", label: "ملاحظات" },
-  { name: "date", type: "date", label: "تاريخ" },
-  { name: "status", type: "text", label: "الحالة" },
-  { name: "expiry_date", type: "date", label: "تاريخ الانتهاء" },
+  { name: "date", type: "date", label: "تاريخ الشراء", req: "required" },
+  { name: "status", type: "text", label: "الحالة", req: "required" },
+  {
+    name: "expiry_date",
+    type: "date",
+    label: "تاريخ انتهاء الصلاحية",
+    req: "required",
+  },
 ]);
 
 $(() => {
