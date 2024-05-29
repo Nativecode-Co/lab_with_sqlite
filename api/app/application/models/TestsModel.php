@@ -333,9 +333,11 @@ class TestsModel extends CI_Model
                 ->select('test_name as name')
                 ->where('hash', $test_hash)
                 ->get('lab_test')
-                ->row()->name;
+                ->row();
             if (!$test_name) {
                 return false;
+            } else {
+                $test_name = $test_name->name;
             }
             // get lab_visit_test
             $test = $this->db
