@@ -16,9 +16,9 @@ class TestNotModal extends CI_Model
             `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
             `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
             PRIMARY KEY (`id`)
-          ) ENGINE=InnoDB DEFAULT CHARSET=latin1;");
+          ) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
         // update ENGINE=InnoDB DEFAULT CHARSET=latin1; to ENGINE=InnoDB DEFAULT CHARSET=utf8; 
-        $this->db->query("ALTER TABLE test_notification CONVERT TO CHARACTER SET utf8 COLLATE utf8_general_ci;");
+        // $this->db->query("ALTER TABLE `test_notification` CONVERT TO CHARACTER SET utf8 COLLATE utf8_general_ci;");
     }
 
     public function insert($data)

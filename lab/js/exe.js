@@ -316,24 +316,22 @@ function syncOnline() {
 }
 
 // load notification every 5 seconds
-setInterval(() => {
-  const data = fetchApi("/testNot/get");
-  if (data) {
-    Swal.fire({
-      icon: "success",
-      title: "تم !",
-      text: data.message,
-      confirmButtonText: "موافق",
-      showCancelButton: true,
-      cancelButtonText: "الغاء",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        // redirect to visits page
-        location.href = `${front_url}visits.html`;
-      }
-    });
-  }
-}, 5000);
+// setInterval(() => {
+//   const data = fetchApi("/testNot/get");
+//   if (data) {
+//     Swal.fire({
+//       icon: "success",
+//       title: "تم !",
+//       text: data.message,
+//       confirmButtonText: "موافق",
+//     }).then((result) => {
+//       // if (result.isConfirmed) {
+//       //   // redirect to visits page
+//       //   location.href = `${front_url}visits.html`;
+//       // }
+//     });
+//   }
+// }, 5000);
 
 // const uploadTestsSync = () => {
 //   fetchData("LocalApi/getTestsQueries", "POST", {

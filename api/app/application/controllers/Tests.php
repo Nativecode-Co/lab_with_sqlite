@@ -205,7 +205,7 @@ class Tests extends CI_Controller
         if (!$valid) {
             $errors = $this->form_validation->error_array();
             $this->output
-                ->set_status_header(400)
+                ->set_status_header(200)
                 ->set_content_type('application/json')
                 ->set_output(json_encode($errors));
             return;
@@ -221,7 +221,7 @@ class Tests extends CI_Controller
         $visit =  $this->VisitModel->get_visit($data['visit_id']);
         if (!isset($visit["id"])) {
             $this->output
-                ->set_status_header(400)
+                ->set_status_header(200)
                 ->set_content_type('application/json')
                 ->set_output(json_encode(array("message" => "id الزيارة غير موجود")));
             return;

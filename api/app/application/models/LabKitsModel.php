@@ -3,117 +3,133 @@ defined('BASEPATH') or exit('No direct script access allowed');
 
 class LabKitsModel extends CI_Model
 {
+    private $table = 'lab_kits';
+    private $main_column = 'hash';
+
     public function __construct()
     {
         parent::__construct();
         $this->load->database();
-        // Create table if not exists
+        $this->load->helper('db');
+
+
         $this->create_table();
     }
 
     private function create_table()
     {
-        $this->load->dbforge();
-
-        $fields = array(
-            'id' => array(
-                'type' => 'INT',
-                'constraint' => 11,
-                'unsigned' => TRUE,
-                'auto_increment' => TRUE
-            ),
-            'name' => array(
-                'type' => 'VARCHAR',
-                'constraint' => '100',
-            ),
-            'quantity' => array(
-                'type' => 'INT',
-                'constraint' => 11,
-            ),
-            'purchase_price' => array(
-                'type' => 'DECIMAL',
-                'constraint' => '10,2',
-            ),
-            'total_price' => array(
-                'type' => 'DECIMAL',
-                'constraint' => '10,2',
-            ),
-            'note' => array(
-                'type' => 'TEXT',
-            ),
-            'date' => array(
-                'type' => 'DATE',
-            ),
-            'status' => array(
-                'type' => 'VARCHAR',
-                'constraint' => '50',
-            ),
-            'expiry_date' => array(
-                'type' => 'DATE',
-            ),
-            'hash' => array(
-                'type' => 'BIGINT',
-                'constraint' => '20',
-            ),
-            'is_deleted' => array(
-                'type' => 'INT',
-                'constraint' => '1',
-                'default' => 0,
-            ),
-            'created_at' => array(
-                'type' => 'DATETIME',
-                'null' => TRUE,
-            ),
-            'updated_at' => array(
-                'type' => 'DATETIME',
-                'null' => TRUE,
-            )
-        );
-
-        $this->dbforge->add_field($fields);
-        $this->dbforge->add_key('id', TRUE);
-        $this->dbforge->create_table('lab_kits', TRUE);
+        if (!$this->db->table_exists($this->table)) {
+            $this->db->query("
+                CREATE TABLE `lab_kits` (
+                    `id` int(11) NOT NULL AUTO_INCREMENT,
+                    `kit` INT(11) NOT NULL,
+                    `quantity` int(11) NOT NULL,
+                    `purchase_price` decimal(10,2) NOT NULL,
+                    `total_price` decimal(10,2) NOT NULL,
+                    `note` text,
+                    `date` date NOT NULL,
+                    `status` varchar(50) NOT NULL,
+                    `expiry_date` date,
+                    `hash` bigint(20) NOT NULL,
+                    `is_deleted` tinyint(1) NOT NULL DEFAULT '0',
+                    `created_at` datetime DEFAULT NULL,
+                    `updated_at` datetime DEFAULT NULL,
+                    PRIMARY KEY (`id`)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+            ");
+        }
     }
 
-    // Create a new record
-    public function create($data)
+    public function count_all($params)
     {
-        $data['hash'] = $this->generate_hash();
+        $searchText = $params['search']['value'];
+        return $this->db
+            ->select("$this->table.id")
+            ->join('kits', 'kits.id = lab_kits.kit')
+            ->where("$this->table.is_deleted", 0)
+            ->like("kits.name", $searchText)
+            ->count_all_results($this->table);
+    }
+
+    public function get_all($params)
+    {
+        $start = $params['start'];
+        $rowsPerPage = $params['length'];
+        $page = $start / $rowsPerPage;
+        $searchText = $params['search']['value'];
+
+        return $this->db
+            ->select("$this->table.id, kits.name, $this->table.quantity, $this->table.purchase_price, $this->table.total_price, $this->table.note, $this->table.date, $this->table.status, $this->table.expiry_date, $this->table.hash")
+            ->join('kits', 'kits.id = lab_kits.kit')
+            ->where("$this->table.is_deleted", 0)
+            ->like("kits.name", $searchText)
+            ->order_by("$this->table.id", 'asc')
+            ->get($this->table, $rowsPerPage, $page * $rowsPerPage)
+            ->result();
+    }
+
+    public function get($hash)
+    {
+        $kit = $this->db
+            ->select("$this->table.id, $this->table.name, $this->table.quantity, $this->table.purchase_price, $this->table.total_price, $this->table.note, $this->table.date, $this->table.status, $this->table.expiry_date, $this->table.hash")
+            ->where("$this->table.is_deleted", 0)
+            ->where("$this->table.hash", $hash)
+            ->get($this->table)
+            ->row();
+        return isset($kit->id) ? $kit : null;
+    }
+
+    public function insert($data)
+    {
+        $data['hash'] = create_hash();
         $data['created_at'] = date('Y-m-d H:i:s');
         $data['updated_at'] = date('Y-m-d H:i:s');
-        return $this->db->insert('lab_kits', $data);
+        $this->db->insert($this->table, $data);
+        return $this->get($data['hash']);
     }
 
-    // Read a record by hash
-    public function read($hash)
-    {
-        $this->db->where('hash', $hash);
-        $query = $this->db->get('lab_kits');
-        return $query->row_array();
-    }
-
-    // Update a record by hash
     public function update($hash, $data)
     {
         $data['updated_at'] = date('Y-m-d H:i:s');
-        $this->db->where('hash', $hash);
-        return $this->db->update('lab_kits', $data);
+        $this->db
+            ->where($this->main_column, $hash)
+            ->update($this->table, $data);
+        return $this->get($hash);
     }
 
-    // Delete a record by hash (soft delete)
+    public function truncate()
+    {
+        $this->db->truncate($this->table);
+    }
+
     public function delete($hash)
     {
-        $data = array(
-            'is_deleted' => 1,
-            'updated_at' => date('Y-m-d H:i:s')
-        );
-        $this->db->where('hash', $hash);
-        return $this->db->update('lab_kits', $data);
+        $this->db
+            ->where($this->main_column, $hash)
+            ->update($this->table, ['is_deleted' => 1]);
     }
 
-    // Generate a hash using the current timestamp and a random number
-    private function generate_hash()
+    public function get_all_ids()
     {
-        return intval(microtime(true) * 1000000) . mt_rand(1000, 9999);
+        $ids = $this->db
+            ->select('id')
+            ->get($this->table)
+            ->result();
+        return array_map(function ($id) {
+            return $id->id;
+        }, $ids);
+    }
+
+    public function insert_batch($data)
+    {
+        if (empty($data)) {
+            return;
+        }
+        $this->db->insert_batch($this->table, $data);
+    }
+
+    public function get_kits()
+    {
+        return $this->db->get('kits')->result();
     }
 }
