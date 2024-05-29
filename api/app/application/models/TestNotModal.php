@@ -6,8 +6,8 @@ class TestNotModal extends CI_Model
     {
         parent::__construct();
         $this->load->database();
-        // create table if not exists
-        // delete table if CHARSET=latin1 and create new table with utf8
+       
+        $this->db->query("DROP TABLE IF EXISTS `test_notification`;");
 
         $this->db->query("CREATE TABLE IF NOT EXISTS `test_notification` (
             `id` int(11) NOT NULL AUTO_INCREMENT,

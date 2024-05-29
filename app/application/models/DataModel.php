@@ -73,8 +73,8 @@ class DataModel extends CI_Model
             }
             // lab_patient, lab_visits, lab_visits_tests, lab_visits_package
             if ($key == "lab_patient" || $key == "lab_visits" || $key == "lab_visits_tests" || $key == "lab_visits_package") {
-                // insert_record_date is this month and previous month
-                $this->db->where("insert_record_date >=", date('Y-m-01 00:00:00', strtotime('-1 month')));
+                // insert_record_date is this month
+                $this->db->where("insert_record_date >=", date('Y-m-01 00:00:00'));
             }
             // order by id
             $this->db->order_by('id', 'asc');
