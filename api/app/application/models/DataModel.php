@@ -40,21 +40,24 @@ class DataModel extends CI_Model
 
     public function insert_all($data)
     {
-        foreach ($data as $key => $value) {
-            switch ($key) {
-                case 'tube':
-                    $this->TubeModel->insert_batch($value);
-                    break;
-                case 'test_alias':
-                    $this->TestAliasModel->insert_batch($value);
-                    break;
-                case 'system_group_name':
-                    $this->db->insert_batch('system_group_name', $value);
-                    break;
-                case 'tube_test':
-                    $this->TubeModel->insert_batch_tests($value);
-                    break;
+        if (is_array($data)) {
+            foreach ($data as $key => $value) {
+                switch ($key) {
+                    case 'tube':
+                        $this->TubeModel->insert_batch($value);
+                        break;
+                    case 'test_alias':
+                        $this->TestAliasModel->insert_batch($value);
+                        break;
+                    case 'system_group_name':
+                        $this->db->insert_batch('system_group_name', $value);
+                        break;
+                    case 'tube_test':
+                        $this->TubeModel->insert_batch_tests($value);
+                        break;
+                }
             }
+            return true;
         }
     }
 

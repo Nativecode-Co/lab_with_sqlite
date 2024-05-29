@@ -6,17 +6,17 @@ class TestNotModal extends CI_Model
     {
         parent::__construct();
         $this->load->database();
-       
-        $this->db->query("DROP TABLE IF EXISTS `test_notification`;");
 
-        $this->db->query("CREATE TABLE IF NOT EXISTS `test_notification` (
-            `id` int(11) NOT NULL AUTO_INCREMENT,
-            `message` varchar(1000) NULL,
-            `activated` tinyint(1) NOT NULL DEFAULT '1',
-            `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-            PRIMARY KEY (`id`)
-          ) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+
+        // $this->db->query("
+        // CREATE TABLE IF NOT EXISTS `test_notification` (
+        //     `id` int(11) NOT NULL AUTO_INCREMENT,
+        //     `message` varchar(1000) NULL,
+        //     `activated` tinyint(1) NOT NULL DEFAULT '1',
+        //     `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        //     `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        //     PRIMARY KEY (`id`)
+        //   ) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
         // update ENGINE=InnoDB DEFAULT CHARSET=latin1; to ENGINE=InnoDB DEFAULT CHARSET=utf8; 
         // $this->db->query("ALTER TABLE `test_notification` CONVERT TO CHARACTER SET utf8 COLLATE utf8_general_ci;");
     }
