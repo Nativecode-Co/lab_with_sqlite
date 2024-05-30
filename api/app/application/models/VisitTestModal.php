@@ -27,7 +27,7 @@ class VisitTestModal extends CI_Model
             where tests_id in ($tests) 
         $start_date $end_date $doctor
         and lab_visits.isdeleted = 0
-        group by tests_id
+        group by tests_id,doctor_hash
         order by lab_visits.id desc");
         return $result->num_rows();
     }
@@ -48,6 +48,7 @@ class VisitTestModal extends CI_Model
         SELECT 
             (select test_name from lab_test where lab_test.hash = tests_id) as test_name,
             count(*) as count,
+            lab_doctor.name as doctor_name,
             sum(lab_package.price) as price,
             sum(lab_package.cost) as cost
         FROM lab_visits_tests
@@ -59,7 +60,7 @@ class VisitTestModal extends CI_Model
         where tests_id in ($tests) 
         $start_date $end_date $doctor
         and lab_visits.isdeleted = 0
-        group by tests_id
+        group by tests_id,doctor_hash
         order by lab_visits.id desc
         limit $start, $rowsPerPage
         ");

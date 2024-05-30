@@ -30,9 +30,44 @@ class LabKit extends Factory {
         },
       ]
     );
+
+    // Attach event listeners for quantity and purchase price fields
+    $('[name="quantity"], [name="purchase_price"]').on(
+      "input",
+      this.updateTotalPrice
+    );
   }
 
-  validate() {}
+  validate() {
+    let isValid = true;
+    const requiredFields = [
+      "kit",
+      "quantity",
+      "purchase_price",
+      "date",
+      "status",
+      "expiry_date",
+    ];
+
+    requiredFields.forEach((field) => {
+      const value = $(`[name=${field}]`).val();
+      if (!value) {
+        $(`[name=${field}]`).addClass("is-invalid");
+        isValid = false;
+      } else {
+        $(`[name=${field}]`).removeClass("is-invalid");
+      }
+    });
+
+    return isValid;
+  }
+
+  updateTotalPrice() {
+    const quantity = parseFloat($('[name="quantity"]').val()) || 0;
+    const purchasePrice = parseFloat($('[name="purchase_price"]').val()) || 0;
+    const totalPrice = quantity * purchasePrice;
+    $('[name="total_price"]').val(totalPrice.toFixed(2));
+  }
 
   getNewData() {
     const data = super.getNewData();
@@ -47,6 +82,7 @@ class LabKit extends Factory {
   }
 
   saveNewItem() {
+    if (!this.validate()) return;
     const data = this.getNewData();
     fetchApi("/labkits/create_kit", "POST", data);
     this.dataTable.ajax.reload(null, false);
@@ -54,6 +90,7 @@ class LabKit extends Factory {
   }
 
   saveUpdateItem(hash) {
+    if (!this.validate()) return;
     const data = { ...this.getUpdateData(), hash };
     fetchApi("/labkits/update_kit", "POST", data);
     this.dataTable.ajax.reload(null, false);
@@ -93,7 +130,7 @@ const labKits = new LabKit("labKits", " أداة مختبر", [
     label: "السعر الإجمالي",
     req: "disabled",
   },
-  { name: "note", type: "text", label: "ملاحظات" },
+  { name: "note", type: "textarea", label: "ملاحظات" },
   { name: "date", type: "date", label: "تاريخ الشراء", req: "required" },
   { name: "status", type: "text", label: "الحالة", req: "required" },
   {

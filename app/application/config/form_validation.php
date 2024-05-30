@@ -9,14 +9,6 @@ function is__array($str)
 $config = array(
     "get_data" => array(
         array(
-            'field' => 'lab_id',
-            'rules' => 'required|numeric',
-            'errors' => array(
-                'required' => 'هذا الحقل مطلوب',
-                'numeric' => 'يجب ادخال قيمة رقمية'
-            )
-        ),
-        array(
             'field' => 'data',
             'rules' => 'required|is__array',
             'errors' => array(

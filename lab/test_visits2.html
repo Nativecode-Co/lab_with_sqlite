@@ -1,179 +1,241 @@
 <!DOCTYPE html>
 <html lang="ar">
-
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no">
-    <title> تقرير التحاليل</title>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no"
+    />
+    <title>تقرير التحاليل</title>
     <link rel="icon" type="image/x-icon" href="assets/image/logo2.ico" />
     <link href="assets/css/loader.css" rel="stylesheet" type="text/css" />
     <script src="assets/js/loader.js"></script>
     <!-- BEGIN GLOBAL MANDATORY STYLES -->
 
-    <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <link
+      href="bootstrap/css/bootstrap.min.css"
+      rel="stylesheet"
+      type="text/css"
+    />
     <link href="assets/css/plugins.css" rel="stylesheet" type="text/css" />
-    <link href="plugins/perfect-scrollbar/perfect-scrollbar.css" rel="stylesheet" type="text/css" />
+    <link
+      href="plugins/perfect-scrollbar/perfect-scrollbar.css"
+      rel="stylesheet"
+      type="text/css"
+    />
 
     <!-- END GLOBAL MANDATORY STYLES -->
 
     <!-- BEGIN PAGE LEVEL CUSTOM STYLES -->
-    <link rel="stylesheet" type="text/css" href="plugins/table/datatable/datatables.css">
-    <link rel="stylesheet" type="text/css" href="plugins/table/datatable/dt-global_style.css">
-    <link rel="stylesheet" type="text/css" href="plugins/table/datatable/custom_dt_custom.css">
-    <link rel="stylesheet" type="text/css" href="plugins/table/datatable/respon.css">
-    <link rel="stylesheet" href="plugins/font-awesome/css/all.css">
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="plugins/table/datatable/datatables.css"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="plugins/table/datatable/dt-global_style.css"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="plugins/table/datatable/custom_dt_custom.css"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="plugins/table/datatable/respon.css"
+    />
+    <link rel="stylesheet" href="plugins/font-awesome/css/all.css" />
     <script src="plugins/sweetalerts/promise-polyfill.js"></script>
-    <link href="plugins/sweetalerts/sweetalert2.min.css" rel="stylesheet" type="text/css" />
-    <link rel="stylesheet" type="text/css" href="assets/css/forms/switches.css">
-    <link rel="stylesheet" href="plugins/select2/select2.min.css">
+    <link
+      href="plugins/sweetalerts/sweetalert2.min.css"
+      rel="stylesheet"
+      type="text/css"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="assets/css/forms/switches.css"
+    />
+    <link rel="stylesheet" href="plugins/select2/select2.min.css" />
     <!-- END PAGE LEVEL CUSTOM STYLES -->
     <!--  BEGIN CUSTOM STYLE FILE  -->
-    <link href="assets/css/components/custom-modal.css" rel="stylesheet" type="text/css" />
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/new_style.css">
+    <link
+      href="assets/css/components/custom-modal.css"
+      rel="stylesheet"
+      type="text/css"
+    />
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/new_style.css" />
     <style>
-        input {
-            min-height: 47.99px;
-            border-color: #aaa;
-        }
+      input {
+        min-height: 47.99px;
+        border-color: #aaa;
+      }
     </style>
 
     <!--  END CUSTOM STYLE FILE  -->
 
     <script src="assets/js/libs/jquery-3.1.1.min.js"></script>
     <script>
-        $(document).ready(function () {
-            $(".header-container").load("header/navbar.html");
-        })
+      $(document).ready(function () {
+        $(".header-container").load("header/navbar.html");
+      });
     </script>
+  </head>
 
-</head>
-
-<body class="alt-menu sidebar-noneoverflow">
-
+  <body class="alt-menu sidebar-noneoverflow">
     <!-- BEGIN LOADER -->
     <div id="load_screen">
-        <div class="loader">
-            <div class="loader-content">
-                <div class="spinner-grow align-self-center" style="background-image: url(assets/image/flask.png);
-                background-size: cover;"></div>
-            </div>
+      <div class="loader">
+        <div class="loader-content">
+          <div
+            class="spinner-grow align-self-center"
+            style="
+              background-image: url(assets/image/flask.png);
+              background-size: cover;
+            "
+          ></div>
         </div>
+      </div>
     </div>
-
 
     <!--  END LOADER -->
 
     <!--  BEGIN NAVBAR  -->
-    <div class="header-container">
-
-    </div>
+    <div class="header-container"></div>
     <!--  END NAVBAR  -->
 
     <!--  BEGIN MAIN CONTAINER  -->
     <div class="main-container" id="container">
+      <div class="overlay"></div>
+      <div class="search-overlay"></div>
 
-        <div class="overlay"></div>
-        <div class="search-overlay"></div>
+      <!--  BEGIN CONTENT AREA  -->
+      <div id="content" class="main-content">
+        <div class="layout-px-spacing">
+          <div class="page-header"></div>
 
-        <!--  BEGIN CONTENT AREA  -->
-        <div id="content" class="main-content">
-            <div class="layout-px-spacing">
-                <div class="page-header">
-                </div>
+          <div class="row layout-spacing">
+            <div class="col-lg-12">
+              <div class="statbox widget box box-shadow bg-white">
+                <div
+                  class="widget-content widget-content-area m-auto"
+                  style="width: 95%"
+                >
+                  <!-- header -->
+                  <h3 class="text-center mt-4">التحاليل المستخدمة</h3>
+                  <div class="row justify-content-center">
+                    <div class="form-group col-3">
+                      <label for="startDate" class="">من تاريخ</label>
+                      <div class="col-sm-12">
+                        <input
+                          type="date"
+                          class="form-control form-control-sm"
+                          name="startDate"
+                          id="startDate"
+                          placeholder=""
+                        />
+                      </div>
+                    </div>
+                    <div class="form-group col-3">
+                      <label for="endDate" class="">الي تاريخ</label>
+                      <div class="col-sm-12">
+                        <input
+                          type="date"
+                          class="form-control form-control-sm"
+                          name="endDate"
+                          id="endDate"
+                          placeholder=""
+                        />
+                      </div>
+                    </div>
+                    <!-- doctor -->
+                    <div class="form-group col-3">
+                      <label for="doctor" class="">الدكتور</label>
+                      <div class="col-sm-12">
+                        <select
+                          class="form-control form-control-sm"
+                          name="doctor"
+                          id="doctor"
+                        ></select>
+                      </div>
+                    </div>
+                    <!-- user -->
 
-                <div class="row layout-spacing">
-                    <div class="col-lg-12">
-                        <div class="statbox widget box box-shadow bg-white">
-                            <div class="widget-content widget-content-area m-auto" style="width: 95%;">
-                                <!-- header -->
-                                <h3 class="text-center mt-4">التحاليل المستخدمة</h3>
-                                <div class="row justify-content-center">
-                                    <div class="form-group col-3">
-                                        <label for="startDate" class="">من تاريخ</label>
-                                        <div class="col-sm-12">
-                                            <input type="date" class="form-control form-control-sm" name="startDate"
-                                                id="startDate" placeholder="">
-                                        </div>
-                                    </div>
-                                    <div class="form-group col-3">
-                                        <label for="endDate" class="">الي تاريخ</label>
-                                        <div class="col-sm-12">
-                                            <input type="date" class="form-control form-control-sm" name="endDate"
-                                                id="endDate" placeholder="">
-                                        </div>
-                                    </div>
-                                    <!-- doctor -->
-                                    <div class="form-group col-3">
-                                        <label for="doctor" class="">الدكتور</label>
-                                        <div class="col-sm-12">
-                                            <select class="form-control form-control-sm" name="doctor" id="doctor">
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <!-- user -->
-
-                                    <div class="form-group col-3 mt-2">
-                                        <div class="col-sm-12">
-                                            <input type="button" class="btn btn-primary h-50 mt-3 col-12"
-                                                onclick="selectAllTest()" value="كل التحاليل">
-                                        </div>
-                                    </div>
-                                    <div class="form-group col-12 mb-4">
-                                        <label for="test" class="">التحاليل</label>
-                                        <div class="col-sm-12">
-                                            <select class="form-control form-control-sm" name="test" id="test_searsh">
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="w-100"></div>
-                                    <div class="form-group col-3">
-                                        <input class="btn btn-primary h-50 mt-3 col-11" type="submit" id="searchQ"
-                                            value="ابحث">
-                                    </div>
-                                </div>
-                                <div class=" text-center">
-                                    <h1>التحاليل</h1>
-                                </div>
-                                <table id="tests-table" class="style1">
-                                    <thead>
-                                        <tr>
-                                            <th>اسم التحليل</th>
-                                            <th>عدد الزيارات</th>
-                                            <th>التكلفة</th>
-                                            <th>السعر</th>
-                                            <th>الربح</th>
-                                        </tr>
-                                        <!-- <tr class="text-center">
+                    <div class="form-group col-3 mt-2">
+                      <div class="col-sm-12">
+                        <input
+                          type="button"
+                          class="btn btn-primary h-50 mt-3 col-12"
+                          onclick="selectAllTest()"
+                          value="كل التحاليل"
+                        />
+                      </div>
+                    </div>
+                    <div class="form-group col-12 mb-4">
+                      <label for="test" class="">التحاليل</label>
+                      <div class="col-sm-12">
+                        <select
+                          class="form-control form-control-sm"
+                          name="test"
+                          id="test_searsh"
+                        ></select>
+                      </div>
+                    </div>
+                    <div class="w-100"></div>
+                    <div class="form-group col-3">
+                      <input
+                        class="btn btn-primary h-50 mt-3 col-11"
+                        type="submit"
+                        id="searchQ"
+                        value="ابحث"
+                      />
+                    </div>
+                  </div>
+                  <div class="text-center">
+                    <h1>التحاليل</h1>
+                  </div>
+                  <table id="tests-table" class="style1">
+                    <thead>
+                      <tr>
+                        <th>اسم التحليل</th>
+                        <th>اسم الطبيب</th>
+                        <th>عدد الزيارات</th>
+                        <th>التكلفة</th>
+                        <th>السعر</th>
+                        <th>الربح</th>
+                      </tr>
+                      <!-- <tr class="text-center">
                                             <th class="text-left">الاجمالي</th>
                                             <th class="totalVisits">0</th>
                                             <th class="totalCost">0</th>
                                             <th class="totalPrice">0</th>
                                             <th class="totalProfit">0</th>
                                         </tr> -->
-                                    </thead>
-                                    <tbody>
-                                    </tbody>
-                                    <tfoot>
-                                        <tr class="text-center">
-                                            <th class="text-left">الاجمالي</th>
-                                            <th class="totalVisits">0</th>
-                                            <th class="totalCost">0</th>
-                                            <th class="totalPrice">0</th>
-                                            <th class="totalProfit">0</th>
-                                        </tr>
-                                    </tfoot>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
+                    </thead>
+                    <tbody></tbody>
+                    <tfoot>
+                      <tr class="text-center">
+                        <th class="text-left">الاجمالي</th>
+                        <th class="text-center"></th>
+                        <th class="totalVisits">0</th>
+                        <th class="totalCost">0</th>
+                        <th class="totalPrice">0</th>
+                        <th class="totalProfit">0</th>
+                      </tr>
+                    </tfoot>
+                  </table>
                 </div>
-
+              </div>
             </div>
+          </div>
         </div>
-        <!--  END CONTENT AREA  -->
-
+      </div>
+      <!--  END CONTENT AREA  -->
     </div>
     <!-- END MAIN CONTAINER -->
     <!-- BEGIN GLOBAL MANDATORY SCRIPTS -->
@@ -195,34 +257,32 @@
     <script src="assets/js/scrollspyNav.js"></script>
     <script src="assets/js/app.js"></script>
     <script>
-        $(document).ready(function () {
-            App.init();
-        });
+      $(document).ready(function () {
+        App.init();
+      });
     </script>
     <script src="js/const.js"></script>
     <script>
-        // genrate random text like "1.2.3"
-        function randomText() {
-            let text = "";
-            for (let i = 0; i < 3; i++) {
-                text += Math.floor(Math.random() * 10) + ".";
-            }
-            return text.slice(0, -1);
+      // genrate random text like "1.2.3"
+      function randomText() {
+        let text = "";
+        for (let i = 0; i < 3; i++) {
+          text += Math.floor(Math.random() * 10) + ".";
         }
-        var random_text = randomText();
-        // get script that src contain const.js
-        const CONSTELEMENT = document.querySelector('script[src*="const.js"]');
-        let src = CONSTELEMENT.src;
-        // add random text to the end of src
-        src = src + "?v=" + random_text;
-        // change src of const.js
-        CONSTELEMENT.src = src;
+        return text.slice(0, -1);
+      }
+      var random_text = randomText();
+      // get script that src contain const.js
+      const CONSTELEMENT = document.querySelector('script[src*="const.js"]');
+      let src = CONSTELEMENT.src;
+      // add random text to the end of src
+      src = src + "?v=" + random_text;
+      // change src of const.js
+      CONSTELEMENT.src = src;
     </script>
     <script src="js/login.js"></script>
     <script src="js/exe.js"></script>
     <script src="js/factory3.js"></script>
     <script src="views/test_visits2.js"></script>
-
-</body>
-
+  </body>
 </html>

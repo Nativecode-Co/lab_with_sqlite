@@ -6,19 +6,29 @@ class TestNotModal extends CI_Model
     {
         parent::__construct();
         $this->load->database();
+        $this->createTable();
+    }
 
-
-        // $this->db->query("
-        // CREATE TABLE IF NOT EXISTS `test_notification` (
-        //     `id` int(11) NOT NULL AUTO_INCREMENT,
-        //     `message` varchar(1000) NULL,
-        //     `activated` tinyint(1) NOT NULL DEFAULT '1',
-        //     `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        //     `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-        //     PRIMARY KEY (`id`)
-        //   ) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
-        // update ENGINE=InnoDB DEFAULT CHARSET=latin1; to ENGINE=InnoDB DEFAULT CHARSET=utf8; 
-        // $this->db->query("ALTER TABLE `test_notification` CONVERT TO CHARACTER SET utf8 COLLATE utf8_general_ci;");
+    public function createTable()
+    {
+        if (!$this->db->table_exists("test_notification")) {
+            // Create the table directly
+            $this->db->query("CREATE TABLE `test_notification` (
+                `id` int(11) NOT NULL AUTO_INCREMENT,
+                `message` varchar(1000) NULL,
+                `activated` tinyint(1) NOT NULL DEFAULT '1',
+                `created_at` timestamp NOT NULL,
+                `updated_at` timestamp NOT NULL,
+                PRIMARY KEY (`id`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+        } else {
+            // If the table exists, discard the tablespace (this will be an unusual scenario)
+            try {
+                $this->db->query("ALTER TABLE `test_notification` DISCARD TABLESPACE;");
+            } catch (Exception $e) {
+                // Log or handle the exception if needed
+            }
+        }
     }
 
     public function insert($data)

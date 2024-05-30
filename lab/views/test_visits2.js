@@ -18,15 +18,15 @@ $(startDateElement).val(new Date().toISOString().slice(0, 10));
 $(endDateElement).val(new Date().toISOString().slice(0, 10));
 
 const selectAllTest = () => {
- //  toggle all tests
+  //  toggle all tests
   const allTests = $(selectedTestsElement).val();
   if (allTests.length === 0) {
     $(selectedTestsElement)
-    .select2("destroy")
-    .find("option")
-    .prop("selected", "selected")
-    .end()
-    .select2();
+      .select2("destroy")
+      .find("option")
+      .prop("selected", "selected")
+      .end()
+      .select2();
   } else {
     $(selectedTestsElement).val([]).trigger("change");
   }
@@ -49,6 +49,12 @@ class Tests extends Factory {
       [
         { data: "test_name" },
         {
+          data: "doctor_name",
+          render: (data, type, row) => {
+            return data || "لا يوجد طبيب";
+          },
+        },
+        {
           data: "count",
           render: (data, type, row) => {
             return Number(data).toLocaleString();
@@ -60,11 +66,11 @@ class Tests extends Factory {
             return Number(data).toLocaleString();
           },
         },
-        { data: "price",
+        {
+          data: "price",
           render: (data, type, row) => {
             return Number(data).toLocaleString();
           },
-      
         },
         {
           data: "null",

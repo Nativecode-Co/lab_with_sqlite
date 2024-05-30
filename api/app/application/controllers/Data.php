@@ -14,7 +14,6 @@ class Data extends CI_Controller
     function check_data()
     {
         $data = $this->DataModel->check_data();
-        // new curl request
         $url = 'http://umc.native-code-iq.com/app/index.php/data/get_new_data';
         $data = post_data($url, array('data' => json_encode($data), 'lab_id' => 0));
         $result = $this->DataModel->insert_all(json_decode($data, true));
