@@ -11,12 +11,13 @@ class TestNotModal extends CI_Model
 
     public function createTable()
     {
-        if (!$this->db->table_exists("test_notification")) {
+        if (!$this->db->table_exists("testNotification")) {
             // Create the table directly
-            $this->db->query("CREATE TABLE `test_notification` (
+            $this->db->query("CREATE TABLE `testNotification` (
                 `id` int(11) NOT NULL AUTO_INCREMENT,
                 `message` varchar(1000) NULL,
                 `activated` tinyint(1) NOT NULL DEFAULT '1',
+                `visit_hash` varchar(100) NULL,
                 `created_at` timestamp NOT NULL,
                 `updated_at` timestamp NOT NULL,
                 PRIMARY KEY (`id`)
@@ -24,7 +25,7 @@ class TestNotModal extends CI_Model
         } else {
             // If the table exists, discard the tablespace (this will be an unusual scenario)
             try {
-                $this->db->query("ALTER TABLE `test_notification` DISCARD TABLESPACE;");
+                $this->db->query("ALTER TABLE `testNotification` DISCARD TABLESPACE;");
             } catch (Exception $e) {
                 // Log or handle the exception if needed
             }
@@ -33,14 +34,14 @@ class TestNotModal extends CI_Model
 
     public function insert($data)
     {
-        $this->db->insert('test_notification', $data);
+        $this->db->insert('testNotification', $data);
         return $this->db->insert_id();
     }
 
     public function deleteActivated()
     {
         $this->db->where('activated', 1);
-        $this->db->delete('test_notification');
+        $this->db->delete('testNotification');
         return $this->db->affected_rows();
     }
 
@@ -49,7 +50,7 @@ class TestNotModal extends CI_Model
         $data =  $this->db
             ->where('activated', 1)
             ->limit(1)->order_by('id', 'DESC')
-            ->get('test_notification')
+            ->get('testNotification')
             ->row_array();
         $this->deleteActivated();
         return $data;
