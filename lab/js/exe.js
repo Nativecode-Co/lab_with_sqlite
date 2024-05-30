@@ -317,6 +317,9 @@ function syncOnline() {
 
 setInterval(() => {
   const data = fetchApi("/testNot/get");
+  if (data.error) {
+    return false;
+  }
   if (data) {
     Swal.fire({
       icon: "success",
