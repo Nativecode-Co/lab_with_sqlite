@@ -317,7 +317,7 @@ function syncOnline() {
 
 setInterval(() => {
   const data = fetchApi("/testNot/get");
-  if (data.error) {
+  if (!data || data?.error) {
     return false;
   }
   if (data) {
