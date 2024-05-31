@@ -737,10 +737,11 @@ function addStrcResult(test, result_test) {
                 if (!result) {
                   selected = index == 0 ? "selected" : "";
                 } else {
-                  if (comp.multi === true) {
-                    selected = result.includes(option) ? "selected" : "";
+                  if (comp.multi === true && Array.isArray(result)) {
+                    const founded = result.find((r) => r === option);
+                    selected = founded ? "selected" : "";
                   } else {
-                    selected = result == option ? "selected" : "";
+                    selected = result === option ? "selected" : "";
                   }
                 }
 
