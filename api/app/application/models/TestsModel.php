@@ -353,7 +353,8 @@ class TestsModel extends CI_Model
             }
             if ($old_result == null || $old_result == "" || $old_result == "null" || $old_result == "undefined") {
                 $this->TestNotModal->insert(array(
-                    "message" => "تم اكمال ونقل نتيجة تحليل " . $test_name . " من الجهاز الي النظام"
+                    "message" => "تم اكمال ونقل نتيجة تحليل " . $test_name . " من الجهاز الي النظام",
+                    "visit_hash" => $visit['hash']
                 ));
                 $result = json_encode(
                     array(

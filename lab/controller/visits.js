@@ -2,6 +2,15 @@ const calcOperator = ["+", "-", "*", "/", "(", ")", "Math.log10("];
 let HASH = null;
 let VISIT = null;
 
+const urlParams = new URLSearchParams(window.location.search);
+const hash = urlParams.get("hash");
+if (hash) {
+  visitDetail(hash);
+  fireSwalWithoutConfirm(showAddResult, hash);
+  // delete hash from url
+  window.history.pushState({}, document.title, window.location.pathname);
+}
+
 let __VISIT_TESTS__ = [];
 
 $.ajax({

@@ -328,8 +328,9 @@ setInterval(() => {
       confirmButtonText: "موافق",
     }).then((result) => {
       if (result.isConfirmed) {
-        // redirect to visits page
-        location.href = `${front_url}visits.html`;
+        if (data.visit_hash) {
+          location.href = `${front_url}visits.html?hash=${data.visit_hash}`;
+        }
       }
     });
   }
