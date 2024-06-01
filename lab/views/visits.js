@@ -1,5 +1,13 @@
 const urlParams = new URLSearchParams(window.location.search);
 const barcode = urlParams.get("barcode");
+const _hash_ = urlParams.get("hash");
+
+if (_hash_) {
+  visitDetail(_hash_);
+  fireSwalWithoutConfirm(showAddResult, _hash_);
+  // delete hash from url
+  window.history.pushState({}, document.title, window.location.pathname);
+}
 
 if (barcode) {
   visitDetail(`${barcode}`);
