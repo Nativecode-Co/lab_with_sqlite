@@ -85,9 +85,9 @@ class MainTestsModel extends CI_Model
         $option_test = $output["option_test"];
 
         $json = new Json($option_test);
+        $output["option_test"] = $json->get();
         $option_test = $json->filterToArray($fields);
         $output["refrence"] = $option_test;
-        unset($output["option_test"]);
         return $output;
     }
 

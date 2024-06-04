@@ -95,12 +95,16 @@ class Tests extends CI_Controller
                 ->set_output(json_encode($errors));
             return;
         }
-        $category_hash = $req['category_hash'];
-        $test_hash = $req['test_hash'];
-        unset($req['category_hash']);
-        unset($req['test_hash']);
-        $this->MainTestsModel->update($test_hash, array("category_hash" => $category_hash));
 
+        if (!isset($req['category_hash']) && isset($req['test_hash'])) {
+            $category_hash = $req['category_hash'];
+            $test_hash = $req['test_hash'];
+            unset($req['test_hash']);
+            unset($req['category_hash']);
+            $this->MainTestsModel->update($test_hash, array("category_hash" => $category_hash));
+        }
+        unset($req['test_hash']);
+        unset($req['category_hash']);
         $hash = $req['hash'];
         unset($req['hash']);
         $tests = $req['tests'];
@@ -108,6 +112,27 @@ class Tests extends CI_Controller
         unset($req['tests']);
 
         $data = $this->TestsModel->update($hash, $req, $tests);
+
+        $this->output
+            ->set_status_header(200)
+            ->set_content_type('application/json')
+            ->set_output(json_encode($data));
+    }
+
+    public function update_cols()
+    {
+        $req = $this->input->post();
+        // check if hash is exist and req has at least one key 
+        if (!isset($req['hash']) || count($req) < 2) {
+            $this->output
+                ->set_status_header(400)
+                ->set_content_type('application/json')
+                ->set_output(json_encode(array("message" => "hash مطلوب و يجب ادخال عمود واحد على الاقل")));
+            return;
+        }
+        $hash = $req['hash'];
+        unset($req['hash']);
+        $data = $this->TestsModel->update_cols($hash, $req);
 
         $this->output
             ->set_status_header(200)

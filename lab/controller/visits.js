@@ -655,7 +655,7 @@ function addNormalResult(test, resultList, visit_hash) {
                               test.name
                             }">
                               ${reference.options
-                                .map((option) => {
+                                ?.map((option) => {
                                   const result =
                                     resultList?.[test.name]?.[test.name];
                                   return `<option value="${option}" ${
@@ -803,6 +803,8 @@ function addStrcResult(test, result_test) {
                       value="${result}"
                   >`;
           break;
+        case "note":
+          return "";
         default:
           input = `<input 
                       type="text" 
@@ -1982,7 +1984,7 @@ function showResult(data) {
           <div class="col-12 pr-0">
               <p class="text-center">${test.name}</p>
           </div>
-      </div>`;
+      </div>${options?.unit === "note" ? manageHead(options?.unit) : ""}`;
       let type = "";
       for (const reference of options.component) {
         let result = test.result?.[reference.name] ?? "";
@@ -2008,6 +2010,7 @@ function showResult(data) {
           results[reference.name] = result;
           editable = "readonly";
         }
+        const note = reference.reference[0]?.note;
         let defualt = "";
         let resultClass = "";
         let flag = "";
@@ -2042,7 +2045,11 @@ function showResult(data) {
             flag = "H";
           }
         }
-        if (reference.type !== type && reference.type !== "Notes") {
+        if (
+          reference.type !== type &&
+          reference.type !== "Notes" &&
+          reference.type !== "note"
+        ) {
           type = reference.type;
           invoiceBody += `
                         <div class="test strc-test row m-0 typetest sp" data-flag="${unit}">
@@ -2057,16 +2064,22 @@ function showResult(data) {
         }
         if (reference.type === "Notes") {
           invoiceBody += `
-                        <div class="test strc-test row m-0">
+          <div class="test strc-test row m-0 typetest sp" data-flag="${unit}">
                             <!-- تصنيف الجدول او اقسام الجدول ------------>
 
-                            <div class="testname col-12" data-flag="${unit}">
-                                <p>${reference.name}</p> : <p class="text-danger">${result}</p>
+                            <div class="col-12" >
+                                <p>Note</p>
                             </div>
-                        </div>
-                    `;
-        } else {
-          invoiceBody += manageTestType(unit, {
+
+                        </div>`;
+        }
+        invoiceBody += manageTestType(
+          reference.type === "Notes"
+            ? "notes"
+            : reference.type === "note"
+            ? "fixed_note"
+            : unit,
+          {
             name: reference.name,
             result: result,
             color: resultClass,
@@ -2075,8 +2088,9 @@ function showResult(data) {
             flag: flag,
             font: font,
             history: "",
-          });
-        }
+            note: note,
+          }
+        );
       }
       invoices[test.name.replace(/\s/g, "").replace(/[^a-zA-Z0-9]/g, "")] =
         invoiceBody;
@@ -2091,6 +2105,7 @@ function showResult(data) {
               <p class="text-center">${name}</p>
           </div>
       </div>
+      
             `;
       let type = "";
       for (const reference of options.component) {
@@ -2480,6 +2495,23 @@ function manageHead(type) {
                 </div>
             </div>
             `;
+    case "note":
+      return `
+        <div data-flag="result" class="test strc-test row m-0 border-0 border-bottom border-dashed">
+          <div class="testname col-3">
+              <p>Name</p>
+          </div>
+          <div class="testresult result-field col-3 justify-content-center">
+              <p class="w-75 text-center">Result</p>
+          </div>
+          <div class="testnormal col-2">
+              <p contenteditable="true">Normal</p>
+          </div>
+          <div class="testnormal col-4">
+              <p class="text-right">Common Disease Association</p>
+          </div>
+      </div>
+      `;
     default:
       return `
             <div class="row m-0 mt-2 sections">
@@ -2513,6 +2545,7 @@ function manageTestType(type, test = {}) {
     hidden,
     dependOn,
     allResults,
+    note = "",
   } = test;
   result = result && result !== "undefined" ? result : "";
   let htmlHestory = "";
@@ -2636,6 +2669,31 @@ function manageTestType(type, test = {}) {
               </div>
             </div>`;
     }
+    case "note":
+      return `
+            <div style="font-size:${font} !important" data-flag="result" class="test strc-test row m-0">
+                <div class="testname col-3">
+                    <p>${name}</p>
+                </div>
+                <div class="testresult result-field col-3 justify-content-center">
+                    <p class="w-75 text-center ${color}">${result.toString()} </p>
+                    <!--<span class="text-info">${history.toString()}</span>-->
+                </div>
+                <div class="testnormal col-2">
+                    <p contenteditable="true">${normal}</p>
+                </div>
+                <div class="testnormal col-4">
+                    <p class="text-right">${note}</p>
+                </div>
+            </div>`;
+    case "fixed_note":
+      return `
+            <div style="font-size:${font} !important" data-flag="result" class="mt-3 test strc-test row m-0 text-right border-0 border-top border-dashed">
+                <div class="testname col-12">
+                    <p>${note}</p>
+                </div>
+              </div>`;
+
     default:
       break;
   }

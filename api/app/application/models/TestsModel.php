@@ -80,6 +80,14 @@ class TestsModel extends CI_Model
         return $this->get($hash);
     }
 
+    public function update_cols($hash, $data)
+    {
+        $this->db
+            ->where($this->main_column, $hash)
+            ->update($this->table, $data);
+        return $this->get($hash);
+    }
+
     public function update_tests($package_id, $tests)
     {
         $tests_ids = array_map(function ($test) {
