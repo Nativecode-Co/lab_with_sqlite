@@ -1680,9 +1680,11 @@ function createInvoiceItems(visit) {
         ${
           visit.gender === "ذكر" ? "Male" : "Female"
         }</span> / <span class="note">${
-    parseFloat(visit.age) < 1
-      ? `${parseInt(visit.age * 356)} Day`
-      : `${parseFloat(visit.age)} Year`
+    Number.parseFloat(visit.age * 356) < 356
+      ? Number.parseFloat(visit.age * 356) < 30
+        ? `${Number.parseFloat(visit.age * 356)} Day`
+        : `${Math.round(Number.parseInt(visit.age * 356) / 30)} Month`
+      : `${Number.parseFloat(visit.age)} Year`
   }
         </span>
       </p>
