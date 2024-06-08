@@ -498,23 +498,8 @@ function createBarcode() {
   const createStyle = (barcode_width, barcode_height) => {
     return `
       <style>
-        @media  print {
-          @page  {
-              padding: 0 auto !important;
-              box-sizing: border-box;
-              margin: 0 auto !important;
-              size: ${barcode_width ?? 80}mm ${barcode_height ?? 40}mm;
-          }
-          .barcode-page {
-            width: ${barcode_width ?? 80}mm;
-            height: ${barcode_height ?? 40}mm;
-            page-break-after: always;
-            margin-top: 20px;
-          }
-
-        }
-        @media (orientation: landscape) {
-          @page  {
+        @media print {
+          @page {
             padding: 0 auto !important;
             box-sizing: border-box;
             margin: 0 auto !important;
@@ -525,11 +510,52 @@ function createBarcode() {
             height: ${barcode_height ?? 40}mm;
             page-break-after: always;
             margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+          }
+          .barcode-page p {
+            margin: 0;
+            padding: 0;
+          }
+          .visit-barcode-svg {
+            width: 100%;
+            height: auto;
+          }
+        }
+        @media (orientation: landscape) {
+          @page {
+            padding: 0 auto !important;
+            box-sizing: border-box;
+            margin: 0 auto !important;
+            size: ${barcode_width ?? 80}mm ${barcode_height ?? 40}mm;
+          }
+          .barcode-page {
+            width: ${barcode_width ?? 80}mm;
+            height: ${barcode_height ?? 40}mm;
+            page-break-after: always;
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+          }
+          .barcode-page p {
+            margin: 0;
+            padding: 0;
+          }
+          .visit-barcode-svg {
+            width: 100%;
+            height: auto;
           }
         }
       </style>
     `;
   };
+
   const { tubes, name, age, date, gender } = VISIT;
 
   const createItem = (tube, name, age, gender) => {
@@ -541,21 +567,16 @@ function createBarcode() {
         : age > 10
         ? "السيدة"
         : "الطفلة";
+
     return `
-    <div class="h6 barcode-page">
-      <div class="row justify-content-center">
-        <!--<div class="text-center">${title} / ${name}</div>-->
-        <!--<div class="row justify-content-between px-4 border-bottom pb-1 mb-1 border-3">
-          <span>${date}</span>
-          <span>${age} Years / ${gender === "ذكر" ? "male" : "female"} </span>
-        </div>-->
-        <!--<div class="text-right px-2">${tube.tests}</div>-->
-        <svg class="visit-barcode-svg"></svg>
-        <!--<div class="text-left px-2">${tube.name}</div>-->
+        <div class="h6 barcode-page">
+            <p class="text-center">${name}</p>
+            <svg class="visit-barcode-svg"></svg>
+            <p class="text-left px-2">${tube.name}</p>
         </div>
-    </div>
-  `;
+    `;
   };
+
   return `
   <div class="d-none d-print-block" id="visit-barcode">
     ${createStyle(barcode_width, barcode_height)}
@@ -2859,9 +2880,9 @@ const printBarcode = (hash, name) => {
       confirmButtonText: "حسنا",
     });
   }
-  JsBarcode(".visit-barcode-svg", 12, {
+  JsBarcode(".visit-barcode-svg", hash, {
     format: "CODE39",
-    width: 1,
+    width: 3,
     height: 40,
     displayValue: true,
   });
