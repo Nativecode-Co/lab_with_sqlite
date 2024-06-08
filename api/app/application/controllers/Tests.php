@@ -243,8 +243,8 @@ class Tests extends CI_Controller
         }
         // check if visit_id is exist
         $visit_id = $this->input->post("visit_id");
-        $visit =  $this->VisitModel->get_visit($data['visit_id']);
-        if (!isset($visit["id"])) {
+        $visit =  $this->VisitModel->is_exist($data['visit_id']);
+        if (!$visit) {
             $this->output
                 ->set_status_header(200)
                 ->set_content_type('application/json')

@@ -334,6 +334,7 @@ class TestsModel extends CI_Model
     public function set_result_by_alias($alias, $visit_id, $result)
     {
         $test_hash = $this->TestAliasModel->get_test_hash_by_alias($alias);
+        $visit_id = $this->VisitModel->get_hash_by_id($visit_id);
         $visit = $this->VisitModel->get_visit($visit_id);
         if (isset($visit) && isset($test_hash)) {
             // test name from lab_test
@@ -354,7 +355,9 @@ class TestsModel extends CI_Model
                 ->get('lab_visits_tests')
                 ->row();
             $old_result = "";
-            // chekc result is json
+            if (!$test) {
+                return false;
+            }
             if (is_string($test->result_test)) {
                 $old_result = json_decode($test->result_test, true);
                 $old_result = $old_result[$test_name];

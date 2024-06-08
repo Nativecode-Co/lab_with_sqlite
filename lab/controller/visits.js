@@ -500,7 +500,7 @@ function createBarcode() {
       <style>
         @media print {
           @page {
-            padding: 0 auto !important;
+            padding: 0 !important;
             box-sizing: border-box;
             margin: 0 auto !important;
             size: ${barcode_width ?? 80}mm ${barcode_height ?? 40}mm;
@@ -515,10 +515,12 @@ function createBarcode() {
             justify-content: center;
             align-items: center;
             text-align: center;
+            padding: 0 5mm;
           }
           .barcode-page p {
             margin: 0;
             padding: 0;
+            width: 100%;
           }
           .visit-barcode-svg {
             width: 100%;
@@ -527,7 +529,7 @@ function createBarcode() {
         }
         @media (orientation: landscape) {
           @page {
-            padding: 0 auto !important;
+            padding: 0 !important;
             box-sizing: border-box;
             margin: 0 auto !important;
             size: ${barcode_width ?? 80}mm ${barcode_height ?? 40}mm;
@@ -542,10 +544,12 @@ function createBarcode() {
             justify-content: center;
             align-items: center;
             text-align: center;
+            padding: 0 5mm; 
           }
           .barcode-page p {
             margin: 0;
             padding: 0;
+            width: 100%;
           }
           .visit-barcode-svg {
             width: 100%;
@@ -572,7 +576,7 @@ function createBarcode() {
         <div class="h6 barcode-page">
             <p class="text-center">${name}</p>
             <svg class="visit-barcode-svg"></svg>
-            <p class="text-left px-2">${tube.name}</p>
+            <p class="text-center">${tube.name}</p>
         </div>
     `;
   };
