@@ -231,6 +231,16 @@ class Visit extends CI_Controller
             ->set_output(json_encode($data));
     }
 
+    public function get_id_by_hash()
+    {
+        $hash = $this->input->get("hash");
+        $data = $this->VisitModel->get_id_by_hash($hash);
+        $this->output
+            ->set_status_header(200)
+            ->set_content_type('application/json')
+            ->set_output(json_encode($data));
+    }
+
     function saveTestResult()
     {
         $data = $this->input->post();

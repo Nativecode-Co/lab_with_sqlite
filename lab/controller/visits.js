@@ -380,6 +380,7 @@ function showAddResult(hash, animate = true) {
     niceSwal("error", "bottom-end", "حدث خطأ ما, حاول مرة أخرى");
     return;
   }
+  const id = fetchApi("/visit/get_id_by_hash", "GET", { hash });
   VISIT = data;
   const form = addResult(data);
   const { invoice, buttons } = showResult(data);
@@ -404,7 +405,7 @@ function showAddResult(hash, animate = true) {
                     <div class="col-lg-12 mt-48">
                         <div class="row mt-15 justify-content-around">
                             <div class="col-md-2 col-6">
-                                <button type="button" class="btn btn-outline-print w-100" onclick="printBarcode('${hash}', '${
+                                <button type="button" class="btn btn-outline-print w-100" onclick="printBarcode('${id}', '${
     data.name
   }')">
                                     <i class="mr-2 fal fa-print"></i>طباعة الباركود
@@ -542,14 +543,16 @@ function createBarcode() {
         : "الطفلة";
     return `
     <div class="h6 barcode-page">
-        <div class="text-center">${title} / ${name}</div>
+      <div class="row justify-content-center">
+        <!--<div class="text-center">${title} / ${name}</div>-->
         <!--<div class="row justify-content-between px-4 border-bottom pb-1 mb-1 border-3">
           <span>${date}</span>
           <span>${age} Years / ${gender === "ذكر" ? "male" : "female"} </span>
         </div>-->
-        <div class="text-right px-2">${tube.tests}</div>
+        <!--<div class="text-right px-2">${tube.tests}</div>-->
         <svg class="visit-barcode-svg"></svg>
-        <div class="text-left px-2">${tube.name}</div>
+        <!--<div class="text-left px-2">${tube.name}</div>-->
+        </div>
     </div>
   `;
   };
@@ -2856,11 +2859,11 @@ const printBarcode = (hash, name) => {
       confirmButtonText: "حسنا",
     });
   }
-  JsBarcode(".visit-barcode-svg", hash, {
+  JsBarcode(".visit-barcode-svg", 12, {
     format: "CODE39",
     width: 1,
     height: 40,
-    displayValue: false,
+    displayValue: true,
   });
   // print barcode
   $("#visit-barcode").printThis({

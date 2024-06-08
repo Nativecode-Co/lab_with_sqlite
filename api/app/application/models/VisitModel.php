@@ -199,6 +199,13 @@ class VisitModel extends CI_Model
 
         return $visit;
     }
+    
+
+    public function get_id_by_hash($hash)
+    {
+        $result = $this->db->select('id')->where('hash', $hash)->get('lab_visits')->row_array();
+        return $result['id'];
+    }
 
     public function get_visit_form_data()
     {

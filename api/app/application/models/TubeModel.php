@@ -70,19 +70,19 @@ class TubeModel extends CI_Model
 
     public function get($id)
     {
-        $tube =  $this->db
-            ->select('tube.id, tube.name, GROUP_CONCAT(lab_test.test_name) as tests, GROUP_CONCAT(lab_test.hash) as test_ids')
-            ->join('tube_test', 'tube_test.tube_id = tube.id', 'left')
-            ->join('lab_test', 'lab_test.hash = tube_test.test_id', 'left')
-            ->where('tube.isdeleted', 0)
-            ->where('lab_test.lab_hash is null')
-            ->where("tube.id", $id)
+        $tests = $this->db
+            ->select('test_id')
+            ->where('tube_id', $id)
+            ->get('tube_test')
+            ->result_array();
+        $tests = array_column($tests, 'test_id');
+        $tube = $this->db
+            ->select('id, name')
+            ->where('id', $id)
             ->get($this->table)
             ->row();
-        if (isset($tube->id)) {
-            return $tube;
-        }
-        return null;
+        $tube->tests = $tests;
+        return $tube;
     }
 
     public function insert($data, $tests)
@@ -99,31 +99,51 @@ class TubeModel extends CI_Model
 
     public function update($id, $data, $tests)
     {
+        // بدء المعاملة
+        $this->db->trans_start();
+
+        // تحديث البيانات الرئيسية
         $this->db
             ->where($this->main_column, $id)
             ->update($this->table, $data);
+
         $this->db
             ->where('tube_id', $id)
             ->where_not_in('test_id', $tests)
             ->delete('tube_test');
-        // old tests
+
+        // الحصول على الاختبارات القديمة
         $old_tests = $this->db
             ->select('test_id')
             ->where('tube_id', $id)
             ->get('tube_test')
-            ->result();
-        $old_tests = array_map(function ($test) {
-            return $test->test_id;
-        }, $old_tests);
-        // insert new tests
+            ->result_array();
+        $old_tests = array_column($old_tests, 'test_id');
+
+        // إدراج الاختبارات الجديدة
         $new_tests = array_diff($tests, $old_tests);
-        $new_tests = array_map(function ($test) use ($id) {
+
+        $new_tests_data = array_map(function ($test) use ($id) {
             return ['test_id' => $test, 'tube_id' => $id];
         }, $new_tests);
-        if (count($new_tests) > 0)
-            $this->db->insert_batch('tube_test', $new_tests);
+
+        if (!empty($new_tests_data)) {
+            $this->db->insert_batch('tube_test', $new_tests_data);
+        }
+
+        // إنهاء المعاملة (إذا كانت ناجحة يتم التثبيت وإلا يتم التراجع)
+        $this->db->trans_complete();
+
+        // التحقق من نجاح المعاملة
+        if ($this->db->trans_status() === FALSE) {
+            // المعاملة فشلت، يمكن هنا إضافة معالجة للخطأ مثل الرمي باستثناء
+            return FALSE;
+        }
+
+        // استرجاع البيانات المحدثة
         return $this->get($id);
     }
+
 
     // trancate table 
     public function truncate()
