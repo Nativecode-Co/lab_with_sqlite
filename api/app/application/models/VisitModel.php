@@ -391,11 +391,11 @@ class VisitModel extends CI_Model
             }
         });
 
-
         $calc_tests = array_map(function ($test) use ($visit_hash) {
+            $package_id = $this->db->select("package_id")->where('test_id', $test['hash'])->get('lab_pakage_tests')->row_array();
             return array(
                 "tests_id" => $test['hash'],
-                "package_id" => "",
+                "package_id" => isset($package_id['package_id']) ? $package_id['package_id'] : "",
                 "visit_id" => $visit_hash,
                 "hash" => create_hash(),
                 "result_test" => json_encode(
