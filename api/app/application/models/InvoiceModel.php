@@ -40,6 +40,18 @@ class InvoiceModel extends CI_Model
         if (!$this->db->field_exists('barcode_first_time', 'lab_invoice')) {
             $this->db->query("ALTER TABLE `lab_invoice` ADD COLUMN `barcode_first_time` INTEGER NOT NULL DEFAULT 0 ;");
         }
+        // header_image
+        if (!$this->db->field_exists('header_image', 'lab_invoice')) {
+            $this->db->query("ALTER TABLE `lab_invoice` ADD COLUMN `header_image` TEXT NOT NULL DEFAULT '' ;");
+        }
+        // footer_image
+        if (!$this->db->field_exists('footer_image', 'lab_invoice')) {
+            $this->db->query("ALTER TABLE `lab_invoice` ADD COLUMN `footer_image` TEXT NOT NULL DEFAULT '' ;");
+        }
+        // invoice_model ["images","names"]
+        if (!$this->db->field_exists('invoice_model', 'lab_invoice')) {
+            $this->db->query("ALTER TABLE `lab_invoice` ADD COLUMN `invoice_model` CHAR(255) NOT NULL DEFAULT 'names' ;");
+        }
     }
 
     public function get()
@@ -70,6 +82,7 @@ class InvoiceModel extends CI_Model
             ->select("logo, water_mark, footer_header_show, invoice_about_ar")
             ->select("font_size, zoom, doing_by, name_in_invoice, font_color,setting")
             ->select("barcode_width, barcode_height,barcode_first_time")
+            ->select("header_image, footer_image, invoice_model")
             ->limit(1)
             ->get('lab_invoice')->row_array();
         $invoice = array_merge($invoice, $setting);

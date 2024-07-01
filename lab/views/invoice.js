@@ -197,7 +197,7 @@ const InvoiceItem = ({ test, invoice, settingState }) => {
         })}
       </div>
       {invoice.history == "1" && (
-        <div class="testprice col-12 h5 text-right text-info">
+        <div className="testprice col-12 h5 text-right text-info">
           - Last Result dated 2024-01-10 was : 3 U/mL
         </div>
       )}
@@ -206,13 +206,36 @@ const InvoiceItem = ({ test, invoice, settingState }) => {
 };
 
 const Invoice = ({ tests, invoice, settingState }) => {
+  let header = null;
+  let footer = null;
+  switch (invoice.invoice_model) {
+    case "images":
+      header = (
+        <InvoiceHeaderImage
+          image={invoice.header_image}
+          height={invoice.header}
+        />
+      );
+      footer = (
+        <InvoiceFooterImage
+          image={invoice.footer_image}
+          height={invoice.footer}
+        />
+      );
+      break;
+    default:
+      header = <InvoiceHeader invoice={invoice} />;
+      footer = <InvoiceFooterText invoice={invoice} />;
+      break;
+  }
+
   return (
     <div className="book-result" dir="ltr" id="invoice-normalTests" style={{}}>
       <h1 className="text-center py-2">
         امسك عناصر الفاتورة واسحبها لتغيير ترتيبها
       </h1>
       <div className="page">
-        <InvoiceHeader invoice={invoice} />
+        {header}
 
         <div
           className="center2"
@@ -356,43 +379,7 @@ const Invoice = ({ tests, invoice, settingState }) => {
             })}
           </div>
         </div>
-
-        <div
-          className="footer2"
-          style={{
-            borderTop: " 5px solid rgb(46, 63, 76)",
-            height: invoice.footer + "px",
-          }}
-        >
-          <div
-            className="f1"
-            style={{ display: invoice.footer_header_show == "1" ? "" : "none" }} // "display: ${footer_header_show == '1' ? '' : 'none'};"
-          >
-            {invoice.address && (
-              <p>
-                <i className="fas fa-map-marker-alt"></i>
-                {invoice.address}
-              </p>
-            )}
-          </div>
-          <div
-            className="f2"
-            style={{ display: invoice.footer_header_show == "1" ? "" : "none" }} // "display: ${footer_header_show == '1' ? '' : 'none'};"
-          >
-            <p>
-              {invoice.facebook && (
-                <span className="note">
-                  <i className="fas fa-envelope"></i> {invoice.facebook}|
-                </span>
-              )}
-              {invoice.phone_1 && (
-                <span className="note">
-                  <i className="fas fa-phone"></i> {invoice.phone_1}
-                </span>
-              )}
-            </p>
-          </div>
-        </div>
+        {footer}
       </div>
     </div>
   );
@@ -400,11 +387,18 @@ const Invoice = ({ tests, invoice, settingState }) => {
 
 const Setting = ({ dispatch, state, invoice, setInvoice }) => {
   const [file, setFile] = React.useState(null);
+  const [headerImage, setHeaderImage] = React.useState(null);
+  const [footerImage, setFooterImage] = React.useState(null);
   const [oldFile, setOldFile] = React.useState(null);
+  const [oldHeaderImage, setOldHeaderImage] = React.useState(null);
+  const [oldFooterImage, setOldFooterImage] = React.useState(null);
 
   const updateInvoice = async () => {
     let formData = new FormData();
     let newFile = null;
+    let newHeaderImage = null;
+    let newFooterImage = null;
+
     if (file) {
       await handelUpload(file)
         .then((e) => e.json())
@@ -413,15 +407,44 @@ const Setting = ({ dispatch, state, invoice, setInvoice }) => {
           setInvoice({ ...invoice, logo: res.data });
         });
     }
+
+    if (headerImage) {
+      await handelUpload(headerImage)
+        .then((e) => e.json())
+        .then((res) => {
+          newHeaderImage = res.data;
+          setInvoice({ ...invoice, header_image: res.data });
+        });
+    }
+
+    if (footerImage) {
+      await handelUpload(footerImage)
+        .then((e) => e.json())
+        .then((res) => {
+          newFooterImage = res.data;
+          setInvoice({ ...invoice, footer_image: res.data });
+        });
+    }
+
     for (let key in invoice) {
       if (key == "setting") {
         continue;
       }
       formData.append(key, invoice[key]);
     }
+
     if (newFile) {
       formData.append("logo", newFile);
     }
+
+    if (newHeaderImage) {
+      formData.append("header_image", newHeaderImage);
+    }
+
+    if (newFooterImage) {
+      formData.append("footer_image", newFooterImage);
+    }
+
     await fetch(`${base_url}Invoice/update`, {
       method: "POST",
       body: formData,
@@ -444,6 +467,8 @@ const Setting = ({ dispatch, state, invoice, setInvoice }) => {
 
   React.useEffect(() => {
     setOldFile(invoice.logo);
+    setOldHeaderImage(invoice.header_image);
+    setOldFooterImage(invoice.footer_image);
   }, [invoice]);
 
   return (
@@ -542,9 +567,7 @@ const Setting = ({ dispatch, state, invoice, setInvoice }) => {
                 />
               </div>
               <div className="form-group col-md-6">
-                <label htmlFor="barcode_width">
-                  عرض الباركود(mm)
-                </label>
+                <label htmlFor="barcode_width">عرض الباركود(mm)</label>
                 <input
                   type="text"
                   className="form-control"
@@ -560,9 +583,7 @@ const Setting = ({ dispatch, state, invoice, setInvoice }) => {
                 />
               </div>
               <div className="form-group col-md-6">
-                <label htmlFor="barcode_height">
-                  طول الباركود(mm)
-                </label>
+                <label htmlFor="barcode_height">طول الباركود(mm)</label>
                 <input
                   type="text"
                   className="form-control"
@@ -834,7 +855,27 @@ const Setting = ({ dispatch, state, invoice, setInvoice }) => {
                   <span className="slider round"></span>
                 </label>
               </div>
-              
+              <div className="form-group  col-md-12">
+                <label htmlFor="invoice_model" className="w-100 text-center">
+                  نوع الراس والذيل
+                </label>
+                <select
+                  name="invoice_model"
+                  id="invoice_model"
+                  className="form-control"
+                  style={{ height: "50px" }}
+                  onChange={(e) => {
+                    setInvoice({
+                      ...invoice,
+                      invoice_model: e.target.value,
+                    });
+                  }}
+                  value={invoice.invoice_model}
+                >
+                  <option value="names"> الاجازات و تفاصيل الذيل </option>
+                  <option value="images"> صورة الراس و الذيل </option>
+                </select>
+              </div>
               <div className="form-group col-md-12">
                 <label htmlFor="logo">شعار الفاتورة</label>
                 <input
@@ -849,6 +890,39 @@ const Setting = ({ dispatch, state, invoice, setInvoice }) => {
                 />
                 <div className="justify-content-center row">
                   <img src={oldFile} style={{ maxHeight: "400px" }} />
+                </div>
+              </div>
+              <div className="form-group col-md-12">
+                <label htmlFor="header_image">صورة الرأس</label>
+                <input
+                  type="file"
+                  className="form-control"
+                  id="header_image"
+                  name="header_image"
+                  onChange={(e) => {
+                    setHeaderImage(e.target.files[0]);
+                    setOldHeaderImage(URL.createObjectURL(e.target.files[0]));
+                  }}
+                />
+                <div className="justify-content-center row">
+                  <img src={oldHeaderImage} style={{ maxHeight: "400px" }} />
+                </div>
+              </div>
+
+              <div className="form-group col-md-12">
+                <label htmlFor="footer_image">صورة الذيل</label>
+                <input
+                  type="file"
+                  className="form-control"
+                  id="footer_image"
+                  name="footer_image"
+                  onChange={(e) => {
+                    setFooterImage(e.target.files[0]);
+                    setOldFooterImage(URL.createObjectURL(e.target.files[0]));
+                  }}
+                />
+                <div className="justify-content-center row">
+                  <img src={oldFooterImage} style={{ maxHeight: "400px" }} />
                 </div>
               </div>
 
@@ -1088,7 +1162,7 @@ const InvoiceHeader = ({ invoice }) => {
                 >
                   <div className="size1">
                     <p className="title">{invoice.name_in_invoice}</p>
-                    <p className="namet">{invoice.invoice_about_ar }</p>
+                    <p className="namet">{invoice.invoice_about_ar}</p>
                     <p className="certificate">{invoice.invoice_about_en}</p>
                   </div>
                 </div>
@@ -1132,6 +1206,75 @@ const InvoiceHeader = ({ invoice }) => {
           </React.Fragment>
         )}
       </div>
+    </div>
+  );
+};
+
+const InvoiceHeaderImage = ({ image, height }) => {
+  return (
+    <div className="header" style={{ height: `${height}px` }}>
+      <div className="row justify-content-between align-items-center h-100">
+        <div className="col-12">
+          <img
+            src={image}
+            alt="header image"
+            style={{ height: "100%", width: "100%" }}
+          />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const InvoiceFooterText = ({ invoice }) => {
+  return (
+    <div
+      className="footer2"
+      style={{
+        borderTop: " 5px solid rgb(46, 63, 76)",
+        height: invoice.footer + "px",
+      }}
+    >
+      <div
+        className="f1"
+        style={{ display: invoice.footer_header_show == "1" ? "" : "none" }} // "display: ${footer_header_show == '1' ? '' : 'none'};"
+      >
+        {invoice.address && (
+          <p>
+            <i className="fas fa-map-marker-alt"></i>
+            {invoice.address}
+          </p>
+        )}
+      </div>
+      <div
+        className="f2"
+        style={{ display: invoice.footer_header_show == "1" ? "" : "none" }} // "display: ${footer_header_show == '1' ? '' : 'none'};"
+      >
+        <p>
+          {invoice.facebook && (
+            <span className="note">
+              <i className="fas fa-envelope"></i> {invoice.facebook}|
+            </span>
+          )}
+          {invoice.phone_1 && (
+            <span className="note">
+              <i className="fas fa-phone"></i> {invoice.phone_1}
+            </span>
+          )}
+        </p>
+      </div>
+    </div>
+  );
+};
+
+const InvoiceFooterImage = ({ image, height }) => {
+  return (
+    <div className="" style={{ height: `${height}px` }}>
+      <img
+        src={image}
+        alt="footer image"
+        style={{ height: "100%", width: "100%" }}
+      />
     </div>
   );
 };

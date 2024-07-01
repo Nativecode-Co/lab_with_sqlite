@@ -1666,85 +1666,142 @@ function invoiceHeader(invoice) {
     show_name,
     show_logo,
     invoice_about_en,
+    invoice_model,
+    header_image,
   } = invoice;
-  if (workers.length > 0) {
-    html = workers
-      .map((worker) => {
-        if (worker.hash == "logo") {
-          return `
-          <div 
-            class="logo p-2 ${show_logo == "1" ? "d-flex" : "d-none"}" 
-            style="flex: 0 0 ${size}%;max-width: ${size}%;"
-          >
-          <img src="${logo}" alt="" />
-        </div>
-        `;
-        }
-        if (worker.hash == "name") {
-          return `
-          <div class="right ${show_name == "1" ? "d-flex" : "d-none"}" style="
-          flex: 0 0 ${size}%;
-          max-width: ${size}%;
-        ">
-            <!-- عنوان جانب الايمن -->
-            <div class="size1">
-                <p class="title">${name_in_invoice ?? "اسم التحليل"}</p>
-                <p class="namet">${
-                  invoice_about_ar ?? "للتحليلات المرضية المتقدمة"
-                }</p>
-                <p class="certificate">${
-                  invoice_about_en ?? "Medical Lab for Pathological Analyses"
-                }</p>
+  switch (invoice_model) {
+    case "images":
+      // use image only
+      return `
+        <div class="header">
+            <div class="row justify-content-between align-items-center h-100" >
+            <div class="col-12">
+              <img src="${header_image}" alt="header image" style="width: 100%;height: 100%">
+            </div>
             </div>
         </div>
-          
-        `;
-        }
-        return `
-        <div class="right" style="
-        flex: 0 0 ${size}%;
-        max-width: ${size}%;
-      ">
-          <div class="size1">
-            <p class="title">${worker.jop ?? "Jop title"}</p>
-            <p class="namet">${worker.name ?? "Worker name"}</p>
-            <p class="certificate">${worker.jop_en ?? "Jop En title"}</p>
-          </div>
-        </div>
-        `;
-      })
-      .join("");
-  } else {
-    html = `
-        <div class="logo col-6 p-2 ${show_logo == "1" ? "d-flex" : "d-none"}">
-            <img src="${logo ?? ""}"
-            alt="${logo ?? "upload Logo"}">
-        </div>
-        <div class="right col-6 ${show_name == "1" ? "d-flex" : "d-none"}">
-            <!-- عنوان جانب الايمن -->
-            <div class="size1">
-                <p class="title">${
-                  invoices?.name_in_invoice ??
-                  localStorage?.lab_name ??
-                  "اسم التحليل"
-                }</p>
-                <p class="namet">${
-                  localStorage?.invoice_about_ar ?? "للتحليلات المرضية المتقدمة"
-                }</p>
-                <p class="certificate">${
-                  localStorage?.invoice_about_en ??
-                  "Medical Lab for Pathological Analyses"
-                }</p>
+      `;
+    default:
+      if (workers.length > 0) {
+        html = workers
+          .map((worker) => {
+            if (worker.hash == "logo") {
+              return `
+              <div 
+                class="logo p-2 ${show_logo == "1" ? "d-flex" : "d-none"}" 
+                style="flex: 0 0 ${size}%;max-width: ${size}%;"
+              >
+              <img src="${logo}" alt="" />
             </div>
-        </div>`;
+            `;
+            }
+            if (worker.hash == "name") {
+              return `
+              <div class="right ${
+                show_name == "1" ? "d-flex" : "d-none"
+              }" style="
+              flex: 0 0 ${size}%;
+              max-width: ${size}%;
+            ">
+                <!-- عنوان جانب الايمن -->
+                <div class="size1">
+                    <p class="title">${name_in_invoice ?? "اسم التحليل"}</p>
+                    <p class="namet">${
+                      invoice_about_ar ?? "للتحليلات المرضية المتقدمة"
+                    }</p>
+                    <p class="certificate">${
+                      invoice_about_en ??
+                      "Medical Lab for Pathological Analyses"
+                    }</p>
+                </div>
+            </div>
+              
+            `;
+            }
+            return `
+            <div class="right" style="
+            flex: 0 0 ${size}%;
+            max-width: ${size}%;
+          ">
+              <div class="size1">
+                <p class="title">${worker.jop ?? "Jop title"}</p>
+                <p class="namet">${worker.name ?? "Worker name"}</p>
+                <p class="certificate">${worker.jop_en ?? "Jop En title"}</p>
+              </div>
+            </div>
+            `;
+          })
+          .join("");
+      } else {
+        html = `
+            <div class="logo col-6 p-2 ${
+              show_logo == "1" ? "d-flex" : "d-none"
+            }">
+                <img src="${logo ?? ""}"
+                alt="${logo ?? "upload Logo"}">
+            </div>
+            <div class="right col-6 ${show_name == "1" ? "d-flex" : "d-none"}">
+                <!-- عنوان جانب الايمن -->
+                <div class="size1">
+                    <p class="title">${
+                      invoices?.name_in_invoice ??
+                      localStorage?.lab_name ??
+                      "اسم التحليل"
+                    }</p>
+                    <p class="namet">${
+                      localStorage?.invoice_about_ar ??
+                      "للتحليلات المرضية المتقدمة"
+                    }</p>
+                    <p class="certificate">${
+                      localStorage?.invoice_about_en ??
+                      "Medical Lab for Pathological Analyses"
+                    }</p>
+                </div>
+            </div>`;
+      }
+      return `
+        <div class="header">
+            <div class="row justify-content-between align-items-center h-100">
+                ${html}
+            </div>
+        </div>
+      `;
   }
-  return `
-    <div class="header">
-        <div class="row justify-content-between align-items-center h-100">
-            ${html}
+}
+
+function invoiceFooter(invoice) {
+  const { address, facebook, phone_1, invoice_model, footer_image } = invoice;
+  switch (invoice_model) {
+    case "images":
+      // use image only
+      return `
+        <div>
+          <img src="${footer_image}" alt="footer image" style="width: 100%;height: 100%">
         </div>
+      `;
+    default:
+      return `
+  <div class="footer2">
+    <div class="f1">
+      <p>${
+        address ? `<i class="fas fa-map-marker-alt"></i> ${address}` : ""
+      }</p>
     </div>
+    <div class="f2">
+      <p>
+        <span class="note">${
+          facebook === "" ? "" : `<i class="fas fa-envelope"></i>  ${facebook}`
+        }</span>
+        <span class="note">${
+          phone_1 === ""
+            ? ""
+            : `<i class="fas fa-phone"></i> &nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;  ${phone_1}`
+        }</span>
+      </p>
+    </div>
+  </div>
   `;
+  }
 }
 
 function createBookResult(invoices, type) {
@@ -1835,31 +1892,7 @@ function createInvoiceItems(visit) {
     </div>
   </div>
   `;
-  const footer = `
-  <div class="footer2">
-    <div class="f1">
-      <p>${
-        invoice.address
-          ? `<i class="fas fa-map-marker-alt"></i> ${invoice.address}`
-          : ""
-      }</p>
-    </div>
-    <div class="f2">
-      <p>
-        <span class="note">${
-          invoice.facebook === ""
-            ? ""
-            : `<i class="fas fa-envelope"></i>  ${invoice.facebook}`
-        }</span>
-        <span class="note">${
-          invoice.phone_1 === ""
-            ? ""
-            : `<i class="fas fa-phone"></i> &nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;  ${invoice.phone_1}`
-        }</span>
-      </p>
-    </div>
-  </div>
-  `;
+  const footer = invoiceFooter(invoice);
   return { header, nav, footer, invoice };
 }
 
