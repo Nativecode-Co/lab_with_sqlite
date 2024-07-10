@@ -106,10 +106,26 @@ class MedConnectModel extends CI_Model
             }
 
             $test_name = $test_name->Name;
-            $this->db
-                ->where('visit_id', $test['SampleNumber'])
-                ->where('tests_id', $test['TestCode'])
-                ->update('lab_visits_tests', array("result_test" => json_encode(array($test_name => $test['Result'], "checked" => true))));
+            if ($test["TestCode"] == "360" || $test["TestCode"] == "16708623707062301") {
+                $result = $this->db
+                    ->select('result_test')
+                    ->where('visit_id', $test['SampleNumber'])
+                    ->where('tests_id', $test['TestCode'])
+                    ->get('lab_visits_tests')
+                    ->row();
+                $result = json_decode($result->result_test, true);
+                // merge the new result with the old result
+                $result[$test['SubTestCode']] = $test['Result'];
+                $this->db
+                    ->where('visit_id', $test['SampleNumber'])
+                    ->where('tests_id', $test['TestCode'])
+                    ->update('lab_visits_tests', array("result_test" => json_encode($result)));
+            } else {
+                $this->db
+                    ->where('visit_id', $test['SampleNumber'])
+                    ->where('tests_id', $test['TestCode'])
+                    ->update('lab_visits_tests', array("result_test" => json_encode(array($test_name => $test['Result'], "checked" => true))));
+            }
         }
         return array(
             "message" => "Results updated successfully",

@@ -26,7 +26,7 @@ class MedContent extends CI_Controller
         $this->output
             ->set_status_header(200)
             ->set_content_type('application/json')
-            ->set_output(json_encode($tests));
+            ->set_output(json_encode(array("tests" => $tests)));
     }
 
     function orders()
