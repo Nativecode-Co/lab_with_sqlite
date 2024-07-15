@@ -2037,7 +2037,7 @@ function showResult(data) {
     if (reference.type === "type") {
       const result_test = test.result;
       const options = test.option_test;
-      const font = options?.font ?? invoices?.font ?? "16px";
+      const font = options?.font ?? "14px";
       const idName = test.name.replace(/\s/g, "").replace(/[^a-zA-Z0-9]/g, "");
       buttons[idName] = addInviceButton(idName, test.name);
       let invoiceBody = "";
@@ -2632,16 +2632,16 @@ function manageTestType(type, test = {}) {
         ?.split(" ")
         ?.join("_")}" style="display:${checked}">
                 <div class="testname col-3">
-                    <p class="text-right w-100">${name}</p>
+                    <p style="font-size:${font} !important" class="text-right w-100">${name}</p>
                 </div>
                 <div class="testresult result-field col-3">
-                    <p class="${color} w-100 text-center">${result}</p>
+                    <p style="font-size:${font} !important" class="${color} w-100 text-center">${result}</p>
                 </div>
                 <div class="testresult col-1">
                     ${
                       name == "Blood Group (ABO)"
                         ? ""
-                        : `<p class="${
+                        : `<p style="font-size:${font} !important" class="${
                             color.includes("text-danger")
                               ? "text-danger"
                               : color.includes("text-info")
@@ -2651,10 +2651,10 @@ function manageTestType(type, test = {}) {
                     }
                 </div>
                 <div class="testresult col-2">
-                    <p> ${unit}</p>
+                    <p style="font-size:${font} !important"> ${unit}</p>
                 </div>
                 <div class="testnormal col-3 text-right" contenteditable="true">
-                    <p class="text-right" contenteditable="true">${normal}</p>
+                    <p style="font-size:${font} !important" class="text-right" contenteditable="true">${normal}</p>
                 </div>
                 ${htmlHestory}
             </div>
@@ -2663,17 +2663,19 @@ function manageTestType(type, test = {}) {
       return `
             <div style="font-size:${font} !important" data-flag="unit" class="test strc-test row m-0">
                     <div class="testname col-4">
-                        <p>${name}</p>
+                        <p style="font-size:${font} !important">${name}</p>
                     </div>
                     <div class="testresult result-field col-4 justify-content-center">
-                        <p class="w-75 text-center ${color}">${result.toString()} </p>
+                        <p style="font-size:${font} !important" class="w-75 text-center ${color}">${result.toString()} </p>
                         <!--<span class="text-info">${history.toString()}</span>-->
                     </div>
                     <div class="testname col-2" >
-                        <p>${unit ?? ""}</p>
+                        <p style="font-size:${font} !important">${
+        unit ?? ""
+      }</p>
                     </div>
                     <div class="testnormal col-2">
-                        <p contenteditable="true">${normal}</p>
+                        <p style="font-size:${font} !important" contenteditable="true">${normal}</p>
                     </div>
                 </div>
             `;
@@ -2681,21 +2683,21 @@ function manageTestType(type, test = {}) {
       return `
             <div style="font-size:${font} !important" data-flag="result" class="test strc-test row m-0">
                     <div class="testname col-4">
-                        <p>${name}</p>
+                        <p style="font-size:${font} !important">${name}</p>
                     </div>
                     <div class="testresult result-field col-6 justify-content-center">
-                        <p class="w-75 text-center ${color}">${result.toString()} </p>
+                        <p style="font-size:${font} !important" class="w-75 text-center ${color}">${result.toString()} </p>
                         <!--<span class="text-info">${history.toString()}</span>-->
                     </div>
                     <div class="testnormal col-2">
-                        <p contenteditable="true">${normal}</p>
+                        <p style="font-size:${font} !important" contenteditable="true">${normal}</p>
                     </div>
                 </div>`;
     case "notes":
       return `
             <div class="strc-test row m-0">
                 <div class="testname col-12">
-                    <p class="text-right pr-2">${result}</p>
+                    <p style="font-size:${font} !important" class="text-right pr-2">${result}</p>
                 </div>
             </div>
             `;

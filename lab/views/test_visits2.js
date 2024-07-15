@@ -49,12 +49,6 @@ class Tests extends Factory {
       [
         { data: "test_name" },
         {
-          data: "doctor_name",
-          render: (data, type, row) => {
-            return data || "لا يوجد طبيب";
-          },
-        },
-        {
           data: "count",
           render: (data, type, row) => {
             return Number(data).toLocaleString();

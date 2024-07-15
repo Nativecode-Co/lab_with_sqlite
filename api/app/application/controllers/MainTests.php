@@ -83,6 +83,16 @@ class MainTests extends CI_Controller
             ->set_output(json_encode($data));
     }
 
+    function get_structural_tests()
+    {
+        $data = $this->MainTestsModel->get_structural_tests();
+        $this->output
+            ->set_status_header(200)
+            ->set_content_type('application/json')
+            ->set_output(json_encode($data));
+    }
+
+
     function create_main_test()
     {
         $req = $this->input->post();
@@ -99,14 +109,14 @@ class MainTests extends CI_Controller
         $this->form_validation->set_data($req);
 
         $valid = $this->form_validation->set_data($req)->set_rules(
-                'hash',
-                'hash',
-                'required|numeric',
-                array(
-                    'required' => 'هذا الحقل مطلوب',
-                    'numeric' => 'يجب ادخال قيمة رقمية'
-                )
-            )->run('main_tests');
+            'hash',
+            'hash',
+            'required|numeric',
+            array(
+                'required' => 'هذا الحقل مطلوب',
+                'numeric' => 'يجب ادخال قيمة رقمية'
+            )
+        )->run('main_tests');
         if (!$valid) {
             $errors = $this->form_validation->error_array();
             $this->output
