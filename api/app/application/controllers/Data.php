@@ -23,6 +23,21 @@ class Data extends CI_Controller
             ->set_output(json_encode($result));
     }
 
+    function check_tests()
+    {
+        $tests = $this->DataModel->check_tests();
+        $url = 'http://umc.native-code-iq.com/app/index.php/data/get_new_tests';
+        $data = post_data($url, array('data' => json_encode($tests)));
+
+        $result = $this->DataModel->insert_all(json_decode($data, true));
+
+        $this->output
+            ->set_status_header(200)
+            ->set_content_type('application/json')
+            ->set_output(json_encode($result));
+        exit();
+    }
+
     function insert_lab_data()
     {
         $username = $this->input->post('username');

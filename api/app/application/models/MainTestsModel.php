@@ -92,6 +92,10 @@ class MainTestsModel extends CI_Model
         );
 
         $this->db->update_batch($this->table, $data, 'hash');
+        // add updated_at col if not already
+        if (!$this->db->field_exists('updated_at', $this->table)) {
+            $this->db->query("ALTER TABLE $this->table ADD updated_at TIMESTAMP ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP");
+        }
     }
 
     public function count_all($params)
@@ -338,5 +342,25 @@ class MainTestsModel extends CI_Model
             return $test;
         }, $data);
         $this->db->insert_batch($this->table, $data);
+    }
+
+    public function get_main_tests_by_updated_at($data)
+    {
+        if (is_array($data)) {
+            foreach ($data as $item) {
+                $hash = $item['hash'];
+                $updated_at = $item['updated_at'];
+                $test = $this->db->select('test_name as text, hash')
+                    ->where('isdeleted', 0)
+                    ->where('updated_at >', $updated_at)
+                    ->where($this->main_column, $hash)
+                    ->get($this->table)
+                    ->row();
+                if ($test) {
+                    $result[] = $test;
+                }
+            }
+        }
+        return $result;
     }
 }

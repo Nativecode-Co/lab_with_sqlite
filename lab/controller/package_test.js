@@ -1,3 +1,4 @@
+fetchApi("/data/check_tests");
 const THEME = new PackageTestTheme();
 let TEST = null;
 

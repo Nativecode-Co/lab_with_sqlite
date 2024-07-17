@@ -37,50 +37,67 @@ const onStepChanging = (event, currentIndex, newIndex) => {
 };
 
 const startSteps = () => {
-  const newTestsElement = document.getElementById("newTests");
-  const updateTestsElement = document.getElementById("editTests");
-  newTestsElement.innerHTML = "";
-  updateTestsElement.innerHTML = "";
-  // check if syncSteps is already created
-  if (document.querySelector(".steps.clearfix")) {
-    $("#syncSteps").steps("destroy");
+  const tests = fetchDataOnline("data/get_updated_tests");
+  if (tests.length > 0) {
+    const checkedTests = tests.map((item) => {
+      return {
+        hash: item.hash,
+        updated_at: item.updated_at,
+      };
+    });
+    fetchApi("/mainTests/get_main_tests_by_updated_at", "POST", {
+      data: [
+        {
+          hash: "17210478943718738",
+          updated_at: "2024-07-15 15:51:34",
+        },
+      ],
+    });
   }
-  $("#sync").modal("show");
-  $("#syncSteps").steps({
-    headerTag: "h3",
-    bodyTag: "section",
-    transitionEffect: "slideLeft",
-    autoFocus: true,
-    cssClass: "pills wizard",
-    enableAllSteps: false,
-    stepsOrientation: "vertical",
-    enableFinishButton: true,
-    titleTemplate: "#title#",
-    loadingTemplate: waitElement,
-    enableCancelButton: true,
+  // const newTestsElement = document.getElementById("newTests");
+  // const updateTestsElement = document.getElementById("editTests");
+  // newTestsElement.innerHTML = "";
+  // updateTestsElement.innerHTML = "";
+  // // check if syncSteps is already created
+  // if (document.querySelector(".steps.clearfix")) {
+  //   $("#syncSteps").steps("destroy");
+  // }
+  // $("#sync").modal("show");
+  // $("#syncSteps").steps({
+  //   headerTag: "h3",
+  //   bodyTag: "section",
+  //   transitionEffect: "slideLeft",
+  //   autoFocus: true,
+  //   cssClass: "pills wizard",
+  //   enableAllSteps: false,
+  //   stepsOrientation: "vertical",
+  //   enableFinishButton: true,
+  //   titleTemplate: "#title#",
+  //   loadingTemplate: waitElement,
+  //   enableCancelButton: true,
 
-    labels: {
-      cancel: "الغاء",
-      current: "الخطوة الحالية:",
-      pagination: " ترقيم الصفحات",
-      finish: "تحديث",
-      next: " التالي",
-      previous: " السابق",
-      loading: "جاري التحميل ...",
-    },
-    onStepChanging: (event, currentIndex, newIndex) => {
-      fireSwal(onStepChanging, event, currentIndex, newIndex);
-      return true;
-    },
-    onFinishing: (event, currentIndex) => {
-      $("#sync").modal("hide");
-      fireSwal(onStepChanging, event, currentIndex, 0);
-      return true;
-    },
-    onCanceled: (event) => {
-      $("#sync").modal("hide");
-    },
-  });
+  //   labels: {
+  //     cancel: "الغاء",
+  //     current: "الخطوة الحالية:",
+  //     pagination: " ترقيم الصفحات",
+  //     finish: "تحديث",
+  //     next: " التالي",
+  //     previous: " السابق",
+  //     loading: "جاري التحميل ...",
+  //   },
+  //   onStepChanging: (event, currentIndex, newIndex) => {
+  //     fireSwal(onStepChanging, event, currentIndex, newIndex);
+  //     return true;
+  //   },
+  //   onFinishing: (event, currentIndex) => {
+  //     $("#sync").modal("hide");
+  //     fireSwal(onStepChanging, event, currentIndex, 0);
+  //     return true;
+  //   },
+  //   onCanceled: (event) => {
+  //     $("#sync").modal("hide");
+  //   },
+  // });
 };
 
 const syncInserts = async () => {
@@ -282,7 +299,6 @@ const saveUpdates = async () => {
         hash: item.hash,
       });
     });
-    
 
     new Promise((resolve) => {
       fetchData("LocalApi/run_queries", "POST", {

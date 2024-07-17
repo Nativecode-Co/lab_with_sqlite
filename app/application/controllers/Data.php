@@ -15,15 +15,6 @@ class Data extends CI_Controller
     function get_new_data()
     {
         $req = $this->input->post();
-        // $valid = $this->form_validation->set_data($req)->run('get_data');
-        // if ($valid === false) {
-        //     $errors = $this->form_validation->error_array();
-        //     $this->output
-        //         ->set_status_header(400)
-        //         ->set_content_type('application/json')
-        //         ->set_output(json_encode($errors, JSON_UNESCAPED_UNICODE));
-        //     return;
-        // }
         $data = $req['data'];
         $data = json_decode($data, true);
         $data = $this->DataModel->get_new_data($data);
@@ -32,6 +23,29 @@ class Data extends CI_Controller
             ->set_content_type('application/json')
             ->set_output(array('data' => $data));
     }
+
+    function get_new_tests()
+    {
+        $req = $this->input->post();
+        $data = $req['data'];
+        $data = json_decode($data, true);
+        $data = $this->DataModel->get_new_tests($data);
+        $this->output
+            ->set_status_header(200)
+            ->set_content_type('application/json')
+            ->set_output(array('data' => $data));
+    }
+
+    function get_updated_tests()
+    {
+        $data = $this->DataModel->get_updated_tests();
+        $this->output
+            ->set_status_header(200)
+            ->set_content_type('application/json')
+            ->set_output(json_encode($data, JSON_UNESCAPED_UNICODE));
+    }
+
+
 
     public function get_lab_data()
     {

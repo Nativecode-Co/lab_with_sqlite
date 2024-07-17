@@ -1,4 +1,7 @@
 <?php
+
+use function PHPSTORM_META\type;
+
 class DataModel extends CI_Model
 {
     function __construct()
@@ -38,8 +41,18 @@ class DataModel extends CI_Model
         );
     }
 
+    public function check_tests()
+    {
+        $tests = $this->db->select('hash')->get('lab_test')->result();
+        $tests = array_map(function ($test) {
+            return $test->hash;
+        }, $tests);
+        return $tests;
+    }
+
     public function insert_all($data)
     {
+
         if (is_array($data)) {
             foreach ($data as $key => $value) {
                 switch ($key) {
@@ -55,10 +68,15 @@ class DataModel extends CI_Model
                     case 'tube_test':
                         $this->TubeModel->insert_batch_tests($value);
                         break;
+                    case 'lab_test':
+                        $this->MainTestsModel->insert_batch($value);
+                        break;
                 }
             }
-            return true;
+            return array("success" => true);
         }
+
+        return array("error" => "Data is not an array");
     }
 
     public function insert_lab_data($data)

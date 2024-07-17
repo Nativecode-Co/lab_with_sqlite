@@ -361,6 +361,7 @@ class VisitModel extends CI_Model
         $calc_tests = $this->db
             ->select('hash,option_test, test_name as name')
             ->where('test_type', '3')
+            ->where('isdeleted', '0')
             ->get('lab_test')
             ->result_array();
 

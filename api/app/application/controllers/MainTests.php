@@ -161,4 +161,14 @@ class MainTests extends CI_Controller
             ->set_content_type('application/json')
             ->set_output(json_encode($data));
     }
+
+    public function get_main_tests_by_updated_at()
+    {
+        $data = $this->input->post('data');
+        $data = $this->MainTestsModel->get_main_tests_by_updated_at($data);
+        $this->output
+            ->set_status_header(200)
+            ->set_content_type('application/json')
+            ->set_output(json_encode($data));
+    }
 }

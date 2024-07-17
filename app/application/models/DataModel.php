@@ -56,6 +56,28 @@ class DataModel extends CI_Model
         return $all;
     }
 
+    public function get_new_tests($data)
+    {
+        $all = array();
+        $selectedData = $this->db->select('test_name,updated_at, test_type, option_test, hash, insert_record_date, isdeleted, short_name, sample_type, category_hash, sort')
+            ->where_not_in('hash', $data)
+            ->where('lab_hash', null)
+            ->get('lab_test');
+        if ($selectedData->num_rows() > 0) {
+            $all['lab_test'] = $selectedData->result_array();
+        }
+        return $all;
+    }
+
+    public function get_updated_tests()
+    {
+        return $this->db->select('test_name,updated_at, test_type, option_test, hash, insert_record_date, isdeleted, short_name, sample_type, category_hash, sort')
+            ->where('lab_hash', null)
+            ->where("sync", 2)
+            ->get('lab_test')->result_array();
+    }
+
+
     public function get_lab_data($lab_id)
     {
         $data = array();
