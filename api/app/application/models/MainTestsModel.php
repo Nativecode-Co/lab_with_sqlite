@@ -344,15 +344,29 @@ class MainTestsModel extends CI_Model
         $this->db->insert_batch($this->table, $data);
     }
 
+    public function update_batch($data)
+    {
+        if (empty($data)) {
+            return;
+        }
+        $data = array_map(function ($test) {
+            $option_test = $test['option_test'];
+            $test['option_test'] = json_decode(json_encode($option_test), true);
+            return $test;
+        }, $data);
+        $this->db->update_batch($this->table, $data, 'hash');
+    }
+
     public function get_main_tests_by_updated_at($data)
     {
+        $result = [];
         if (is_array($data)) {
             foreach ($data as $item) {
                 $hash = $item['hash'];
                 $updated_at = $item['updated_at'];
-                $test = $this->db->select('test_name as text, hash')
+                $test = $this->db->select('hash')
                     ->where('isdeleted', 0)
-                    ->where('updated_at >', $updated_at)
+                    ->where('updated_at <', $updated_at)
                     ->where($this->main_column, $hash)
                     ->get($this->table)
                     ->row();
@@ -361,6 +375,9 @@ class MainTestsModel extends CI_Model
                 }
             }
         }
+        $result = array_map(function ($test) {
+            return $test->hash;
+        }, $result);
         return $result;
     }
 }
