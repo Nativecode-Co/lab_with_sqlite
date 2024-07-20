@@ -11,14 +11,17 @@ class MedConnectModel extends CI_Model
 
     public function tests($name, $code)
     {
-        return $this->db
+        $query =  $this->db
             ->select('lab_test.hash as ID, lab_test.test_name as Name,test_alias.alias as Code,lab_test_catigory.name as Type')
             ->join('test_alias', 'lab_test.hash = test_alias.test_hash', 'left')
-            ->join('lab_test_catigory', 'lab_test_catigory.hash = lab_test.category_hash', 'left')
-            ->like('lab_test.test_name', $name)
-            ->like('test_alias.alias', $code)
-            ->get('lab_test')
-            ->result();
+            ->join('lab_test_catigory', 'lab_test_catigory.hash = lab_test.category_hash', 'left');
+        if ($name) {
+            $query->like('lab_test.test_name', $name);
+        }
+        if ($code) {
+            $query->like('test_alias.alias', $code);
+        }
+        return $query->get('lab_test')->result();
     }
 
     public function orders($visit_hash, $all_tests)
