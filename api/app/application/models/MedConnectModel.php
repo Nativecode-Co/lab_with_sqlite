@@ -21,6 +21,8 @@ class MedConnectModel extends CI_Model
         if ($code) {
             $query->like('test_alias.alias', $code);
         }
+        $query->group_by('lab_test.hash');
+
         return $query->get('lab_test')->result();
     }
 
