@@ -20,8 +20,8 @@ class MedContent extends CI_Controller
 
     function tests()
     {
-        $name = $this->input->post('name') ?? '';
-        $code = $this->input->post('code') ?? '';
+        $name = $this->input->post('Name') ?? '';
+        $code = $this->input->post('Code') ?? '';
         $tests = $this->MedConnectModel->tests($name, $code);
         $this->output
             ->set_status_header(200)
