@@ -1502,11 +1502,11 @@ function showInvoice(hash) {
                                     <p><span class="note">${visit.date}
                                 </div>
                                 <div class="prd">
-                                <p class="doctor-name">Transaction</p>
+                                <p class="doctor-name">Docotor</p>
                                 <p class="custom-doctor" style="display: none;">Lab</p>
                                 </div>
                                 <div class="prdgo doctor-name">
-                                    <p>${visit.hash ?? ""}</p>
+                                    <p>${visit.doctor ?? ""}</p>
                                 </div>
                                 <input type="text" class="prdgo text-center custom-doctor"  style="display: none;z-index: 999;background-color: transparent">
                             </div>
