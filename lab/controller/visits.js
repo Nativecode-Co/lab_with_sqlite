@@ -1502,11 +1502,11 @@ function showInvoice(hash) {
                                     <p><span class="note">${visit.date}
                                 </div>
                                 <div class="prd">
-                                <p class="doctor-name">Doctor</p>
+                                <p class="doctor-name">Transaction</p>
                                 <p class="custom-doctor" style="display: none;">Lab</p>
                                 </div>
                                 <div class="prdgo doctor-name">
-                                    <p>${visit.doctor ?? ""}</p>
+                                    <p>${visit.hash ?? ""}</p>
                                 </div>
                                 <input type="text" class="prdgo text-center custom-doctor"  style="display: none;z-index: 999;background-color: transparent">
                             </div>
@@ -1841,6 +1841,7 @@ function createInvoiceItems(visit) {
     </div>
     <div class="paidgo d-flex justify-content-center align-items-center">
       <svg id="visit-${random}-code"></svg>
+      <p>${visit.hash}</p>
     </div>
     <script>
         JsBarcode("#visit-${random}-code", '${visit.hash}', {
