@@ -1841,7 +1841,6 @@ function createInvoiceItems(visit) {
     </div>
     <div class="paidgo d-flex justify-content-center align-items-center">
       <svg id="visit-${random}-code"></svg>
-      <p>${visit.hash}</p>
     </div>
     <script>
         JsBarcode("#visit-${random}-code", '${visit.hash}', {
