@@ -20,8 +20,16 @@ class MedContent extends CI_Controller
 
     function tests()
     {
-        $name = $this->input->post('Name') ?? '';
-        $code = $this->input->post('Code') ?? '';
+        $data = json_decode(file_get_contents('php://input'), true);
+        if ($data == null) {
+            $this->output
+                ->set_status_header(400)
+                ->set_content_type('application/json')
+                ->set_output(json_encode(array("message" => "Invalid JSON")));
+            return;
+        }
+        $name = $data['Name'] ?? null;
+        $code = $data['Code'] ?? null;
         $tests = $this->MedConnectModel->tests($name, $code);
         $this->output
             ->set_status_header(200)
