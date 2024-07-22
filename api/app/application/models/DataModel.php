@@ -52,7 +52,6 @@ class DataModel extends CI_Model
 
     public function insert_all($data)
     {
-
         if (is_array($data)) {
             foreach ($data as $key => $value) {
                 switch ($key) {
@@ -70,6 +69,8 @@ class DataModel extends CI_Model
                         break;
                     case 'lab_test':
                         $this->MainTestsModel->insert_batch($value);
+                        break;
+                    default:
                         break;
                 }
             }
