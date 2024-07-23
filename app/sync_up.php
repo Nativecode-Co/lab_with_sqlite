@@ -14,7 +14,7 @@ if (isset($result['queries'])) {
   $queries = $result['queries'];
 
   // run the queries online as string
-// start curl
+  // start curl
   $ch = curl_init('http://umc.native-code-iq.com/app/index.php/offline/run_sync');
   // set the content type to x-www-form-urlencoded
   curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/x-www-form-urlencoded'));
@@ -39,5 +39,3 @@ if (isset($result['queries'])) {
 } else {
   echo "No queries to run";
 }
-
-?>
