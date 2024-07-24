@@ -515,7 +515,7 @@ function createBarcode() {
             justify-content: center;
             align-items: center;
             text-align: center;
-            padding: 0 5mm;
+            padding: 0 1mm;
           }
           .barcode-page p {
             margin: 0;
@@ -2921,8 +2921,8 @@ const printBarcode = (hash, name) => {
   }
   JsBarcode(".visit-barcode-svg", hash, {
     format: "CODE39",
-    width: 8,
-    height: 100,
+    width: 10,
+    height: 400,
     displayValue: true,
     fontSize: 40,
   });
