@@ -521,6 +521,11 @@ function createBarcode() {
             padding: 0;
             width: 100%;
           }
+             .barcode-page span {
+            margin: 0;
+            padding: 0;
+            font-size: 8px;
+          }
           .visit-barcode-svg {
             width: 100%;
             height: auto;
@@ -550,6 +555,11 @@ function createBarcode() {
             padding: 0;
             width: 100%;
           }
+            .barcode-page span {
+            margin: 0;
+            padding: 0;
+            font-size: 8px;
+          }
           .visit-barcode-svg {
             width: 100%;
             height: auto;
@@ -559,7 +569,7 @@ function createBarcode() {
     `;
   };
 
-  const { tubes, name, age, date, gender } = VISIT;
+  const { tubes, name, age, date, gender, hash } = VISIT;
 
   const createItem = (tube, name, age, gender) => {
     const title =
@@ -575,6 +585,7 @@ function createBarcode() {
         <div class="h6 barcode-page">
             <p class="text-center">${name}</p>
             <svg class="visit-barcode-svg"></svg>
+            <span>${hash}</span>
             <p class="text-center">${tube.name}</p>
         </div>
     `;
@@ -2920,9 +2931,9 @@ const printBarcode = (hash, name) => {
   }
   JsBarcode(".visit-barcode-svg", hash, {
     format: "CODE128",
-    width: 10,
-    height: 400,
-    displayValue: true,
+    width: 20,
+    height: 600,
+    displayValue: false,
     fontSize: 40,
   });
   // print barcode
