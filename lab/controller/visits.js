@@ -2921,9 +2921,10 @@ const printBarcode = (hash, name) => {
   }
   JsBarcode(".visit-barcode-svg", hash, {
     format: "CODE39",
-    width: 10,
+    width: 8,
     height: 100,
     displayValue: true,
+    fontSize: 40,
   });
   // print barcode
   $("#visit-barcode").printThis({
