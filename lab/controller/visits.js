@@ -2929,9 +2929,9 @@ const printBarcode = (hash, name) => {
       confirmButtonText: "حسنا",
     });
   }
-  JsBarcode(".visit-barcode-svg", 13698145, {
+  JsBarcode(".visit-barcode-svg", hash, {
     width: 2,
-    height: 18,
+    height: 30,
     displayValue: false,
   });
   // print barcode

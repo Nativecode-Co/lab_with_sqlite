@@ -44,7 +44,7 @@ function split_data($data)
     if (isset($data["name"])) {
         $patient_data["name"] = $data["name"];
     }
-    $visit_hash = isset($data["hash"]) ? $data["hash"] : create_hash();
+    $visit_hash = isset($data["hash"]) ? $data["hash"] : generateUnique9DigitNumber();
     $visit_data = array(
         "visits_patient_id" => $visits_patient_id,
         "visit_date" => $data["visit_date"],
