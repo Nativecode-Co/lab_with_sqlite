@@ -2919,7 +2919,7 @@ const printBarcode = (hash, name) => {
     });
   }
   JsBarcode(".visit-barcode-svg", hash, {
-    format: "CODE39",
+    format: "CODE128",
     width: 10,
     height: 400,
     displayValue: true,
