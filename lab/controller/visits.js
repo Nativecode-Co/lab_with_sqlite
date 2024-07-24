@@ -380,7 +380,6 @@ function showAddResult(hash, animate = true) {
     niceSwal("error", "bottom-end", "حدث خطأ ما, حاول مرة أخرى");
     return;
   }
-  const id = fetchApi("/visit/get_id_by_hash", "GET", { hash });
   VISIT = data;
   const form = addResult(data);
   const { invoice, buttons } = showResult(data);
@@ -405,7 +404,7 @@ function showAddResult(hash, animate = true) {
                     <div class="col-lg-12 mt-48">
                         <div class="row mt-15 justify-content-around">
                             <div class="col-md-2 col-6">
-                                <button type="button" class="btn btn-outline-print w-100" onclick="printBarcode('${id}', '${
+                                <button type="button" class="btn btn-outline-print w-100" onclick="printBarcode('${hash}', '${
     data.name
   }')">
                                     <i class="mr-2 fal fa-print"></i>طباعة الباركود
