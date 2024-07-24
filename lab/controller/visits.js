@@ -514,7 +514,6 @@ function createBarcode() {
             justify-content: center;
             align-items: center;
             text-align: center;
-            padding: 0 1mm;
           }
           .barcode-page p {
             margin: 0;
@@ -2930,8 +2929,8 @@ const printBarcode = (hash, name) => {
     });
   }
   JsBarcode(".visit-barcode-svg", hash, {
-    width: 2,
-    height: 30,
+    width: 5,
+    height: 50,
     displayValue: false,
   });
   // print barcode
