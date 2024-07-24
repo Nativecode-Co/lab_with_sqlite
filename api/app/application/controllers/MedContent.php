@@ -39,7 +39,16 @@ class MedContent extends CI_Controller
 
     function orders()
     {
-        $visit_hash = $this->input->post('SampleNumber') ?? null;
+        $data = json_decode(file_get_contents('php://input'), true);
+        if ($data == null) {
+            $this->output
+                ->set_status_header(400)
+                ->set_content_type('application/json')
+                ->set_output(json_encode(array("message" => "Invalid JSON")));
+            return;
+        }
+        // $visit_hash = $this->input->post('SampleNumber') ?? null;
+        $visit_hash = $data['SampleNumber'] ?? null;
         if ($visit_hash == null) {
             $this->output
                 ->set_status_header(400)
@@ -47,7 +56,8 @@ class MedContent extends CI_Controller
                 ->set_output(json_encode(array("message" => "SampleNumber is required")));
             return;
         }
-        $all_tests = $this->input->post('allTests') ?? true;
+        // $all_tests = $this->input->post('allTests') ?? true;
+        $all_tests = $data['allTests'] ?? null;
         $orders = $this->MedConnectModel->orders($visit_hash, $all_tests);
         $this->output
             ->set_status_header(200)
