@@ -526,6 +526,10 @@ function createBarcode() {
             padding: 0;
             font-size: 8px;
           }
+          .visit-barcode-svg {
+            width: 100%;
+            height: auto;
+          }
         }
         @media (orientation: landscape) {
           @page {
@@ -556,6 +560,10 @@ function createBarcode() {
             padding: 0;
             font-size: 8px;
           }
+          .visit-barcode-svg {
+            width: 100%;
+            height: auto;
+          }
         }
       </style>
     `;
@@ -575,7 +583,10 @@ function createBarcode() {
 
     return `
         <div class="h6 barcode-page">
+            <p class="text-center">${name}</p>
             <svg class="visit-barcode-svg"></svg>
+            <span>${hash}</span>
+            <p class="text-center">${tube.name}</p>
         </div>
     `;
   };
@@ -2920,7 +2931,7 @@ const printBarcode = (hash, name) => {
   }
   JsBarcode(".visit-barcode-svg", hash, {
     width: 2,
-    height: 18,
+    height: 30,
     displayValue: false,
   });
   // print barcode
