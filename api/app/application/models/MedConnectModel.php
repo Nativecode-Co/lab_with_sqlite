@@ -56,8 +56,8 @@ class MedConnectModel extends CI_Model
         $patient = $this->db
             ->select('lab_patient.hash as ID')
             ->select('"patient" as Name')
-            ->select('lab_patient.birth as DateOfBirth')
             ->select('CASE WHEN lab_patient.gender = "ذكر" THEN "M" ELSE "F" END as Sex', false)
+            ->select('date_format(lab_patient.birth, "%Y%m%d%H%i%s") as DateOfBirth')
             ->join('lab_visits', 'lab_patient.hash = lab_visits.visits_patient_id', 'inner')
             ->where('lab_visits.hash', $visit_hash)
 
