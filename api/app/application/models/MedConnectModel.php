@@ -41,17 +41,15 @@ class MedConnectModel extends CI_Model
                 "status" => 404
             );
         }
-        if ($all_tests) {
-            $tests = $this->db
-                ->select('lab_visits_tests.tests_id as id')
-                ->where('lab_visits_tests.visit_id', $visit_hash)
-                ->get('lab_visits_tests')->result();
-            $test_ids = [];
-            foreach ($tests as $test) {
-                $test_ids[] = $test->id;
-            }
-            $visit->Tests = $test_ids;
+        $tests = $this->db
+            ->select('lab_visits_tests.tests_id as id')
+            ->where('lab_visits_tests.visit_id', $visit_hash)
+            ->get('lab_visits_tests')->result();
+        $test_ids = [];
+        foreach ($tests as $test) {
+            $test_ids[] = $test->id;
         }
+        $visit->Tests = $test_ids;
 
         $patient = $this->db
             ->select('lab_patient.hash as ID')
@@ -64,7 +62,14 @@ class MedConnectModel extends CI_Model
             ->get('lab_patient')
             ->row();
         // get age from birth date by days
-        $age = floor((time() - strtotime($patient->DateOfBirth)) / (60 * 60 * 24 * 365));
+        function getAgeByDays($dateOfBirth)
+        {
+            $birthDate = new DateTime($dateOfBirth);
+            $currentDate = new DateTime();
+            $ageInDays = $currentDate->diff($birthDate)->days;
+            return $ageInDays;
+        }
+        $age = getAgeByDays($patient->DateOfBirth);
         if ($age < 30) {
             $patient->Age = $age;
             $patient->AgeUnit = 'D';
@@ -76,7 +81,10 @@ class MedConnectModel extends CI_Model
             $patient->AgeUnit = 'Y';
         }
 
+        $visit->SampleType = "Serum";
+        $visit->Priority = "R";
         $visit->Patient = $patient;
+
 
         return $visit;
     }
