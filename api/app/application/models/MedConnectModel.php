@@ -88,7 +88,7 @@ class MedConnectModel extends CI_Model
         $visit->Patient = $patient;
 
 
-        return $visit;
+        return array('order' => $visit);
     }
 
     public function result($data)

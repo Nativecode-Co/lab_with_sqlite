@@ -75,16 +75,7 @@ class MedContent extends CI_Controller
                 ->set_output(json_encode(array("message" => "Invalid JSON")));
             return;
         }
-        /**
-         *[
-         *    {
-         *      "SampleNumber":required string,
-         *      "TestCode":required string,
-         *      "SubTestCode":optional string,
-         *      "Result":required string
-         *    }
-         *] 
-         */
+        $data = $data['results'] ?? array();
         $this->form_validation->set_rules('SampleNumber', 'SampleNumber', 'required');
         $this->form_validation->set_rules('TestCode', 'TestCode', 'required');
         $this->form_validation->set_rules('Result', 'Result', 'required');
