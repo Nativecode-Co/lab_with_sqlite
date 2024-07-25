@@ -49,11 +49,13 @@ class MedConnectModel extends CI_Model
         foreach ($tests as $test) {
             $test_ids[] = $test->id;
         }
+        $visit->SampleType = "Serum";
+        $visit->Priority = "R";
         $visit->Tests = $test_ids;
 
         $patient = $this->db
             ->select('lab_patient.hash as ID')
-            ->select('lab_patient.name as Name')
+            ->select('"patient" as Name')
             ->select('lab_patient.birth as DateOfBirth')
             ->select('CASE WHEN lab_patient.gender = "ذكر" THEN "M" ELSE "F" END as Sex', false)
             ->join('lab_visits', 'lab_patient.hash = lab_visits.visits_patient_id', 'inner')
@@ -80,9 +82,9 @@ class MedConnectModel extends CI_Model
             $patient->Age = $age / 365;
             $patient->AgeUnit = 'Y';
         }
+        $patient->Age = number_format($patient->Age, 0, '.', '');
 
-        $visit->SampleType = "Serum";
-        $visit->Priority = "R";
+
         $visit->Patient = $patient;
 
 
