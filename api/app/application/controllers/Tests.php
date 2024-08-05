@@ -96,7 +96,7 @@ class Tests extends CI_Controller
             return;
         }
 
-        if (!isset($req['category_hash']) && isset($req['test_hash'])) {
+        if (isset($req['category_hash']) && isset($req['test_hash'])) {
             $category_hash = $req['category_hash'];
             $test_hash = $req['test_hash'];
             unset($req['test_hash']);
