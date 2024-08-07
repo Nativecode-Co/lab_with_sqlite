@@ -91,7 +91,7 @@ class DataModel extends CI_Model
             if ($key == "system_users") {
                 $this->db->select('id, lab_id, name, username, password, user_type, hash, insert_record_date, is_deleted,type2');
                 // user type not 3
-                $this->db->where('user_type !=', 3);
+                $this->db->where('user_type !=', "3");
             }
             // lab_patient, lab_visits, lab_visits_tests, lab_visits_package
             if ($key == "lab_patient" || $key == "lab_visits" || $key == "lab_visits_tests" || $key == "lab_visits_package") {
