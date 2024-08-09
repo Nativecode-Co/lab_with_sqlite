@@ -21,6 +21,7 @@ class DataModel extends CI_Model
         "lab_visits_tests" => "lab_id",
         "lab_test" => "lab_hash",
         "system_users" => "lab_id",
+        "lab_expire" => "lab_id"
     );
 
     public function get_lab_id($username, $password)
