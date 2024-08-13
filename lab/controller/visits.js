@@ -739,7 +739,7 @@ function addStrcResult(test, result_test) {
       let editable = "";
       let result = result_test?.[comp.name] ?? "";
 
-      if (Boolean(comp?.calc) === true) {
+      if (comp?.calc === "true" || comp?.calc === true) {
         try {
           comp.eq = comp.eq?.map((item) => {
             if (!isNaN(item)) {
@@ -2064,7 +2064,7 @@ function showResult(data) {
         if (Array.isArray(result)) {
           result = result.slice(0, 3).join("<br>");
         }
-        if (Boolean(reference?.calc) === true) {
+        if (reference?.calc === "true" || reference?.calc === true) {
           try {
             reference.eq = reference.eq.map((item) => {
               if (!isNaN(item)) {
