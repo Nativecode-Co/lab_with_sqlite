@@ -2064,16 +2064,16 @@ function showResult(data) {
         if (Array.isArray(result)) {
           result = result.slice(0, 3).join("<br>");
         }
-        if (reference?.calc) {
-          reference.eq = reference.eq.map((item) => {
-            if (!isNaN(item)) {
-              return item;
-            } else if (!calcOperator.includes(item)) {
-              item = result_test?.[item] ?? 0;
-            }
-            return item;
-          });
+        if (Boolean(reference?.calc) === true) {
           try {
+            reference.eq = reference.eq.map((item) => {
+              if (!isNaN(item)) {
+                return item;
+              } else if (!calcOperator.includes(item)) {
+                item = result_test?.[item] ?? 0;
+              }
+              return item;
+            });
             result = eval(reference.eq.join("")).toFixed(2);
             result = isFinite(result) ? (isNaN(result) ? "*" : result) : "*";
           } catch (e) {
