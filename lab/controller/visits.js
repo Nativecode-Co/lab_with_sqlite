@@ -739,17 +739,16 @@ function addStrcResult(test, result_test) {
       let editable = "";
       let result = result_test?.[comp.name] ?? "";
 
-      if (comp?.calc) {
-        comp.eq = comp.eq.map((item) => {
-          if (!isNaN(item)) {
-            return item;
-          } else if (!calcOperator.includes(item)) {
-            item = result_test?.[item] ?? 0;
-          }
-          return item;
-        });
-
+      if (Boolean(comp?.calc) === true) {
         try {
+          comp.eq = comp.eq?.map((item) => {
+            if (!isNaN(item)) {
+              return item;
+            } else if (!calcOperator.includes(item)) {
+              item = result_test?.[item] ?? 0;
+            }
+            return item;
+          });
           result = eval(comp.eq.join("")).toFixed(2);
           result = isFinite(result) ? (isNaN(result) ? "*" : result) : "*";
         } catch (e) {
