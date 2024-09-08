@@ -1682,7 +1682,7 @@ function invoiceHeader(invoice) {
       // use image only
       return `
         <div class="header">
-            <div class="row justify-content-between align-items-center h-100" >
+            <div class="row justify-content-between align-items-center h-100 d-block" >
             <div class="col-12 h-100">
               <img src="${header_image}" alt="header image" style="width: 100%;height: 100%">
             </div>
