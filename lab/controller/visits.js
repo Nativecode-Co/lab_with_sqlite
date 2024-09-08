@@ -1683,7 +1683,7 @@ function invoiceHeader(invoice) {
       return `
         <div class="header">
             <div class="row justify-content-between align-items-center h-100" >
-            <div class="col-12">
+            <div class="col-12 h-100">
               <img src="${header_image}" alt="header image" style="width: 100%;height: 100%">
             </div>
             </div>
@@ -1778,12 +1778,13 @@ function invoiceHeader(invoice) {
 }
 
 function invoiceFooter(invoice) {
-  const { address, facebook, phone_1, invoice_model, footer_image } = invoice;
+  const { address, facebook, phone_1, invoice_model, footer_image, footer } =
+    invoice;
   switch (invoice_model) {
     case "images":
       // use image only
       return `
-        <div>
+        <div style="height: ${footer}px">
           <img src="${footer_image}" alt="footer image" style="width: 100%;height: 100%">
         </div>
       `;

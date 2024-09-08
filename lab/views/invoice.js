@@ -876,7 +876,7 @@ const Setting = ({ dispatch, state, invoice, setInvoice }) => {
                   <option value="images"> صورة الراس و الذيل </option>
                 </select>
               </div>
-              <div className="form-group col-md-12">
+              <div className="form-group col-md-4">
                 <label htmlFor="logo">شعار الفاتورة</label>
                 <input
                   type="file"
@@ -888,11 +888,11 @@ const Setting = ({ dispatch, state, invoice, setInvoice }) => {
                     setOldFile(URL.createObjectURL(e.target.files[0]));
                   }}
                 />
-                <div className="justify-content-center row">
-                  <img src={oldFile} style={{ maxHeight: "400px" }} />
+                <div className="justify-content-center row w-100 h-100">
+                  <img src={oldFile} height="200" className="w-100" />
                 </div>
               </div>
-              <div className="form-group col-md-12">
+              <div className="form-group col-md-4">
                 <label htmlFor="header_image">صورة الرأس</label>
                 <input
                   type="file"
@@ -904,12 +904,12 @@ const Setting = ({ dispatch, state, invoice, setInvoice }) => {
                     setOldHeaderImage(URL.createObjectURL(e.target.files[0]));
                   }}
                 />
-                <div className="justify-content-center row">
-                  <img src={oldHeaderImage} style={{ maxHeight: "400px" }} />
+                <div className="justify-content-center row w-100 h-100">
+                  <img src={oldHeaderImage} height="200" className="w-100" />
                 </div>
               </div>
 
-              <div className="form-group col-md-12">
+              <div className="form-group col-md-4">
                 <label htmlFor="footer_image">صورة الذيل</label>
                 <input
                   type="file"
@@ -921,8 +921,8 @@ const Setting = ({ dispatch, state, invoice, setInvoice }) => {
                     setOldFooterImage(URL.createObjectURL(e.target.files[0]));
                   }}
                 />
-                <div className="justify-content-center row">
-                  <img src={oldFooterImage} style={{ maxHeight: "400px" }} />
+                <div className="justify-content-center row w-100 h-100">
+                  <img src={oldFooterImage} height="200" className="w-100" />
                 </div>
               </div>
 
@@ -1214,7 +1214,7 @@ const InvoiceHeaderImage = ({ image, height }) => {
   return (
     <div className="header" style={{ height: `${height}px` }}>
       <div className="row justify-content-between align-items-center h-100">
-        <div className="col-12">
+        <div className="col-12 h-100">
           <img
             src={image}
             alt="header image"
