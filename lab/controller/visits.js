@@ -2058,6 +2058,7 @@ function showResult(data) {
               <p class="text-center">${test.name}</p>
           </div>
       </div>${options?.unit === "note" ? manageHead(options?.unit) : ""}`;
+
       let type = "";
       for (const reference of options.component) {
         let result = test.result?.[reference.name] ?? "";
@@ -2083,6 +2084,7 @@ function showResult(data) {
           results[reference.name] = result;
           editable = "readonly";
         }
+
         const note = reference.reference[0]?.note;
         let defualt = "";
         let resultClass = "";
@@ -2689,6 +2691,7 @@ function manageTestType(type, test = {}) {
                 </div>
             `;
     case "result":
+    case "normal":
       return `
             <div style="font-size:${font} !important" data-flag="result" class="test strc-test row m-0">
                     <div class="testname col-4">
@@ -2770,7 +2773,42 @@ function manageTestType(type, test = {}) {
               </div>`;
 
     default:
-      break;
+      return `
+            <div data-flag="flag" class="test row m-0 category_${category
+              ?.split(" ")
+              ?.join(
+                "_"
+              )} border-test" id="test_normal_${hash}" data-cat="${category
+        ?.split(" ")
+        ?.join("_")}" style="display:${checked}">
+                <div class="testname col-3">
+                    <p style="font-size:${font} !important" class="text-right w-100">${name}</p>
+                </div>
+                <div class="testresult result-field col-3">
+                    <p style="font-size:${font} !important" class="${color} w-100 text-center">${result}</p>
+                </div>
+                <div class="testresult col-1">
+                    ${
+                      name == "Blood Group (ABO)"
+                        ? ""
+                        : `<p style="font-size:${font} !important" class="${
+                            color.includes("text-danger")
+                              ? "text-danger"
+                              : color.includes("text-info")
+                              ? "text-info"
+                              : ""
+                          } w-100 text-center">${flag}</p>`
+                    }
+                </div>
+                <div class="testresult col-2">
+                    <p style="font-size:${font} !important"> ${unit}</p>
+                </div>
+                <div class="testnormal col-3 text-right" contenteditable="true">
+                    <p style="font-size:${font} !important" class="text-right" contenteditable="true">${normal}</p>
+                </div>
+                ${htmlHestory}
+            </div>
+            `;
   }
 }
 
