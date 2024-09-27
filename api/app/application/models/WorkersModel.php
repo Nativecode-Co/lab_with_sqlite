@@ -9,6 +9,9 @@ class WorkersModel extends CI_Model
         parent::__construct();
         $this->load->database();
         $this->load->helper('db');
+        if (!$this->db->field_exists('settings', 'lab_invoice_worker')) {
+            $this->db->query("ALTER TABLE lab_invoice_worker ADD COLUMN settings TEXT ;");
+        }
     }
 
     public function count_all($params)
