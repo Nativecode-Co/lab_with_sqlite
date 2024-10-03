@@ -160,7 +160,7 @@ class VisitModel extends CI_Model
             ->join("lab_test", "lab_test.hash = lab_visits_tests.tests_id")
             ->join("lab_test_catigory", "lab_test_catigory.hash = lab_test.category_hash", "left")
             ->where("visit_id", $hash)
-            ->group_by("test_id")
+            ->group_by("test_id,lab_pakage_tests.package_id")
             ->order_by("sort")
             ->get()->result_array();
         $packages = $this->get_visit_packages($hash);
