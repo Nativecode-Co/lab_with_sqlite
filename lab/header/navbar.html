@@ -7,6 +7,9 @@
   }
 </script>
 <script>
+  $(document).ready(function () {
+    $("#support-chat").load("header/chat.html");
+  });
   // notification
   const notificationInit = () => {
     const { data: expireDate } = fetchData("Activate/get_last_date", "POST", {
@@ -347,6 +350,7 @@
                     </div>
                 </a>
             </li>
+            <li class="menu single-menu" id="support-chat"></li>
             `;
       break;
     case "3333":
@@ -374,6 +378,7 @@
                     </div>
                 </a>
             </li>
+            <li class="menu single-menu" id="support-chat"></li>
             `;
       break;
     case "4444":
@@ -478,6 +483,7 @@
                     </div>
                 </a>
             </li>
+            <li class="menu single-menu" id="support-chat"></li>
             `;
       break;
     case "5555":
@@ -623,6 +629,7 @@
                     </div>
                 </a>
             </li>
+            <li class="menu single-menu" id="support-chat"></li>
             `;
       break;
     default:
@@ -703,6 +710,7 @@
                     </div>
                 </a>
             </li>
+            <li class="menu single-menu" id="support-chat"></li>
             `;
       break;
   }

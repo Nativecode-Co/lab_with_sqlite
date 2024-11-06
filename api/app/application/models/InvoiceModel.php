@@ -52,6 +52,22 @@ class InvoiceModel extends CI_Model
         if (!$this->db->field_exists('invoice_model', 'lab_invoice')) {
             $this->db->query("ALTER TABLE `lab_invoice` ADD COLUMN `invoice_model` CHAR(255) NOT NULL DEFAULT 'names' ;");
         }
+        // border is integer
+        if (!$this->db->field_exists('border', 'lab_invoice')) {
+            $this->db->query("ALTER TABLE `lab_invoice` ADD COLUMN `border` INTEGER DEFAULT 0 ;");
+        }
+        // setting is TEXT
+        if (!$this->db->field_exists('setting', 'lab_invoice')) {
+            $this->db->query("ALTER TABLE `lab_invoice` ADD COLUMN `setting` TEXT DEFAULT '' ;");
+        }
+        // nav_setting is TEXT
+        if (!$this->db->field_exists('nav_settings', 'lab_invoice')) {
+            $this->db->query("ALTER TABLE `lab_invoice` ADD COLUMN `nav_settings` TEXT DEFAULT '' ;");
+        }
+        // header_footer_style is char
+        if (!$this->db->field_exists('header_footer_style', 'lab_invoice')) {
+            $this->db->query("ALTER TABLE `lab_invoice` ADD COLUMN `header_footer_style` CHAR(255) DEFAULT '' ;");
+        }
     }
 
     public function get()

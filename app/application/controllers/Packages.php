@@ -1,5 +1,5 @@
 <?php
-defined('BASEPATH') or exit ('No direct script access allowed');
+defined('BASEPATH') or exit('No direct script access allowed');
 require __DIR__ . '/jwt/autoload.php';
 
 use Firebase\JWT\JWT;
@@ -12,21 +12,17 @@ class Packages extends CI_Controller
         parent::__construct();
         $this->load->model('Menu_db');
         $this->load->model('Package_model');
-        $this->load->model('Visit_model');
         $this->load->library('ApiMiddelware');
         $token = $this->input->get_request_header('Authorization', TRUE);
         $token = str_replace("Bearer ", "", $token);
         $decoded_array = $this->jwt_dec($token);
         if ($decoded_array == 0) {
-            echo json_encode(
-                array(
-                    "status" => false,
-                    "message" => "Invalid token",
-                    "isAuth" => false,
-                    "data" => null
-                ),
-                JSON_UNESCAPED_UNICODE
-            );
+            echo json_encode(array(
+                "status" => false,
+                "message" => "Invalid token",
+                "isAuth" => false,
+                "data" => null
+            ), JSON_UNESCAPED_UNICODE);
             exit();
         } else {
             $res = $this->Menu_db->check_user_by_hash($decoded_array["hash"], $decoded_array["lab_id"]);
@@ -38,7 +34,6 @@ class Packages extends CI_Controller
     public function index()
     {
         echo "hello world";
-
     }
 
     public function getPackagesForLab()
@@ -87,34 +82,14 @@ class Packages extends CI_Controller
     {
         $labId = $this->input->post('lab_id');
         $data = $this->Package_model->CreatePackageNoKits($labId);
-        $this->Package_model->addDefaultPackage($labId);
-        echo json_encode(
-            array(
-                "status" => true,
-                "message" => "Success",
-                "isAuth" => true,
-                "data" => $data,
-                "token" => null
-            ),
-            JSON_UNESCAPED_UNICODE
-        );
-    }
-
-    public function updateNameWithTestHsh()
-    {
-        $name = $this->input->post('name');
-        $hash = $this->input->post('hash');
-        $data = $this->Package_model->updateNameWithTestHsh($name, $hash);
-        echo json_encode(
-            array(
-                "status" => true,
-                "message" => "Success",
-                "isAuth" => true,
-                "data" => $data,
-                "token" => null
-            ),
-            JSON_UNESCAPED_UNICODE
-        );
+        // $this->Package_model->addDefaultPackage($labId);
+        echo json_encode(array(
+            "status" => true,
+            "message" => "Success",
+            "isAuth" => true,
+            "data" => $data,
+            "token" => null
+        ), JSON_UNESCAPED_UNICODE);
     }
 
     public function updateCostAndPrice()
@@ -123,67 +98,30 @@ class Packages extends CI_Controller
         $price = $this->input->post('price');
         $hash = $this->input->post('hash');
         $data = $this->Package_model->updateCostAndPrice($cost, $price, $hash);
-        echo json_encode(
-            array(
-                "status" => true,
-                "message" => "Success",
-                "isAuth" => true,
-                "data" => $data,
-                "token" => null
-            ),
-            JSON_UNESCAPED_UNICODE
-        );
+        echo json_encode(array(
+            "status" => true,
+            "message" => "Success",
+            "isAuth" => true,
+            "data" => $data,
+            "token" => null
+        ), JSON_UNESCAPED_UNICODE);
     }
 
     public function getKitsAndUnitsByTestName()
     {
         $name = $this->input->post('name');
-        $hash = $this->input->post('hash');
-        $kits = $this->Package_model->getKitsByTestName($name, $hash);
-        $units = $this->Package_model->getUnitsByTestName($name, $hash);
-        echo json_encode(
-            array(
-                "status" => true,
-                "message" => "Success",
-                "isAuth" => true,
-                "data" => array(
-                    "kits" => $kits,
-                    "units" => $units
-                ),
-                "token" => null
+        $kits = $this->Package_model->getKitsByTestName($name);
+        $units = $this->Package_model->getUnitsByTestName($name);
+        echo json_encode(array(
+            "status" => true,
+            "message" => "Success",
+            "isAuth" => true,
+            "data" => array(
+                "kits" => $kits,
+                "units" => $units
             ),
-            JSON_UNESCAPED_UNICODE
-        );
-    }
-
-    public function createNewTest()
-    {
-        $data = $this->input->post();
-        // return data
-        $result = $this->Package_model->createNewTest($data);
-        if ($result === false) {
-            echo json_encode(
-                array(
-                    "status" => false,
-                    "message" => "هذا التحليل موجود بالفعل",
-                    "isAuth" => true,
-                    "data" => null,
-                    "token" => null
-                ),
-                JSON_UNESCAPED_UNICODE
-            );
-            exit();
-        }
-        echo json_encode(
-            array(
-                "status" => true,
-                "message" => "Success",
-                "isAuth" => true,
-                "data" => $result,
-                "token" => null
-            ),
-            JSON_UNESCAPED_UNICODE
-        );
+            "token" => null
+        ), JSON_UNESCAPED_UNICODE);
     }
 
 

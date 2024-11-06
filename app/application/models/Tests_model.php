@@ -68,7 +68,7 @@ class Tests_model extends CI_Model
         $this->db->from('lab_test');
         // and
         $this->db->where('isdeleted', 0);
-        // $this->db->where('lab_hash', null);
+        $this->db->where('lab_hash', 0);
         // like
         $this->db->like('test_name', $search);
         // order by
