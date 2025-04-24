@@ -50,6 +50,43 @@ class DataModel extends CI_Model
         return $tests;
     }
 
+    /**
+     * Filter array to include only columns that exist in the specified table
+     * 
+     * @param array $data Data to be filtered
+     * @param string $table Table name
+     * @return array Filtered data
+     */
+    private function filter_columns($data, $table)
+    {
+        // Get table fields
+        $fields = $this->db->list_fields($table);
+        
+        // If data is a batch of rows
+        if (isset($data[0]) && is_array($data[0])) {
+            $filtered_data = [];
+            foreach ($data as $row) {
+                $filtered_row = [];
+                foreach ($row as $key => $value) {
+                    if (in_array($key, $fields)) {
+                        $filtered_row[$key] = $value;
+                    }
+                }
+                $filtered_data[] = $filtered_row;
+            }
+            return $filtered_data;
+        } else {
+            // If data is a single record
+            $filtered_data = [];
+            foreach ($data as $key => $value) {
+                if (in_array($key, $fields)) {
+                    $filtered_data[$key] = $value;
+                }
+            }
+            return $filtered_data;
+        }
+    }
+
     public function insert_all($data)
     {
         if (is_array($data)) {
@@ -62,7 +99,9 @@ class DataModel extends CI_Model
                         $this->TestAliasModel->insert_batch($value);
                         break;
                     case 'system_group_name':
-                        $this->db->insert_batch('system_group_name', $value);
+                        // Filter out columns that don't exist in the table
+                        $filtered_data = $this->filter_columns($value, 'system_group_name');
+                        $this->db->insert_batch('system_group_name', $filtered_data);
                         break;
                     case 'tube_test':
                         $this->TubeModel->insert_batch_tests($value);
@@ -86,7 +125,9 @@ class DataModel extends CI_Model
             foreach ($data as $key => $value) {
                 switch ($key) {
                     case 'lab':
-                        $this->db->insert_batch('lab', $value);
+                        // Filter out columns that don't exist in the table
+                        $filtered_data = $this->filter_columns($value, 'lab');
+                        $this->db->insert_batch('lab', $filtered_data);
                         break;
                     case 'lab_doctor':
                         $this->DoctorsModel->insert_batch($value);

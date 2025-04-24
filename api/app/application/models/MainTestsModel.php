@@ -248,6 +248,42 @@ class MainTestsModel extends CI_Model
         );
     }
 
+    /**
+     * Filter array to include only columns that exist in the table
+     * 
+     * @param array $data Data to be filtered
+     * @return array Filtered data
+     */
+    private function filter_columns($data)
+    {
+        // Get table fields
+        $fields = $this->db->list_fields($this->table);
+        
+        // If data is a batch of rows
+        if (isset($data[0]) && is_array($data[0])) {
+            $filtered_data = [];
+            foreach ($data as $row) {
+                $filtered_row = [];
+                foreach ($row as $key => $value) {
+                    if (in_array($key, $fields)) {
+                        $filtered_row[$key] = $value;
+                    }
+                }
+                $filtered_data[] = $filtered_row;
+            }
+            return $filtered_data;
+        } else {
+            // If data is a single record
+            $filtered_data = [];
+            foreach ($data as $key => $value) {
+                if (in_array($key, $fields)) {
+                    $filtered_data[$key] = $value;
+                }
+            }
+            return $filtered_data;
+        }
+    }
+
     public function insert_batch($data)
     {
         if (empty($data)) {
@@ -258,7 +294,11 @@ class MainTestsModel extends CI_Model
             $test['option_test'] = json_decode(json_encode($option_test), true);
             return $test;
         }, $data);
-        $this->db->insert_batch($this->table, $data);
+        
+        // Filter out columns that don't exist in the table
+        $filtered_data = $this->filter_columns($data);
+        
+        $this->db->insert_batch($this->table, $filtered_data);
     }
 
     public function update_batch($data)

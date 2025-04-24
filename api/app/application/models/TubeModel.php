@@ -197,12 +197,55 @@ class TubeModel extends CI_Model
         }, $ids);
     }
 
+    /**
+     * Filter array to include only columns that exist in the table
+     * 
+     * @param array $data Data to be filtered
+     * @param string $table Table name
+     * @return array Filtered data
+     */
+    private function filter_columns($data, $table = null)
+    {
+        $table_name = $table ? $table : $this->table;
+        
+        // Get table fields
+        $fields = $this->db->list_fields($table_name);
+        
+        // If data is a batch of rows
+        if (isset($data[0]) && is_array($data[0])) {
+            $filtered_data = [];
+            foreach ($data as $row) {
+                $filtered_row = [];
+                foreach ($row as $key => $value) {
+                    if (in_array($key, $fields)) {
+                        $filtered_row[$key] = $value;
+                    }
+                }
+                $filtered_data[] = $filtered_row;
+            }
+            return $filtered_data;
+        } else {
+            // If data is a single record
+            $filtered_data = [];
+            foreach ($data as $key => $value) {
+                if (in_array($key, $fields)) {
+                    $filtered_data[$key] = $value;
+                }
+            }
+            return $filtered_data;
+        }
+    }
+
     public function insert_batch($data)
     {
         if (empty($data)) {
             return;
         }
-        $this->db->insert_batch($this->table, $data);
+        
+        // Filter out columns that don't exist in the table
+        $filtered_data = $this->filter_columns($data);
+        
+        $this->db->insert_batch($this->table, $filtered_data);
     }
 
     public function insert_batch_tests($data)
@@ -210,6 +253,10 @@ class TubeModel extends CI_Model
         if (empty($data)) {
             return;
         }
-        $this->db->insert_batch('tube_test', $data);
+        
+        // Filter out columns that don't exist in the table
+        $filtered_data = $this->filter_columns($data, 'tube_test');
+        
+        $this->db->insert_batch('tube_test', $filtered_data);
     }
 }

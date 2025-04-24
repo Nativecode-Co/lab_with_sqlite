@@ -122,12 +122,65 @@ class UsersModel extends CI_Model
         return null;
     }
 
+    /**
+     * Filter array to include only columns that exist in the table
+     * 
+     * @param array $data Data to be filtered
+     * @return array Filtered data
+     */
+    private function filter_columns($data)
+    {
+        // Get table fields
+        $fields = $this->db->list_fields($this->table);
+        
+        // If data is a batch of rows
+        if (isset($data[0]) && is_array($data[0])) {
+            $filtered_data = [];
+            foreach ($data as $row) {
+                $filtered_row = [];
+                foreach ($row as $key => $value) {
+                    if (in_array($key, $fields)) {
+                        $filtered_row[$key] = $value;
+                    }
+                }
+                $filtered_data[] = $filtered_row;
+            }
+            return $filtered_data;
+        } else {
+            // If data is a single record
+            $filtered_data = [];
+            foreach ($data as $key => $value) {
+                if (in_array($key, $fields)) {
+                    $filtered_data[$key] = $value;
+                }
+            }
+            return $filtered_data;
+        }
+    }
+
     public function insert_batch($data)
     {
         if (empty($data)) {
             return;
         }
-        $this->db->insert_batch($this->table, $data);
+        
+        // Filter out columns that don't exist in the table
+        $filtered_data = $this->filter_columns($data);
+        
+        foreach ($filtered_data as $row) {
+            $keys = array_keys($row);
+            $values = array_values($row);
+            $escaped_values = array_map(function($val) {
+                if (is_string($val) && preg_match('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/', $val)) {
+                    // Properly quote datetime values
+                    return $this->db->escape($val);
+                } else {
+                    return $this->db->escape($val);
+                }
+            }, $values);
+            $query = "INSERT IGNORE INTO " . $this->table . " (" . implode(',', $keys) . ") VALUES (" . implode(",", $escaped_values) . ")";
+            $this->db->query($query);
+        }
     }
 
     public function users()
